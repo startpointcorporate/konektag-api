@@ -9211,10 +9211,10 @@
     "domain": "pay",
     "source": "src/api/routes/pay/detected-country.ts",
     "sourceSha256": "7a909ad1f70612c192a17b5f696e88a03854fa60cd46d26cdb3479fb8c6e52c6",
-    "rule": "Explicit country header takes precedence according to the deployed detection policy.",
+    "rule": "Country comes from a forwarded client IP and the configured GeoLite2 database, or null when unavailable.",
     "scenarios": [
       {
-        "name": "Detection returns an ISO country or null, with a controlled edge header",
+        "name": "Detection yields an ISO country or null without trusting arbitrary country headers",
         "actors": [],
         "resources": [],
         "dependencies": [],
@@ -9228,18 +9228,15 @@
             "assertions": [
               {
                 "path": "/detectedCountry",
-                "equals": "FR"
+                "isoCountryOrNull": true
               }
-            ],
-            "headers": {
-              "cf-ipcountry": "FR"
-            }
+            ]
           }
         ]
       }
     ],
     "unexercised": [
-      "Ingress may strip client country headers; a failed assertion documents that deployment policy instead of changing the API."
+      "A deterministic country requires a controlled public IP and GeoLite2 dataset; no country header is trusted."
     ],
     "method": "GET",
     "path": "/api/pay/detected-country",
@@ -19113,7 +19110,7 @@
             "assertions": [
               {
                 "path": "/error",
-                "equals": "Unsupported payment method"
+                "equals": "paymentMethod must be sandbox, wallet, card, or mobile_money"
               }
             ],
             "body": {
