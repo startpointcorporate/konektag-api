@@ -17,22 +17,15 @@ if (index >= 0 && !external) {
   if (!configFile) {
     const dir = await mkdtemp(path.join(tmpdir(), 'konektag-rest-'));
     const fixtures = { actors: {}, resources: {}, vars: {}, cases: {} };
-    // Only explicitly reviewed GETs with no test accounts or writes.
-    // Others remain NOT TESTED, never counted as PASS.
-    const operations = [
-      'GET /api/cash-agent',
-      'GET /api/marketplace/taxonomy/categories',
-      'GET /api/pay/payments/confirm',
-      'GET /api/qr/confirm'
-    ];
+    // No operation filter: the existing runner processes the full catalog.
+    // Missing actors/fixtures and unsafe writes are explicitly BLOCKED, never silently excluded.
     await writeFile(path.join(dir, 'fixtures.json'), JSON.stringify(fixtures), { mode: 0o600 });
     configFile = path.join(dir, 'config.json');
     const config = {
       baseUrl: 'https://api.konektag.eu',
       fixtures: 'fixtures.json',
-      operations,
       postgresql: { k3sExec: { sshHost: 'konektag-core', namespace: 'konektag-api', deployment: 'konektag-api' } },
-      allowFixtureWrites: false,
+      allowFixtureWrites: false, // enable only with explicit test-owned fixtures
       outputDirectory: path.join(dir, 'results')
     };
     await writeFile(configFile, JSON.stringify(config, null, 2), { mode: 0o600 });
