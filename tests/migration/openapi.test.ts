@@ -24,5 +24,5 @@ it('documents Keycloak OAuth2 authorization code for Swagger without replacing e
   expect(spec.components.securitySchemes.userApiKey).toBeDefined();
   expect(spec.components.securitySchemes.bearer).toBeDefined();
   expect(spec.paths['/api/auth/me'].get.security).toContainEqual({keycloakOAuth:[]});
-  expect(spec.paths['/api/countries'].get.security).toEqual([]);
+  expect(spec.paths['/api/countries'].get.security).toContainEqual({keycloakOAuth:[]});
 });
