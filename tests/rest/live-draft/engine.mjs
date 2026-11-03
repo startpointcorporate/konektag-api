@@ -182,7 +182,9 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
       && !Object.keys(init.headers).some(k => /^(authorization|cookie|x-api-key)$/i.test(k))) {
       throw new Blocked('AUTH_REQUIRED: protected endpoint needs an authenticated test actor');
     }
-    assert.equal(response.status, expanded.status, 'HTTP status');
+    if (response.status !== expanded.status) {
+      throw new Error(`HTTP_STATUS expected=${expanded.status} actual=${response.status}`);
+    }
     let body;
     if (expanded.sse) {
       assert.match(response.headers.get('content-type') || '', /text\/event-stream/);
@@ -200,7 +202,9 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
       body = JSON.parse(await response.text());
     }
     check(body, expanded.assertions || []);
-    for (const [k, v] of Object.entries(expanded.responseHeaders || {})) assert.match(response.headers.get(k) || '', new RegExp(v), k);
+    for (const [k, v] of Object.entries(expanded.responseHeaders || {})) {
+      if (!new RegExp(v).test(response.headers.get(k) || '')) throw new Error(`HTTP_HEADER_MISMATCH: ${k}, status=${response.status}`);
+    }
     for (const [name, pointer] of Object.entries(expanded.capture || {})) {
       const value = at(body, pointer); assert.notEqual(value, undefined, 'capture missing'); vars.captured[name] = value;
     }
@@ -328,7 +332,9 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
           } catch (e) {
             result.status = e instanceof Blocked ? 'BLOCKED' : 'FAIL';
             // Never serialize raw errors: driver/fetch/assertion errors can contain credentials or PII.
-            result.reason = e instanceof Blocked ? e.message : 'Business/content/persistence assertion or real dependency request failed';
+            result.reason = e instanceof Blocked ? e.message
+              : /^HTTP_(STATUS|HEADER)_/.test(e?.message || '') ? e.message
+              : 'Business/content/persistence assertion or real dependency request failed';
           } finally {
             for (const compensation of cleanup.reverse()) {
               const outcome = { scenario: scenario.name, status: 'FAIL' };
