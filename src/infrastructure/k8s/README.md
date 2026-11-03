@@ -2,6 +2,14 @@
 
 Le chart `konektag-api` conserve les Dockerfiles, scripts et traitements existants. Par défaut : API activée, workers outbox/comptabilité désactivés, chaque MCP désactivé et activable séparément, tous les CronJobs et ingress désactivés. Aucun Secret, PVC, logiciel tiers ou schéma de base n'est créé. Aucun hook de migration n'est exécuté. Ne pas utiliser les noms synthétiques de `tests/fixtures/helm-values.yaml` dans le cluster.
 
+## Placement VPS 3 vérifié — 3 novembre 2026
+
+Les workloads API REST, workers, CronJobs et les trois MCP sont ciblés sur le nœud Kubernetes **`konektag-clients`**, qui correspond au VPS 3 (31.70.104.198), via le sélecteur stable actuel `kubernetes.io/hostname=konektag-clients`. Ce ciblage est déclaré dans les valeurs Helm et vérifié par `validate-helm.mjs`.
+
+Le libellé métier `konektag.io/role=clients` doit temporairement rester disponible pour les workloads ERPNext/PostgreSQL historiques ; aucune opération de renommage du nœud n'est réalisée par ce chart. Si le hostname Kubernetes change plus tard, adapter les sélecteurs de tous les workloads avant de déployer.
+
+Les anciens ERPNext, MariaDB, PostgreSQL, Mautic et autres pods présents sur VPS 3 ne sont ni déplacés ni supprimés. L'API seule est activée par défaut ; MCP, workers et jobs restent désactivés. Le quatrième VPS éventuel ne fait l'objet d'aucun provisionnement.
+
 ## Paramètres à relever sur la plateforme
 
 Fournir un fichier de valeurs privé, relu pour le namespace existant. Les champs vides du chart doivent recevoir les références réelles ; ce document ne suppose aucun nom Kubernetes.

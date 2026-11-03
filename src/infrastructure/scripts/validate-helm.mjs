@@ -20,22 +20,33 @@ function render(overrides = []) {
     .map(doc => { assert.equal(doc.errors.length, 0); return doc.toJSON(); }).filter(Boolean);
 }
 const deployments = docs => docs.filter(doc => doc.kind === 'Deployment').map(doc => doc.metadata.name).sort();
+// Every application backend workload must remain on the established VPS 3.
+const vps3 = { 'kubernetes.io/hostname': 'konektag-clients' };
+const ensurePlacement = docs => {
+  const workloadPods = docs.filter(doc => doc.kind === 'Deployment').map(doc => doc.spec.template.spec);
+  const scheduledPods = docs.filter(doc => doc.kind === 'CronJob').map(doc => doc.spec.jobTemplate.spec.template.spec);
+  for (const pod of [...workloadPods, ...scheduledPods]) assert.deepEqual(pod.nodeSelector, vps3);
+};
 const defaults = render();
+ensurePlacement(defaults);
 assert.deepEqual(deployments(defaults), ['validation-api']);
 assert.ok(defaults.every(doc => !['CronJob', 'Ingress', 'Secret', 'PersistentVolumeClaim'].includes(doc.kind)));
 for (const role of ['outbox', 'accounting']) {
   assert.deepEqual(deployments(render(['--set', `workers.${role}=true`])), ['validation-api', `validation-${role}`].sort());
   const alone = render(['--set', `api.enabled=false,workers.${role}=true`]);
   assert.deepEqual(deployments(alone), [`validation-${role}`]);
+  ensurePlacement(alone);
   assert.ok(alone.every(doc => doc.kind !== 'Service'));
 }
 for (const name of Object.keys(values.mcp)) {
   const docs = render(['--set', `api.enabled=false,mcp.${name}.enabled=true`]);
   assert.deepEqual(deployments(docs), [`validation-mcp-${name}`]);
+  ensurePlacement(docs);
   assert.ok(docs.every(doc => !['CronJob', 'Secret', 'PersistentVolumeClaim'].includes(doc.kind)));
   const exposed = render(['--set', `api.enabled=false,mcp.${name}.enabled=true,mcpIngress.enabled=true,mcpIngress.host=mcp.invalid,mcpIngress.tlsSecret=fixture-tls`]);
   const ingressNames = exposed.filter(doc => doc.kind === 'Ingress').map(doc => doc.metadata.name);
   assert.ok(ingressNames.length >= 1);
+  ensurePlacement(exposed);
   assert.ok(ingressNames.every(ingress => ingress.startsWith(`validation-mcp-${name}`)));
 }
 // API-only rendering must not require any MCP Secret/PVC reference.
