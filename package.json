@@ -15,7 +15,8 @@
     "worker:accounting": "node dist/accounting-worker.mjs",
     "docs:generate": "node src/infrastructure/scripts/openapi.mjs",
     "typecheck": "tsc --noEmit",
-    "test:rest:coverage": "node src/infrastructure/scripts/test-rest.mjs"
+    "test:rest:coverage": "node src/infrastructure/scripts/test-rest.mjs",
+    "test:rest:live": "node tests/rest/live-draft/run-batch.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1075.0",
