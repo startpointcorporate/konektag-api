@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
 import pg from 'pg';
 import { createClient } from 'redis';
 
@@ -48,7 +49,41 @@ export async function campaign(root, configFile) {
     if (!name || !process.env[name]) throw new Blocked(`Configuration required: ${name || 'environment variable name'}`);
     return process.env[name];
   };
-  const pool = config.postgresql?.urlEnv && process.env[config.postgresql.urlEnv]
+  // Reuse the API pod's existing DATABASE_URL. No local credentials or SSH tunnel.
+  const observeFromExistingPod = async query => {
+    const observer = config.postgresql?.k3sExec;
+    const host = observer?.sshHost || 'konektag-core';
+    const namespace = observer?.namespace || 'konektag-api';
+    const deployment = observer?.deployment || 'konektag-api';
+    for (const value of [host, namespace, deployment]) {
+      if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(value)) throw new Error('Invalid K3s observer name');
+    }
+    const remoteCode = `import fs from 'node:fs';
+import pg from 'pg';
+const descriptor=JSON.parse(fs.readFileSync(0,'utf8'));
+if(!/^\\s*(SELECT|WITH)\\b/i.test(descriptor.sql)||descriptor.sql.includes(';')) throw Error('Read-only SELECT required');
+const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,max:1,statement_timeout:10000,options:'-c default_transaction_read_only=on'});
+try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY');const result=await client.query(descriptor.sql,descriptor.params||[]);await client.query('COMMIT');console.log(JSON.stringify(result.rows));}catch(e){await client.query('ROLLBACK').catch(()=>{});throw e;}finally{client.release();}}finally{await pool.end();}`;
+    const quote = value => "'" + value.replaceAll("'", "'\\''") + "'";
+    const command = `sudo k3s kubectl -n ${namespace} exec -i deployment/${deployment} -- node --input-type=module -e ${quote(remoteCode)}`;
+    return await new Promise((resolve, reject) => {
+      const child = spawn('ssh', ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=8', host, command],
+        { stdio: ['pipe', 'pipe', 'pipe'] });
+      let stdout='', stderr='';
+      const timer=setTimeout(()=>child.kill(),30000);
+      child.stdout.on('data', chunk => { stdout+=chunk; if(stdout.length>4000000) child.kill(); });
+      child.stderr.on('data', chunk => { stderr+=chunk; if(stderr.length>4000) child.kill(); });
+      child.on('error', reject);
+      child.on('close', code => {
+        clearTimeout(timer);
+        if (code!==0) return reject(new Blocked('Existing K3s PostgreSQL observer failed: '+stderr.slice(0,250)));
+        try { resolve(JSON.parse(stdout)); } catch { reject(new Error('Invalid PostgreSQL observer response')); }
+      });
+      child.stdin.end(JSON.stringify(query));
+    });
+  };
+  const remoteSql = config.postgresql?.k3sExec === true || typeof config.postgresql?.k3sExec === 'object';
+  const pool = !remoteSql && config.postgresql?.urlEnv && process.env[config.postgresql.urlEnv]
     ? new pg.Pool({ connectionString: process.env[config.postgresql.urlEnv], max: 1, connectionTimeoutMillis: 8000,
       statement_timeout: 10000, options: '-c default_transaction_read_only=on',
       ...(config.postgresql.caEnv ? { ssl: { ca: requiredEnv(config.postgresql.caEnv), rejectUnauthorized: true } } : {}) }) : null;
@@ -58,9 +93,10 @@ export async function campaign(root, configFile) {
   const output = path.resolve(config.outputDirectory || 'work/rest-live-results', vars.run.id);
   await mkdir(output, { recursive: true, mode: 0o700 });
   const sql = async descriptor => {
-    if (!pool) throw new Blocked('PostgreSQL observer connection unavailable');
+    if (!pool && !remoteSql) throw new Blocked('PostgreSQL observer connection unavailable');
     const q = expand(descriptor);
-    if (!/^\s*(SELECT|WITH)\b/i.test(q.sql) || q.sql.includes(';')) throw new Error('Only single read-only observer SQL statements allowed');
+    if (!/^\\s*(SELECT|WITH)\\b/i.test(q.sql) || q.sql.includes(';')) throw new Error('Only single read-only observer SQL statements allowed');
+    if (remoteSql) return JSON.parse(JSON.stringify(await observeFromExistingPod(q)));
     const client = await pool.connect();
     try {
       await client.query('BEGIN READ ONLY');
