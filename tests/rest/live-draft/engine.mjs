@@ -178,6 +178,10 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
     if (expanded.resendEvidence && !config.resend?.testRecipients?.includes(expanded.resendEvidence)) throw new Blocked('Test email recipient allowlist required before sending');
     report.requests++;
     const response = await fetch(target, init);
+    if (response.status === 401 && expanded.status !== 401
+      && !Object.keys(init.headers).some(k => /^(authorization|cookie|x-api-key)$/i.test(k))) {
+      throw new Blocked('AUTH_REQUIRED: protected endpoint needs an authenticated test actor');
+    }
     assert.equal(response.status, expanded.status, 'HTTP status');
     let body;
     if (expanded.sse) {
