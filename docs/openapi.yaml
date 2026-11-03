@@ -24,7 +24,8 @@ components:
       description: Route-specific merchant or internal bearer credential; not interchangeable with a user API key.
     keycloakOAuth:
       type: oauth2
-      description: Keycloak user authentication via Authorization Code with PKCE S256; the authenticated user must exist in Konektag.
+      description: Keycloak user authentication via Authorization Code with PKCE S256; the authenticated user must exist in
+        Konektag.
       flows:
         authorizationCode:
           authorizationUrl: https://login.konektag.eu/realms/konektag/protocol/openid-connect/auth
