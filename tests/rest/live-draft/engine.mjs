@@ -122,6 +122,7 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
       if ('min' in a) assert.ok(value >= a.min, a.path);
       if ('max' in a) assert.ok(value <= a.max, a.path);
       if (a.matches) assert.match(value, new RegExp(a.matches), a.path);
+      if (a.isoCountryOrNull) assert.ok(value === null || (typeof value === 'string' && /^[A-Z]{2}$/.test(value)), a.path);
       if (a.absent) assert.equal(value, undefined, a.path);
     }
   }
