@@ -1,6 +1,6 @@
 # Konektag API
 
-Backend extrait de `startpointcorporate/konetag` au commit `c25c1ac5d42d0e173b9dec28c950617d109d0530` : **305 chemins REST, 390 opérations HTTP et 42 outils MCP**. Le dépôt source est en lecture seule. Aucun framework Astro, SSR, page métier, composant navigateur ou CSS n'est nécessaire au backend.
+Backend extrait de `startpointcorporate/konetag` au commit `c25c1ac5d42d0e173b9dec28c950617d109d0530` : **305 chemins REST extraits, 2 alias de compatibilité (392 opérations HTTP au total) et 42 outils MCP**. Le dépôt source est en lecture seule. Aucun framework Astro, SSR, page métier, composant navigateur ou CSS n'est nécessaire au backend.
 
 ## Installation et validation
 
@@ -91,7 +91,7 @@ Le script `python src/infrastructure/scripts/docker-smoke.py` rejoue les contrô
 
 Dans un environnement Codex avec interception TLS, ajouter `--secret id=proxy_ca,src=/etc/ssl/certs/ca-certificates.crt` à chaque build. Le certificat n'est pas copié dans les images. La vérification TLS reste active.
 
-Le chart crée une API, deux workers indépendants et trois MCP. `mcpIngress` reprend le routage Traefik existant et la découverte OAuth sous préfixe ; ses hôtes et Secrets TLS doivent être explicitement configurés. Les MCP utilisent un replica et la stratégie Recreate pour conserver la cohérence du stockage OAuth. Les probes MCP vérifient la découverte OAuth ; la readiness des workers vérifie leurs preuves durables en base, pas seulement leur PID.
+Le chart active par défaut uniquement l’API. Les deux workers et chaque MCP sont activables indépendamment et restent désactivés par défaut. Voir [le guide du premier démarrage K3s](src/infrastructure/k8s/README.md), avec les paramètres des services existants et les deux ingress Traefik optionnels. `mcpIngress` reprend le routage Traefik existant et la découverte OAuth sous préfixe ; ses hôtes et Secrets TLS doivent être explicitement configurés. Les MCP utilisent un replica et la stratégie Recreate pour conserver la cohérence du stockage OAuth. Les probes MCP vérifient la découverte OAuth ; la readiness des workers vérifie leurs preuves durables en base, pas seulement leur PID.
 
 Les sept jobs existants sont compilés sous `dist/jobs` : rapprochement quotidien, import sanctions, re-screening, rétention, synchronisation Postiz, intégrité wallet et rapprochement PawaPay. Leur activation dans le chart est **désactivée par défaut** pour éviter de doubler les planifications existantes. L'activation de la rétention exige une validation opérationnelle explicite ; aucune purge n'a été exécutée. Réutiliser les volumes sanctions et les accès existants via les valeurs du chart.
 

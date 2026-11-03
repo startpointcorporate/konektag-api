@@ -305,4 +305,6 @@ export const routes = [
   { path: "/api/recharge", pattern: new RegExp("^/api/recharge/?$"), keys: [], methods: ["POST"], load: () => import("./routes/recharge") },
   { path: "/api/reviews", pattern: new RegExp("^/api/reviews/?$"), keys: [], methods: ["GET"], load: () => import("./routes/reviews/index") },
   { path: "/api/transactions", pattern: new RegExp("^/api/transactions/?$"), keys: [], methods: ["POST"], load: () => import("./routes/transactions/index") },
+  { path: "/v1/payments", pattern: new RegExp("^/v1/payments/?$"), keys: [], methods: ["POST"], canonicalPath: "/api/pay/payments", load: () => import("./routes/pay/payments") },
+  { path: "/v1/payments/{id}", pattern: new RegExp("^/v1/payments/([^/]+)/?$"), keys: ["id"], methods: ["GET"], canonicalPath: "/api/pay/payments/{id}", load: () => import("./routes/pay/payments/[id]") },
 ];

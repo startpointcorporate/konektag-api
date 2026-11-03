@@ -8,7 +8,15 @@ export async function dispatch(request: Request, clientAddress: string, middlewa
     let params: Record<string,string>;
     try { params = Object.fromEntries(route.keys.map((key,i)=>[key,decodeURIComponent(match[i+1])])); }
     catch { return Response.json({ error: 'INVALID_PATH_ENCODING' }, { status: 400 }); }
-    const context = createContext(request,params,clientAddress);
+    // Normalize aliases before middleware so authentication, KYC and financial
+    // idempotency use exactly the existing scope. No client redirect or body parsing.
+    let routedRequest = request;
+    if (route.canonicalPath) {
+      const url = new URL(request.url);
+      url.pathname = route.canonicalPath.replace(/\{([^}]+)\}/g, (_, key) => match[route.keys.findIndex(name => name === key) + 1]);
+      routedRequest = new Request(url, request);
+    }
+    const context = createContext(routedRequest,params,clientAddress);
     const method = request.method === 'HEAD' && !route.methods.includes('HEAD') ? 'GET' : request.method;
     const response = await middleware(context, async () => {
       if (!route.methods.includes(method) && !route.methods.includes('ALL')) {

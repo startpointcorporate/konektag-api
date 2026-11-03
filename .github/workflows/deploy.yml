@@ -30,15 +30,19 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.12', cache: pip, cache-dependency-path: src/mcp/requirements.lock.txt}
       - run: npm ci
+      - run: npm run docs:generate
+      - run: git diff --exit-code -- src/api/registry.ts docs/routes.json docs/openapi.yaml
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
       - run: node src/infrastructure/scripts/smoke.mjs
       - run: python -m pip install -r src/mcp/requirements.lock.txt
       - run: python -m pytest src/mcp/mcp/tests src/mcp/mcp-unipile/tests tests/mcp -q
+      - run: python -c 'from pathlib import Path; import yaml; from openapi_pydantic import OpenAPI; OpenAPI.model_validate(yaml.safe_load(Path("docs/openapi.yaml").read_text()))'
       - run: bash -n src/infrastructure/scripts/*.sh
       - uses: azure/setup-helm@v4.3.0
       - run: helm lint src/infrastructure/k8s/konektag-api -f tests/fixtures/helm-values.yaml
+      - run: node src/infrastructure/scripts/validate-helm.mjs
   images:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && inputs.action == 'deploy'

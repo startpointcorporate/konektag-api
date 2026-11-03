@@ -40,7 +40,7 @@ for(let i=0;i<100;i++){
 }
 if(!ready)throw Error('API startup failed');
 const spec=await(await fetch('http://127.0.0.1:3000/openapi.json')).json();
-if(Object.keys(spec.paths).length!==305)throw Error('OpenAPI coverage failed');
+if(Object.keys(spec.paths).length!==307)throw Error('OpenAPI coverage failed');
 if((await fetch('http://127.0.0.1:3000/api/account/balance')).status!==401)throw Error('Authentication failed');
 console.log('API image: startup, OpenAPI and anonymous denial passed');
 """

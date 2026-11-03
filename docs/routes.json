@@ -3287,5 +3287,29 @@
     "pattern": "^/api/transactions/?$",
     "keys": [],
     "score": 202
+  },
+  {
+    "path": "/v1/payments",
+    "file": "src/api/routes/pay/payments.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/v1/payments/?$",
+    "keys": [],
+    "score": 303,
+    "canonicalPath": "/api/pay/payments"
+  },
+  {
+    "path": "/v1/payments/{id}",
+    "file": "src/api/routes/pay/payments/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/v1/payments/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304,
+    "canonicalPath": "/api/pay/payments/{id}"
   }
 ]

@@ -22447,3 +22447,139 @@ paths:
                 - merchantProfileId
                 - kind
                 - requestKey
+  /v1/payments:
+    post:
+      operationId: post__v1_payments
+      summary: POST /v1/payments
+      tags:
+        - payments
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. This path is public at the general middleware level; any handler-specific checks
+        still apply.
+      parameters: []
+      responses:
+        "201":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: &a319
+                anyOf:
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        const: Invalid API key
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        const: total and fee are calculated by Konektag
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        const: An order already exists for this merchant transaction ID; its checkout token cannot be reissued.
+                  - type: object
+                    properties:
+                      checkoutUrl: {}
+                  - type: object
+                    properties:
+                      error: {}
+        "400":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a319
+        "401":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a319
+        "403":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a319
+        "409":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a319
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+      x-source: src/api/routes/pay/payments.ts
+      x-error-codes:
+        - Invalid API key
+        - Reserved payment purpose
+        - total and fee are calculated by Konektag
+        - An order already exists for this merchant transaction ID; its checkout token cannot be reissued.
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {}
+  /v1/payments/{id}:
+    get:
+      operationId: get__v1_payments_id
+      summary: GET /v1/payments/{id}
+      tags:
+        - payments
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. Session/API authentication and account restrictions run before the handler.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: &a320
+                anyOf:
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        const: NOT_FOUND
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        const: Unauthorized
+                  - type: object
+                    properties:
+                      order: {}
+                  - type: object
+                    properties:
+                      error: {}
+        "401":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a320
+        "404":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a320
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+      x-source: src/api/routes/pay/payments/[id].ts
+      x-error-codes:
+        - NOT_FOUND
+        - Unauthorized
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.

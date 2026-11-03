@@ -3,6 +3,7 @@
 {{- $host := required "mcpIngress.host is required" .Values.mcpIngress.host -}}
 {{- $tls := required "mcpIngress.tlsSecret is required" .Values.mcpIngress.tlsSecret -}}
 {{- range $name, $config := .Values.mcp }}
+{{- if $config.enabled }}
 {{- $prefix := required (printf "mcp.%s.pathPrefix is required" $name) $config.pathPrefix -}}
 {{- if ne $prefix "/" }}
 ---
@@ -58,6 +59,7 @@ spec:
                 name: {{ $root.Release.Name }}-mcp-{{ $name }}
                 port: {name: http}
           {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
