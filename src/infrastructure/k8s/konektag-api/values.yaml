@@ -42,6 +42,7 @@ mcp:
 ingress:
   enabled: false
   className: traefik
+  clusterIssuer: letsencrypt-http01 # Existing cert-manager ClusterIssuer
   host: ""
   tlsSecret: "" # Existing TLS Secret
 resources:

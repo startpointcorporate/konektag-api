@@ -20,7 +20,8 @@ const server = createServer(async (incoming,outgoing) => {
     if (url.pathname === '/livez') response = Response.json({status:'alive'});
     else if (url.pathname === '/docs' || url.pathname === '/docs/') response = new Response(docs,{headers:{'content-type':'text/html; charset=utf-8'}});
     else if (url.pathname === '/openapi.json') response = new Response(await readFile('dist/openapi.json'),{headers:{'content-type':'application/json'}});
-    else if (url.pathname === '/docs/init.js') response = new Response("SwaggerUIBundle({url:'/openapi.json',dom_id:'#swagger-ui',persistAuthorization:false});",{headers:{'content-type':'application/javascript'}});
+    else if (url.pathname === '/docs/init.js') response = new Response(`const ui=SwaggerUIBundle({url:'/openapi.json',dom_id:'#swagger-ui',persistAuthorization:false,oauth2RedirectUrl:location.origin+'/docs/oauth2-redirect.html'});ui.initOAuth({clientId:'frontend-konektag',usePkceWithAuthorizationCodeGrant:true,scopes:[]});`,{headers:{'content-type':'application/javascript','cache-control':'no-store'}});
+    else if (url.pathname === '/docs/oauth2-redirect.html') response = new Response(await readFile(path.join(swaggerDir,'oauth2-redirect.html')),{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
     else if (['/docs/swagger-ui.css','/docs/swagger-ui-bundle.js'].includes(url.pathname)) response = new Response(await readFile(path.join(swaggerDir,path.basename(url.pathname))),{headers:{'content-type':url.pathname.endsWith('.css')?'text/css':'application/javascript'}});
     else {
       const headers = new Headers();

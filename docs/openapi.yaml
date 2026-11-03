@@ -22,6 +22,15 @@ components:
       type: http
       scheme: bearer
       description: Route-specific merchant or internal bearer credential; not interchangeable with a user API key.
+    keycloakOAuth:
+      type: oauth2
+      description: Keycloak user authentication via Authorization Code with PKCE S256; the authenticated user must exist in
+        Konektag.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://login.konektag.eu/realms/konektag/protocol/openid-connect/auth
+          tokenUrl: https://login.konektag.eu/realms/konektag/protocol/openid-connect/token
+          scopes: {}
 paths:
   /api/pay/checkout/{token}/mobile-money/pawapay/deposit:
     post:
@@ -51,6 +60,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/mobile-money/pawapay/deposit.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -154,6 +164,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/kyb/contract.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -225,6 +236,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/mobile-money-queue/api-payments/[id]/confirm.ts
       x-error-codes:
         - FORBIDDEN
@@ -275,6 +287,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/mobile-money-queue/recharges/[id]/confirm.ts
       x-error-codes:
         - LEGACY_MOBILE_MONEY_CONFIRMATION_RETIRED
@@ -347,6 +360,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/missions/[name]/reserve.ts
       x-error-codes:
         - Invalid JSON
@@ -416,6 +430,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/missions/[name]/submit.ts
       x-error-codes:
         - Invalid JSON
@@ -486,6 +501,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/recipient/[id]/qr.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -542,6 +558,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/stripe/create-intent.ts
       x-error-codes:
         - "Stripe is not configured: STRIPE_PUBLISHABLE_KEY is required"
@@ -601,6 +618,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/stripe/finalize.ts
       x-error-codes:
         - Stripe is not configured for this payment
@@ -683,6 +701,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/wallet-authorization/verify.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -752,6 +771,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/transactions/[id]/retry.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -815,6 +835,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/activation-campaigns/[id]/statistics.ts
       x-error-codes:
         - FORBIDDEN
@@ -892,6 +913,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/dashboard/[entity].ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -953,6 +975,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/interco/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -1012,6 +1035,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/klots/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -1051,6 +1075,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/network/[entity].ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -1094,6 +1119,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/[id]/confirm.ts
       x-error-codes:
         - LEGACY_SETTLEMENT_CONFIRMATION_RETIRED
@@ -1139,6 +1165,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/commission-rates/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -1206,6 +1233,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/commission-rates/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -1269,6 +1297,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/commission-rates/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -1316,6 +1345,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/kyb.ts
       x-error-codes:
         - FORBIDDEN
@@ -1352,6 +1382,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/kyb.ts
       x-error-codes:
         - FORBIDDEN
@@ -1402,6 +1433,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/kyb.ts
       x-error-codes:
         - FORBIDDEN
@@ -1500,6 +1532,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id]/pro-activation.ts
       x-error-codes:
         - FORBIDDEN
@@ -1570,6 +1603,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/payment-claims/[id]/approve.ts
       x-error-codes:
         - FORBIDDEN
@@ -1625,6 +1659,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/payment-claims/[id]/reject.ts
       x-error-codes:
         - FORBIDDEN
@@ -1734,6 +1769,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/[id]/confirm-crypto.ts
       x-error-codes:
         - FORBIDDEN
@@ -1789,6 +1825,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/[id]/confirm-mobile-money.ts
       x-error-codes:
         - LEGACY_MOBILE_MONEY_CONFIRMATION_RETIRED
@@ -1860,6 +1897,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/[id]/refund-crypto.ts
       x-error-codes:
         - NOT_FOUND
@@ -1933,6 +1971,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/[id]/refund-mobile-money.ts
       x-error-codes:
         - NOT_FOUND
@@ -2016,6 +2055,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/[id]/refund-stripe.ts
       x-error-codes:
         - FORBIDDEN
@@ -2075,6 +2115,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/users/[id]/access.ts
       x-error-codes:
         - INVALID_REQUEST
@@ -2128,6 +2169,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/missions/[name]/index.ts
       x-error-codes:
         - NOT_FOUND
@@ -2163,6 +2205,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cash-sales/[id]/adjustments.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -2197,6 +2240,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cash-sales/[id]/receipt.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -2257,6 +2301,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/certification/documents/[id].ts
       x-error-codes:
         - MISSING_ID
@@ -2307,6 +2352,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/profiles/[profileId]/pro-renewal.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -2377,6 +2423,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/profiles/[profileId]/pro-status.ts
       x-error-codes:
         - SERVER_ERROR
@@ -2474,6 +2521,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/confirm.ts
       x-error-codes:
         - Authentication is required for Wallet payments
@@ -2518,6 +2566,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/funding.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -2640,6 +2689,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/checkout/[token]/wallet-authorization.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -2701,6 +2751,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payment-links/[slug]/resume.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -2823,6 +2874,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/public/users/[id]/analytics.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -2860,6 +2912,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/boost-pricing/prices.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -2885,6 +2938,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/boost-pricing/update.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -2926,6 +2980,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/cards/lifecycle.ts
       x-error-codes:
         - INVALID_REQUEST
@@ -2965,6 +3020,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/clearing/approve.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3003,6 +3059,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/clearing/freeze.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3047,6 +3104,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/clearing/settle.ts
       x-error-codes:
         - FX_CLIENT_SUPPLIED_RATE_FORBIDDEN
@@ -3150,6 +3208,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/dashboard/stats.ts
       x-error-codes:
         - FORBIDDEN
@@ -3202,6 +3261,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/interco/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3250,6 +3310,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/klots/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3283,6 +3344,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/finance/legal-entities.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3358,6 +3420,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/kyc/document.ts
       x-error-codes:
         - FORBIDDEN
@@ -3395,6 +3458,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/approve.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3444,6 +3508,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/confirm.ts
       x-error-codes:
         - SETTLEMENT_CONFIRMATION_REQUIRES_PROVIDER_CALLBACK_OR_RECONCILED_STATEMENT
@@ -3483,6 +3548,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/prepare.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3523,6 +3589,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/submit-payout.ts
       x-error-codes:
         - INVALID_MANUAL_PAYOUT
@@ -3559,6 +3626,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/submit-proof.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -3599,6 +3667,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/verify-proof.ts
       x-error-codes:
         - INVALID_PROOF_VERIFICATION
@@ -3644,6 +3713,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/agents.ts
       x-error-codes:
         - FORBIDDEN
@@ -3703,6 +3773,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/certification/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -3739,6 +3810,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/certification/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -3781,6 +3853,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/claims.ts
       x-error-codes:
         - SERVER_ERROR
@@ -3849,6 +3922,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/claims.ts
       x-error-codes:
         - BAD_REQUEST
@@ -3887,6 +3961,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/mobile-money/acquisitions.ts
       x-error-codes:
         - LEGACY_MANUAL_ACQUISITION_RETIRED
@@ -3943,6 +4018,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/agent/application.ts
       x-error-codes:
         - merchant_profile_id required
@@ -4003,6 +4079,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/agent/apply.ts
       x-error-codes:
         - Invalid JSON
@@ -4124,6 +4201,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/agent/commissions.ts
       x-error-codes:
         - ambassador_name required
@@ -4178,6 +4256,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/agent/dashboard.ts
       x-error-codes:
         - ambassador_name required
@@ -4219,6 +4298,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/commissions.ts
       x-error-codes:
         - SERVER_ERROR
@@ -4285,6 +4365,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/missions/index.ts
       x-error-codes:
         - SERVER_ERROR
@@ -4337,6 +4418,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/my-missions.ts
       x-error-codes:
         - NOT_AMBASSADOR
@@ -4399,6 +4481,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/earn/representative/register.ts
       x-error-codes:
         - Invalid JSON
@@ -4474,6 +4557,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/growth/events/stats.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -4522,6 +4606,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/internal/erp/account-access.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -4568,6 +4653,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/balance.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -4605,6 +4691,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/quote.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -4644,6 +4731,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/recipient/index.ts
       x-error-codes:
         - Unauthorized
@@ -4679,6 +4767,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/recipient/index.ts
       x-error-codes:
         - Unauthorized
@@ -4724,6 +4813,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/recipient/index.ts
       x-error-codes:
         - Unauthorized
@@ -4769,6 +4859,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/recipient/index.ts
       x-error-codes:
         - Unauthorized
@@ -4934,6 +5025,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/analytics/export.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5065,6 +5157,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/analytics/stats.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -5103,6 +5196,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/analytics/track.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5155,6 +5249,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cards/sales-declarations.ts
       x-error-codes:
         - FORBIDDEN
@@ -5206,6 +5301,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cards/sales-history.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -5243,6 +5339,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cards/sales-today.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -5297,6 +5394,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cards/sell.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -5368,6 +5466,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/certification/documents.ts
       x-error-codes:
         - MISSING_FILE
@@ -5425,6 +5524,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/kyb/documents.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -5511,6 +5611,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/media/reorder.ts
       x-error-codes:
         - Invalid JSON
@@ -5612,6 +5713,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/members/add.ts
       x-error-codes:
         - Non authentifié
@@ -5696,6 +5798,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/members/remove.ts
       x-error-codes:
         - Non authentifié
@@ -5731,6 +5834,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/operations/transactions.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -5817,6 +5921,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/campaigns.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5845,6 +5950,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/campaigns.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5869,6 +5975,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/campaigns.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5898,6 +6005,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/catalog-access.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5927,6 +6035,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/discovery.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5956,6 +6065,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/reviews.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -5980,6 +6090,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/reviews.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -6013,6 +6124,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility/upgrade.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -6142,6 +6254,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payments/by-reference.ts
       x-error-codes:
         - Unauthorized
@@ -6181,6 +6294,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payments/confirm.ts
       x-error-codes:
         - UNIFIED_PAYMENT_CHECKOUT_REQUIRED
@@ -6226,6 +6340,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/points/value.ts
       x-error-codes:
         - currency must be a 3-letter ISO code
@@ -6267,6 +6382,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/points/value.ts
       x-error-codes:
         - INVALID_VALUATION_REQUEST
@@ -6324,6 +6440,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/recharge/stripe/confirm.ts
       x-error-codes:
         - Stripe is not configured
@@ -6379,6 +6496,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/recharge/stripe/create-intent.ts
       x-error-codes:
         - Stripe is not configured
@@ -6574,6 +6692,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/activation-campaigns/[id]/[action].ts
       x-error-codes:
         - FORBIDDEN
@@ -6626,6 +6745,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/regulatory-projections/[type]/[code].ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -6666,6 +6786,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/api-keys/[id].ts
       x-error-codes:
         - INVALID_ID
@@ -6723,6 +6844,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/activation-campaigns/[id].ts
       x-error-codes:
         - FORBIDDEN
@@ -6788,6 +6910,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/activation-campaigns/[id].ts
       x-error-codes:
         - FORBIDDEN
@@ -6857,6 +6980,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/categories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -6950,6 +7074,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/categories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -7026,6 +7151,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/categories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -7114,6 +7240,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/clearing/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -7155,6 +7282,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/disputes/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -7204,6 +7332,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/disputes/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -7272,6 +7401,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-sales/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -7365,6 +7495,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -7433,6 +7564,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id].ts
       x-error-codes:
         - FORBIDDEN
@@ -7529,6 +7661,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id].ts
       x-error-codes:
         - FORBIDDEN
@@ -7638,6 +7771,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/[id].ts
       x-error-codes:
         - FORBIDDEN
@@ -7694,6 +7828,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-categories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -7756,6 +7891,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-categories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -7829,6 +7965,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-categories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -7877,6 +8014,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-subcategories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -7939,6 +8077,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-subcategories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -8010,6 +8149,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-subcategories/[id].ts
       x-error-codes:
         - Unauthorized
@@ -8043,6 +8183,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/pro-subscriptions/[id].ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -8072,6 +8213,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/pro-subscriptions/[id].ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -8144,6 +8286,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/[id].ts
       x-error-codes:
         - FORBIDDEN
@@ -8290,6 +8433,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/communication/unsubscribe/[channel].ts
       x-error-codes:
         - Invalid channel
@@ -8339,6 +8483,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/[id].ts
       x-error-codes:
         - Unauthorized
@@ -8385,6 +8530,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/[id].ts
       x-error-codes:
         - Unauthorized
@@ -8431,6 +8577,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/[id].ts
       x-error-codes:
         - Unauthorized
@@ -8522,6 +8669,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cards/[number]/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -8555,6 +8703,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cash-sales/[id]/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -8612,6 +8761,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/media/[id].ts
       x-error-codes:
         - media_id_required
@@ -8673,6 +8823,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/media/[id].ts
       x-error-codes:
         - media_id_required
@@ -8785,6 +8936,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/products/[id].ts
       x-error-codes:
         - INVALID_PRODUCT_ID
@@ -8820,6 +8972,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/products/[id].ts
       x-error-codes:
         - UNAUTHORIZED
@@ -8850,6 +9003,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/products/[id].ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -8924,6 +9078,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/promotions/[id].ts
       x-error-codes:
         - Invalid JSON
@@ -9022,6 +9177,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/promotions/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -9082,6 +9238,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/promotions/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -9140,6 +9297,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/qr-code/[name].ts
       x-error-codes:
         - FORBIDDEN
@@ -9235,6 +9393,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payments/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -9381,6 +9540,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/public/users/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -9436,6 +9596,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/transactions/[id]/transition.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -9571,6 +9732,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/api-keys/index.ts
       x-error-codes:
         - API_KEY_LIST_FAILED
@@ -9615,6 +9777,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/api-keys/index.ts
       x-error-codes:
         - JSON_REQUIRED
@@ -9718,6 +9881,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/balance.ts
       x-error-codes:
         - WALLET_BALANCE_UNAVAILABLE
@@ -9746,6 +9910,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/history/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -9776,6 +9941,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/kyc-gate.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -9807,6 +9973,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/payment-claims/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -9857,6 +10024,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/payment-claims/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -9903,6 +10071,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/pending-transactions.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -9985,6 +10154,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/update-profile.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -10059,6 +10229,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/activation-challenge/current.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -10099,6 +10270,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/activation-campaigns/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -10169,6 +10341,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/activation-campaigns/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -10204,6 +10377,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/boost-pricing.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -10228,6 +10402,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/boost-pricing.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -10275,6 +10450,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/card-batches.ts
       x-error-codes:
         - FORBIDDEN
@@ -10315,6 +10491,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/card-batches.ts
       x-error-codes:
         - FORBIDDEN
@@ -10403,6 +10580,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/card-transactions.ts
       x-error-codes:
         - FORBIDDEN
@@ -10451,6 +10629,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/categories/index.ts
       x-error-codes:
         - Unauthorized
@@ -10526,6 +10705,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/categories/index.ts
       x-error-codes:
         - Unauthorized
@@ -10581,6 +10761,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/clearing/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -10617,6 +10798,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/disputes/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -10660,6 +10842,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/disputes/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -10741,6 +10924,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/kyc/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -10856,6 +11040,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/kyc/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -10930,6 +11115,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-sales/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -10979,6 +11165,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-settlements/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -11020,6 +11207,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-visibility/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -11044,6 +11232,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchant-visibility/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -11087,6 +11276,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -11165,6 +11355,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/merchants/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -11253,6 +11444,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/mobile-money-queue.ts
       x-error-codes:
         - FORBIDDEN
@@ -11294,6 +11486,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-categories/index.ts
       x-error-codes:
         - Unauthorized
@@ -11345,6 +11538,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-categories/index.ts
       x-error-codes:
         - Unauthorized
@@ -11414,6 +11608,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-subcategories/index.ts
       x-error-codes:
         - Unauthorized
@@ -11470,6 +11665,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/offer-subcategories/index.ts
       x-error-codes:
         - Unauthorized
@@ -11531,6 +11727,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/pro-subscriptions/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -11560,6 +11757,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/pro-subscriptions/index.ts
       x-error-codes:
         - USE_MERCHANT_PRO_ACTIVATION
@@ -11672,6 +11870,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/recharges/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -11711,6 +11910,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/screening/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -11743,6 +11943,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/screening/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -11807,6 +12008,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/users/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -11873,6 +12075,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/users/index.ts
       x-error-codes:
         - FORBIDDEN
@@ -11960,6 +12163,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/wallet-history.ts
       x-error-codes:
         - FORBIDDEN
@@ -12010,6 +12214,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/wallet-integrity.ts
       x-error-codes:
         - FORBIDDEN
@@ -12056,6 +12261,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/admin/wallet-integrity.ts
       x-error-codes:
         - FORBIDDEN
@@ -12266,6 +12472,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/auth/change-password.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -12402,6 +12609,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/auth/forgot-password.ts
       x-error-codes:
         - INVALID_JSON
@@ -12452,6 +12660,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/auth/me.ts
       x-error-codes:
         - User not found
@@ -12494,6 +12703,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/auth/me.ts
       x-error-codes:
         - Failed to update profile
@@ -12677,6 +12887,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/cards/redeem.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -12713,6 +12924,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/catalog/checkout.ts
       x-error-codes:
         - Connectez-vous pour accéder au paiement.
@@ -12841,6 +13053,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/communication/preferences.ts
       x-error-codes:
         - Unauthorized
@@ -12905,6 +13118,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/communication/preferences.ts
       x-error-codes:
         - Unauthorized
@@ -12978,6 +13192,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/consent/marketing.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13062,6 +13277,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/email/send-verification.ts
       x-error-codes:
         - Non authentifié
@@ -13118,6 +13334,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/email/verify.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -13162,6 +13379,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/favorites/merchants.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13232,6 +13450,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/favorites/merchants.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13312,6 +13531,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/favorites/merchants.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13359,6 +13579,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/favorites/users.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13435,6 +13656,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/favorites/users.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13496,6 +13718,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/favorites/users.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13638,6 +13861,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/growth/destinations.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -13714,6 +13938,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/growth/events.ts
       x-error-codes:
         - INVALID_REQUEST
@@ -13874,6 +14099,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/internal/kyc-publish-status.ts
       x-error-codes:
         - Invalid payload
@@ -13924,6 +14150,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/internal/operational-readiness.ts
       x-error-codes:
         - Unauthorized
@@ -13975,6 +14202,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/index.ts
       x-error-codes:
         - Unauthorized
@@ -14026,6 +14254,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/k/send/index.ts
       x-error-codes:
         - Unauthorized
@@ -14106,6 +14335,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/kyc/init.ts
       x-error-codes:
         - id_document is required
@@ -14177,6 +14407,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/kyc/resubmit.ts
       x-error-codes:
         - At least one file is required
@@ -14241,6 +14472,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/kyc/skip.ts
       x-error-codes:
         - SERVER_ERROR
@@ -14282,6 +14514,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/kyc/status.ts
       x-error-codes:
         - SERVER_ERROR
@@ -14313,6 +14546,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/kyc/status-stream.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -14358,6 +14592,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/activation-status.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -14410,6 +14645,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/api-key.ts
       x-error-codes:
         - SERVER_ERROR
@@ -14464,6 +14700,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/api-key.ts
       x-error-codes:
         - environment must be sandbox or live
@@ -14515,6 +14752,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/api-key.ts
       x-error-codes:
         - environment must be sandbox or live
@@ -14557,6 +14795,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/api-webhook.ts
       x-error-codes:
         - SERVER_ERROR
@@ -14603,6 +14842,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/api-webhook.ts
       x-error-codes:
         - Invalid JSON
@@ -14668,6 +14908,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/api-webhook.ts
       x-error-codes:
         - Invalid JSON
@@ -14717,6 +14958,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cash-sales/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -14745,6 +14987,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/cash-sales/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -14798,6 +15041,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/certification/index.ts
       x-error-codes:
         - NOT_FOUND
@@ -14884,6 +15128,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/certification/index.ts
       x-error-codes:
         - INVALID_ACTION
@@ -15001,6 +15246,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/claim.ts
       x-error-codes:
         - BAD_REQUEST
@@ -15086,6 +15332,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/commerce.ts
       x-error-codes:
         - Invalid JSON
@@ -15150,6 +15397,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/contact.ts
       x-error-codes:
         - BAD_REQUEST
@@ -15254,6 +15502,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/create-reference.ts
       x-error-codes:
         - AUTHENTICATION_REQUIRED
@@ -15376,6 +15625,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/hotel.ts
       x-error-codes:
         - Invalid JSON
@@ -15424,6 +15674,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/kyb/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -15477,6 +15728,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/kyb/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -15561,6 +15813,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/links.ts
       x-error-codes:
         - Invalid JSON
@@ -15689,6 +15942,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/media.ts
       x-error-codes:
         - merchant_profile_id_required
@@ -15742,6 +15996,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/media-file.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -15792,6 +16047,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/messages.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -15852,6 +16108,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/messages.ts
       x-error-codes:
         - BAD_REQUEST
@@ -15895,6 +16152,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/my-assignment-requests.ts
       x-error-codes:
         - SERVER_ERROR
@@ -15936,6 +16194,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/my-profiles.ts
       x-error-codes:
         - SERVER_ERROR
@@ -15963,6 +16222,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/offline-mutations.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -16025,6 +16285,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/offline-snapshot.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -16109,6 +16370,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/opening-hours.ts
       x-error-codes:
         - Invalid JSON
@@ -16234,6 +16496,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/opening-hours.ts
       x-error-codes:
         - NOT_FOUND
@@ -16262,6 +16525,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/operations/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -16294,6 +16558,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/products.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -16323,6 +16588,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/products.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -16380,6 +16646,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/profile.ts
       x-error-codes:
         - NOT_FOUND
@@ -16464,6 +16731,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/profile.ts
       x-error-codes:
         - Invalid JSON
@@ -16585,6 +16853,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/profile.ts
       x-error-codes:
         - Invalid JSON
@@ -16724,6 +16993,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/promotions/index.ts
       x-error-codes:
         - SERVER_ERROR
@@ -16793,6 +17063,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/promotions/index.ts
       x-error-codes:
         - Invalid JSON
@@ -16902,6 +17173,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/publication-status.ts
       x-error-codes:
         - INVALID_ACTIVITY
@@ -16994,6 +17266,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/publish.ts
       x-error-codes:
         - Invalid JSON
@@ -17056,6 +17329,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/publish-establishment.ts
       x-error-codes:
         - INVALID_REQUEST
@@ -17145,6 +17419,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/qr-codes.ts
       x-error-codes:
         - merchantProfileId required
@@ -17207,6 +17482,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/qrcode.ts
       x-error-codes:
         - NOT_FOUND
@@ -17277,6 +17553,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/qrcode.ts
       x-error-codes:
         - NOT_FOUND
@@ -17318,6 +17595,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/reels.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -17345,6 +17623,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/reels.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -17377,6 +17656,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/reels.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -17470,6 +17750,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/remove-member.ts
       x-error-codes:
         - Non authentifié
@@ -17556,6 +17837,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/restaurant.ts
       x-error-codes:
         - Invalid JSON
@@ -17642,6 +17924,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/sales/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -17763,6 +18046,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/settlement-configuration.ts
       x-error-codes:
         - SERVER_ERROR
@@ -17804,6 +18088,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/settlement-configuration.ts
       x-error-codes:
         - INVALID_REQUEST
@@ -17867,6 +18152,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/settlements/index.ts
       x-error-codes:
         - Unauthorized
@@ -17919,6 +18205,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/suspend.ts
       x-error-codes:
         - NOT_FOUND
@@ -17955,6 +18242,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/taxes.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -17982,6 +18270,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/taxes.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -18061,6 +18350,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/unpublish.ts
       x-error-codes:
         - Invalid JSON
@@ -18147,6 +18437,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/visibility-completion.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -18198,6 +18489,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/notifications/count.ts
       x-error-codes:
         - Unauthorized
@@ -18249,6 +18541,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/notifications/mark-all-read.ts
       x-error-codes:
         - Unauthorized
@@ -18292,6 +18585,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/onboarding/check-username.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -18803,6 +19097,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/pay-link.ts
       x-error-codes:
         - slug required
@@ -18964,6 +19259,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payment-links.ts
       x-error-codes:
         - Unauthorized
@@ -19041,6 +19337,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payment-links.ts
       x-error-codes:
         - Unauthorized
@@ -19111,6 +19408,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payments.ts
       x-error-codes:
         - Invalid API key
@@ -19150,6 +19448,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/recharges.ts
       x-error-codes:
         - Unauthorized
@@ -19214,6 +19513,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/settlements.ts
       x-error-codes:
         - Unauthorized
@@ -19275,6 +19575,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/preferences/complete.ts
       x-error-codes:
         - SERVER_ERROR
@@ -19328,6 +19629,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/preferences/dashboard.ts
       x-error-codes:
         - Unauthorized
@@ -19378,6 +19680,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/preferences/dashboard.ts
       x-error-codes:
         - Unauthorized
@@ -19475,6 +19778,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/preferences/save.ts
       x-error-codes:
         - Invalid JSON
@@ -19551,6 +19855,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pro/inquiries/index.ts
       x-error-codes:
         - Invalid JSON
@@ -19701,6 +20006,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/profile/public.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -19738,6 +20044,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/profile/public.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -19980,6 +20287,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/code.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20016,6 +20324,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/confirm.ts
       x-error-codes:
         - QR_OTP_CHECKOUT_REQUIRED
@@ -20057,6 +20366,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/personal-link.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20106,6 +20416,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/personal-link.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20326,6 +20637,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/request-confirmation.ts
       x-error-codes:
         - Montant requis
@@ -20417,6 +20729,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/user-link-quote.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20453,6 +20766,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/referral/code.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -20502,6 +20816,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/referral/redeem.ts
       x-error-codes:
         - Code requis
@@ -20538,6 +20853,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/referral/stats.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -20591,6 +20907,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/reviews/by-merchant.ts
       x-error-codes:
         - REVIEWS_UNAVAILABLE
@@ -20663,6 +20980,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/reviews/create.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20697,6 +21015,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/reviews/report.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -20806,6 +21125,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/users/search.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20844,6 +21164,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/users/search.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -20885,6 +21206,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/wallet-authorizations/issue.ts
       x-error-codes:
         - ENDPOINT_DISABLED
@@ -20958,6 +21280,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/wallet-authorizations/verify.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -21134,6 +21457,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/merchant/[slug].ts
       x-error-codes:
         - NOT_FOUND
@@ -21218,6 +21542,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/[id].ts
       x-error-codes:
         - NOT_FOUND
@@ -21276,6 +21601,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/account/index.ts
       x-error-codes:
         - Unauthorized
@@ -21369,6 +21695,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/bookings/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -21488,6 +21815,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/countries.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -21517,6 +21845,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/device-identity/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -21554,6 +21883,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/device-identity/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -21665,6 +21995,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/loyalty/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -21723,6 +22054,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/loyalty/index.ts
       x-error-codes:
         - Invalid action
@@ -21878,6 +22210,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/notifications/index.ts
       x-error-codes:
         - Unauthorized
@@ -21921,6 +22254,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/orders/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -21986,6 +22320,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/preferences/index.ts
       x-error-codes:
         - Unauthorized
@@ -22110,6 +22445,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/index.ts
       x-error-codes:
         - Unauthorized
@@ -22212,6 +22548,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/qr/index.ts
       x-error-codes:
         - Unauthorized
@@ -22275,6 +22612,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/recharge.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -22326,6 +22664,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/reviews/index.ts
       x-error-codes: []
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
@@ -22378,6 +22717,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/transactions/index.ts
       x-error-codes:
         - UNAUTHORIZED
@@ -22512,6 +22852,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payments.ts
       x-error-codes:
         - Invalid API key
@@ -22578,6 +22919,7 @@ paths:
         - session: []
         - userApiKey: []
         - bearer: []
+        - keycloakOAuth: []
       x-source: src/api/routes/pay/payments/[id].ts
       x-error-codes:
         - NOT_FOUND
