@@ -8,7 +8,8 @@ api:
   replicas: 1
   existingSecret: ""
   env: {} # API_PUBLIC_URL, PUBLIC_SITE_URL and existing non-secret configuration
-  nodeSelector: {}
+  # Placement verified in the 2026-11-03 K3s inventory. Do not rename the node implicitly.
+  nodeSelector: {kubernetes.io/hostname: konektag-clients}
   volumeMounts: [] # Existing CMS/GeoIP mounts if required by selected operations
   volumes: []
 workers:
@@ -16,12 +17,14 @@ workers:
   accounting: false
 mcp:
   erpnext:
+    nodeSelector: {kubernetes.io/hostname: konektag-clients}
     enabled: false
     pathPrefix: /
     existingSecret: ""
     oauthClaim: ""
     env: {}
   m365:
+    nodeSelector: {kubernetes.io/hostname: konektag-clients}
     enabled: false
     pathPrefix: /m365
     existingSecret: ""
@@ -30,6 +33,7 @@ mcp:
     extraVolumes: [] # Existing M365 PFX Secret volume
     extraVolumeMounts: []
   unipile:
+    nodeSelector: {kubernetes.io/hostname: konektag-clients}
     enabled: false
     pathPrefix: /unipile
     existingSecret: ""
