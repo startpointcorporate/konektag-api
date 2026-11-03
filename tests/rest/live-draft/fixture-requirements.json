@@ -2468,9 +2468,7 @@
     "kind": "authored",
     "actors": [],
     "resources": [],
-    "variables": [
-      "taxonomy.categoryId"
-    ],
+    "variables": [],
     "configuration": {
       "postgresql.urlEnv": true,
       "allowFixtureWrites": false,
