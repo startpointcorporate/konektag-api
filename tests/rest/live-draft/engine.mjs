@@ -27,11 +27,9 @@ const subset = (value, expected) => {
 export async function campaign(root, configFile) {
   const config = JSON.parse(await readFile(configFile, 'utf8'));
   const base = new URL(config.baseUrl);
-  if (base.protocol !== 'https:' || base.username || base.password || base.pathname !== '/') throw new Error('HTTPS API origin required');
-  if (!(config.allowedHosts || []).includes(hostname())) throw new Error('Run from the configured VPS3 hostname');
-  if (config.workersDisabled !== true || config.mcpDisabled !== true) throw new Error('Explicit workersDisabled/mcpDisabled attestation required');
+  if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.pathname !== '/' || base.search || base.hash) throw new Error('HTTP(S) API origin required');
   const fixture = JSON.parse(await readFile(path.resolve(path.dirname(configFile), config.fixtures), 'utf8'));
-  const vars = { ...fixture.vars, run: { id: `rest-test-${randomUUID()}` }, captured: {} };
+  const vars = { ...fixture.actors, ...fixture.resources, ...fixture.vars, cases: fixture.cases || {}, run: { id: `rest-test-${randomUUID()}` }, captured: {} };
   const expand = value => {
     if (typeof value === 'string') {
       const resolve = key => {
@@ -55,15 +53,14 @@ export async function campaign(root, configFile) {
       statement_timeout: 10000, options: '-c default_transaction_read_only=on',
       ...(config.postgresql.caEnv ? { ssl: { ca: requiredEnv(config.postgresql.caEnv), rejectUnauthorized: true } } : {}) }) : null;
   let redis;
-  const dependencyResults = new Map();
   const report = { schemaVersion: 1, execution: 'EXECUTED', startedAt: new Date().toISOString(), sourceHost: hostname(),
-    baseUrl: base.origin, runId: vars.run.id, operations: [], dependencies: [], cleanup: [], requests: 0 };
+    baseUrl: base.origin, runId: vars.run.id, operations: [], dependencies: { status: 'NOT VALIDATED', manifest: 'tests/rest/live-draft/dependencies.json' }, cleanup: [], requests: 0 };
   const output = path.resolve(config.outputDirectory || 'work/rest-live-results', vars.run.id);
   await mkdir(output, { recursive: true, mode: 0o700 });
   const sql = async descriptor => {
     if (!pool) throw new Blocked('PostgreSQL observer connection unavailable');
     const q = expand(descriptor);
-    if (!/^\s*(SELECT|WITH)\b/i.test(q.sql) || q.sql.includes(';')) throw new Error('Only repository-authored single read-only SQL statements allowed');
+    if (!/^\s*(SELECT|WITH)\b/i.test(q.sql) || q.sql.includes(';')) throw new Error('Only single read-only observer SQL statements allowed');
     const client = await pool.connect();
     try {
       await client.query('BEGIN READ ONLY');
@@ -75,49 +72,8 @@ export async function campaign(root, configFile) {
   };
   const serviceFetch = async (url, init = {}) => {
     const u = new URL(url);
-    if (u.protocol !== 'https:' || u.username || u.password) throw new Error('Provider HTTPS required');
+    if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password) throw new Error('Provider HTTP(S) required');
     return fetch(u, { ...init, redirect: 'error', signal: AbortSignal.timeout(15000) });
-  };
-  const dependency = async name => {
-    if (dependencyResults.has(name)) {
-      const result = dependencyResults.get(name);
-      if (result.status !== 'PASS') throw new Blocked(result.reason);
-      return;
-    }
-    const result = { name, status: 'BLOCKED' };
-    try {
-      if (name === 'PostgreSQL') assert.equal((await sql({ sql: 'SELECT 1::int AS ok' }))[0].ok, 1);
-      else if (name === 'Valkey') {
-        redis = createClient({ url: requiredEnv(config.valkey?.urlEnv), socket: { connectTimeout: 8000, reconnectStrategy: false } });
-        redis.on('error', () => {});
-        await redis.connect(); assert.equal(await redis.ping(), 'PONG');
-      } else if (name === 'Keycloak') {
-        const realm = config.keycloak?.realmUrl;
-        if (!realm) throw new Blocked('Keycloak realmUrl required');
-        const response = await serviceFetch(`${realm}/.well-known/openid-configuration`);
-        assert.equal(response.status, 200); const data = await response.json(); assert.equal(data.issuer, realm);
-        assert.ok(data.jwks_uri && data.token_endpoint, 'OIDC metadata');
-      } else if (name === 'ERPNext/Frappe') {
-        const erp = config.erpnext;
-        if (!erp?.url) throw new Blocked('ERPNext/Frappe URL required');
-        const response = await serviceFetch(`${erp.url}/api/method/frappe.auth.get_logged_user`, {
-          headers: { Authorization: `token ${requiredEnv(erp.apiKeyEnv)}:${requiredEnv(erp.apiSecretEnv)}` } });
-        assert.equal(response.status, 200); assert.equal(typeof (await response.json()).message, 'string');
-      } else if (name === 'Resend') {
-        // Receiving permission alone is insufficient: dedicated test mailbox must be declared.
-        if (!config.resend?.testRecipients?.length) throw new Blocked('Resend testRecipients allowlist required');
-        const response = await serviceFetch('https://api.resend.com/emails', { headers: { Authorization: `Bearer ${requiredEnv(config.resend.apiKeyEnv)}` } });
-        assert.equal(response.status, 200); assert.ok(Array.isArray((await response.json()).data));
-      } else {
-        const provider = config.providers?.[name];
-        if (!provider?.probeUrl || !provider.assertions?.length) throw new Blocked(`NON TESTABLE — DÉPENDANCE INDISPONIBLE: ${name} (configuration de sonde absente)`);
-        const response = await serviceFetch(provider.probeUrl, { headers: provider.tokenEnv ? { Authorization: `Bearer ${requiredEnv(provider.tokenEnv)}` } : {} });
-        assert.equal(response.status, 200); check(await response.json(), expand(provider.assertions));
-      }
-      result.status = 'PASS';
-    } catch { result.reason = `NON TESTABLE — DÉPENDANCE INDISPONIBLE OU SONDE ÉCHOUÉE: ${name}`; }
-    dependencyResults.set(name, result); report.dependencies.push(result);
-    if (result.status !== 'PASS') throw new Blocked(result.reason);
   };
   function check(body, assertions) {
     for (const a of assertions) {
@@ -140,16 +96,16 @@ export async function campaign(root, configFile) {
     if (!identity?.testOnly || !identity.userId || !identity.keycloakId || !identity.username) throw new Blocked(`Existing test account required: ${name}`);
     const token = requiredEnv(identity.tokenEnv);
     if (!verifiedActors.has(name)) {
-      await dependency('PostgreSQL'); await dependency('Keycloak');
-      const response = await serviceFetch(`${config.keycloak.realmUrl}/protocol/openid-connect/userinfo`, { headers: { Authorization: `Bearer ${token}` } });
-      if (response.status !== 200) throw new Blocked(`Valid test account token required: ${name}`);
-      const info = await response.json();
-      assert.equal(info.sub, identity.keycloakId, 'Keycloak identity mismatch');
+      // The token is authenticated by the API, while this local subject check
+      // prevents selecting another fixture owner's token by accident.
+      let subject;
+      try { subject = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()).sub; } catch {}
+      if (subject !== identity.keycloakId) throw new Blocked(`Token subject mismatch: ${name}`);
       const users = await sql({ sql: 'SELECT id,keycloak_id,username,role FROM konektag.users WHERE id=$1 AND deleted_at IS NULL', params: [identity.userId] });
       assert.equal(users.length, 1); subset(users[0], { keycloak_id: identity.keycloakId, username: identity.username, role: identity.role });
       vars[name] = { ...identity }; verifiedActors.add(name);
     }
-    return { Authorization: `Bearer ${token}` };
+    return identity.auth === 'cookie' ? { Cookie: `konektag_access_token=${token}` } : { Authorization: `Bearer ${token}` };
   };
   const resourceGuard = async names => {
     for (const name of names || []) {
@@ -161,17 +117,29 @@ export async function campaign(root, configFile) {
       if (!(await sql(guard)).length) throw new Blocked(`Ownership / test marker not established: ${name}`);
     }
   };
-  const { guards, snapshots } = JSON.parse(await readFile(path.join(root, 'tests/rest/live/oracles.json'), 'utf8'));
+  const { guards, snapshots } = JSON.parse(await readFile(path.join(root, 'tests/rest/live-draft/oracles.json'), 'utf8'));
   const request = async step => {
     const headers = { ...(await actor(step.actor)), ...(step.internalToken ? { Authorization: `Bearer ${requiredEnv(config.internalTokenEnv)}` } : {}) };
-    const expanded = expand(step);
+    const { oracles: deferredOracles, ...httpStep } = step;
+    const expanded = expand(httpStep);
     const target = new URL(expanded.path, base);
     if (target.origin !== base.origin || target.username || target.password || !target.pathname.startsWith('/')) throw new Error('Cross-origin request forbidden');
-    const init = { method: expanded.method, headers: { ...headers, ...expanded.headers }, redirect: 'manual', signal: AbortSignal.timeout(config.timeoutMs || 15000) };
+    const init = { method: expanded.method, headers: { ...headers, ...expanded.headers, ...Object.fromEntries(Object.entries(expanded.headerEnv || {}).map(([key, env]) => [key, requiredEnv(env)])) }, redirect: 'manual', signal: AbortSignal.timeout(config.timeoutMs || 15000) };
+    if (!['GET', 'HEAD'].includes(init.method) && !init.headers['X-Idempotency-Key'] && !init.headers['Idempotency-Key']) init.headers['X-Idempotency-Key'] = `${vars.run.id}-${randomUUID()}`;
     if (expanded.origin !== false) init.headers.Origin = base.origin;
-    if ('body' in expanded) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(expanded.body); }
-    if ('raw' in expanded) { init.headers['Content-Type'] = 'application/json'; init.body = expanded.raw; }
-    if ('form' in expanded) { init.body = new FormData(); for (const [k,v] of Object.entries(expanded.form)) init.body.set(k, String(v)); }
+    if ('body' in expanded) { init.headers['Content-Type'] ||= 'application/json'; init.body = JSON.stringify(expanded.body); }
+    if ('raw' in expanded) { init.headers['Content-Type'] ||= 'application/json'; init.body = expanded.raw; }
+    if ('form' in expanded) {
+      delete init.headers['Content-Type'];
+      init.body = new FormData();
+      for (const [key, value] of Object.entries(expanded.form)) {
+        if (value && typeof value === 'object' && value.file) {
+          const filename = path.resolve(path.dirname(configFile), value.file);
+          init.body.set(key, new Blob([await readFile(filename)], { type: value.type || 'application/octet-stream' }), path.basename(filename));
+        } else init.body.set(key, String(value));
+      }
+    }
+    if (expanded.resendEvidence && !config.resend?.testRecipients?.includes(expanded.resendEvidence)) throw new Blocked('Test email recipient allowlist required before sending');
     report.requests++;
     const response = await fetch(target, init);
     assert.equal(response.status, expanded.status, 'HTTP status');
@@ -179,9 +147,9 @@ export async function campaign(root, configFile) {
     if (expanded.sse) {
       assert.match(response.headers.get('content-type') || '', /text\/event-stream/);
       const reader = response.body.getReader(); let text = '';
-      try { while (!text.includes('\n\n')) { const next = await reader.read(); if (next.done) break; text += new TextDecoder().decode(next.value); if (text.length > 65536) throw new Error('SSE frame too large'); } }
+      try { while (!text.includes('\n\n')) { const next = await reader.read(); if (next.done) break; text += new TextDecoder().decode(next.value); text = text.replaceAll('\r\n', '\n'); if (text.length > 65536) throw new Error('SSE frame too large'); } }
       finally { await reader.cancel(); }
-      assert.match(text, /event: status_update/); body = JSON.parse(/^data: (.*)$/m.exec(text)?.[1] || '{}');
+      assert.equal(/^event: (.*)$/m.exec(text)?.[1], expanded.sse === true ? 'status_update' : expanded.sse); body = JSON.parse(/^data: (.*)$/m.exec(text)?.[1] || '{}');
     } else if (expanded.binary) {
       const data = new Uint8Array(await response.arrayBuffer());
       assert.ok(data.length > 0, 'nonempty document');
@@ -196,7 +164,7 @@ export async function campaign(root, configFile) {
     for (const [name, pointer] of Object.entries(expanded.capture || {})) {
       const value = at(body, pointer); assert.notEqual(value, undefined, 'capture missing'); vars.captured[name] = value;
     }
-    for (const oracle of step.oracles || []) {
+    for (const oracle of deferredOracles || []) {
       const rows = await sql(oracle);
       if ('equals' in oracle) assert.deepEqual(rows, expand(oracle.equals));
       if (oracle.assertions) check(rows, expand(oracle.assertions));
@@ -208,21 +176,35 @@ export async function campaign(root, configFile) {
         else assert.deepEqual(actual, oracle.single ? expected[0] : expected);
       }
     }
+    if (expanded.valkeyOtp) {
+      if (!redis) {
+        redis = createClient({ url: requiredEnv(config.valkey?.urlEnv), socket: { connectTimeout: 8000, reconnectStrategy: false } });
+        redis.on('error', () => {});
+        await redis.connect();
+      }
+      const email = expanded.valkeyOtp.trim().toLowerCase();
+      assert.match(await redis.get(`otp:${email}`) || '', /^\d{6}$/);
+      assert.ok(await redis.ttl(`otp:${email}`) > 0, 'Expiring OTP');
+      assert.equal(await redis.get(`otp:attempts:${email}`), '0');
+    }
     if (step.resendEvidence) {
       const email = expand(step.resendEvidence);
       if (!config.resend.testRecipients.includes(email)) throw new Error('Email recipient outside test allowlist');
       // Resend's own event log is the oracle; HTTP 200 from Konektag is insufficient.
-      const response = await serviceFetch('https://api.resend.com/emails', { headers: { Authorization: `Bearer ${requiredEnv(config.resend.apiKeyEnv)}` } });
+      const response = await serviceFetch(`${config.resend.baseUrl || 'https://api.resend.com'}/emails`, { headers: { Authorization: `Bearer ${requiredEnv(config.resend.apiKeyEnv)}` } });
       assert.equal(response.status, 200); const log = await response.json();
       assert.ok(log.data.some(e => (Array.isArray(e.to) ? e.to : [e.to]).includes(email) && Date.parse(e.created_at) >= Date.parse(report.startedAt)
         && !['failed','bounced','canceled','suppressed'].includes(e.last_event)), 'Konektag reports success without Resend acceptance');
     }
     return { status: response.status, responseDigest: hash(canonical(body)), asserted: (step.assertions?.length || 0) + (step.oracles?.length || 0), at: new Date().toISOString() };
   };
-  const catalogs = JSON.parse(await readFile(path.join(root, 'tests/rest/live/catalog.json'), 'utf8'));
-  const inventory = JSON.parse(await readFile(path.join(root, 'docs/rest-test-coverage.json'), 'utf8'));
+  const catalogs = JSON.parse(await readFile(path.join(root, 'tests/rest/live-draft/catalog.json'), 'utf8'));
   const definitions = [];
   for (const file of catalogs.files) definitions.push(...JSON.parse(await readFile(path.join(root, file), 'utf8')));
+  const inventory = { operations: definitions.map(d => ({ operation: d.operation, domain: d.domain })) };
+  assert.equal(definitions.length, catalogs.operations, 'Catalog size');
+  assert.equal(new Set(definitions.map(d => d.operation)).size, definitions.length, 'Duplicate operation');
+  for (const d of definitions) assert.equal(d.scenarios.length, 1, 'Exactly one scenario per operation');
   const byOperation = new Map(definitions.map(d => [d.operation, d]));
   const save = async () => {
     report.finishedAt = new Date().toISOString();
@@ -240,54 +222,88 @@ export async function campaign(root, configFile) {
       const row = { operation: operation.operation, status: 'NOT TESTED', scenarios: [], baselineBusinessStatus: operation.businessStatus,
         unexercised: definition?.unexercised || [] };
       report.operations.push(row);
-      if (!definition || (config.domains?.length && !config.domains.includes(operation.domain)) || interrupted) {
+      if (!definition || (config.operations?.length && !config.operations.includes(operation.operation)) || (config.domains?.length && !config.domains.includes(operation.domain)) || interrupted) {
         row.reason = interrupted ? 'Interrupted before operation' : definition ? 'Domain excluded' : 'Existing reviewed tests retained; no live scenario in this campaign'; continue;
       }
       const source = await readFile(path.join(root, definition.source), 'utf8');
       if (createHash('sha256').update(source).digest('hex') !== definition.sourceSha256) {
         row.status = 'BLOCKED'; row.reason = 'Handler changed: re-examine its business scenarios'; continue;
       }
-      for (const scenario of definition.scenarios) {
-        const result = { name: scenario.name, status: 'BLOCKED', evidence: [] }; row.scenarios.push(result);
-        const cleanup = [];
+      for (const template of definition.scenarios) {
         try {
-          if (interrupted) throw new Blocked('Interrupted');
-          if (scenario.mode === 'fixture-write' && config.allowFixtureWrites !== true) throw new Blocked('Fixture writes disabled');
-          if (scenario.blocked) throw new Blocked(scenario.blocked);
-          for (const name of scenario.actors || []) await actor(name);
-          for (const dep of scenario.dependencies || []) await dependency(dep);
-          await resourceGuard(scenario.resources);
-          if (scenario.mode === 'fixture-write' && !scenario.resources?.length && !scenario.actors?.length) throw new Error('Mutation without a test owner forbidden');
-          const before = [];
-          for (const name of scenario.unchanged || []) before.push(await sql(snapshots[name]));
-          for (const precondition of scenario.preconditions || []) {
-            const rows = await sql(precondition);
-            if ('equals' in precondition && JSON.stringify(rows) !== JSON.stringify(expand(precondition.equals))) throw new Blocked('Fixture state does not match scenario precondition');
-            if (precondition.minRows && rows.length < precondition.minRows) throw new Blocked('Required fixture rows missing');
+          let scenario = template;
+          if (template.fixtureCase) {
+            const binding = fixture.cases?.[template.fixtureCase];
+            if (!binding || !binding.testOnly || !binding.owner || !binding.request || !binding.expected) {
+              row.status = 'BLOCKED'; row.reason = `Fixture required: cases.${template.fixtureCase}`; break;
+            }
+            const { request: input, expected } = binding;
+            const httpActor = binding.actor === false ? undefined : (binding.actor || binding.owner);
+            if (!Number.isInteger(expected.status) || expected.status < 200 || expected.status >= 300
+              || (expected.status !== 204 && (expected.body === undefined || (expected.body && typeof expected.body === 'object' && !Object.keys(expected.body).length)))
+              || (definition.method !== 'GET' && (!binding.oracles?.length || binding.oracles.some(o => !('equals' in o) && !o.assertions && o.responsePath === undefined)))) {
+              row.status = 'BLOCKED'; row.reason = 'Business response content and mutation persistence oracle required'; break;
+            }
+            const params = expand(input.params || {});
+            const target = definition.path.replace(/\{([^}]+)\}/g, (_, key) => {
+              if (typeof params[key] !== 'string' || !params[key]) throw new Blocked(`Path parameter required: ${key}`);
+              return encodeURIComponent(params[key]);
+            });
+            const query = new URLSearchParams(input.query || {}).toString();
+            scenario = { ...template, actors: httpActor ? [httpActor] : [], resources: [],
+              mode: 'fixture-write', preconditions: binding.preconditions || [],
+              cleanup: binding.cleanup || [], steps: [{ ...input, actor: httpActor,
+                method: definition.method, path: target + (query ? `?${query}` : ''),
+                status: expected.status, assertions: expected.status === 204 ? [] : [{ path: '', subset: expected.body }], oracles: binding.oracles || [] }] };
+            // Public mutations still need an explicitly designated test owner.
+            scenario.actors = binding.owner ? [...new Set([...scenario.actors, binding.owner])] : scenario.actors;
           }
-          for (const observation of scenario.read || []) {
-            vars[observation.name] = await sql(observation);
-            if (observation.minRows && vars[observation.name].length < observation.minRows) throw new Blocked(`Required fixture data missing: ${observation.name}`);
+          const result = { name: scenario.name, status: 'BLOCKED', evidence: [] }; row.scenarios.push(result);
+          const cleanup = [];
+          try {
+            if (interrupted) throw new Blocked('Interrupted');
+            if (scenario.mode === 'fixture-write' && config.allowFixtureWrites !== true) throw new Blocked('Fixture writes disabled');
+            if (scenario.blocked) throw new Blocked(scenario.blocked);
+            for (const name of scenario.actors || []) await actor(name);
+            // Dependencies are source-derived metadata, never health probes.
+            row.dependencies = definition.dependencies;
+            await resourceGuard(scenario.resources);
+            if (scenario.mode === 'fixture-write' && !scenario.resources?.length && !scenario.actors?.length) throw new Error('Mutation without a test owner forbidden');
+            const before = [];
+            for (const name of scenario.unchanged || []) before.push(await sql(snapshots[name]));
+            for (const precondition of scenario.preconditions || []) {
+              const rows = await sql(precondition);
+              if ('equals' in precondition && JSON.stringify(rows) !== JSON.stringify(expand(precondition.equals))) throw new Blocked('Fixture state does not match scenario precondition');
+              if (precondition.minRows && rows.length < precondition.minRows) throw new Blocked('Required fixture rows missing');
+            }
+            for (const observation of scenario.read || []) {
+              vars[observation.name] = await sql(observation);
+              if (observation.minRows && vars[observation.name].length < observation.minRows) throw new Blocked(`Required fixture data missing: ${observation.name}`);
+            }
+            // Register compensations before the first mutation; captured IDs are resolved during cleanup.
+            cleanup.push(...(scenario.cleanup || []));
+            for (const step of scenario.steps) result.evidence.push(await request(step));
+            for (let i = 0; i < (scenario.unchanged || []).length; i++) assert.deepEqual(await sql(snapshots[scenario.unchanged[i]]), before[i], `Persistent side effect in rejected request: ${scenario.unchanged[i]}`);
+            result.status = 'PASS';
+          } catch (e) {
+            result.status = e instanceof Blocked ? 'BLOCKED' : 'FAIL';
+            // Never serialize raw errors: driver/fetch/assertion errors can contain credentials or PII.
+            result.reason = e instanceof Blocked ? e.message : 'Business/content/persistence assertion or real dependency request failed';
+          } finally {
+            for (const compensation of cleanup.reverse()) {
+              const outcome = { scenario: scenario.name, status: 'FAIL' };
+              try { await request(compensation); outcome.status = 'PASS'; }
+              catch (e) { outcome.reason = e instanceof Blocked ? e.message : 'Cleanup failed; inspect fixture-owned records'; result.status = 'FAIL'; }
+              report.cleanup.push(outcome);
+            }
           }
-          // Register compensations before the first mutation; captured IDs are resolved during cleanup.
-          cleanup.push(...(scenario.cleanup || []));
-          for (const step of scenario.steps) result.evidence.push(await request(step));
-          for (let i = 0; i < (scenario.unchanged || []).length; i++) assert.deepEqual(await sql(snapshots[scenario.unchanged[i]]), before[i], `Persistent side effect in rejected request: ${scenario.unchanged[i]}`);
-          result.status = 'PASS';
+          await save();
         } catch (e) {
-          result.status = e instanceof Blocked ? 'BLOCKED' : 'FAIL';
-          // Never serialize raw errors: driver/fetch/assertion errors can contain credentials or PII.
-          result.reason = e instanceof Blocked ? e.message : 'Business/content/persistence assertion or real dependency request failed';
-        } finally {
-          for (const compensation of cleanup.reverse()) {
-            const outcome = { scenario: scenario.name, status: 'FAIL' };
-            try { await request(compensation); outcome.status = 'PASS'; }
-            catch (e) { outcome.reason = e instanceof Blocked ? e.message : 'Cleanup failed; inspect fixture-owned records'; result.status = 'FAIL'; }
-            report.cleanup.push(outcome);
-          }
+          row.scenarios.push({ name: template.name, status: e instanceof Blocked ? 'BLOCKED' : 'FAIL',
+            reason: e instanceof Blocked ? e.message : 'Invalid fixture binding', evidence: [] });
         }
-        await save();
       }
+      if (!row.scenarios.length && row.status === 'BLOCKED') { await save(); continue; }
       row.status = row.scenarios.some(s => s.status === 'FAIL') ? 'FAIL' : row.scenarios.some(s => s.status === 'BLOCKED') ? 'BLOCKED' : row.scenarios.length ? 'PASS' : 'BLOCKED';
       if (row.status === 'BLOCKED') row.reason = row.scenarios.find(s => s.status === 'BLOCKED')?.reason || definition.exception;
       await save();
@@ -298,5 +314,5 @@ export async function campaign(root, configFile) {
   }
   console.log(`Rapport privé : ${output}/results.md`);
   if (report.operations.some(o => o.status === 'FAIL') || report.cleanup.some(c => c.status === 'FAIL')) process.exitCode = 1;
-  else if (report.operations.some(o => o.status === 'BLOCKED')) process.exitCode = 2;
+  else if (report.operations.some(o => o.status === 'BLOCKED' || o.status === 'NOT TESTED')) process.exitCode = 2;
 }

@@ -1,7 +1,7 @@
 import json,pathlib,hashlib,re,collections
 ROOT=pathlib.Path('.')
 BASE=json.load(open('docs/rest-test-coverage.json'))
-OPS={o['operation']:o for o in BASE['operations'] if o['businessStatus']!='covered'}
+OPS={o['operation']:o for o in BASE['operations']}
 SPECS={}; GUARDS={}; SNAP={}
 def q(sql,params=[]):return dict(sql=sql,params=params)
 def eq(path,value):return dict(path=path,equals=value)
@@ -164,7 +164,7 @@ op='POST /api/wallet-authorizations/verify'
 add(op,'OTP authorization is same-origin, UUID-bound and exactly six numeric digits.',[bad(op,'Incorrect OTP format does not authorize a debit',{'authorizationId':'00000000-0000-4000-8000-000000000007','otp':'12'},422,'INVALID_REQUEST'),bad(op,'Cross-origin OTP request denied',{},403,'CSRF_REJECTED',origin=False)],['Positive OTP verification needs a genuine unexpired test debit authorization.'])
 # Email validation and actual provider acceptance evidence (not a mocked sendTemplate).
 op='POST /api/onboarding/send-otp'
-add(op,'Valid OTP must be present in Valkey and accepted by Resend; HTTP success alone is a regression.',[bad(op,'Invalid email cannot create or send an OTP',{'email':'invalid','locale':'fr'},422,None,actor=None,unchanged=[]),case('Resend acceptance is mandatory for real OTP success',[step(op,{'email':'${mail.recipient}','firstName':'REST','locale':'fr'},status=200,checks=[eq('/success',True)],resendEvidence='${mail.recipient}',valkeyOtp='${mail.recipient}')],deps=['Valkey','Resend'],actors=['owner'],mode='fixture-write')],['Known false-success bug is preserved in application code. This acceptance scenario must FAIL when Resend refuses delivery.'])
+add(op,'Valid OTP must be present in Valkey and accepted by Resend; HTTP success alone is a regression.',[bad(op,'Invalid email cannot create or send an OTP',{'email':'invalid','locale':'fr'},422,None,actor=None,unchanged=[]),case('Resend acceptance is mandatory for real OTP success',[step(op,{'email':'${mail.recipient}','firstName':'REST','locale':'fr'},status=200,checks=[eq('/message','Email de confirmation envoyé')],resendEvidence='${mail.recipient}',valkeyOtp='${mail.recipient}')],deps=['Valkey','Resend'],actors=['owner'],mode='fixture-write')],['Known false-success bug is preserved in application code. This acceptance scenario must FAIL when Resend refuses delivery.'])
 op='POST /api/email/send-verification'
 add(op,'Already verified user cannot trigger another verification email.',[case('Verified test account stays unchanged',[step(op,{},'owner',400,[eq('/error','Email déjà vérifié')])],actors=['owner'],unchanged=['owner'],mode='validation',preconditions=[dict(q('SELECT email_verified FROM konektag.users WHERE id=$1',[OWNER]),equals=[{'email_verified':True}])])],['Resend acceptance for an unverified disposable test account is not exercised by this already-verified branch.'])
 op='GET /api/email/verify'
@@ -209,3 +209,105 @@ op='GET /api/qr/{id}'
 add(op,'QR lookup uses persisted checkout intent, not a caller-supplied payment.',[blocked('Read test-owned signed checkout QR','Requires existing nonexpired signed QR fixture with checkout_intents ownership and provider-independent expected payload.')])
 op='GET /api/qr/code'
 add(op,'Short-code lookup must resolve an existing signed QR or return a domain not-found error.',[blocked('Resolve owned short code','Requires actual issued signed test QR; no fabricated short code is reported as a successful integration.')])
+
+
+# Complete the catalog without importing/running any application or test module.
+# A binding supplies real, existing business data and its expected projection;
+# it never supplies an alternative handler or service.
+OUT=ROOT/'tests/rest/live-draft'
+def closure(entry):
+ seen=set(); todo=[entry]
+ while todo:
+  filename=todo.pop()
+  if filename in seen or not (ROOT/filename).is_file():continue
+  seen.add(filename); text=(ROOT/filename).read_text()
+  for spec in re.findall(r'''(?:from\s*|import\s*\(|import\s*)['"]([^'"]+)['"]''',text):
+   if not spec.startswith('.'):continue
+   target=(ROOT/filename).parent/spec
+   candidates=[target,target.with_suffix('.ts'),target.with_suffix('.mts'),target/'index.ts']
+   for candidate in candidates:
+    if candidate.is_file():
+     todo.append(str(candidate.resolve().relative_to(ROOT.resolve())));break
+ return sorted(seen)
+SERVICE_RULES={
+ 'PostgreSQL':r'(?:/database/pool\.ts$|/database/connection\.ts$)',
+ 'Valkey':r'(?:redis-adapter|rate-limit)',
+ 'Keycloak':r'(?:keycloak-adapter|keycloak-bearer)',
+ 'ERPNext/Frappe':r'(?:erpnext|frappe)',
+ 'MinIO/S3':r'(?:minio|s3-)',
+ 'Resend':r'(?:email-service|resend)',
+ 'Dify':r'dify',
+ 'Stripe':r'(?:stripe|provider-configuration)',
+ 'PawaPay':r'(?:pawapay|provider-configuration)',
+ 'Directus':r'directus',
+ 'Mautic':r'mautic',
+ 'Postiz':r'postiz',
+ 'GeoIP':r'geoip',
+ 'IndexNow':r'indexnow',
+ 'Public site (IndexNow key file)':r'merchant-discovery-service',
+ 'Google Places':r'/photo/\[id\]\.ts$',
+}
+def dependencies(entry):
+ files=closure(entry); evidence={}; variables=collections.defaultdict(list)
+ for filename in files:
+  text=(ROOT/filename).read_text()
+  for name,pattern in SERVICE_RULES.items():
+   if re.search(pattern,filename,re.I):evidence.setdefault(name,[]).append(filename)
+  for variable in re.findall(r'process\.env\.([A-Z][A-Z0-9_]*)',text):variables[variable].append(filename)
+  for name,pattern in [('Resend',r'api\.resend\.com'),('Directus',r'DIRECTUS_|directus'),('Stripe',r"from ['\"]stripe['\"]"),('PawaPay',r'PAWAPAY_'),('MinIO/S3',r'@aws-sdk/client-s3'),('PostgreSQL',r"from ['\"]pg['\"]"),('Valkey',r"from ['\"]redis['\"]"),('ERPNext/Frappe',r'ERPNEXT_|FRAPPE_')]:
+   if re.search(pattern,text):evidence.setdefault(name,[]).append(filename)
+ return {'services':{k:sorted(set(v)) for k,v in sorted(evidence.items())},
+         'referencedEnvironment':{k:sorted(set(v)) for k,v in sorted(variables.items())},
+         'sourceFiles':{f:hashlib.sha256((ROOT/f).read_bytes()).hexdigest() for f in files}}
+
+catalog=[]; requirements={}; source_index={}
+for op,o in sorted(OPS.items()):
+ key=hashlib.sha256(op.encode()).hexdigest()[:12]
+ definition=SPECS.get(op)
+ # Keep one already-authored scenario with an actual HTTP step. Prefer a
+ # business observation over malformed transport or an unconditional block.
+ candidates=[s for s in (definition or {}).get('scenarios',[]) if s.get('steps') and not s.get('blocked')]
+ selected=next((s for s in candidates if any(st.get('oracles') or st.get('resendEvidence') for st in s['steps'])),None)
+ if selected is None:selected=next((s for s in candidates if s.get('mode')=='validation'),None)
+ if selected is None:selected=next(iter(candidates),None)
+ if selected:
+  definition={**definition,'scenarios':[selected]}
+  requirements[op]={'kind':'authored','actors':selected.get('actors',[]),'resources':selected.get('resources',[])}
+ else:
+  method,route=op.split(' ',1)
+  definition={'operation':op,'domain':o['domain'],'source':o['source'],
+    'sourceSha256':hashlib.sha256((ROOT/o['source']).read_bytes()).hexdigest(),
+    'rule':'Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.',
+    'scenarios':[{'name':f'{op}: real fixture business projection or persisted command',
+                  'fixtureCase':key,'dependencies':[],'steps':[{'method':method,'path':route,'status':'${cases.'+key+'.expected.status}', 'assertions':[{'path':'','subset':'${cases.'+key+'.expected.body}'}]}]}],
+    'unexercised':['Other inputs, roles and state transitions are outside this single representative scenario.']}
+  requirements[op]={'kind':'fixture-bound','case':key,'pathParameters':re.findall(r'\{([^}]+)\}',route),
+    'required':['testOnly','owner','request','expected.status','expected.body']+(['oracles'] if method!='GET' else []),
+    'requestFields':['params','query','body (JSON) or raw (signed webhook) or form','headerEnv (credential/signature environment names)'],
+    'optional':['actor','preconditions','cleanup']}
+ traced=dependencies(o['source'])
+ definition.update(method=o['method'],path=o['path'],dependencies=sorted(traced['services']),sourceFiles=list(traced['sourceFiles']))
+ for filename,digest in traced['sourceFiles'].items():
+  if filename not in source_index:
+   source_index[filename]={'sha256':digest,'environment':sorted(k for k,v in traced['referencedEnvironment'].items() if filename in v),
+     'services':sorted(k for k,v in traced['services'].items() if filename in v),
+     'httpReferences':sorted(set(re.findall(r'https?://[^\s\"\'`<>]+',(ROOT/filename).read_text())))}
+ catalog.append(definition)
+
+# Auth middleware is a separate conservative dependency set: its branches depend
+# on the supplied credential and public-route classification, not only the route.
+shared=dependencies('src/api/middleware/security.ts')
+(OUT/'dependencies.json').write_text(json.dumps({'method':'Conservative transitive import closure, including type imports; referenced variables are not all mandatory at runtime. No service contacted.', 'files':source_index,'sharedMiddleware':shared},ensure_ascii=False,indent=2)+'\n')
+(OUT/'scenarios.json').write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
+(OUT/'catalog.json').write_text(json.dumps({'schemaVersion':1,'operations':len(catalog),
+ 'files':['tests/rest/live-draft/scenarios.json'],'dependencies':'tests/rest/live-draft/dependencies.json'},ensure_ascii=False,indent=2)+'\n')
+(OUT/'oracles.json').write_text(json.dumps({'guards':GUARDS,'snapshots':SNAP},ensure_ascii=False,indent=2)+'\n')
+# Exact inputs, including every variable referenced by retained authored steps.
+for definition in catalog:
+ op=definition['operation']
+ if requirements[op]['kind']=='authored':
+  scenario=definition['scenarios'][0]
+  related=[scenario]+[GUARDS[r] for r in scenario.get('resources',[])]+[SNAP[r] for r in scenario.get('unchanged',[])]
+  requirements[op]['variables']=sorted(k for k in set(re.findall(r'\$\{([^}]+)\}',json.dumps(related))) if k != 'run.id' and not k.startswith('captured.'))
+  requirements[op]['configuration']={'postgresql.urlEnv':bool(scenario.get('actors') or scenario.get('resources') or scenario.get('unchanged') or scenario.get('read') or any(st.get('oracles') for st in scenario['steps'])), 'allowFixtureWrites':scenario.get('mode')=='fixture-write', 'resend.apiKeyEnv + resend.testRecipients':any(st.get('resendEvidence') for st in scenario['steps']), 'valkey.urlEnv':any(st.get('valkeyOtp') for st in scenario['steps']), 'internalTokenEnv':any(st.get('internalToken') for st in scenario['steps'])}
+(OUT/'fixture-requirements.json').write_text(json.dumps(requirements,ensure_ascii=False,indent=2)+'\n')

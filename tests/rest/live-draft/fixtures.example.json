@@ -1,0 +1,9 @@
+{
+  "actors": {
+    "owner": { "testOnly": true, "userId": "REPLACE_EXISTING_USER_UUID", "keycloakId": "REPLACE_EXISTING_KEYCLOAK_SUBJECT", "username": "REPLACE_EXISTING_TEST_USERNAME", "role": "user", "tokenEnv": "REST_LIVE_OWNER_TOKEN", "auth": "bearer" },
+    "stranger": { "testOnly": true, "userId": "REPLACE_OTHER_USER_UUID", "keycloakId": "REPLACE_OTHER_KEYCLOAK_SUBJECT", "username": "REPLACE_OTHER_TEST_USERNAME", "role": "user", "tokenEnv": "REST_LIVE_STRANGER_TOKEN" }
+  },
+  "resources": {},
+  "vars": {},
+  "cases": {}
+}

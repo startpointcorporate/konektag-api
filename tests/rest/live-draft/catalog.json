@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "operations": 392,
+  "files": [
+    "tests/rest/live-draft/scenarios.json"
+  ],
+  "dependencies": "tests/rest/live-draft/dependencies.json"
+}
