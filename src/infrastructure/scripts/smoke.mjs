@@ -25,7 +25,12 @@ try{
  const swaggerScript=await swaggerInit.text();
  assert.match(swaggerScript,/usePkceWithAuthorizationCodeGrant:true/);
  assert.match(swaggerScript,/clientId:'frontend-konektag'/);
- assert.equal((await get('/docs/oauth2-redirect.html')).status,200);
+ const redirectHtml=await (await get('/docs/oauth2-redirect.html')).text();
+ assert.match(redirectHtml,/oauth2-redirect\.js/);
+ const redirectJs=await get('/docs/oauth2-redirect.js');
+ assert.equal(redirectJs.status,200);
+ assert.match(redirectJs.headers.get('content-type')||'',/javascript/);
+ assert.match(await redirectJs.text(),/swaggerUIRedirectOauth2/);
  const spec=await (await get('/openapi.json')).json();assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,307);
  assert.equal((await get('/api/account/balance')).status,401);
  const invalidLegal=await get('/api/legal-documents');assert.equal(invalidLegal.status,422);assert.deepEqual(await invalidLegal.json(),{error:'legal_country_required'});
