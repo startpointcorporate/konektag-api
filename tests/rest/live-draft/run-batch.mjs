@@ -23,7 +23,12 @@ try {
   if (!externalConfig) {
     const fixturesFile = fixturePath ? path.resolve(fixturePath) : path.join(dir, 'fixtures.json');
     if (!fixturePath) {
-      const empty = { actors: {}, resources: {}, vars: {}, cases: {} };
+      const empty = { actors: {
+        // Explicitly designated existing test user; enabled only when its token is supplied.
+        ...(process.env.REST_LIVE_OWNER_TOKEN ? { owner: {
+          testOnly: true, username: 'konektag-test-002', tokenEnv: 'REST_LIVE_OWNER_TOKEN', auth: 'bearer'
+        } } : {})
+      }, resources: {}, vars: {}, cases: {} };
       await writeFile(fixturesFile, JSON.stringify(empty), { mode: 0o600 });
     } else {
       // Fail fast on invalid/private fixture shape, rather than silently running an empty campaign.
