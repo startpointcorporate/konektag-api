@@ -150,6 +150,36 @@ export const onRequest = ((async (context, routeNext) => {
   const requestPath = new URL(context.request.url).pathname.replace(/\/+$/, '') || '/';
   const apiAuthError = await authenticateUserApiRequest(context);
   if (apiAuthError) return apiAuthError;
+  // Accept Keycloak user JWTs for Swagger/OIDC API clients, without replacing
+  // session cookies, user API keys or merchant-specific bearer credentials.
+  // The decoded issuer is used only to identify token type; validateToken
+  // always verifies the signature, issuer and expiry before trusting identity.
+  const bearerMatch = context.request.headers.get('authorization')?.match(/^Bearer\\s+(\\S+)$/i);
+  const bearerToken = bearerMatch?.[1];
+  if (bearerToken && requestPath.startsWith('/api/') && requestPath !== '/api/pay/payments') {
+    let isKeycloakUserToken = false;
+    try {
+      const parts = bearerToken.split('.');
+      if (parts.length === 3) {
+        const untrusted = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+        const issuer = (process.env.KEYCLOAK_EXTERNAL_BASE_URL || 'https://login.konektag.eu').replace(/\\/$/, '')
+          + '/realms/' + (process.env.KEYCLOAK_REALM || 'konektag');
+        isKeycloakUserToken = untrusted.iss === issuer;
+      }
+    } catch { /* Other bearer schemes retain their existing handlers. */ }
+    if (isKeycloakUserToken) {
+      const payload = await authService.validateToken(bearerToken);
+      if (!payload || typeof payload.sub !== 'string') {
+        return Response.json({error:'INVALID_OIDC_TOKEN'}, {status:401});
+      }
+      const { rows: [user] } = await pool.query(
+        `SELECT id,keycloak_id,username,locale,state,role,profile_type,country,city,access_status
+           FROM konektag.users WHERE keycloak_id=$1 AND deleted_at IS NULL`, [payload.sub]);
+      if (!user) return Response.json({error:'USER_NOT_ONBOARDED'}, {status:401});
+      (context.locals as any).user = {...user, email:payload.email};
+      (context.locals as any).oidcBearerAuthenticated = true;
+    }
+  }
   if (context.locals.apiKeyId) {
     // Check current account/KYC restrictions before idempotency can replay a response.
     const apiStateError = await handleOnboardingRedirect(context, context.locals.user, async () => null);
@@ -347,6 +377,7 @@ export const onRequest = ((async (context, routeNext) => {
   // API credentials use the same account-state, KYC and route authorization gates.
   // Financial idempotency and account holds above have already been evaluated.
   if (context.locals.apiKeyId) return next();
+  if ((context.locals as any).oidcBearerAuthenticated) return handleOnboardingRedirect(context, context.locals.user, next);
 
   const isPublic = isPublicRoute(url.pathname);
   const anonymousLinkRead = async () => context.request.method === 'GET'
