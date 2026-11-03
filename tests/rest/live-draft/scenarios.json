@@ -5834,14 +5834,14 @@
         "steps": [
           {
             "method": "GET",
-            "path": "/api/marketplace/taxonomy/subcategories?categoryId=${taxonomy.categoryId}",
+            "path": "/api/marketplace/taxonomy/subcategories?categoryId=${witness.0.categoryId}",
             "status": 200,
             "assertions": [],
             "oracles": [
               {
                 "sql": "SELECT s.id,s.category_id,s.code,s.name_i18n,s.sort_order FROM konektag.offer_subcategories s JOIN konektag.offer_categories c ON c.id=s.category_id WHERE s.category_id=$1 AND s.is_active AND s.deleted_at IS NULL AND c.is_active AND c.deleted_at IS NULL ORDER BY s.sort_order,s.code",
                 "params": [
-                  "${taxonomy.categoryId}"
+                  "${witness.0.categoryId}"
                 ],
                 "responsePath": "/subcategories",
                 "mode": "equal",
@@ -5852,10 +5852,8 @@
         ],
         "read": [
           {
-            "sql": "SELECT s.id,s.category_id,s.code,s.name_i18n,s.sort_order FROM konektag.offer_subcategories s JOIN konektag.offer_categories c ON c.id=s.category_id WHERE s.category_id=$1 AND s.is_active AND s.deleted_at IS NULL AND c.is_active AND c.deleted_at IS NULL ORDER BY s.sort_order,s.code",
-            "params": [
-              "${taxonomy.categoryId}"
-            ],
+            "sql": "SELECT c.id::text AS \"categoryId\" FROM konektag.offer_categories c JOIN konektag.offer_subcategories s ON s.category_id=c.id WHERE c.is_active AND c.deleted_at IS NULL AND s.is_active AND s.deleted_at IS NULL GROUP BY c.id ORDER BY c.id LIMIT 1",
+            "params": [],
             "name": "witness",
             "minRows": 1
           }
