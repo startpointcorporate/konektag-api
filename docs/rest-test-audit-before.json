@@ -1,0 +1,5461 @@
+{
+  "schemaVersion": 1,
+  "summary": {
+    "paths": 307,
+    "operations": 392,
+    "covered": 43,
+    "partial": 22,
+    "blocked": 0,
+    "uncovered": 327,
+    "businessUncovered": 349,
+    "executedTests": 1290,
+    "passedTests": 1290
+  },
+  "operations": [
+    {
+      "operation": "DELETE /api/account/api-keys/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "returns credentials once at creation with no-store headers",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "lists only the signed-in user metadata",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects cross-origin creation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "requires a browser session for key management",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unauthenticated or blocked users",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "does not revoke another user key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "allows the owner to revoke a key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "creates and revokes behind the HTTPS reverse proxy using the target Host",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://attacker.test",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://www.konektag.eu:8443",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: null",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://www.konektag.eu/path",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: ",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /api/admin/categories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/admin/merchants/{id}/commission-rates",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/admin/offer-categories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/admin/offer-subcategories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/admin/pro-subscriptions/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/favorites/merchants",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/favorites/users",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/k/send/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/k/send/recipient",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/merchant/api-key",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for ABSENT before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for EXPIRED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for INACTIVE before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards creates with server-approved Pro capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards revokes expired keys using a free security capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses configuration and rotation before webhook mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards permits webhook deactivation after expiry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies export before querying analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards propagates a backend failure without creating a key",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/certification/documents/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/merchant/media/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/merchant/products/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-product-delete.test.ts",
+          "name": "DELETE native catalogue retirement contract requires authentication before any mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-delete.test.ts",
+          "name": "DELETE native catalogue retirement contract returns the explicit retirement for authenticated valid requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-delete.test.ts",
+          "name": "DELETE native catalogue retirement contract returns the explicit retirement for authenticated invalid-json requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-delete.test.ts",
+          "name": "DELETE native catalogue retirement contract returns the explicit retirement for authenticated invalid-id requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-delete.test.ts",
+          "name": "DELETE native catalogue retirement contract returns the explicit retirement for authenticated empty requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-delete.test.ts",
+          "name": "DELETE native catalogue retirement contract returns the explicit retirement for authenticated enriched requests without modifying historical products",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/promotions/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "DELETE /api/merchant/reels",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/account",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/account/api-keys",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "returns credentials once at creation with no-store headers",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "lists only the signed-in user metadata",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects cross-origin creation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "requires a browser session for key management",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unauthenticated or blocked users",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "does not revoke another user key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "allows the owner to revoke a key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "creates and revokes behind the HTTPS reverse proxy using the target Host",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://attacker.test",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://www.konektag.eu:8443",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: null",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://www.konektag.eu/path",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: ",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/account/balance",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/account/history",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/account/kyc-gate",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/account/payment-claims",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/account/pending-transactions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/activation-campaign/current",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/activation-challenge/current",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/activation-campaigns",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/activation-campaigns/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/activation-campaigns/{id}/statistics",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/boost-pricing",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/boost-pricing/prices",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/card-batches",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/card-transactions",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/admin-card-transactions.test.ts",
+          "name": "Admin card transaction query uses an explicit safe projection and preserves only an eight-digit BIN",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-card-transactions.test.ts",
+          "name": "GET /api/admin/card-transactions requires the admin role",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-card-transactions.test.ts",
+          "name": "GET /api/admin/card-transactions does not return prohibited card fields and only returns a valid BIN",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-card-transactions.test.ts",
+          "name": "GET /api/admin/card-transactions rejects invalid country, provider, and date windows before querying attempts",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/categories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/categories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/clearing",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/clearing/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/dashboard/stats",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/admin-dashboard-stats.test.ts",
+          "name": "GET /api/admin/dashboard/stats returns 403 without admin role",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-dashboard-stats.test.ts",
+          "name": "GET /api/admin/dashboard/stats returns all KPIs and metrics for admin",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-dashboard-stats.test.ts",
+          "name": "GET /api/admin/dashboard/stats returns zeroes when no data exists",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/disputes",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/disputes/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/finance/dashboard/{entity}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/finance-dashboard-route.test.ts",
+          "name": "admin finance dashboard route preserves the response contract using PostgreSQL finance repositories",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/interco",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/finance/interco/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/finance/klots",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/finance/klots/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/finance/legal-entities",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/finance/network/{entity}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/kyc",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/kyc/document",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchant-sales",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchant-sales/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchant-settlements",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchant-settlements/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchant-visibility",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchants",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "authenticates an API-only call without using cookies or Keycloak login",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "rejects invalid credentials even when an admin cookie is supplied",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "preserves admin route checks and reflects a role change on the next call",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "rejects blocked users before invoking a route",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "keeps KYC restrictions on API calls, including the financial-idempotency path",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "keeps financial account holds before route execution",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "binds financial idempotency to the API user and legal entity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "returns 503 without falling back to a cookie when API authentication storage is unavailable",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-auth-middleware.test.ts",
+          "name": "does not accept personal credentials on HTML pages",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}/commission-rates",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}/kyb",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}/kyb/contract",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "preserves the contract articles, escapes stored values and leaves missing fields to complete",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "rejects unauthenticated and non-admin access before reading a dossier",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "rejects a missing merchant or deleted owner",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "downloads an editable contract without changing signed reference or KYB gates",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "rejects malformed merchant ids and reports generation errors without private data",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "prefills the owner contact from the encrypted account without exposing encrypted data",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "generates a contract without querying any activity profiles",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-kyb-contract.test.ts",
+          "name": "reports unexpected merchant query errors without exposing private details",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/agents",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchants/certification",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/merchants/claims",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/mobile-money-queue",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "status-only"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/mobile-money-queue.test.ts",
+          "name": "Mobile Money admin queue rejects raw sender data and never maps it into queue rows",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/mobile-money-queue.test.ts",
+          "name": "Mobile Money admin queue accepts the same receipt idempotently and rejects a conflicting receipt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/mobile-money-queue.test.ts",
+          "name": "Mobile Money admin queue rejects API payments outside awaiting_mobile_money before writing a receipt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/mobile-money-queue.test.ts",
+          "name": "Mobile Money admin queue returns forbidden for an unauthenticated list request",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/mobile-money-queue.test.ts",
+          "name": "Mobile Money admin queue returns forbidden for a non-admin user",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/offer-categories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/offer-categories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/offer-subcategories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/offer-subcategories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/pro-subscriptions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/recharges",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/recharges/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/screening",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/users",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/admin/wallet-history",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/admin-wallet-history.test.ts",
+          "name": "Admin wallet history query uses a safe projection and returns a financial transaction only for one exact reference/type match",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-wallet-history.test.ts",
+          "name": "GET /api/admin/wallet-history requires the admin role",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/admin-wallet-history.test.ts",
+          "name": "GET /api/admin/wallet-history never returns authentication, delivery, email, raw payee, or Redis fields",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/admin/wallet-integrity",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/agent/inquiries",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/agents",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/agents/{name}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/auth/country-confirmation",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/auth/me",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/bookings",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/cash-agent",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "status-only"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/p05-cash-agent-disabled.test.ts",
+          "name": "P05 cash agent cannot be enabled through its public route",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/catalog/reels",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/communication/preferences",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/communication/unsubscribe/{channel}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/countries",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/device-identity",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries requires authentication on GET and POST",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries sets no-store for success and error responses",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects origin https://attacker.invalid",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects origin null",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects origin ",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects wrong content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries binds certification to authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries bounds request body even without content length",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries revokes only authenticated owner scope",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries does not expose internal errors or secrets",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries reports unavailable signing authority without details",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects invalid certificate lookup key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "returns sanitized 500 for GET infrastructure failure",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "returns sanitized 500 for POST infrastructure failure",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized OWNER_MISMATCH rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized PROOF_INVALID rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized Invalid signature rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized KEY_EXPIRED rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "maps policy and capacity failures to sanitized 503",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps malformed request JSON at 400",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/earn/agent/application",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/earn/agent/commissions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/earn/agent/dashboard",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/earn/representative/commissions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/earn/representative/missions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/earn/representative/missions/{name}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/earn/representative/my-missions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/email/verify",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/favorites/merchants",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/favorites/users",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/geo/neighborhoods",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/growth/events/stats",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/internal/dify-health",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/internal/health",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/migration/health.test.ts",
+          "name": "requires both existing runtime dependencies to be healthy",
+          "level": "unit"
+        },
+        {
+          "file": "tests/migration/health.test.ts",
+          "name": "does not report Redis ready when ping returns false",
+          "level": "unit"
+        },
+        {
+          "file": "tests/migration/health.test.ts",
+          "name": "reports database unavailability",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/internal/operational-readiness",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/k/send",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/k/send/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/k/send/balance",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/k/send/recipient",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/k/send/recipient/{id}/qr",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/kyc/status",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/kyc/status-stream",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/legal-documents",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/legal-documents-route.test.ts",
+          "name": "GET /api/legal-documents loads documents for the real country and UI locale",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/legal-documents-route.test.ts",
+          "name": "GET /api/legal-documents fails closed when applicable documents cannot be loaded",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/loyalty",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/marketplace/taxonomy/categories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/marketplace/taxonomy/subcategories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/meeting-slots",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/{slug}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/activation-status",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/analytics/business",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/analytics/export",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal",
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects anonymous before any SQL",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats filters every analytics query by the authorized commerce",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects foreign/unknown/empty slug B before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects foreign/unknown/empty slug missing before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects foreign/unknown/empty slug  before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects a membership denied by the existing guard",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats resolves a sole authorized commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects no eligible commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats requires slug for multiple equal-priority memberships (primary=false)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats requires slug for multiple equal-priority memberships (primary=true)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats uses the unique primary membership",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats fails closed when authorization storage fails",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects anonymous before any SQL",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV filters every analytics query by the authorized commerce",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects foreign/unknown/empty slug B before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects foreign/unknown/empty slug missing before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects foreign/unknown/empty slug  before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects a membership denied by the existing guard",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV resolves a sole authorized commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects no eligible commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=false)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=true)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV uses the unique primary membership",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV fails closed when authorization storage fails",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for ABSENT before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for EXPIRED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for INACTIVE before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards creates with server-approved Pro capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards revokes expired keys using a free security capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses configuration and rotation before webhook mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards permits webhook deactivation after expiry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies export before querying analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards propagates a backend failure without creating a key",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/analytics/stats",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects anonymous before any SQL",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats filters every analytics query by the authorized commerce",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects foreign/unknown/empty slug B before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects foreign/unknown/empty slug missing before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects foreign/unknown/empty slug  before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects a membership denied by the existing guard",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats resolves a sole authorized commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats rejects no eligible commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats requires slug for multiple equal-priority memberships (primary=false)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats requires slug for multiple equal-priority memberships (primary=true)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats uses the unique primary membership",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 stats fails closed when authorization storage fails",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects anonymous before any SQL",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV filters every analytics query by the authorized commerce",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects foreign/unknown/empty slug B before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects foreign/unknown/empty slug missing before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects foreign/unknown/empty slug  before analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects a membership denied by the existing guard",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV resolves a sole authorized commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV rejects no eligible commerce without slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=false)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=true)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV uses the unique primary membership",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/analytics-sec1.test.ts",
+          "name": "SEC-1 CSV fails closed when authorization storage fails",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/api-key",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/api-webhook",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/cards/{number}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/cards/sales-history",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/cards/sales-today",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/cash-sales",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/cash-sales/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/certification",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/certification-status",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/kyb",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/media-file",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/messages",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/my-assignment-requests",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/my-profiles",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/offline-snapshot",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/opening-hours",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/operations",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/pro-renewal-links/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-renewal-link.test.ts",
+          "name": "Pro renewal payment link creates the FR corridor order only after the link is opened",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-renewal-link.test.ts",
+          "name": "Pro renewal payment link creates the CG corridor order only after the link is opened",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-renewal-link.test.ts",
+          "name": "Pro renewal payment link does not create an order for a Frappe provider unsupported by its Checkout route",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-renewal-link.test.ts",
+          "name": "Pro renewal payment link requires the network merchant of the selected legal entity",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/products",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-products-get.test.ts",
+          "name": "GET /api/merchant/products returns products for authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-get.test.ts",
+          "name": "GET /api/merchant/products returns 401 for unauthenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-get.test.ts",
+          "name": "GET /api/merchant/products propagates authorization errors correctly",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/products/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-product-get.test.ts",
+          "name": "GET /api/merchant/products/:id returns product for authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-get.test.ts",
+          "name": "GET /api/merchant/products/:id returns 401 for unauthenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-get.test.ts",
+          "name": "GET /api/merchant/products/:id returns 422 for invalid UUID",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-get.test.ts",
+          "name": "GET /api/merchant/products/:id returns 404 for product not found",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-get.test.ts",
+          "name": "GET /api/merchant/products/:id returns 403 for product not owned",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/profile",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/profiles/{profileId}/pro-status",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/promotions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/publication-status",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/qr-code-file",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/qr-code/{name}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/qr-codes",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/qrcode",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/reels",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/sales",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-sales-route.test.ts",
+          "name": "GET /api/merchant/sales rejects unauthenticated reads",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-sales-route.test.ts",
+          "name": "GET /api/merchant/sales returns the summary contract for the logged-in merchant",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-sales-route.test.ts",
+          "name": "GET /api/merchant/sales passes the authenticated merchant scope and filters to PostgreSQL",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/search",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/settlement-configuration",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/settlements",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/taxes",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/visibility-completion",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/visibility/campaigns",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/visibility/catalog-access",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/visibility/discovery",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/visibility/reviews",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/merchant/visibility/upgrade",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/notifications",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/notifications/count",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/onboarding/check-username",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/orders",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}/mobile-money/pawapay/return",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes defaults to fr when lang and referer locale are unavailable",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes redirects provider return to pending page using requested locale",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes keeps redirecting even when fetching deposit details fails",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}/status-stream",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-status-stream-route.test.ts",
+          "name": "API payment status stream route validates the checkout, streams only safe status fields, and disables proxy buffering",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-status-stream-route.test.ts",
+          "name": "API payment status stream route returns 404 without creating a Redis subscription for an invalid token",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/countries",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pay/detected-country",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pay/payment-context",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/payment-context-route.test.ts",
+          "name": "GET /api/pay/payment-context returns the resolved France payment context without creating a payment",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-context-route.test.ts",
+          "name": "GET /api/pay/payment-context supports market and reports resolution errors",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payment-country",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/payment-country-route.test.ts",
+          "name": "GET /api/pay/payment-country returns BE payment country",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-country-route.test.ts",
+          "name": "GET /api/pay/payment-country maps PAYMENT_COUNTRY_INVALID to HTTP 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-country-route.test.ts",
+          "name": "GET /api/pay/payment-country maps PAYMENT_COUNTRY_MAPPING_NOT_FOUND to HTTP 404",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-country-route.test.ts",
+          "name": "GET /api/pay/payment-country maps PAYMENT_COUNTRY_MAPPING_AMBIGUOUS to HTTP 422",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payment-links",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal",
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "returns only the public projection and never mutates state",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "returns only a terminal state for CONSUMED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "returns only a terminal state for EXPIRED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "handles elapsed expiration and missing links",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "does not expose an ERP identity when the business name is absent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "does not expose internal DB errors",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "retains the authenticated single-Link contract",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "retains the merchant list contract",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "refuses anonymous resume without writing a pending payment",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payments/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-order-route.test.ts",
+          "name": "API payment order route reads the modern PostgreSQL order and preserves the order envelope",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-order-route.test.ts",
+          "name": "API payment order route preserves the 404 error contract for an unknown order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-order-route.test.ts",
+          "name": "API payment order route requires an authenticated merchant principal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-order-route.test.ts",
+          "name": "API payment order route scopes API-key reads to the owning merchant",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payments/by-reference",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-reference-route.test.ts",
+          "name": "Merchant payment lookup by reference (additive ERP integration) refuses missing and invalid API keys without reading orders",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-reference-route.test.ts",
+          "name": "Merchant payment lookup by reference (additive ERP integration) requires a nonempty transaction reference",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-reference-route.test.ts",
+          "name": "Merchant payment lookup by reference (additive ERP integration) scopes reference lookup to merchant AND key environment",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-reference-route.test.ts",
+          "name": "Merchant payment lookup by reference (additive ERP integration) does not reveal another merchant payment or checkout token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-reference-route.test.ts",
+          "name": "Merchant payment lookup by reference (additive ERP integration) does not expose backend exceptions",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payments/confirm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pay/points/value",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pay/settlements",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/photo/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/preferences",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/preferences/dashboard",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/preferences/features",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pro/inquiries",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/pro/pricing",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing returns final FR minor-unit amounts from the resolver without reconversion",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing returns final XAF amounts for CG without FX",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing returns final XAF amounts for CM without FX",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing returns final XAF amounts for GA without FX",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing returns the resolver error code for a country without a Price List",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing rejects malformed country codes before resolving pricing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-pro-pricing.test.ts",
+          "name": "GET /api/pro/pricing rejects inconsistent currencies returned for monthly and annual pricing",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/profile/public",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/promotions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/public/boost-cpm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/public/users",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/public/users/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/public/users/{id}/analytics",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/qr",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-qr-merchant-authorization.test.ts",
+          "name": "GET /api/qr?type=merchant does not list an arbitrary merchant profile without exact owner/manager authorization",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-qr-merchant-authorization.test.ts",
+          "name": "GET /api/qr?type=merchant preserves client payment listing",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "GET /api/qr/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/qr/code",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/qr/confirm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/qr/personal-link",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/qr/user-link-quote",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/referral/stats",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/reviews",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/reviews/by-merchant",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /api/users/search",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "GET /v1/payments/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PATCH /api/admin/activation-campaigns/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PATCH /api/admin/merchants/{id}/kyb",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PATCH /api/admin/offer-categories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PATCH /api/admin/offer-subcategories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PATCH /api/merchant/products/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-product-patch.test.ts",
+          "name": "PATCH native catalogue retirement contract requires authentication before any mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-patch.test.ts",
+          "name": "PATCH native catalogue retirement contract returns the explicit retirement for authenticated valid requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-patch.test.ts",
+          "name": "PATCH native catalogue retirement contract returns the explicit retirement for authenticated invalid-json requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-patch.test.ts",
+          "name": "PATCH native catalogue retirement contract returns the explicit retirement for authenticated invalid-id requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-patch.test.ts",
+          "name": "PATCH native catalogue retirement contract returns the explicit retirement for authenticated empty requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-product-patch.test.ts",
+          "name": "PATCH native catalogue retirement contract returns the explicit retirement for authenticated enriched requests without modifying historical products",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/account/api-keys",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "returns credentials once at creation with no-store headers",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "lists only the signed-in user metadata",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects invalid or owner-injection requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects cross-origin creation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "requires a browser session for key management",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unauthenticated or blocked users",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "does not revoke another user key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "allows the owner to revoke a key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "creates and revokes behind the HTTPS reverse proxy using the target Host",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://attacker.test",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://www.konektag.eu:8443",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: null",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: https://www.konektag.eu/path",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/user-api-key-routes.test.ts",
+          "name": "rejects unsafe origins behind the proxy: ",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/account/payment-claims",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/account/transactions/{id}/retry",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/account/update-profile",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/activation-campaigns",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/activation-campaigns/{id}/{action}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/boost-pricing",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/boost-pricing/update",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/card-batches",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/cards/lifecycle",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/categories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/clearing/approve",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/clearing/freeze",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/clearing/settle",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/clearing-fx-validation.test.ts",
+          "name": "clearing FX validation boundary rejects a client supplied FX rate before clearing settlement",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/clearing-fx-validation.test.ts",
+          "name": "clearing FX validation boundary fails closed before posting when a cross-currency batch has no authoritative FX evidence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/clearing-fx-validation.test.ts",
+          "name": "clearing FX validation boundary does not require FX evidence for a same-currency batch",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/clearing-fx-validation.test.ts",
+          "name": "clearing FX validation boundary rejects authoritative FX evidence whose currency pair does not match the clearing entities",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/clearing-fx-validation.test.ts",
+          "name": "clearing FX validation boundary rejects incomplete authoritative FX evidence before posting",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/clearing-fx-validation.test.ts",
+          "name": "clearing FX validation boundary settles a cross-currency batch using authoritative FX evidence",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/admin/disputes",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/kyc",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/{id}/confirm",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/legacy-settlement-confirm.test.ts",
+          "name": "retires the legacy settlement confirmation mutation",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/approve",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/confirm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/prepare",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/submit-payout",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/submit-proof",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/verify-proof",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchant-visibility",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchants",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchants/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchants/{id}/kyb",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchants/{id}/pro-activation",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-initial-payment.test.ts",
+          "name": "initial Pro payment after central approval returns a payment link and does not activate before payment",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-initial-payment.test.ts",
+          "name": "initial Pro payment after central approval denies a field team account before creating a link",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-initial-payment.test.ts",
+          "name": "initial Pro payment after central approval creates the first subscription only for an approved paid intent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-initial-payment.test.ts",
+          "name": "initial Pro payment after central approval does not create a subscription for an unpaid order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-initial-payment.test.ts",
+          "name": "initial Pro payment after central approval does not create the first subscription twice on webhook replay",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants/certification",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/merchants/claims",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/mobile-money-queue/api-payments/{id}/confirm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/mobile-money-queue/recharges/{id}/confirm",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/p03-legacy-routes.test.ts",
+          "name": "P03 legacy Mobile Money routes rejects browser confirmation callbacks without dispatching a credit",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/admin/mobile-money/acquisitions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/offer-categories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/offer-subcategories",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/payment-claims/{id}/approve",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/payment-claims/{id}/reject",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/pro-subscriptions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/confirm-crypto",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/confirm-mobile-money",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/p03-legacy-routes.test.ts",
+          "name": "P03 legacy Mobile Money routes rejects browser confirmation callbacks without dispatching a credit",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/refund-crypto",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/refund-mobile-money",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/refund-stripe",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/regulatory-projections/{type}/{code}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/screening",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/users",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/users/{id}/access",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/admin/wallet-integrity",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/agent/inquiries",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/auth/change-password",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/auth/country-confirmation",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/auth/forgot-password",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password rejects empty email",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password rejects invalid email format",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password returns success even if email not found (no disclosure)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password generates token and sends email for existing user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects missing token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects short password",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects invalid token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects expired token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects already used token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password resets password and marks token used",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/auth/reset-password",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password rejects empty email",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password rejects invalid email format",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password returns success even if email not found (no disclosure)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/forgot-password generates token and sends email for existing user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects missing token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects short password",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects invalid token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects expired token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password rejects already used token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/forgot-password.test.ts",
+          "name": "POST /api/auth/reset-password resets password and marks token used",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/cards/redeem",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/cash-agent",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "status-only"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/p05-cash-agent-disabled.test.ts",
+          "name": "P05 cash agent cannot be enabled through its public route",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/catalog/checkout",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/catalog/quote",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/chat",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/consent/marketing",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/device-identity",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries requires authentication on GET and POST",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries sets no-store for success and error responses",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects origin https://attacker.invalid",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects origin null",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects origin ",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects wrong content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries binds certification to authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries bounds request body even without content length",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries revokes only authenticated owner scope",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries does not expose internal errors or secrets",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries reports unavailable signing authority without details",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "CORE02 identity API authorization and boundaries rejects invalid certificate lookup key",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "returns sanitized 500 for GET infrastructure failure",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "returns sanitized 500 for POST infrastructure failure",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized OWNER_MISMATCH rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized PROOF_INVALID rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized Invalid signature rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps recognized KEY_EXPIRED rejection at 400",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "maps policy and capacity failures to sanitized 503",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/core02-identity-route.test.ts",
+          "name": "keeps malformed request JSON at 400",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/earn/agent/apply",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/earn/representative/missions/{name}/reserve",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/earn/representative/missions/{name}/submit",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/earn/representative/register",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/email/send-verification",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/favorites/merchants",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/favorites/users",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/growth/contents",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/growth/destinations",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/growth/events",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/internal/erp/account-access",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/internal/kyc-publish-status",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/k/send",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/k/send/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/k/send/quote",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/k/send/recipient",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/kyc/init",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/kyc/resubmit",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/kyc/skip",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/loyalty",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/meeting-request",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/analytics/track",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/api-key",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for ABSENT before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for EXPIRED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for INACTIVE before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards creates with server-approved Pro capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards revokes expired keys using a free security capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses configuration and rotation before webhook mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards permits webhook deactivation after expiry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies export before querying analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards propagates a backend failure without creating a key",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/api-webhook",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for ABSENT before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for EXPIRED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for INACTIVE before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards creates with server-approved Pro capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards revokes expired keys using a free security capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses configuration and rotation before webhook mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards permits webhook deactivation after expiry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies export before querying analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards propagates a backend failure without creating a key",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/cards/sales-declarations",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/cards/sell",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/cash-sales",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/cash-sales/{id}/adjustments",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/cash-sales/{id}/receipt",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/certification",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/certification/documents",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/claim",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/commerce",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/contact",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/create-reference",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/hotel",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/kyb",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/kyb/documents",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/links",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/media",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/media/reorder",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/members/add",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/members/remove",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/offline-mutations",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/opening-hours",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/operations/transactions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/products",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/merchant-products-post.test.ts",
+          "name": "POST native catalogue retirement contract requires authentication before any mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-post.test.ts",
+          "name": "POST native catalogue retirement contract returns the explicit retirement for authenticated valid requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-post.test.ts",
+          "name": "POST native catalogue retirement contract returns the explicit retirement for authenticated invalid-json requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-post.test.ts",
+          "name": "POST native catalogue retirement contract returns the explicit retirement for authenticated invalid-id requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-post.test.ts",
+          "name": "POST native catalogue retirement contract returns the explicit retirement for authenticated empty requests without modifying historical products",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/merchant-products-post.test.ts",
+          "name": "POST native catalogue retirement contract returns the explicit retirement for authenticated enriched requests without modifying historical products",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/profile",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/profiles/{profileId}/pro-renewal",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/promotions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/promotions/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/publish",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/publish-establishment",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/qrcode",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/reels",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/remove-member",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/restaurant",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/suspend",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/taxes",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/unpublish",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/visibility/campaigns",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/merchant/visibility/reviews",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/notifications/mark-all-read",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/offline/v1/batch",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/offline/v1/envelope",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/onboarding/register",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/onboarding/send-otp",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/onboarding/verify-otp",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/cancel",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-cancel-route.test.ts",
+          "name": "API checkout cancel route rejects cross-origin cancellation requests",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-cancel-route.test.ts",
+          "name": "API checkout cancel route cancels an active checkout and returns the updated public order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-cancel-route.test.ts",
+          "name": "API checkout cancel route returns 409 when cancellation is no longer allowed",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/confirm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/funding",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-funding-route.test.ts",
+          "name": "API payment funding route prepares funding from a Payment Context selection without calling the fee route",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-funding-route.test.ts",
+          "name": "API payment funding route rejects a frontend selection that is not issued by Payment Context",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/mobile-money/pawapay/deposit",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes defaults to fr when lang and referer locale are unavailable",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes redirects provider return to pending page using requested locale",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes keeps redirecting even when fetching deposit details fails",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/stripe/create-intent",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes creates an intent from the stored external XOF amount and passes the authenticated payer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes returns the stored PaymentIntent status without allowing the browser to settle it",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes returns a configuration error when the publishable key is missing",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/stripe/finalize",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes creates an intent from the stored external XOF amount and passes the authenticated payer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes returns the stored PaymentIntent status without allowing the browser to settle it",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes returns a configuration error when the publishable key is missing",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/wallet-authorization",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-wallet-authorization-routes.test.ts",
+          "name": "API checkout Wallet authorization routes derives the Wallet amount server-side and rejects caller overrides",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-wallet-authorization-routes.test.ts",
+          "name": "API checkout Wallet authorization routes accepts only a six-digit OTP and returns no authorization identifier",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/wallet-authorization/verify",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-wallet-authorization-routes.test.ts",
+          "name": "API checkout Wallet authorization routes derives the Wallet amount server-side and rejects caller overrides",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-wallet-authorization-routes.test.ts",
+          "name": "API checkout Wallet authorization routes accepts only a six-digit OTP and returns no authorization identifier",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/resume",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/pay/pay-link",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/pay/payment-links",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects invalid amount -1 before side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects invalid amount 0 before side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects invalid amount bad before side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation creates a link for a positive integer amount",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation issues an official server valuation without merchant-local evidence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects a requested currency different from the merchant country currency",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/payment-link-amount.test.ts",
+          "name": "payment link amount validation rejects issuance when no approved server valuation rate is available",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/payment-links/{slug}/resume",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "returns only the public projection and never mutates state",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "returns only a terminal state for CONSUMED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "returns only a terminal state for EXPIRED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "handles elapsed expiration and missing links",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "does not expose an ERP identity when the business name is absent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "does not expose internal DB errors",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "retains the authenticated single-Link contract",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "retains the merchant list contract",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
+          "name": "refuses anonymous resume without writing a pending payment",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/payments",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal",
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-create-route.test.ts",
+          "name": "API payment creation currency contract derives a missing currency from the authenticated merchant legal entity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-create-route.test.ts",
+          "name": "API payment creation currency contract rejects a currency that is not canonical for the authenticated merchant",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-create-route.test.ts",
+          "name": "API payment creation currency contract forwards generic checkout fields (purpose, items, references, redirect URLs)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-create-route.test.ts",
+          "name": "API payment creation currency contract supports itemized orders without an explicit subtotal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-create-route.test.ts",
+          "name": "API payment creation currency contract builds the checkout URL with the requested locale instead of always French",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for ABSENT before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for EXPIRED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for INACTIVE before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards creates with server-approved Pro capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards revokes expired keys using a free security capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses configuration and rotation before webhook mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards permits webhook deactivation after expiry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies export before querying analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards propagates a backend failure without creating a key",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/pay/points/value",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/pay/recharges",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-payment-recharge-route.test.ts",
+          "name": "wallet recharge checkout route uses the authenticated user as the recharge target and ignores forged target fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-recharge-route.test.ts",
+          "name": "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-recharge-route.test.ts",
+          "name": "wallet recharge checkout route requires an authenticated user",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/preferences/complete",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/preferences/save",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/pro/inquiries",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-inquiry-route.test.ts",
+          "name": "linked Pro inquiry rejects an untrusted commerce id without an authenticated merchant",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-inquiry-route.test.ts",
+          "name": "linked Pro inquiry rejects a commerce outside the actor membership",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-inquiry-route.test.ts",
+          "name": "linked Pro inquiry links a verified merchant request to its commerce",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/public/digital-audit",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic accepts canonical public Origin behind an internal reverse proxy URL",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic rejects an untrusted Origin before any CRM write",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic blocks an existing NEW audit without CRM writes or Mautic tagging",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic blocks an existing IN_PROGRESS audit without CRM writes or Mautic tagging",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic blocks an existing COMPLETED audit without CRM writes or Mautic tagging",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic allows a new audit when all previous audits are CANCELLED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic blocks if one of multiple audits is not CANCELLED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic accepts an organic request absent from Mautic without creating a Mautic Contact",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic records and tags a request from an existing ERPNext Contact without a new Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic reuses the Contact without creating a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic refuses ambiguous Contacts without creating an audit or tagging Mautic",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic does not create a duplicate Contact when an existing Lead is found",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic accepts a committed audit if Mautic is temporarily unavailable and leaves an outbox retry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/digital-audit-a03.test.ts",
+          "name": "A03 public digital audit → Mautic returns an error and does not tag when the request could not be stored",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/public/users/{id}/analytics",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/qr",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/qr/personal-link",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/qr/request-confirmation",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/recharge",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/recharge/stripe/confirm",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/recharge/stripe/create-intent",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/referral/code",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/referral/redeem",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/reviews/create",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/reviews/report",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/test-email/send",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/transactions",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/transactions/{id}/transition",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/users/search",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/wallet-authorizations/issue",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/wallet-debit-authorization-routes.test.ts",
+          "name": "wallet authorization routes disables browser issuance of arbitrary Wallet operation snapshots",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/wallet-authorizations/verify",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/checkouts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for checkouts without financial side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for payouts without financial side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for refunds without financial side effects",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/deposits",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/payouts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for checkouts without financial side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for payouts without financial side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for refunds without financial side effects",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/refunds",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for checkouts without financial side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for payouts without financial side effects",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+          "name": "PawaPay placeholder webhooks returns 501 for refunds without financial side effects",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/stripe",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "business",
+        "refusal"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route rejects a Stripe event with an invalid signature",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route deduplicates a previously received event without settling again",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route does not settle a metadata-mismatched provider event",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route settles a verified API-card event and marks it processed",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route logs the verified event identity without exposing finalization errors to Stripe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route refuses a retired legacy recharge without crediting it or marking its event processed",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route settles a wallet recharge through its API checkout with provider and event evidence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/stripe-webhook.test.ts",
+          "name": "Stripe webhook route does not credit a recharge again when Stripe redelivers a processed event",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/stripe/{configurationKey}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "POST /v1/payments",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/admin/categories/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/admin/disputes/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/admin/merchants/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/admin/merchants/{id}/commission-rates",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/admin/pro-subscriptions/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/agent/inquiries/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/auth/me",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/communication/preferences",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/k/send/recipient",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/merchant/api-webhook",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "reviewed-partial"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards requires identity",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for ABSENT before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for EXPIRED before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses new keys for INACTIVE before mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards creates with server-approved Pro capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards revokes expired keys using a free security capability",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards refuses configuration and rotation before webhook mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards permits webhook deactivation after expiry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards denies export before querying analytics",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pro-entitlement-routes.test.ts",
+          "name": "direct Pro route guards propagates a backend failure without creating a key",
+          "level": "unit"
+        }
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/media/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/merchant/messages",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/merchant/profile",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/merchant/promotions/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/merchant/settlement-configuration",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/merchant/visibility/campaigns",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/preferences/dashboard",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/pro/inquiries/{id}",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    },
+    {
+      "operation": "PUT /api/profile/public",
+      "status": "uncovered",
+      "businessStatus": "uncovered",
+      "facets": [],
+      "tests": []
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "baseUrl": "https://REPLACE_EXISTING_API_ORIGIN",
+  "fixtures": "fixtures.private.json",
+  "postgresql": { "urlEnv": "REST_LIVE_DATABASE_URL" },
+  "valkey": { "urlEnv": "REST_LIVE_VALKEY_URL" },
+  "resend": { "apiKeyEnv": "REST_LIVE_RESEND_API_KEY", "testRecipients": ["REPLACE_DEDICATED_TEST_MAILBOX"] },
+  "allowFixtureWrites": false,
+  "outputDirectory": "work/rest-live-results"
+}

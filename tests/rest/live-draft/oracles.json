@@ -1,0 +1,134 @@
+{
+  "guards": {
+    "merchant": {
+      "sql": "SELECT id FROM konektag.merchant_profiles WHERE id=$1 AND user_id=$2 AND deleted_at IS NULL",
+      "params": [
+        "${merchant.id}",
+        "${owner.userId}"
+      ]
+    },
+    "claim": {
+      "sql": "SELECT id FROM konektag.payment_claims WHERE id=$1 AND user_id=$2",
+      "params": [
+        "${claim.id}",
+        "${owner.userId}"
+      ]
+    },
+    "order": {
+      "sql": "SELECT id FROM konektag.api_payment_orders WHERE id=$1 AND target_user_id=$2",
+      "params": [
+        "${order.id}",
+        "${owner.userId}"
+      ]
+    },
+    "send": {
+      "sql": "SELECT id FROM konektag.k_send_intents WHERE id=$1 AND sender_user_id=$2",
+      "params": [
+        "${send.id}",
+        "${owner.userId}"
+      ]
+    },
+    "kyc": {
+      "sql": "SELECT id FROM konektag.kyc_orders WHERE id=$1 AND user_id=$2",
+      "params": [
+        "${kyc.id}",
+        "${owner.userId}"
+      ]
+    },
+    "recipient": {
+      "sql": "SELECT id FROM konektag.k_send_beneficiaries WHERE id=$1 AND owner_keycloak_id=$2",
+      "params": [
+        "${recipient.id}",
+        "${owner.keycloakId}"
+      ]
+    },
+    "foreignSend": {
+      "sql": "SELECT id FROM konektag.k_send_intents WHERE id=$1 AND sender_user_id=$2",
+      "params": [
+        "${foreignSend.id}",
+        "${stranger.userId}"
+      ]
+    },
+    "foreignMerchant": {
+      "sql": "SELECT id FROM konektag.merchant_profiles WHERE id=$1 AND user_id=$2",
+      "params": [
+        "${foreignMerchant.id}",
+        "${stranger.userId}"
+      ]
+    }
+  },
+  "snapshots": {
+    "owner": {
+      "sql": "SELECT id,encrypted_data,country,country_confirmed_at,state,role,version,banned_at,access_status,email_verified,email_verification_token FROM konektag.users WHERE id=$1",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "merchant": {
+      "sql": "SELECT * FROM konektag.merchant_profiles WHERE id=$1",
+      "params": [
+        "${merchant.id}"
+      ]
+    },
+    "keys": {
+      "sql": "SELECT * FROM konektag.user_api_keys WHERE user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "claims": {
+      "sql": "SELECT * FROM konektag.payment_claims WHERE user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "orders": {
+      "sql": "SELECT * FROM konektag.api_payment_orders WHERE target_user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "consents": {
+      "sql": "SELECT * FROM konektag.communication_consents WHERE user_id=$1 ORDER BY channel",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "send": {
+      "sql": "SELECT * FROM konektag.k_send_intents WHERE sender_user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "recipients": {
+      "sql": "SELECT * FROM konektag.k_send_beneficiaries WHERE owner_keycloak_id=$1 ORDER BY id",
+      "params": [
+        "${owner.keycloakId}"
+      ]
+    },
+    "public-profile": {
+      "sql": "SELECT * FROM konektag.user_public_profiles WHERE user_id=$1",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "core": {
+      "sql": "SELECT * FROM konektag.core_transactions WHERE customer_user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "kyc": {
+      "sql": "SELECT * FROM konektag.kyc_orders WHERE user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    },
+    "loyalty": {
+      "sql": "SELECT * FROM konektag.loyalty_transactions WHERE user_id=$1 ORDER BY id",
+      "params": [
+        "${owner.userId}"
+      ]
+    }
+  }
+}

@@ -127,3 +127,7 @@ Les noms suivants constituent **des exigences à configurer**, et non des secret
 | `GITHUB_TOKEN` fourni par GitHub | Publication GHCR, permission `packages: write` |
 
 Le runner doit pouvoir joindre l'API K3s. Le cluster doit pouvoir tirer les images GHCR, avec un `imagePullSecrets` existant si elles sont privées. Les images sont référencées par SHA de commit ; aucun tag `latest` n'est utilisé. Le retour arrière utilise une révision Helm existante. Aucun déploiement de production n'a été exécuté depuis cet environnement.
+
+### Couverture REST examinée
+
+`npm run test:rest:coverage` régénère le contrat et exécute la suite Vitest avant de produire la [matrice OpenAPI ↔ tests](docs/rest-test-coverage.md) et le [rapport JSON](docs/rest-test-coverage.json). Le [rapport d'audit](docs/rest-test-audit.md) décrit les preuves métier, les limites et le défaut Resend connu. Les tests de transport/auth seuls restent partiels. La CI vérifie les preuves exécutées et refuse les régressions par opération ; aucun déploiement n'est effectué par ce contrôle.

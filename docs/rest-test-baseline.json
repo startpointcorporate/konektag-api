@@ -1,0 +1,3759 @@
+{
+  "schemaVersion": 1,
+  "summary": {
+    "paths": 307,
+    "operations": 392,
+    "covered": 77,
+    "partial": 314,
+    "blocked": 1,
+    "uncovered": 0,
+    "businessUncovered": 315,
+    "executedTests": 2215,
+    "passedTests": 2215
+  },
+  "operations": [
+    {
+      "operation": "DELETE /api/account/api-keys/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/admin/categories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/admin/merchants/{id}/commission-rates",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/admin/offer-categories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/admin/offer-subcategories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/admin/pro-subscriptions/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/favorites/merchants",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "DELETE /api/favorites/users",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "DELETE /api/k/send/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/k/send/recipient",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/api-key",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/certification/documents/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/media/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/products/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/promotions/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "DELETE /api/merchant/reels",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account/api-keys",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account/balance",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account/history",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account/kyc-gate",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account/payment-claims",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/account/pending-transactions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/activation-campaign/current",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/activation-challenge/current",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/activation-campaigns",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/activation-campaigns/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/activation-campaigns/{id}/statistics",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/boost-pricing",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/boost-pricing/prices",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/card-batches",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/card-transactions",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/categories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/categories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/clearing",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/clearing/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/dashboard/stats",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/disputes",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/disputes/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/dashboard/{entity}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/interco",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/interco/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/klots",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/klots/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/legal-entities",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/finance/network/{entity}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/kyc",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/kyc/document",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchant-sales",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchant-sales/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchant-settlements",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchant-settlements/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchant-visibility",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}/commission-rates",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}/kyb",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/{id}/kyb/contract",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/agents",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/certification",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/merchants/claims",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/mobile-money-queue",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "status-only",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/offer-categories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/offer-categories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/offer-subcategories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/offer-subcategories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/pro-subscriptions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/recharges",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/recharges/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/screening",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/users",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/wallet-history",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/admin/wallet-integrity",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/agent/inquiries",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/agents",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/agents/{name}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/auth/country-confirmation",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/auth/me",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "session",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/bookings",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/cash-agent",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "status-only",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/catalog/reels",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/communication/preferences",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/communication/unsubscribe/{channel}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/countries",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/device-identity",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/agent/application",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/agent/commissions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/agent/dashboard",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/representative/commissions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/representative/missions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/representative/missions/{name}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/earn/representative/my-missions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/email/verify",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/favorites/merchants",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/favorites/users",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/geo/neighborhoods",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/growth/events/stats",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/internal/dify-health",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/internal/health",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/internal/operational-readiness",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/k/send",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/k/send/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/k/send/balance",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/k/send/recipient",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/k/send/recipient/{id}/qr",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/kyc/status",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/kyc/status-stream",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/legal-documents",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "reviewed-partial",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/loyalty",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/marketplace/taxonomy/categories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/marketplace/taxonomy/subcategories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/meeting-slots",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/{slug}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/activation-status",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/analytics/business",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/analytics/export",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/analytics/stats",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/api-key",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/api-webhook",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/cards/{number}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/cards/sales-history",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/cards/sales-today",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/cash-sales",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/cash-sales/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/certification",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/certification-status",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/kyb",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/media-file",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/messages",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/my-assignment-requests",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/my-profiles",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/offline-snapshot",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/opening-hours",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/operations",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/pro-renewal-links/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/products",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/products/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/profile",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/profiles/{profileId}/pro-status",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/promotions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/publication-status",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/qr-code-file",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/qr-code/{name}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/qr-codes",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/qrcode",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/reels",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/sales",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/search",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/settlement-configuration",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/settlements",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/taxes",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/visibility-completion",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/visibility/campaigns",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/visibility/catalog-access",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/visibility/discovery",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/visibility/reviews",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/merchant/visibility/upgrade",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/notifications",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/notifications/count",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/onboarding/check-username",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/orders",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}/mobile-money/pawapay/return",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}/status-stream",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/countries",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/detected-country",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payment-context",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payment-country",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payment-links",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payments/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payments/by-reference",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/payments/confirm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/points/value",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pay/settlements",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/photo/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/preferences",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/preferences/dashboard",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/preferences/features",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/pro/inquiries",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/pro/pricing",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/profile/public",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/promotions",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/public/boost-cpm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/public/users",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/public/users/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/public/users/{id}/analytics",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/qr",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/qr/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/qr/code",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/qr/confirm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/qr/personal-link",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/qr/user-link-quote",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /api/referral/stats",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/reviews",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/reviews/by-merchant",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "GET /api/users/search",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "GET /v1/payments/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PATCH /api/admin/activation-campaigns/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PATCH /api/admin/merchants/{id}/kyb",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PATCH /api/admin/offer-categories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PATCH /api/admin/offer-subcategories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PATCH /api/merchant/products/{id}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/account/api-keys",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/account/payment-claims",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/account/transactions/{id}/retry",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/account/update-profile",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/activation-campaigns",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/activation-campaigns/{id}/{action}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/boost-pricing",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/boost-pricing/update",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/card-batches",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/cards/lifecycle",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/categories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/clearing/approve",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/clearing/freeze",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/clearing/settle",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/disputes",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/kyc",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/{id}/confirm",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/approve",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/confirm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/prepare",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/submit-payout",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/submit-proof",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-settlements/verify-proof",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchant-visibility",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants/{id}/kyb",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants/{id}/pro-activation",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants/certification",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/merchants/claims",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/mobile-money-queue/api-payments/{id}/confirm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/mobile-money-queue/recharges/{id}/confirm",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/mobile-money/acquisitions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/offer-categories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/offer-subcategories",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/payment-claims/{id}/approve",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/payment-claims/{id}/reject",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/pro-subscriptions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/confirm-crypto",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/confirm-mobile-money",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/refund-crypto",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/refund-mobile-money",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/recharges/{id}/refund-stripe",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/regulatory-projections/{type}/{code}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/screening",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/users",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/users/{id}/access",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/admin/wallet-integrity",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/agent/inquiries",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/auth/change-password",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/auth/country-confirmation",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/auth/forgot-password",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/auth/reset-password",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/cards/redeem",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/cash-agent",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "status-only",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/catalog/checkout",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/catalog/quote",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/chat",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/consent/marketing",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/device-identity",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/earn/agent/apply",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/earn/representative/missions/{name}/reserve",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/earn/representative/missions/{name}/submit",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/earn/representative/register",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/email/send-verification",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/favorites/merchants",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/favorites/users",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/growth/contents",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/growth/destinations",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/growth/events",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/internal/erp/account-access",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/internal/kyc-publish-status",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/k/send",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/k/send/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/k/send/quote",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/k/send/recipient",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/kyc/init",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/kyc/resubmit",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/kyc/skip",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/loyalty",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/meeting-request",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/analytics/track",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/api-key",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/api-webhook",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/cards/sales-declarations",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/cards/sell",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/cash-sales",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/cash-sales/{id}/adjustments",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/cash-sales/{id}/receipt",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/certification",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/certification/documents",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/claim",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/commerce",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/contact",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/create-reference",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/hotel",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/kyb",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/kyb/documents",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/links",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/media",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/media/reorder",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/members/add",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/members/remove",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/offline-mutations",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/opening-hours",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/operations/transactions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/products",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/profile",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/profiles/{profileId}/pro-renewal",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/promotions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/promotions/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/publish",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/publish-establishment",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/qrcode",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/reels",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/remove-member",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/restaurant",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/suspend",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/taxes",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/unpublish",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/visibility/campaigns",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/merchant/visibility/reviews",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/notifications/mark-all-read",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/offline/v1/batch",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/offline/v1/envelope",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/onboarding/register",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "compensation",
+        "idempotency",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/onboarding/send-otp",
+      "status": "blocked",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/onboarding/verify-otp",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/cancel",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/confirm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/funding",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/mobile-money/pawapay/deposit",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/stripe/create-intent",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/stripe/finalize",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/wallet-authorization",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/wallet-authorization/verify",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/resume",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/pay-link",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/payment-links",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/payment-links/{slug}/resume",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/payments",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/points/value",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/pay/recharges",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/preferences/complete",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/preferences/save",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/pro/inquiries",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/public/digital-audit",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/public/users/{id}/analytics",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/qr",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/qr/personal-link",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/qr/request-confirmation",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/recharge",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/recharge/stripe/confirm",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/recharge/stripe/create-intent",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/referral/code",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/referral/redeem",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/reviews/create",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "POST /api/reviews/report",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/test-email/send",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/transactions",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/transactions/{id}/transition",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/users/search",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/wallet-authorizations/issue",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/wallet-authorizations/verify",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/checkouts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/deposits",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/payouts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/pawapay/refunds",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/stripe",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /api/webhooks/stripe/{configurationKey}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "POST /v1/payments",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/admin/categories/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/admin/disputes/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/admin/merchants/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/admin/merchants/{id}/commission-rates",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/admin/pro-subscriptions/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/agent/inquiries/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/auth/me",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "PUT /api/communication/preferences",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/k/send/recipient",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/api-webhook",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "reviewed-partial",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/media/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/messages",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/profile",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/promotions/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/settlement-configuration",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/visibility/campaigns",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/preferences/dashboard",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ]
+    },
+    {
+      "operation": "PUT /api/pro/inquiries/{id}",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    },
+    {
+      "operation": "PUT /api/profile/public",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ]
+    }
+  ]
+}

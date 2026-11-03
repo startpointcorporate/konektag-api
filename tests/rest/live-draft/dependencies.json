@@ -1,0 +1,3690 @@
+{
+  "method": "Conservative transitive import closure, including type imports; referenced variables are not all mandatory at runtime. No service contacted.",
+  "files": {
+    "src/api/http.ts": {
+      "sha256": "a2474103d12fa02c4fe7a2c6c9889c4f2a749fca8c7e5d4e53e3ef475144d955",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/account/api-keys/[id].ts": {
+      "sha256": "87f80afb2533ed933e76da79f06d5656d412c5a51492c8cd6f3c28c6b1bdef6f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/account/api-keys/index.ts": {
+      "sha256": "d95999e2344d75eb0c03a5a42f44852a6165ee47c5e4a216f52a05bf30039afb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/user-api-key-service.ts": {
+      "sha256": "28bb25feddb4f31945ce196f7dce8912cc51db2a6d9e48138ebe227d3b128eb2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/encryption-service.ts": {
+      "sha256": "c390179fa92755a054212110321d29b7f19dbc8ecce22f5d925dca7e1f876bca",
+      "environment": [
+        "DATA_ENCRYPTION_KEY"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/database/pool.ts": {
+      "sha256": "e4b77c87e189503f2c8dfdcd711c17d2b4a6400353a9cd2907c15d7468278f5a",
+      "environment": [
+        "DATABASE_URL"
+      ],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/categories/[id].ts": {
+      "sha256": "4e15be5235881b9a3bd506c8820cb57e9e6b385c1129f3cb5fc1263ca871e6e9",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/[id]/commission-rates/index.ts": {
+      "sha256": "27d0c2c54773af21e03ed0b914258ebcc6871ea309949a1623a2ed09b0dd25ad",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/accounting-service.ts": {
+      "sha256": "8edb0b7e66da2043a00e653f8f36a0678ddfdccc606eca21fe83d1273f65438f",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/card-batch-service.ts": {
+      "sha256": "79bf7d4cd625efbc9243010f8a060cfd8ec7a8e2e432593b46156c2ecbf3ba22",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/financial-eligibility-engine.ts": {
+      "sha256": "707761f9f6ec43b6fa327ad7fbc198572f90f98497ffa736713a929aee1b17f0",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/financial-operation-service.ts": {
+      "sha256": "6dbf0bacf8e0c12ef78ad366c10ec2d0793f56e29262dac7f62334af18b312c0",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/financial-transaction-service.ts": {
+      "sha256": "2b5ba3da281847096901690fd60f0ad39d5b984a97c62f3c6b9a46b4639e315e",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/money-unit.ts": {
+      "sha256": "51a102fa5591af1b0bc6286fd8a818a183b646652cc335d99cf11e2105501e7b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/Accounting.ts": {
+      "sha256": "c55ee5cff98bdd6e31043367098fee6f62c0b4f68b7ddfa9090cad1197a893d1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/DomainErrors.ts": {
+      "sha256": "7eaed4a0b8786549c2da66756d41fe00ed688ed966df1d1b2c3e56ae6087da0a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/RegulatoryProfile.ts": {
+      "sha256": "06f333c9530c53bb8750b7aa5ed9d3aab60e01d8aabd5f5276a74e0073e0b84e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/financial-operation-repository.ts": {
+      "sha256": "48f60ae52c7b6c8c8e04753eeca424c6c0fb4b55f4e3b2da79a31666e5ec755a",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/regulatory-profile-repository.ts": {
+      "sha256": "eb208b3ae50badc4c649fa19199494d83279a1f1b1b939c32b4d9db6c20c9828",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/offer-categories/[id].ts": {
+      "sha256": "a7ead12d72b7dc2ea10d12d07dc4d0aac8bb449eb2b141106273bc7f2d24b5ed",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/offer-subcategories/[id].ts": {
+      "sha256": "67af8453cc7caa062adc36be8c71308e9952ce59e8a2dc2f3c202982af9c6571",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/pro-subscriptions/[id].ts": {
+      "sha256": "54a586b5313df6348fa787e2d797b9e5587e5e80ef9d578954274b80cf02fb61",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/backoffice-permission-service.ts": {
+      "sha256": "1b1ae0f891c1822087c3b37baae0485c642c45ca0d90113f2bd222979f46c194",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/favorites/merchants.ts": {
+      "sha256": "59d235654368f77a31f3e001245d420a3b5e50ffb807c4404283431181bb8d49",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/favorites/users.ts": {
+      "sha256": "ded04bdeaef6ab999baef84b455639a40cbba963a74365d476161a34e5cd627f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/k/send/recipient/index.ts": {
+      "sha256": "0010e153a02ba627cec217d6efaab6f106b41415abbc299d4e682bc0dc9eef94",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/k-points-service.ts": {
+      "sha256": "3db8405e2fdff733550c7d0b37ad8b384b56f5f3ec754eee1507be0006014e31",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/k-send-application-service.ts": {
+      "sha256": "41d6d33da5ccde0e2181da36024355d5a0954ddb03e75addeebf2dcb27351175",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/resend-service.ts": {
+      "sha256": "4e9d9ab212e33fd890f24101ee80ff2527eb7fb7d3b5958605aaf1ed546d5beb",
+      "environment": [
+        "RESEND_API_KEY",
+        "RESEND_FROM"
+      ],
+      "services": [
+        "Resend"
+      ],
+      "httpReferences": [
+        "https://api.resend.com/emails"
+      ]
+    },
+    "src/application/services/wallet-integrity-rules.ts": {
+      "sha256": "c76759794e6441a7290250b8801ea78d81ab65c2c3fbe36727caf6be68b7b310",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/wallet-integrity-service.ts": {
+      "sha256": "c44cf7622a201280e569cee7cc1b1f0ccd73db6ca23bf6bf2857b787eaafbf35",
+      "environment": [
+        "WALLET_INTEGRITY_ENFORCE_RULES",
+        "WALLET_INTEGRITY_MODE",
+        "WALLET_INTEGRITY_WARNING_THRESHOLD"
+      ],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/k-send-beneficiary-repository.ts": {
+      "sha256": "58e0d35c0442b48f5fba915cca8ca11eddab42db6ec50fb51dcd542f6e38f4fa",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/k-send-repository.ts": {
+      "sha256": "1c780ce5b6943ee695ecb991acf51387f00c784de5927efb4535ea3efe57377c",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/k/send/[id].ts": {
+      "sha256": "c683d1eabc137a8431e33ddeba46ab6814954bb3749b96d985c42e00f9ad0035",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/k-send-otp-service.ts": {
+      "sha256": "d09d41a66cc09d67907553c9a9190b99035cb8983027b8d5dbba6da9a68a1c34",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/redis-adapter.ts": {
+      "sha256": "d2dbcb0daf9655470d08eec2bcb2c8116f9af1c74fc4e104bd5b51ab420b5676",
+      "environment": [
+        "OTP_MAX_ATTEMPTS",
+        "OTP_TTL_SECONDS",
+        "REDIS_PASSWORD",
+        "REDIS_URL"
+      ],
+      "services": [
+        "Valkey"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/api-key.ts": {
+      "sha256": "a30a542ba0bc75779bd67c531b9d90a42d82e1a62069252bf173ac7fd4084461",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/core-transaction-service.ts": {
+      "sha256": "71ecd6ce1c6e75ea66a264982ae9a006de5958afcf7334d256becfe60dfd7b59",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/merchant-activity-profile.ts": {
+      "sha256": "e5286f2e16688d78937f1e772df79510adf7324bfc0e0264bf15c270ad62c00f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-service.ts": {
+      "sha256": "ce344fac713d09a04396990eac235124cd0ce927ae3dbd165477f871f34bc047",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://konektag.io${publicPageUrl}"
+      ]
+    },
+    "src/application/promotion-service.ts": {
+      "sha256": "80c51877f2b6ab7b6d3b6537ed95b78bf7955e755de7adcfa430c47be3ccb900",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/qrcode-service.ts": {
+      "sha256": "30c97ecc483f08556ae2e61348fffcdf846b9baf92049d3aacd24fc3ad3fb1a7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/communication-consent-service.ts": {
+      "sha256": "a9ca8e1c947a9be3b588c5db6dd43e392d98dd3266b952f8a2025252a18b3826",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/country-currency-service.ts": {
+      "sha256": "5e037c5f3198111b57c1993390a578b945acc13ecc0139aaf8eddc216c3b570a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/entitlement-decision-service.ts": {
+      "sha256": "a0d6854c8d34df9ee7e0418be4b429996a51a18b664db8d04f170d95e7d0194f",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-activation-service.ts": {
+      "sha256": "f90f389d37dfda4e753a5d5c817d650d30bdbd02596a812c293a48db469625bd",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-api-key-service.ts": {
+      "sha256": "6d5c3be2b74c7f8fe8eaa765440cd2f1cebea02428f9c5222acb9be068325431",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-pro-subscription-service.ts": {
+      "sha256": "75c4df14448397c029b30bca2c679ad215a2c56d3f68f122dd8aa9aa83d08d4f",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/notification-service.ts": {
+      "sha256": "d8c2e7b4ddbc3b1a860a12530c2ae503ac823f4a0b0a5a9ca541b65d45415bb2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/operation-currency-service.ts": {
+      "sha256": "7cdd9468ed60af019d57cc819e2d85257ab1aadc83cb88b78b5ae7f3c9fde3f5",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/public-marketplace-sql.ts": {
+      "sha256": "fe1b06a838e409b24b9efde1fca43fac30d448c44426cb0c46db118459feaa33",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/subscription-pricing.ts": {
+      "sha256": "c5208f8d2b4c967bcbbaa0a2cbd6bea8f12d881bb1b3d676bb9f0c0c97b38612",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/marketplace/slug.ts": {
+      "sha256": "196e378be9c9c5d768dce7c457ce9cf5e945051842db2a0198808e66f5b8c4ab",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/media-validation.ts": {
+      "sha256": "56f21b0cfc344857fed8c2112223593a356f5ef7a740c59689a4b34082a064b1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/CommunicationConsent.ts": {
+      "sha256": "78a19bcdaccdbd742a55d38be71fcdf0e93d6ba713d092d0e0a1b75cb320c3c3",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/MerchantErrors.ts": {
+      "sha256": "7737811730da2145264248d87220ff942e93781a90f4aee7876fd07918b6d637",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/MerchantLocation.ts": {
+      "sha256": "acc07f761497bf645c49c36a1ab043fe8998a9de56a5a4b5e93f05e7a31bf1ce",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/MerchantProfile.ts": {
+      "sha256": "3ba55bde05589cb38c8e5b503bc3793d3460da98ee7b50e08979400cfe2dc5e1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/OnboardingStateMachine.ts": {
+      "sha256": "ce84cb11316aba195a94f97d9a79f8d4dee7c6319b986d66481ffe6725e07be7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/core-business.ts": {
+      "sha256": "d0c516e83c531fa423170cd550f666cba01417aea1c93e32fd23e446db0fa738",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/native-catalog-retirement.ts": {
+      "sha256": "1e550c9158d05c1a66c82ab336d8ba62743878c996de29e7037ae0572aac4cb8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/public-catalog.ts": {
+      "sha256": "15fff5f2353dbcb8bbce80baed412e38dafc9e423935988a41d4e819ad593f59",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/correlation-id.ts": {
+      "sha256": "160012480feec6df99fbe31ca9b7d89c11d4d08e568d71dd89049ae978a98585",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/media-storage.ts": {
+      "sha256": "4650a212edda71d052bc8e8da1f62f63bc5f9f3a32cd8813f087feac97219fe6",
+      "environment": [
+        "MINIO_ACCESS_KEY",
+        "MINIO_BUCKET",
+        "MINIO_ENDPOINT",
+        "MINIO_PORT",
+        "MINIO_PUBLIC_ENDPOINT",
+        "MINIO_SECRET_KEY"
+      ],
+      "services": [
+        "MinIO/S3"
+      ],
+      "httpReferences": [
+        "http://${endpoint}:${port}"
+      ]
+    },
+    "src/infrastructure/repositories/audit-log-repository.ts": {
+      "sha256": "201d197144d35eaaeddc9d0fcd80cdc849f7fea24df2e0757562c99dfc85476a",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/communication-consent-repository.ts": {
+      "sha256": "ebcc81461d93851b834e191b8f0899363a099e3c78809d5465aea8b94d80898a",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/configuration-repository.ts": {
+      "sha256": "1920b36443167f8bce8a9590a243585ab7bec056d1730b506c33696596607655",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/idempotency-repository.ts": {
+      "sha256": "056527113114c16726808cb7f66301eeaead6d3c63d66465f70467f58e8b447a",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/kyc-order-repository.ts": {
+      "sha256": "c058fa5d4cc0a536641984e9794a4535d5c6c27d028d6abb94d17f5ce4c6e8e1",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/outbox-repository.ts": {
+      "sha256": "3639deb3b8185217bf62b33162724906491ce9b8c42668845944ead00455894f",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/preferences-repository.ts": {
+      "sha256": "639f78e254676baa7aa10771bc29c1f8177ca4c30c02381093a24ee5b4b70983",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/user-repository.ts": {
+      "sha256": "6de58c46ce60949b6b9b8444358776ab1bc6f76d2e2401e81add3cc572e265d6",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/unit-of-work.ts": {
+      "sha256": "bb7baa9ffad88d5fa7b1d3240547b02517ffdb51d46fd01d5b59ec4e601c3ff9",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/certification/documents/[id].ts": {
+      "sha256": "88e2e97e571ccc351fb21f6c13642667b3f116e8ab437e85bc592eae94d209fe",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/media/[id].ts": {
+      "sha256": "ced02652aa0d4369720974d1052422e0c9554491ad56e3447c37bcac0d0d3c39",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/products/[id].ts": {
+      "sha256": "ecfddceb646ad684a27962ae77c8e14db2be2400796243bb37e48d5a2b5cbac3",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/promotions/[id].ts": {
+      "sha256": "c444b15ad4e7248cf339f9285ff6f511f22ca7201ac381b34d03b32a1cf90b72",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/reels.ts": {
+      "sha256": "56323ba7174b25451b65e15657310ccc82f2ae1b3bc5746ea6b75e1b7647584a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-operations-http.ts": {
+      "sha256": "ef974a91c9855e851ecd45feb37f274a050dd4991e6badb54467cf7dd4aabd44",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/public-catalog-service.ts": {
+      "sha256": "ac5c550e48b912bf689a15c2d34e9e399ae83723bf3f5812a966b947e58cab1c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/i18n.ts": {
+      "sha256": "76d924147823109443df6aede1a7df5016f0b16605527d133557ecc78fe945be",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/types.ts": {
+      "sha256": "9ec55d58fc69719646886337dd9cdeea216846325609405dd059aff3c64f2f95",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/account/index.ts": {
+      "sha256": "75499e3b2deced9337c3863e0d2a14b257e40fe873e8b8ded5b38ef38bad7ed2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/account-service.ts": {
+      "sha256": "6a2ba977d120bd576bce4c1dbc7c0fc836a0ecc6e404d22e9a0bf45fba268254",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/exchange-rate-service.ts": {
+      "sha256": "e764c5d3bac379dfea86859c46b15b53c7c2d2cb275b071cc97ed17c8f368ae2",
+      "environment": [
+        "ERP_CURRENCY"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/ledger-service.ts": {
+      "sha256": "941418a0800fec082e35a3bf5defb459f17446818628aa6a68768b4619916484",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/account/balance.ts": {
+      "sha256": "e7d301937ae437e020d0117a08b9b23e894d0dcc7608e45a7f75fd64a74fb6a5",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/points-reservation-service.ts": {
+      "sha256": "46dec77eb726ddd3f6851c1c861ad3751ed5077730bfd295532abc0940219a61",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/points-wallet-service.ts": {
+      "sha256": "95bb5fff44b1758215ee63b74ae6e8964db1dcec1e093fbe8011d5d2f24ec6e7",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/account/history/index.ts": {
+      "sha256": "c16074f3b9b88da0f6a2650d5834bee98513f2ad5c0a925977d4aa0f5c90a791",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/account/kyc-gate.ts": {
+      "sha256": "9d7eac06802779a2f8503746df31a862c4b8af0eb50c5837bc0aa48f6ed2bdc1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/user-kyc-gate-service.ts": {
+      "sha256": "95bf84e33bca85cf2111fa4b76ff98468998f450e5bb6ff26cff5c26dd73cd96",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/account/payment-claims/index.ts": {
+      "sha256": "236ade7b37550917d7da426f311c0393463065346d0d50a7108a34144e0ac616",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/activation-challenge-service.ts": {
+      "sha256": "f83ef37253e46db9f2551905fe810e635a951aaec57fda2fee3346fb562b8fd9",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/consumption-service.ts": {
+      "sha256": "5a3a49522d509ee4506f82e7c128ef0de133beba6088c0dae335763f4d1e499d",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/frappe-master-data-projection-service.ts": {
+      "sha256": "836a1d1b20c3a03fc1d57022c4e693c94e077fccb113a98a0cbbd2edd3a4847c",
+      "environment": [],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-kyb-service.ts": {
+      "sha256": "efe4c5be6b7c5dfa4edb94865a7ba534711cfcd54a287556d9bf76282aacc682",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/api-payment-checkout-service.ts": {
+      "sha256": "1262c519d33f0ba73b0196a3a76b16e15a69787f06cb697596cdbfa9bc3e22cd",
+      "environment": [
+        "API_PAYMENT_CHECKOUT_EXPIRATION_MINUTES",
+        "PUBLIC_APP_URL",
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/api-payment-webhook-service.ts": {
+      "sha256": "bc6f36045e8dea8bf1596d962579eed3bca78c4fcc5b0e91b5579107fee22d60",
+      "environment": [
+        "NODE_ENV"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/checkout-expiration.ts": {
+      "sha256": "90133e34a628ea1e56c73ae18e8d6041e5dd2847f9b65ba94db5935b6053d3bc",
+      "environment": [
+        "API_PAYMENT_CHECKOUT_EXPIRATION_MINUTES"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/payment-context-resolver.ts": {
+      "sha256": "3c5ddf807c1a2132dd01eb0330e63c74475f4ee2a7bef1c9968d645f9bd24e78",
+      "environment": [
+        "KONEKTAG_INTEGRATION_SECRET"
+      ],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/points-acquisition-service.ts": {
+      "sha256": "bd6bc5c0a9bec520e5e0613e40b441dd95e936466925fd9f5600a5248e367662",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/points-benefits-service.ts": {
+      "sha256": "7196b45657998b52ce8792ab0d07bbdccb8f5e9f6b5ed8b060f015b57dfe58b1",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/wallet-debit-authorization-service.ts": {
+      "sha256": "a0e643c12f1e311a1db320abd429c9e7e7c34f70bac283d3d4fbd0a5cad6d2d7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/points-k-valuation-service.ts": {
+      "sha256": "89c2c8053bd6c9fbc9edb1f3d77a8142d24933d1e89310325ae0bf5c1859f321",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/points-k-valuation.ts": {
+      "sha256": "4c838ea8e5ff65006bba0a4b797d5993f5451ed7234d086782a8323811c6529e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/erpnext-adapter.ts": {
+      "sha256": "df1725b1221d2001ee3a8597c97cc85a5defc3127e6977fabd9927d0ae5be7b4",
+      "environment": [
+        "ERPNEXT_URL",
+        "FRAPPE_API_KEY",
+        "FRAPPE_API_SECRET"
+      ],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/payment-rail.ts": {
+      "sha256": "5e5181b4b3ddd67ef794898a39ebed4296a1731552e70fdd79dff7425dcf6e29",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/provider-configuration.ts": {
+      "sha256": "7e9ace11b671e24eaa8973fb27a64e488554e6e0af6f1fd4881b7f3ee3ade9e1",
+      "environment": [
+        "PAWAPAY_API_TOKEN",
+        "PAWAPAY_API_URL",
+        "STRIPE_PUBLIC_KEY",
+        "STRIPE_PUBLISHABLE_KEY",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET"
+      ],
+      "services": [
+        "PawaPay",
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/account/pending-transactions.ts": {
+      "sha256": "098f261e43f5c48d4e5c60a32466122dc40b942c346e6f4afc84cdb5de99abe4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/activation-campaign/current.ts": {
+      "sha256": "fab2e69c81d67d5fbc105c67cd25978cbe0dff2a5b04fc86a9e291e0ce5fa968",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/activation-challenge/current.ts": {
+      "sha256": "b328fa2902c83551ffea79c94db9608eb173356a64a9c77f378bf45cced8cce8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/activation-campaigns/index.ts": {
+      "sha256": "5a8ce46abe800ca16711e556b50699ecf3019ac4e2b91b58e0631f978b727bf1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/activation-campaigns/[id].ts": {
+      "sha256": "a215cf914f2e1557eee43931251266981195407556c56e7086650f45336f36cf",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/activation-campaigns/[id]/statistics.ts": {
+      "sha256": "205789850c60cdf328103c619517008d764a27cf051aa6d41d10b80329a03ca0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/boost-pricing.ts": {
+      "sha256": "79b8935f9a29de272074b10b4ba4c637efd47ccdc1aa7bd4ef3ecac01fb3c150",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-social-boost-price-resolver.ts": {
+      "sha256": "3b813baef0bac584e4c3844fd4e53511b2a917c38568c8d9c3f61c5d71229fd7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-social-boost-pricing-service.ts": {
+      "sha256": "a2713258b5dff2b2b58d60f757ba63aba0de35791202d7676872c5768bc0fc50",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/postiz-connections.ts": {
+      "sha256": "ef6964bd706b0c75c18f9b781e569bcca307b6fca5e67c30b70c39615cf68519",
+      "environment": [
+        "POSTIZ_API_URL",
+        "POSTIZ_MERCHANT_CHANNELS"
+      ],
+      "services": [
+        "Postiz"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/postiz-transport.ts": {
+      "sha256": "b3dff95b3381507043a7830bbb0c0ba1158771c1ec6203998b4060bfa9ad69c9",
+      "environment": [
+        "POSTIZ_ALLOWED_ORIGINS",
+        "POSTIZ_API_URL"
+      ],
+      "services": [
+        "Postiz"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/visibility-shared.ts": {
+      "sha256": "d986cfe7dff44920ade9c371b67c1ba1677a87a049a99d86bafd4e105d6cbd5e",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/boost-pricing/prices.ts": {
+      "sha256": "b2c11d737977a17172e8cf550d81055133950e112af8bfd16e1c3f02fe895b54",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/card-batches.ts": {
+      "sha256": "d992dd2287355af5ac82193fa4be5c6fbede20bbe899f98bbfb3e23a638bb77f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/maker-checker-service.ts": {
+      "sha256": "8a719cc1b519a0a221316a87710e9c73e44c9aa325cac854ecb09fb97bd28704",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/card-transactions.ts": {
+      "sha256": "9abc0e710149f6c61407c06bf5601437bd79f557f09a99b20fde1c601a14e32d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/queries/admin/card-transactions/list.ts": {
+      "sha256": "0f0bd1a6d94bcf7bc4beb37f15e2b1986326770fac8dc62ed25276d77916540b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/categories/index.ts": {
+      "sha256": "ad7ae84fb7f965e22c43892c8cdb2968bb59bc0d2972df1020bed29c8204f15b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/clearing/index.ts": {
+      "sha256": "87546834e3ceb71e8454e6761fe2508a380a0a33cb6691ee2f78b9541f817e63",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/clearing-service.ts": {
+      "sha256": "123b9c3a6ce4c3960aec25bc21a5dcb6a10bdf4b5f312bf2d496890ef4a660ef",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/clearing-repository.ts": {
+      "sha256": "7e374ab592d79f7769dbc2509646f15c5997e1128082de0ab304af6ea3c5fbca",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/clearing/[id].ts": {
+      "sha256": "7287a11f10c8460c01ccc0754c3c88973324cc6f5af92e381d371a9d2b79aa8c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/dashboard/stats.ts": {
+      "sha256": "7259859876ff2f31cac8b66d54b6917ce5495e8a3958ab49a5a74690b14797d6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/outbox-dispatcher.ts": {
+      "sha256": "5ef7809b09fe14ac029571a470c72fc3692d53344eb4941bd5e6f0b579ea9bc6",
+      "environment": [
+        "KEYCLOAK_ADMIN_CLIENT_ID",
+        "KEYCLOAK_ADMIN_CLIENT_SECRET",
+        "KEYCLOAK_BASE_URL",
+        "KEYCLOAK_CLIENT_ID",
+        "KEYCLOAK_EXTERNAL_BASE_URL",
+        "KEYCLOAK_REALM",
+        "OUTBOX_BATCH_SIZE",
+        "OUTBOX_POLL_INTERVAL_MS",
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [
+        "Directus",
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": [
+        "http://common-keycloak:8080",
+        "https://login.konektag.eu"
+      ]
+    },
+    "src/application/outbox-errors.ts": {
+      "sha256": "a57b3139c67a43a71eaed48967a232cfdef36fb0a5bc12844f4167b589303aef",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/projection/recharge-projection.ts": {
+      "sha256": "97af84061d3898ae2b795e191a47ad05be4d52a328fcfd719a2eb5ded0ba22f6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/cash-receipt-service.ts": {
+      "sha256": "baec4b5c1dc8f744cb3a3483c755b80943527d67cfddb2851911f2a878e93eaf",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/cash-receipt-template.ts": {
+      "sha256": "3c1f58ec1d806b88062f2f3971eb314589a0ebccaa99a8d8f532549d65bb61df",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/erpnext-contact-service.ts": {
+      "sha256": "b794eb13613429766c6c5461b23fbde82f914613c416dfde586bb61ef3f823ae",
+      "environment": [],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/erpnext-regulatory-projection-service.ts": {
+      "sha256": "49a9f97740e6bfdbdef9f8a3435b68472d4da5560900d237a3a4809ee053c265",
+      "environment": [],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/kyc-processor.ts": {
+      "sha256": "8713fbc836c122b20d7ae528a4dc9e2bf1f2c88916e969d4bb75638fb139eb69",
+      "environment": [
+        "MINIO_QUARANTINE_BUCKET"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/mautic-company-sync-service.ts": {
+      "sha256": "0fb571413e95324e837ed54aacbab0b757c0937f6bccd2c275cd5f5332982810",
+      "environment": [],
+      "services": [
+        "Mautic"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/mautic-contact-sync-service.ts": {
+      "sha256": "c91a9506706dda862dae90e3dcc369dd5c0ef0e385beebd5cb3e14f6292342a2",
+      "environment": [],
+      "services": [
+        "Mautic"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/mautic-marketing-sync-service.ts": {
+      "sha256": "793984a6d697aa3c955e7334844ceb692c70ca83f27f94b0923a2993c82d94a9",
+      "environment": [],
+      "services": [
+        "Mautic"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-accounting-projection-service.ts": {
+      "sha256": "1e5ea4fabbe9d69bb163a926eb2a0c3f52ac84f76b5d051bf7a3ef8a698be756",
+      "environment": [
+        "ERPNEXT_URL",
+        "KONEKTAG_INTEGRATION_SECRET"
+      ],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/pawapay-deposit-service.ts": {
+      "sha256": "26782cc586b1cad82f863ce958824eda32f0613eb5055465517d957b5ab33341",
+      "environment": [],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/payment-provider-attempt-service.ts": {
+      "sha256": "fff70c2b903ab1a651d720d73a23561cef89b7245e0e9d800a18d001f89e199a",
+      "environment": [],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/process-evidence-service.ts": {
+      "sha256": "491bbfba736336144cbf1020cfd56a1f00b2cf7825e380595732619a3f07a8de",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/RechargeProjection.ts": {
+      "sha256": "19d41ec96236bc6eab63129c0a22c36aa7bdb00c3ad7d12d793c8ff630a1528e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/RechargeWorkflow.ts": {
+      "sha256": "65c60da19892f095465394fea5f3fcc8b13b8be4bc973b70f1df1700e66b934a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/frappe-integration-client.ts": {
+      "sha256": "acb6988589eed5e3688c1bbe1dafa969120fcb4994a26a856fad6926eea47040",
+      "environment": [
+        "ERPNEXT_URL",
+        "KONEKTAG_INTEGRATION_SECRET"
+      ],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/keycloak-adapter.ts": {
+      "sha256": "9dc61c9b6b928336e860d20ed56e65303cfc68e57a55c05ba7ed0dd0c0fd6797",
+      "environment": [
+        "KEYCLOAK_ADMIN_CLIENT_ID",
+        "KEYCLOAK_ADMIN_CLIENT_SECRET",
+        "KEYCLOAK_BASE_URL",
+        "KEYCLOAK_CLIENT_ID",
+        "KEYCLOAK_EXTERNAL_BASE_URL",
+        "KEYCLOAK_REALM",
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [
+        "Directus",
+        "Keycloak"
+      ],
+      "httpReferences": [
+        "http://common-keycloak:8080",
+        "https://login.konektag.eu"
+      ]
+    },
+    "src/infrastructure/adapters/mautic-adapter.ts": {
+      "sha256": "4c8adb0daa864f049f187e18d7d376de506914d29e6d593f473445e2e456b630",
+      "environment": [
+        "MAUTIC_BASE_URL",
+        "MAUTIC_OAUTH_CLIENT_ID",
+        "MAUTIC_OAUTH_CLIENT_SECRET"
+      ],
+      "services": [
+        "Mautic"
+      ],
+      "httpReferences": [
+        "https://marketing.konektag.eu"
+      ]
+    },
+    "src/infrastructure/adapters/minio-adapter.ts": {
+      "sha256": "b847fb1e0ef089b32a1f89fea1928bfe7a8b25d630188b4e2ec76661c26a308a",
+      "environment": [
+        "MINIO_ACCESS_KEY",
+        "MINIO_BUCKET",
+        "MINIO_ENDPOINT",
+        "MINIO_KYC_BUCKET",
+        "MINIO_PORT",
+        "MINIO_QUARANTINE_BUCKET",
+        "MINIO_REJECTED_BUCKET",
+        "MINIO_SECRET_KEY"
+      ],
+      "services": [
+        "MinIO/S3"
+      ],
+      "httpReferences": [
+        "http://${endpoint}:${port}"
+      ]
+    },
+    "src/infrastructure/adapters/pawapay-client.ts": {
+      "sha256": "a7f0128871d19bf70752df9edad699561c1d1fbe06e6339e0edde718dfbdfaf1",
+      "environment": [
+        "PAWAPAY_SIGNATURE_CLOCK_SKEW_SECONDS"
+      ],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/disputes/index.ts": {
+      "sha256": "4814ae86490d3dda6db0b1a41e019e645f8b21e4beb3e7eb83bf950af88a9b97",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/disputes/[id].ts": {
+      "sha256": "2fbe3a8b2e971ea012b6732f813e81d2820021c608b9b41c09a04f47accc466a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/dashboard/[entity].ts": {
+      "sha256": "9dd86bb8c723c8404f32d89c2ba0d5a575745ea1df3ec5023f42b067fa300594",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/merchant-commission-service.ts": {
+      "sha256": "5a4db38d563af7478db921c34981588343df543fc46d3847edf5f90e884bdba2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/settlement-service.ts": {
+      "sha256": "efb062b7d86eff33adb35ca1b4a5f08bab8987175900084b93fce2f7747e6dc3",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/finance-read-repository.ts": {
+      "sha256": "87b07ccb2017078dcc84002a0d48c094800f11245b0a7e30ff1b1b83088faa44",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/merchant-settlement-repository.ts": {
+      "sha256": "38606327f274565f2b2b00b7288318faa688021e22b0e3e574450c94617e864f",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/interco/index.ts": {
+      "sha256": "f8e81f3bbcd036618e89392667c25c45ccd8b969048c19434140805031211115",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/interco/[id].ts": {
+      "sha256": "54d5ccb6879a8bc67aa685d55a4d383371cf03adc2f60f7c9e5e106652531796",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/klots/index.ts": {
+      "sha256": "6bc62a0bb0b94499d51ce3ec706d5f54e91ab607e6bc5205c27545e314d28659",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/klots/[id].ts": {
+      "sha256": "bf19930db5b12dc440e97b38766a15d6645b17dce37638d8c182a5bfbc285886",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/legal-entities.ts": {
+      "sha256": "b5f37f0dddd153f55b976408a32beb307947ad3050e754ea2f8282b9b2f786cb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/finance/network/[entity].ts": {
+      "sha256": "8981dc3f0ccce9a95a7972af0e1462c41306fd3668863b9a3d5e4589dcc792fc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/kyc/index.ts": {
+      "sha256": "74b7e6e34f55c0d8184915be371dd57a6ff6e045d5f86daa8ccaa6a33cf2d2ec",
+      "environment": [
+        "MINIO_BUCKET",
+        "MINIO_KYC_BUCKET",
+        "MINIO_QUARANTINE_BUCKET"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/kyc/document.ts": {
+      "sha256": "b5fc7659f29ff76388cb294310829ed06d44bac963961317d7d9d8070294486f",
+      "environment": [
+        "MINIO_BUCKET",
+        "MINIO_KYC_BUCKET",
+        "MINIO_QUARANTINE_BUCKET"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-sales/index.ts": {
+      "sha256": "85bbf9d994cc8fa2348fb4d07348c21d2d6ca1d85dbdbc8bac17ef60c7c54eeb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-sales/[id].ts": {
+      "sha256": "db4de42c0dabe44a458d6314c0f51c371fac1968ce553d80a95a5c54393317f6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/index.ts": {
+      "sha256": "37be74914cd49e1a4c81482eefb0651da0bba860201aee9965389c63217ed832",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/[id].ts": {
+      "sha256": "3efcfabde918a901dd644c66392e7d0bfe1253b3917ba39c8acda66d3df9ec4a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-visibility/index.ts": {
+      "sha256": "a3dec9e4c936493287e5c7443114844172ce3c6abfbc4551fd3192a3254a40d7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-discovery-service.ts": {
+      "sha256": "f80e1fbc475b46dbba7741ec5280159745201d5dcea9e555a210575b8f88b7e4",
+      "environment": [],
+      "services": [
+        "Public site (IndexNow key file)"
+      ],
+      "httpReferences": [
+        "https://search.google.com",
+        "https://search.google.com/search-console",
+        "https://www.bing.com",
+        "https://www.bing.com/webmasters"
+      ]
+    },
+    "src/application/services/merchant-social-boost-service.ts": {
+      "sha256": "c84c2bf691c3f93cdb7287eb13e6ac57e665a3623a298951f13b2fa55b2da996",
+      "environment": [
+        "KONEKTAG_BOOST_ERP_CUSTOMERS",
+        "KONEKTAG_BOOST_PAYMENT_PROFILES"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-social-service.ts": {
+      "sha256": "87593437dad9a8f0fa67e5a23c67509c40cc0c865585ec2506cee56490eda0e6",
+      "environment": [
+        "PUBLIC_MEDIA_ORIGINS"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/payment-link-service.ts": {
+      "sha256": "20a9f7b2128880df6fa3c3053c988649d9ed83a7851e564a0970e6e53abbf9a1",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/review-community-service.ts": {
+      "sha256": "afb1b93ec188618b8db4fd36b7b0aed3ac4b515a40766ade2b2e14feb709845a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/indexnow.ts": {
+      "sha256": "aa5df816f4268c1c68a84656ce9a5a2f38c91689e9c0e71b6b9fd58db80cd461",
+      "environment": [
+        "INDEXNOW_KEY"
+      ],
+      "services": [
+        "IndexNow"
+      ],
+      "httpReferences": [
+        "https://api.indexnow.org/indexnow"
+      ]
+    },
+    "src/application/shared/search-observation.ts": {
+      "sha256": "449dea29216df154f9d38f271d3901fe0dfec907d4eb37c2cb6e3825196be58d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/seo.ts": {
+      "sha256": "d8a9417ea9e5ef1fe526af0b8395977f7d010972735822a7b20de46e1da0364e",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": [
+        "http://localhost:4321"
+      ]
+    },
+    "src/api/routes/admin/merchants/index.ts": {
+      "sha256": "f139d09e4117f658f3b8d8623e848f85d8b1f93719428496ff4dae3130191dc6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/agents.ts": {
+      "sha256": "1234fa9896ed6a3fa3e75e175e966a9926e125b42b00239ea50dc96dd27b8dc8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/certification/index.ts": {
+      "sha256": "43fa5d396cb72465f21f11ca156191b1f1849fdd44391d98a4344df0ec7afaa7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/claims.ts": {
+      "sha256": "7f59f43f23062cb92a74b1d33cf8c804864b77bfad5c5267d609386f28961835",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/[id].ts": {
+      "sha256": "979b8fc5e60d54a1bb9bcf3fb4e9741f3726ef0a35a02b67aae4da09f4fd9785",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/[id]/kyb.ts": {
+      "sha256": "4301d20d9f07b57233e794b313e2bfa345d35f6b300dedd79628547135ae5dbd",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/payment-country-resolver.ts": {
+      "sha256": "1e69399e747b2d7b89158e9fc6e7da0ae76bd265fd2d4f7422da0de257e75450",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/[id]/kyb/contract.ts": {
+      "sha256": "bb6d17d65e013c438158c272dc1e4bb02ea4b139e69ef87cf3bb64d4e27c2abc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/contract/merchant-contract-document.ts": {
+      "sha256": "9375d0b7bb9ee891835131806a6502ab778ad54715f0e3f0cc7e95a12b3a269e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/contract/merchant-contract-template.json": {
+      "sha256": "66e242baf1506d6fb33c95eb6d16e436020a00cd308aab5720b5ff97ba7ab8da",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/mobile-money-queue.ts": {
+      "sha256": "cf7d4c9525a030af4db24ee4c0ad2bbad127d3761f4a10588d4a5e88aec421bb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/queries/admin/mobile-money-queue/list.ts": {
+      "sha256": "8f1292849be1be675b0a6e05029ade7fd99ef1beb928d4c32048b5b256af4940",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/offer-categories/index.ts": {
+      "sha256": "15011c6def1d7e37d20eceed2bc11586bc905110c8b0199f90259c7bf348adcc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/offer-subcategories/index.ts": {
+      "sha256": "456ba07f19cebfa6264401358525872f4b7b78f3339cdd3309b0e740c7131ab5",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/pro-subscriptions/index.ts": {
+      "sha256": "e33390f674ff57af6dd462c8218d682beb8d50fe043fd0d0f6d2774516f4f5ca",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/index.ts": {
+      "sha256": "c0d3f6a48eba9b0867d13b40090f874b7c6683f68cb5fd3ba096204d1c3810fa",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/queries/admin/recharges/dto.ts": {
+      "sha256": "f6f1062f9649680470bd566009fcd2cdc8c979fe0249edb2a1e02ec12b4c50bc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/queries/admin/recharges/list.ts": {
+      "sha256": "8ea4f4aff79d272a8a868e170a6bbea21c3d255061ac4c839eab16ca3dd2a728",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/[id].ts": {
+      "sha256": "d4ca7351689903f6649254dd70a8959cb84d4e7b0a8a293f0c8dc18be322807f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/queries/admin/recharges/detail.ts": {
+      "sha256": "3dd2ba433f417d7ddd3517e70893e4bab301d93554a8e6893e09a07424bab934",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/screening/index.ts": {
+      "sha256": "5c504bab60fbd8c9e2a035ca708b0653bd5d29c7202dcee0add916b22bafa5ac",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/screening-batch-service.ts": {
+      "sha256": "c8a8df1abf06af992dd9d23f6c84f73ad2de83d77cdec3cf805d3baec39ae202",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/users/index.ts": {
+      "sha256": "c394a30a7bba6669d494e0a4295dcc016e2a140908e242732595002df88e2a88",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/wallet-history.ts": {
+      "sha256": "a91579d2166d11525cd547bb2bd8f45f9104d1816242181514dfb0f12df153b1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/queries/admin/wallet-history/list.ts": {
+      "sha256": "a97ea96a4add3cb4b60c22574e3ac526427282d1cf38ce7fe1d73d166d141f6d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/wallet-integrity.ts": {
+      "sha256": "211cd777be00d3becd4017e27abf2980b4fec28b0299311cbedf2b84639d9e47",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/agent/inquiries/index.ts": {
+      "sha256": "7665eee66d2f9eae5e8c62dd84b61c82c4c89d79c820342ace7f86b6fef9abf3",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/agent-inquiry-service.ts": {
+      "sha256": "ed7f7a3cfc7c81732d403a2c8fe9c14b4cbd24b9ade0436b70410c81b4c55dd2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/agents/index.ts": {
+      "sha256": "53e9650c5dd7880e511d9f7135e27810f1edb9dce7c059eee7874b2f2874a328",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/agent-service.ts": {
+      "sha256": "819504460953c0db730cb303b864b3344226cff2dd77927bbf9e61c5737c9fec",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/Ambassador.ts": {
+      "sha256": "ac8050384e9efcd4fe4cd3704d03266eee5ddc2eeb06faf0685a7ecb061e041d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/ambassador-repository.ts": {
+      "sha256": "c40679788204fc056b7d68eaa9279a651d92fee633e6971e6575f9517f37575a",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/agents/[name]/index.ts": {
+      "sha256": "77360caa62b054287fdd543b2523bb0e52618f20a8c702d6f4e49f7802b6d588",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/auth/country-confirmation.ts": {
+      "sha256": "b26edd0bab66c2da72ad7d9a34e60731593754daaaecf7dbaaf255a6ea130354",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/auth/me.ts": {
+      "sha256": "1e7b900fc66569e36f47988b04bf3934efadab08de34519d9cfd495af85f6466",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/auth-service.ts": {
+      "sha256": "c9c8e38db4e5e310886a3c262a15b039bab8e9e983f498c90a2e01da66926fd0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/bookings/index.ts": {
+      "sha256": "bd18b8fa97a36917220e71293642578acef11db87f5f80aa9409f50f569efa23",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/cash-agent/index.ts": {
+      "sha256": "724790740be71ff37384bf97ed007f5fe564d499b3311fa764354ee735698198",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/catalog/reels.ts": {
+      "sha256": "ad6bd60656a576edcaa9d839e52a09ac4fe2ec5bb2e37440d5eff258b42f93d2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/communication/preferences.ts": {
+      "sha256": "5fa924f11449ad106a9a31118e08ecfe0ea2e8ac2f1bb1d5ae3f3997f4859a8c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/communication/unsubscribe/[channel].ts": {
+      "sha256": "c9c17fccf0c364da2f9c69f85d3626f2a8af7982c27e0426bc9c038dc3533606",
+      "environment": [
+        "COMMUNICATION_UNSUBSCRIBE_SECRET"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/countries.ts": {
+      "sha256": "b67d04fc9e202418b48003708f6512262d9eb826919bcc1fef7298842b75e2f5",
+      "environment": [
+        "DIRECTUS_ADMIN_EMAIL",
+        "DIRECTUS_ADMIN_PASSWORD",
+        "PUBLIC_DIRECTUS_URL"
+      ],
+      "services": [
+        "Directus"
+      ],
+      "httpReferences": [
+        "http://localhost:8056"
+      ]
+    },
+    "src/api/routes/device-identity/index.ts": {
+      "sha256": "34385ebeeee669259eeb5f00aea6abb60a0678e8252d4f56c91d72fd11f4f34f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/core02-identity-service.ts": {
+      "sha256": "8e03535aaedf7cc4fede79e69ba716c600200fd67d99243bb59f1b9641ee3bbc",
+      "environment": [
+        "CORE02_SIGNING_JWK",
+        "CORE02_SIGNING_KEY_ID"
+      ],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/shared/core02/contracts.ts": {
+      "sha256": "c60e88fd1706f8272c4ae22239e5aced45baca0e2c521e26fb9838c2a4ff5fb0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/core02/crypto.ts": {
+      "sha256": "789757d0da8e14ab88ecbe58fecfda6bd960959f42b68715e7a3b67f4d6625bc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/agent/application.ts": {
+      "sha256": "bc2da0b91ab15381db117cd61e74c79e9081d28b74ab2d92db9b91c59ab836cf",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/agent/commissions.ts": {
+      "sha256": "8a0f280b670f6c0974b1ff6fd9b7171e760f84fa547b592ffe82e170fe0a1610",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/agent/dashboard.ts": {
+      "sha256": "b4783f1024b547be9d90477247a113a123b035da52cfc56db331227ff2d7293a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/commissions.ts": {
+      "sha256": "e298d6675c6e31d3402dc219f8b928ecb6b4a032c58edf845e34472e5ad0324f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/ambassador-service.ts": {
+      "sha256": "6be10bae4a20a1a8e382e360eb8c36114855db3be0884fe534a7957c11890945",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/missions/index.ts": {
+      "sha256": "2ea7999ae74b3e6d13f08b951d668907e7fbe1fcef147b1ce7a6de9edd243d06",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/missions/[name]/index.ts": {
+      "sha256": "95a4ec819e08584812261e30df6d6ca52a5756e38c001213cc8577825981afd5",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/my-missions.ts": {
+      "sha256": "982aed96e29c9f82eaf5ab13599df7262aa3fce754491317474cb267e6cc6aba",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/email/verify.ts": {
+      "sha256": "d9f85a7a9f6240ba5a433e676c231013cec8d96f7638a7235517da0bd7e07758",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/geo/neighborhoods.ts": {
+      "sha256": "8fbb956b6c639981d61147fb0f4babb68fcb4ca66ad3d044c2fa11726b59a883",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/growth/events/stats.ts": {
+      "sha256": "f25d20861348c5183034dc0f467b0566f4155dbaebaba3ea5739d7a87c728224",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/analytics-access.ts": {
+      "sha256": "4c291d6367f62b882d8e3fd86059589fe28ef79775653e6c2e3e7959e0df17e1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/internal/dify-health.ts": {
+      "sha256": "9108b719c021746e36536cef33053c7b246b3db81f09d725199787d45a0963f8",
+      "environment": [],
+      "services": [
+        "Dify"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/adapters/dify-adapter.ts": {
+      "sha256": "0f0e91e33afbd87026eac44592cbb58828770eb9ce5da0a674964a7be1739fe3",
+      "environment": [
+        "DIFY_API_KEY",
+        "DIFY_BASE_URL"
+      ],
+      "services": [
+        "Dify"
+      ],
+      "httpReferences": [
+        "https://diffy.2mbiweb.com"
+      ]
+    },
+    "src/api/routes/internal/health.ts": {
+      "sha256": "46b456d16ee092862b5cc85d96cf2448442a2b9b0938bde5d1186e2f424e2eb8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/internal/operational-readiness.ts": {
+      "sha256": "57543edead63af7ec54b5119ef2aa2db3fed43b722629bdf3a0e482464809892",
+      "environment": [
+        "INTERNAL_API_TOKEN"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/operational-health-service.ts": {
+      "sha256": "4a79133c8682aa6961baf9292312189000283343e2554143858a767bac0e72f3",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/k/send/index.ts": {
+      "sha256": "62d06d7695b3eaf157495d3623508c00e66b6a2a1ce7b81f4de598db98452eed",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/k/send/balance.ts": {
+      "sha256": "c2c990662d29de5873ff832bbe7f0edf12eb23ef3745c893b724224187a4af8b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/k/send/recipient/[id]/qr.ts": {
+      "sha256": "e85ffd70784a08de23688caabc2ba64a700303d9a7925e0e8482c08fe9469f24",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/kyc/status.ts": {
+      "sha256": "52700089f1a1b18c5c791226557eb9225034d97e03cfa9526144a4f35530f838",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/kyc-service.ts": {
+      "sha256": "cc3e21f3519c29c8db6e1b3213fbd0e68384f753c47f40074b2395cb14ce4eb0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/kyc/status-stream.ts": {
+      "sha256": "2499b789ac95447efcad8c373e4ebb81ec967af6b78860b974d58a3ecbbadb5c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/legal-documents.ts": {
+      "sha256": "ec0f31aad138a7e0e0066588046e5f96e4dbc22dabb7fe7543223cdba148d31b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/catalogs/privacy/catalog.ts": {
+      "sha256": "3b59c6d6eeff5c0a282cec372c6b4b599baf5f0af36983e22051f7895598aaef",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/catalogs/terms/catalog.ts": {
+      "sha256": "5a728743835827881895d830c620cfe2917b9de8728abf2728de9669ebbe7252",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/legal-document-service.ts": {
+      "sha256": "b0d58068bd9a1c93bb803e1e8b97e4c4db95c0ee5215a0199bb3f3f2060c2b2d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/loyalty/index.ts": {
+      "sha256": "6ac10dad38fca90cf6f1524212ccdaa72a1eeb5af254f60e7ca5077cfe947991",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/loyalty-service.ts": {
+      "sha256": "d9f89640970e4ecb9feaf0af8ad3d01608ded7d469843d0a863a409fda5d3fba",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/marketplace/taxonomy/categories.ts": {
+      "sha256": "7986c0ebd15f0a37cf18ab9cb95a6f01dd2c6b7dc7af1b3d9fc5f4b28df907e0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/marketplace/taxonomy/subcategories.ts": {
+      "sha256": "b7c3eb2c7e47c80db489f9f3c54704601363ff37622ace7792e5a38c9e5f97b9",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/meeting-slots.ts": {
+      "sha256": "180a3635c001a28ecbc328328adec3f96e2c9105295b34795092074b42182073",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/meeting-native.ts": {
+      "sha256": "937f566459a56158175fab9ad823dc4522806c3484470586331660e1e1f1f1b9",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/activation-status.ts": {
+      "sha256": "1cc347bced25d1b703afdc2c114fa7632600163179db3e72d600c613c92ab4a2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/analytics/business.ts": {
+      "sha256": "e942aa13f5844569eb87218a6eb11b16d3bf79539130e6429bd0a1eee8a83e95",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-cash-http.ts": {
+      "sha256": "70a73d03891fa962512d7db0265dc0f8295eb53c3f708125878cba5420686fa4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-business-report.ts": {
+      "sha256": "21097dd064e0858a4dcf18c846b41306aad2240cf6e5ce59b2d71f388b389f08",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-cash-service.ts": {
+      "sha256": "d734f84dffe237f6ac4e23126003292359e36529bcab4fc17e1e9d7dc4865855",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/domain/merchant-cash.ts": {
+      "sha256": "ac832150a193db234ae4666b386e59bc634fc0aa8f6179a3de47cce1a163f72a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/analytics/export.ts": {
+      "sha256": "9d27dc8493feff8262b295c7480d1b89c68eab621745b3dff708b1052573a651",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/analytics/stats.ts": {
+      "sha256": "e2e5dda1cea5f6d5d6c9ca7c38366e962798b558561b939e44f4eb1750369a5c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/api-webhook.ts": {
+      "sha256": "b636ef0d14c6809910ba7a55fcb326238fbfc3e21722ca71b9593f1f5a691d76",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cards/sales-history.ts": {
+      "sha256": "6dc86266d927f5dabb2005e56812683ca3b67c42575cf4374f027afb337c2958",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cards/sales-today.ts": {
+      "sha256": "f5be5f09755d791504acfa79eb94c400313fa6a601d276ab465d0d9a82d2cc9f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cards/[number]/index.ts": {
+      "sha256": "f6744127d7fcbde6fbd30ab84c17b258a50346aba369f0b46600e30072ad7279",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cash-sales/index.ts": {
+      "sha256": "7764ed5010b09344a3001cb419227924dfefaad0306cd788da4ab71a693845ef",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cash-sales/[id]/index.ts": {
+      "sha256": "5635275b96ddc30de93cdde3a83a5e7ca48397ea4610474291c593d6f5fec356",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/certification/index.ts": {
+      "sha256": "6088c8edaef032d3282ad894581fe7ccc85ba9d2f81cf765ab111a952e66caff",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/certification-status.ts": {
+      "sha256": "4cf1ee0cf38e22c39b8e50ea0ba5948804c222ef5b1f0a92d4efd46ee92f2046",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/kyb/index.ts": {
+      "sha256": "819d323af7f1a9340d019c4ce5c880f78d9d6c788054782ffbd8963881e2ec82",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/media-file.ts": {
+      "sha256": "2ef9e2b371d881c2ed05beb8353e434cea42122abdc5e71186726a99e0b4f8e1",
+      "environment": [
+        "MINIO_ACCESS_KEY",
+        "MINIO_BUCKET",
+        "MINIO_ENDPOINT",
+        "MINIO_PORT",
+        "MINIO_SECRET_KEY"
+      ],
+      "services": [
+        "MinIO/S3"
+      ],
+      "httpReferences": [
+        "http://${process.env.MINIO_ENDPOINT"
+      ]
+    },
+    "src/application/services/public-merchant-media.ts": {
+      "sha256": "86a4c7d06eabc00042221f262f2707e97b83d3efacca1d08de8856cc10bcd0ec",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/messages.ts": {
+      "sha256": "18de1e9d7fc0b61204f967e7f17fd55ec8a05488b4eb70805aac79f868f09a72",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/contact-service.ts": {
+      "sha256": "dcac166d595820dde4fe39a97f44cdbb9cc9966cf8fa5151f766a53e6f72195d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/my-assignment-requests.ts": {
+      "sha256": "ee6ece6684fdaabe1dbf0c24fe805ef3af5535480e970bd06feebf6c357e33e0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/my-profiles.ts": {
+      "sha256": "79b775f91f74b7885e916efe4be20325160e95de314132141281f40ed6494b1e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/offline-snapshot.ts": {
+      "sha256": "25ca5d7df467922b83ee8afdacf27d4aafeee582ccac8801f131c73994aa2eaf",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-offline-service.ts": {
+      "sha256": "ef7b72027aeb90fc9fdbbca26623ff144acd03d42021e88338080b05c72fa292",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-operations-service.ts": {
+      "sha256": "b0c4fead2de1a4a018298a2ee29c1a31dd90745b4edc041516b78502bf107924",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/opening-hours.ts": {
+      "sha256": "8486aef90531ffaa3017de08eaa1bd73e7cdf952c9c1fcff1552ab3b541ed697",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/operations/index.ts": {
+      "sha256": "e1053dbe64eb28d7d8376c987d255e8e69f6a2e9501a07d88331b6d40e1cab06",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/pro-renewal-links/[id].ts": {
+      "sha256": "59ac3af3e1c419efcfbaa2bd0273287eed0e48f1a10f209b5e3c7cf64f8a628e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/detected-country-service.ts": {
+      "sha256": "04a9dda8e0a794c20ca3a5e28edfb88f7f405b8fa471656de60845c6d28b1e0d",
+      "environment": [
+        "GEOLITE2_COUNTRY_DB_PATH"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/pro-payment-provider.ts": {
+      "sha256": "715dd486270979e82c749fd316a9d7d9d5ebd5ab1c099c1a10e2cd714ae1f3dc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/products.ts": {
+      "sha256": "4103132a00615b20258453122fc468c9d6550a5e0bf9f5de6e8a6e4044f77358",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/profile.ts": {
+      "sha256": "12ce268df9c0ab6416c787a1ce59f4bd980d94c79c7ff92dea561a7f9c05b02a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/profiles/[profileId]/pro-status.ts": {
+      "sha256": "d39c3c3a41bdb4c60e5a3dec37d249dbf3c23d02239dcdb2fb8d95bc03229753",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/promotions/index.ts": {
+      "sha256": "b9b3832b6cd0315891a8fd14c7bec534b3d9986ec97f656232777fd0313acc5a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/publication-status.ts": {
+      "sha256": "e274e58fe9e3654bacf1b9142c427c4f36accdb672b987ca753cbcd08a0367c7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/qr-code-file.ts": {
+      "sha256": "37067578b7373c92fb5dcab201897efc02fc44da29ffdf01c150733bcc951b8e",
+      "environment": [
+        "MINIO_ACCESS_KEY",
+        "MINIO_BUCKET",
+        "MINIO_ENDPOINT",
+        "MINIO_PORT",
+        "MINIO_SECRET_KEY"
+      ],
+      "services": [
+        "MinIO/S3"
+      ],
+      "httpReferences": [
+        "http://${process.env.MINIO_ENDPOINT"
+      ]
+    },
+    "src/api/routes/merchant/qr-code/[name].ts": {
+      "sha256": "17cf52fd7f41bb42f9f67f947707de0f51dae085f556949ea87e36d5341ffd40",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/qr-points-quantity.ts": {
+      "sha256": "20576b3aaae6b130ace5c35522f193a8f56247ee76808ecfd2e5aa2dc0d0312e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/qr-service.ts": {
+      "sha256": "3c60123edaaf72c340a1c9fea6d392be9c4824ccb68d7551c7c2c7b8e956b76d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/qr-signed-verification-service.ts": {
+      "sha256": "c0c8ebf2a37473ec7e7d47e6bcf9442aee83bc3703943285f6a990c9ee773f68",
+      "environment": [
+        "PUBLIC_CORE02_TRUST_ROOTS"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/core02/qr.ts": {
+      "sha256": "3d133b955a408263d117ac0533bc2c2edd93573b2119d9555024d679e06507c6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/qr-codes.ts": {
+      "sha256": "671da6030ea2ac217e862ec9a8d4f46df9be4696cdb68cab680304e51d993a63",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/qrcode.ts": {
+      "sha256": "ea934a32b13316d609218645153c4fa4a5000da759b2bd75e1cb7d15758e812d",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://konektag.io"
+      ]
+    },
+    "src/api/routes/merchant/sales/index.ts": {
+      "sha256": "2851577ea7e0dd34c4dfda7758ec19d8d07a260733ea01a7a284928a2911c0c1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/search.ts": {
+      "sha256": "20a2da8b7a2078e90d735156441355564d7d632988a567468ce29bff0414dc32",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/marketplace-search-service.ts": {
+      "sha256": "097ecddc5a1d9c156ba3e422d6eaaa15515d8c6b5830fada410254b89bc62ad4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/settlement-configuration.ts": {
+      "sha256": "4f1ec0d003039af677894f0133855efd6479b824caa7942c1fab4f1adfa87a8f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/settlements/index.ts": {
+      "sha256": "f01698974ff0e2e9ea1807a252102b8c1c480e91203ad9bcdf34892d05eb275b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/taxes.ts": {
+      "sha256": "8e8250c6395240179b5c8ac00960e865253ee55cc38e5be225e77d232b79d0d8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-tax-service.ts": {
+      "sha256": "9b95d9c95f5e331fbc01f2f6ca6e733c3c90009d9307c8efccb429278ded4496",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/visibility-completion.ts": {
+      "sha256": "638f5e0d37e6badc50659ca1edac7ebd05fc7791146b62130f57937e0d41f06f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/merchant-seo-audit.ts": {
+      "sha256": "dead3b1e4cadd6eca9a5fbc1fd96061d4ff06d1d294e00ac4f76b51d025bcb13",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://schema.org"
+      ]
+    },
+    "src/application/shared/merchant-visibility-criteria.ts": {
+      "sha256": "32e9ec5eec01127bc2f56300c8b3b436c5c8e4d8543c6ee709b405d5cec0dc2d",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://schema.org"
+      ]
+    },
+    "src/application/shared/merchant-visibility.ts": {
+      "sha256": "339fffc050432e032a71c4729c74f79ff3f586c4032633c3a7b02f01fa5114bb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/visibility/campaigns.ts": {
+      "sha256": "23242a1ae93ded77717867a0a69527b1a0377b98bd448dbb82713fdecdf27946",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/visibility/catalog-access.ts": {
+      "sha256": "144891a211c49827d9332635336118ad66c465e60f192fe6855d82927f947beb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-catalog-access.ts": {
+      "sha256": "402e522e9c623e151e7c1b8a75ccec4f32d06c86abe1439c554fda77b3099166",
+      "environment": [
+        "ERPNEXT_CATALOG_URL"
+      ],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/visibility/discovery.ts": {
+      "sha256": "6ab33c1ed25053190ee66313d1d6970602d454a88db2b8e42456bf13bcaaddfe",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/visibility/reviews.ts": {
+      "sha256": "7e575dc1851f46d8456d384dea24ef27589dd906b6a5ef1ca9a4186cec5a0d86",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/visibility/upgrade.ts": {
+      "sha256": "443330c34d54a4973e29f38a3dd0d444bc1ad86e9df9d1cdc7d018adec89c5bd",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-upgrade-advice.ts": {
+      "sha256": "f5c5716c755d5a48e20ac984b33a9e19d73396f68f1b369cc2d6e8a7a08f3db8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/[slug].ts": {
+      "sha256": "b703615eb0771ea2e0641e80412a3a39908c217e8c2bf9dac8e80488f134e2a7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/public-merchant.ts": {
+      "sha256": "26cde6b148b8bc4bab41d3d115d9993322d0b14f4f2a036a44b24c7d3ef3c14e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/marketplace/public-merchant-snapshot.ts": {
+      "sha256": "ee140421919f0e9dd9c13dd560b4a49eee69e81ec5f18ffff280ef5b631d51af",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/notifications/index.ts": {
+      "sha256": "36c9586ccdcd410ddcae4493d857a26c29800bd15a2b19122b30fbf1ca33f8cb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/notifications/count.ts": {
+      "sha256": "2b72a170ed8fdb2f6d285e2a2f44afd93ca381a9a0241442d2a5bd030b9a3102",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/onboarding/check-username.ts": {
+      "sha256": "83cd75b282f05341ede264212f0d5f5d06426c42fd905c5a7fce64d2a3f6b07e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/orders/index.ts": {
+      "sha256": "138bc24e22ecf0ed51133a5b06fa9b8e96b8ca76c175b2b49240003df659501e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token].ts": {
+      "sha256": "2a4a769ec1d448008fad848c01f4f1196dd906f8a30ecfe80fe70a13730b8144",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/return.ts": {
+      "sha256": "ea63f3f6a4c13e05af881bbe196afc2e78b4de09cea52cfd8e50e8f5f441e428",
+      "environment": [
+        "NODE_ENV"
+      ],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/application/catalogs/payment/catalog.ts": {
+      "sha256": "194f13a84e37dda66f46fadb0a8b7889fdca31beadfbd2d5e565dbcb8a205910",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/public-origin.ts": {
+      "sha256": "6a20857ce2dc6b1171355fb6a9af57e4319ccddf70a7f88dba7bf93e84e9c3e7",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": [
+        "https://www.konektag.eu"
+      ]
+    },
+    "src/api/routes/pay/checkout/[token]/status-stream.ts": {
+      "sha256": "1e48676d6ace86c4c3515382fbefd6c8e9c3accfaa7f3139061492cd0cc4639c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/countries.ts": {
+      "sha256": "f010f2664c71ea30d249b8e798463cd4e206873b2fd66301b3bb67bb22226382",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/detected-country.ts": {
+      "sha256": "7a909ad1f70612c192a17b5f696e88a03854fa60cd46d26cdb3479fb8c6e52c6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payment-context.ts": {
+      "sha256": "ce52dbc9dbe3af0653d46ad2742f7d60ae8b679644ac685a50d7d2c2398ac23a",
+      "environment": [],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payment-country.ts": {
+      "sha256": "e1058aa7ed7cc66dcf675093590192696676222673e3e5344e3859ea5a8de8d6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payment-links.ts": {
+      "sha256": "3e0457518dfb60c00c9542dfbac90a85ae7030476223bbe81b2a8407da5f4121",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/public-payment-link-service.ts": {
+      "sha256": "3b1996a8f9a479dee7ce31652b86c170821f657f8eec7353bfd1cf8cb58559bb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payments/by-reference.ts": {
+      "sha256": "5d1db724ae3846f406e8f8e06a9add115debb6e87ce6163a85195b49a6e8854c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payments/confirm.ts": {
+      "sha256": "5aa619949f5b17b80d3451eb2d44db9b088bcab9c177a50668713576ccd80813",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payments/[id].ts": {
+      "sha256": "42b0564ce326faac6ee822c42307da8934ee19dee1c646a24fa43167d953eba8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/points/value.ts": {
+      "sha256": "57f25a8743b873f7dcac5123a78fbe564a9e07a129dd45fcb83fdfb7bc516b4a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/settlements.ts": {
+      "sha256": "cd9b835c03a36131c7170af1e214f59ce0df703a3a0e325ffd583dae2866bd46",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/photo/[id].ts": {
+      "sha256": "c153a99233a244a136598f3cf497ebf604f5723a1ec49dd1c193d76d4ec36285",
+      "environment": [
+        "GOOGLE_API_KEY",
+        "PHOTO_FALLBACK_PATH"
+      ],
+      "services": [
+        "Google Places"
+      ],
+      "httpReferences": [
+        "https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=600&key=${GOOGLE_API_KEY}"
+      ]
+    },
+    "src/api/routes/preferences/index.ts": {
+      "sha256": "80f1c0ee57e0bfd460dcc9b25eb4620784e02a7ffd5736e5a0608c5ff8b5f472",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/preferences/dashboard.ts": {
+      "sha256": "ffbc23fa521837ca5e1db4c791f853c892c4e050f2b4fac2eabb1ad0fead0aa7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/preferences/features.ts": {
+      "sha256": "4db0387c3a22b929fcd5039667f3fec7a41988a189fa5d643b45a3227f95dc3a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/preferences-service.ts": {
+      "sha256": "e02b0936e543cc317003c17b75202d3a344e2f99671178fc8a45c7a3a0d73e10",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pro/inquiries/index.ts": {
+      "sha256": "9000ecfb3d2314488d7d4e3daee9cbe34b6783024a41bcbf987d1ff19ad5d79f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/pro-inquiry-service.ts": {
+      "sha256": "4ce5497fda19d05296d1764da5c16118840a4e6ae054a0ff592ef3e93cc508e4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pro/pricing.ts": {
+      "sha256": "0be77d6bec0a8115958036e8c4dbf293e0d094533e75f186d49f780bd7a489c0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/pro-pricing-resolver.ts": {
+      "sha256": "2328f44eb304bd8f943d9d115f103ce6e52593ac2efe7e36bc7b65584b14c161",
+      "environment": [],
+      "services": [
+        "ERPNext/Frappe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/profile/public.ts": {
+      "sha256": "029402b04b78ea6de2239f3ab7615f336471f143cc18e5501e21966e3e71fe95",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/promotions/index.ts": {
+      "sha256": "e33ff36a42a4e94982dee841a47879a884a17d79fb3f03ebc8c7bd5fe3ce0745",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/public/boost-cpm.ts": {
+      "sha256": "00eb99a239739a404c739afe23d11364dc26956b39d06d62261f6cd884f4a8e8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/public/users.ts": {
+      "sha256": "9417c193327e9f295b0c263e4021edfe3a78502fcd08358727cf5f75a805678f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/public/users/[id].ts": {
+      "sha256": "ff1f2478d8e2f786756d7623f778b86eee91ea9037d5daf8783747d1012a5117",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/public/users/[id]/analytics.ts": {
+      "sha256": "cf666e8f46d6e984811ce69ff8ffb988504ca8324c7ff23c75d97480cb0e5ee6",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/qr/index.ts": {
+      "sha256": "369878d113960be8f898bff82f61d27e60e695aea22ff96e04f443d25ee91916",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/qr/code.ts": {
+      "sha256": "a8527f445ea542ea26fd2118e8307b9114d782b06cd558c365e0e3a7e5aff1a2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/qr/confirm.ts": {
+      "sha256": "ef7eceb063f02e044675faf125c915683cac456940465d1bd538c4c6d620ba07",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/qr/personal-link.ts": {
+      "sha256": "36ad71ccf42024256ddd6283e59ac56ab21e813433df5a56bdb8f83ce0cea6b2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/qr/user-link-quote.ts": {
+      "sha256": "fbfa0dc8c53bc3507742d8c95d3196bcf295fbb13219831507efa27062700045",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/qr/[id].ts": {
+      "sha256": "8335412d70a747568bf9ee4870d2010b792bc2c621e1f8eb82c07c29815219a4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/referral/stats.ts": {
+      "sha256": "35891b642abadc5dd23abe0c59c13e681c2b929c73377f15b4a88f8b0ea457f0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/referral-service.ts": {
+      "sha256": "94e4586ded7329dcae200e5a906ccd6538827db7d08bd8e46ca903da4c6f3133",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://www.konektag.eu?ref=${code}"
+      ]
+    },
+    "src/api/routes/reviews/index.ts": {
+      "sha256": "b37f41428ab568d05eb92f1980c3afb9e4cea89fc4e9c1e4d9e5e29092064cfb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/reviews/by-merchant.ts": {
+      "sha256": "414e9c18cd166a55ce9f01a4ead0e9633437e0faf5c1dbf0a6f0411d0f7aa3da",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/review-service.ts": {
+      "sha256": "f972ff15251ca275f8fc2db382ab69c8dbd3902fd68e9022d72d23f9345dc677",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/users/search.ts": {
+      "sha256": "fa49ba1186168c8ff0660168dd97b2b53d26bb78a8821f64ae01e98274227eb1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/account/transactions/[id]/retry.ts": {
+      "sha256": "7b422dd5d4b6c1bd77d55aeaa6cd73ffac90b5976165d7a3744ae4ecceaa1170",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/account/update-profile.ts": {
+      "sha256": "15a1e454181aa7414ad586c1b33687897c34336a8ebf6fc8265d650f3bb31c3e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/activation-campaigns/[id]/[action].ts": {
+      "sha256": "2e135ff93c0567ac0e2579cba5d65e9ce0e1f72393ae9515314e25199d3271c2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/boost-pricing/update.ts": {
+      "sha256": "527dd1fce029979042016447abc63ca16afaf99ed2f1fc19f5c1a73464f8ab0b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/cards/lifecycle.ts": {
+      "sha256": "42d9fbec6e370ef15bc17656ad7bca473afa18af6887ba6442e07a2cdfcba66b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/card-lifecycle-service.ts": {
+      "sha256": "9db36db2139aef456eee62f6cfc7da8663600120214e5f7f054103c14a911539",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/clearing/approve.ts": {
+      "sha256": "786e67b86eb2d5e897e803040c208548e728b52ba51714cc394b052f5839c9f2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/clearing/freeze.ts": {
+      "sha256": "738242aad5198e43674957ac871f89d176002388aa42d3d650e5678a4f02c5e1",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/clearing/settle.ts": {
+      "sha256": "d1cac167028930b698f330c211989d5fdecc87ad35590d496567c4482e03d10f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/approve.ts": {
+      "sha256": "01170b51328410cdcec1d522afc748ddec86638ddd4c58a165ea31ed65170b17",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/confirm.ts": {
+      "sha256": "8dba61563af82add4679c4698c48133d1303e217431b3b8093a4444f4fdede94",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/prepare.ts": {
+      "sha256": "f67a033b36c4c0d08575d26e394755ccac106df0fed0907bcdc63f8dcc68b689",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/submit-payout.ts": {
+      "sha256": "178e2680c7d843ae4c5399adb0231195af3ce8a6d8642751fae19b3295c2ea58",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/merchant-settlement-payout-service.ts": {
+      "sha256": "d506b028aaafb2e4db9500710d2432a0a2be33ec1e889df09133d2b5a737680a",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://internal.konektag.eu/settlement-proofs/${payout.id}"
+      ]
+    },
+    "src/application/services/reconciliation-service.ts": {
+      "sha256": "7530bdbe986bc8fb420bcc0f3fd78201a217ade3d490a38f083f089f44255185",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/submit-proof.ts": {
+      "sha256": "ed7c30adf4a1a35da3c785eb415fef7837b585384342be60968439a0acd6915b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/verify-proof.ts": {
+      "sha256": "d3d216cc5d8e8d6f935f7015dbdcd66da226bd329cef733a41c2d2be1535f640",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchant-settlements/[id]/confirm.ts": {
+      "sha256": "929b84676364699b2b8949021b611c3f342cc552c388f23337284cdd52378963",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/merchants/[id]/pro-activation.ts": {
+      "sha256": "15bd10ef87d29aaa6489c566b2e7442e869efce13b02220457d18e61fdd1bf9a",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/mobile-money-queue/api-payments/[id]/confirm.ts": {
+      "sha256": "1bc8b52a355f2ae8a71212e3c8b323d8e3807f10c776d4c1564b491c49144be5",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/commands/admin/confirm-api-payment-mobile-money-command.ts": {
+      "sha256": "d041760e44e17d29b46a5b46c974423130f40d09201b311b177012361714f2f0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/commands/admin/mobile-money-confirmation.ts": {
+      "sha256": "4860ecae373c14f582cd3fcde1bb5162d72bfc2420f20cef6e6087cfece8231e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/mobile-money-queue/recharges/[id]/confirm.ts": {
+      "sha256": "9f96e63adf7d071fa42b466b092face2e904f2df5bbedfe0db7ca2134c2aded2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/mobile-money/acquisitions.ts": {
+      "sha256": "5f2b1ff78bd6b2d2f9a860fedfd5d63adb88ed570992554ed6a9ef683198187f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/payment-claims/[id]/approve.ts": {
+      "sha256": "244597b74882d47b84ff3a038f4650b8466a7b4ab2b6cc602fa907cfd3ea27b0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/payment-claims/[id]/reject.ts": {
+      "sha256": "a9a104a03701f4522d2f8374593f33cae3a1f1c616d35a789b470c140193ac3b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/[id]/confirm-crypto.ts": {
+      "sha256": "4ca15e63986241a5ea19c9e6ec4beefdb8cdf78a990550fbddf3ed7f752eaeb2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/commands/admin/confirm-crypto-command.ts": {
+      "sha256": "551cbfb4961a03577b81cdc1ca041c6f1b4f76f5b39c0c856897ea0bbf2aa341",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/[id]/confirm-mobile-money.ts": {
+      "sha256": "e3330c2a14facd3cb755161381c47951d9cecd2e42c06ef61577612b3a8f358e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/[id]/refund-crypto.ts": {
+      "sha256": "86fa46f5d1a6efbe7efd277c4cd05db9d4231013ced2f8ca931513fa4c67b04a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/[id]/refund-mobile-money.ts": {
+      "sha256": "68d8925cc8d1455243a6ffe4ee0a95b5d118ed8b06f1569417b3f5fe5a5f06bc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/recharges/[id]/refund-stripe.ts": {
+      "sha256": "8f8f9616aa025972e4efcfb4f41424f255f4b82403f1c8e5a2d21c6d68808cd7",
+      "environment": [],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/commands/admin/refund-stripe-command.ts": {
+      "sha256": "b8d396c05b58406c0aca9b3af13f3727a0dd4ce80fb407fda3d5a613cf57b641",
+      "environment": [
+        "STRIPE_SECRET_KEY"
+      ],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/regulatory-projections/[type]/[code].ts": {
+      "sha256": "8708ea847f4f1fb7a56aae5eb3a986d8d0e98ba868aa1026687cb19b9d16d313",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/admin/users/[id]/access.ts": {
+      "sha256": "dea413f0278b7b5baf0bf71df642a861f828feaada0aec2811278096afa24ccf",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/account-access-service.ts": {
+      "sha256": "179c3134fe7ef3f58b7009cd3f7c1f098b0ae5dec05a5c62f519ee187eceb407",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/auth/change-password.ts": {
+      "sha256": "1877a5f584ee0f72ee6f26f44ff281279b737d8bc5fadaecbba283fc685c196a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/infrastructure/bootstrap.ts": {
+      "sha256": "16f864c8687b8520e063e34fc1783d6b7a93b6d995ca59929e2cfb904d8d8d35",
+      "environment": [
+        "KEYCLOAK_ADMIN_CLIENT_ID",
+        "KEYCLOAK_ADMIN_CLIENT_SECRET",
+        "KEYCLOAK_BASE_URL",
+        "KEYCLOAK_CLIENT_ID",
+        "KEYCLOAK_REALM",
+        "MINIO_ACCESS_KEY",
+        "MINIO_BUCKET",
+        "MINIO_ENDPOINT",
+        "MINIO_PORT",
+        "MINIO_SECRET_KEY",
+        "REDIS_PASSWORD",
+        "REDIS_URL"
+      ],
+      "services": [
+        "Directus"
+      ],
+      "httpReferences": [
+        "http://common-keycloak:8080"
+      ]
+    },
+    "src/api/routes/auth/forgot-password.ts": {
+      "sha256": "469ccf593ce0cf65cd91bd39fbae1068ba9c6090c89e070c8fce3610f8ca2f11",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": [
+        "https://konektag.eu"
+      ]
+    },
+    "src/api/routes/auth/reset-password.ts": {
+      "sha256": "5c57e75dd058c2f047a528dfe5bbdc0e9dfb659a25da0ed2c5157083bb0524b5",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/cards/redeem.ts": {
+      "sha256": "1f32b3171103ce94d3b7800bafdb2de047cb480451f64d6b2b7e6d4fee0c848c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/catalog/checkout.ts": {
+      "sha256": "7396594d8607e5b890541cfe0b4d4297f2703cc29151df9ea7aaa7f0a2c28689",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/catalog/quote.ts": {
+      "sha256": "cf4348f5d42718fe1a8ba680f32d22aee9682789f86f3fdd74ee21bf962eb14c",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/chat/index.ts": {
+      "sha256": "163d26f48546b2eaa37d9e85d487d75cc4abc2ea4fa9d377f8db5457b93f4af0",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/consent/marketing.ts": {
+      "sha256": "5ea3f537d5355f9e5b10f57e41f494b7b2b3319b8ca98ec40d18695d2887c50f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/agent/apply.ts": {
+      "sha256": "5316d14a83b1712dcaff4982f93c841ef3dd62dcb9f774f4e29de884b4cca0ce",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/missions/[name]/reserve.ts": {
+      "sha256": "932d2f2b6734922b94a57ffe9d5abb64e2bd58935684bdf974d1ac98eff88bbd",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/missions/[name]/submit.ts": {
+      "sha256": "189321082335ab6c517029b68ea7f5ed5eec2ee09fe22b0c934109eb237449bc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/earn/representative/register.ts": {
+      "sha256": "499b6f91753ccb4854a2b2e0bcc526d1e94f864012c6bcade1250c17fc48f975",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/email/send-verification.ts": {
+      "sha256": "0b044fae33098d595bd2dd5d3eb58650bfa9d4e2a7a5189272351f1d8dda52e4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/growth/contents.ts": {
+      "sha256": "ff0c03031abe5ae489d4ad262e074fd13a3609871c60c86b5a5de4790ff1fd6f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/growth/destinations.ts": {
+      "sha256": "fb0be65126c147884d4806954ced7e31de8bf6ca4b4c63aaf4ba018a42c92e6d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/growth-service.ts": {
+      "sha256": "98dcb47432ea4d1f1f1863f7d25fa29eecdff6f3556a85924e1e4e836fdd2a5e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/growth/events.ts": {
+      "sha256": "973071c3c30691bc6854f1b3101acfff0fcc552e3d25a2b6191ae48aab306efb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/internal/erp/account-access.ts": {
+      "sha256": "210bc2a552044b51794b6027cb9b3dc5fc7d39ac6558f8b675d3c0d868507d7e",
+      "environment": [
+        "ERP_ACCESS_SYNC_TOKEN"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/internal/kyc-publish-status.ts": {
+      "sha256": "274d3f581e6c18e80853e89e3779f75dbfb9efa28de599e5a1946b06bd7cb3df",
+      "environment": [
+        "INTERNAL_API_TOKEN"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/k/send/quote.ts": {
+      "sha256": "963896b838b694534cd01e83a6ac7b9412dfabb0dc2a56e89994379c6136b454",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/kyc/init.ts": {
+      "sha256": "dff43ea92ae71d13d7c084e501aa1c1c24a6647a662d844922ccbbd320f5aa11",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/kyc/resubmit.ts": {
+      "sha256": "d4591d78ae6d0a5f1540c899545e5578f8636231bcb5b24a556ae6785fa99708",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/kyc/skip.ts": {
+      "sha256": "c44323afbacaaae8016369be19294c4c176bcb45004e8c2ca0153203cd21da02",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/onboarding-service.ts": {
+      "sha256": "828b4e70bf088aa7ac8d9c408b3b97241ecef9bf8df3df98098fcbe240e86357",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/meeting-request.ts": {
+      "sha256": "1e08c327582e85279e3e31b3a76efa014e66c0e8c0b28da6a22a48502853248d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/meeting-crm-native.ts": {
+      "sha256": "99448a7f107c7435acf2e095e9c6275ffdefc8be75c5b5039855064f90242d8d",
+      "environment": [
+        "KONEKTAG_MEETING_DEFAULT_AXIS",
+        "KONEKTAG_MEETING_LEAD_OWNER"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/meeting-ics.ts": {
+      "sha256": "9d90c0951afae3d14d39713279862a244a1c072c24755f34f9d56f16f0cf9e5a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/meeting-receipt.ts": {
+      "sha256": "60764766da41283db8faefd30bdb722cedeba61baeef89edf9fa1a11ad33e482",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/analytics/track.ts": {
+      "sha256": "fa2f84da7ce056f3219c0716c5af048bd276461711d76fb630a853a811eaff5f",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cards/sales-declarations.ts": {
+      "sha256": "2ebdedfd7fefa58bb20781810f4f40eea291a43c6e4646fd9536cd62d682e1cf",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cards/sell.ts": {
+      "sha256": "b99a874d284035d501ddadf59a554e706cdf03ac59c004ee8854bfc6b8389a89",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cash-sales/[id]/adjustments.ts": {
+      "sha256": "0ac0c99c91820e9aa4035d28130afdbb1f464d34dbf09f695bef162c8d4a1921",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/cash-sales/[id]/receipt.ts": {
+      "sha256": "b2aa0f52044120702df9b771b0818d91d402897a624b671480d9ee4df8f77aca",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/certification/documents.ts": {
+      "sha256": "eb889a4f4ad7584fa3256da6cb6dbf34d4dcbbc241540ce7f74785e117a8d435",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/claim.ts": {
+      "sha256": "14720d12a3b58ffeac83afa078b3bfad27f923c20c5592057ed33897322e6866",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/commerce.ts": {
+      "sha256": "b0ebcdc69afaffd83b629e3418918c2d4631eb7c5479d986d6944f6c9be96b42",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/contact.ts": {
+      "sha256": "a920527c5ec966633880333fe58a9e78eeaa1d04621d98aa079b89246e5c3a53",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/create-reference.ts": {
+      "sha256": "20cfab4539200113619ad023f275e3c941a0aa1f684834f0f36f40e3b7a286cb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/hotel.ts": {
+      "sha256": "4f85d14febfd87a32f07629fb9aec5d8fe26a4f52b0ab89328c0bb1011c65d90",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/kyb/documents.ts": {
+      "sha256": "7eb17e7b337696c0f68dbad6e418cb59af39822160127d92e855cc4d49c280c3",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/links.ts": {
+      "sha256": "b7552661e23bd5f0924b8328102a1edaca92f9f37d3bce91a4e6dbb92286758e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/media.ts": {
+      "sha256": "c46d3fc5776e4ab3ca74531c823a0049bf9b837a61efc02c08511a53d6cd2d22",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/media/reorder.ts": {
+      "sha256": "0a210dfa6d69677531c6e8e1e1c3c7bd95ea189efe07262a47e14d3b746b94ee",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/members/add.ts": {
+      "sha256": "344c2cabf576ea800e23df019ad8e481bd81dd2110afc7897681de4c89f230d9",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/members/remove.ts": {
+      "sha256": "cde375a10955c43883453ef870c1b7636e04871248ec146784455633f4d59898",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/offline-mutations.ts": {
+      "sha256": "068164e9396ce57ad85a3ae72439857deb19ae7d287835d1505b0fd1c263a3ef",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/merchant-offline-mutation-service.ts": {
+      "sha256": "c8f50d1d31e6d9297f8ca29e1f3d2bf9f9ab585dd3e441555b5a9d16ec570b16",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/operations/transactions.ts": {
+      "sha256": "1c0eaf9809d246f5452a58f770ec332a0cd35284354c646502e89d360dcbf49d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/profiles/[profileId]/pro-renewal.ts": {
+      "sha256": "46b0aca6dd353760e856721c1d3de6abc97bb77921900cf432ebf77d68b2e653",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/publish.ts": {
+      "sha256": "c8c8dbcfa0c80bcfc92a248ee86153e6d8a089a14d0030fe11ae247c7d4a88db",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/publish-establishment.ts": {
+      "sha256": "ec398020e85d1a91a6ddec2ff5c3deb1889444cc022e419575c8d0f58f2d154e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/remove-member.ts": {
+      "sha256": "de64226a26f986fc3ce44bb823d76cbcd1b441e95f1fc5b07f587a6ad205e26d",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/restaurant.ts": {
+      "sha256": "68ef99263d8d80001844f5b1c445db7f2121a9106ea9b68108d100f477edd108",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/suspend.ts": {
+      "sha256": "7baa0064becf8957a93347fd3c3cc1e11f8ba95936c4aa3303ee23a591fff607",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/merchant/unpublish.ts": {
+      "sha256": "1a64334f7fcb39107f918380ecbaeeba147fc6235490bb37293ed2a7d64bb478",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/notifications/mark-all-read.ts": {
+      "sha256": "3dfc72ed45754157057bc16f464ddb12523a73775bc92bdda07cc59843b236ac",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/offline/v1/batch.ts": {
+      "sha256": "5fd15b593ed849e6cac3ff4377034da2ccdf01f8fe9cbfa34382b7e745b85a23",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/core-offline-service.ts": {
+      "sha256": "1aaa60469f051bb37cec639d9104b7a9743fcdfb558b476c350d71e6c4bee580",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/offline-payment-sync-service.ts": {
+      "sha256": "e3f0b1ddea39e83ebc3860c7c93c74557ed186b0ef2ca762e5a29eedf2f5c14e",
+      "environment": [
+        "PUBLIC_CORE02_TRUST_ROOTS"
+      ],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/shared/offline-pay/http.ts": {
+      "sha256": "cb0d631f1271d887cac07fa2483e81dfb4c53c143302740a4ae3eba7d4404b16",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/offline-pay/merchant-order.ts": {
+      "sha256": "71bdbf1f4c5a5eb7c27d02cbf090ce8a51977a45af7bcf2a35ef602b2356aa2b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/offline-pay/protocol.ts": {
+      "sha256": "963859641bad8502a0eed63972460b2c4d727fd6d30c5d6df82ac8d64a9d8d9e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/domain/core-offline.ts": {
+      "sha256": "ec0be00837ac5fb56ad3f9eb64d1dbefe328c7da3e3bef60ef3f0a50c8df39fa",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/offline/v1/envelope.ts": {
+      "sha256": "a307484892763a75607d5c5e9b35c1fa652f242605205dcb9d31cb005a2ecf61",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/offline-payment-envelope-service.ts": {
+      "sha256": "b352af276f3475f57a7893598a2fe50a571271e06a4f2774085d5c09b3ba6de8",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/offline-points-readiness.ts": {
+      "sha256": "f1a2f5bef0524126ea874310ed72c6ffe78d8acdb0a426b40497161c91b70a8f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/onboarding/register.ts": {
+      "sha256": "12bf784b67a8b8a49191d03c60e181be63fa3b7e7b37c81702a4d0930714a082",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/shared/cookie-utils.ts": {
+      "sha256": "d093dae374c134ecbdd18a8a511e0882615f6a87c5c60dd9b470321620abcae9",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/onboarding/send-otp.ts": {
+      "sha256": "c5038fba4b0684f75c321b0d20def3550dd073077a7ae8f5488139aaee8c7017",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/onboarding/verify-otp.ts": {
+      "sha256": "1bb086b48f811ae41c99047928a158c7383de8c8a5f0e279e74e213c3e46b749",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/resume.ts": {
+      "sha256": "d52093d06597a454b3f5e40d7b57229a09efebbeb8fa541c1e965c45d8bdee69",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/cancel.ts": {
+      "sha256": "9d0e7a7403661776c412691d89458f078caf76c6b4d637b308fbfa4af4efb4b4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/confirm.ts": {
+      "sha256": "2b1a9df8c62ccf69b41ec8f5f92574b36f9f87c113dd65a0b704d99a4bc3548f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/funding.ts": {
+      "sha256": "702db05411e371c8969b510080900b9b98f247064ff34f1389d920222dd725b7",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/deposit.ts": {
+      "sha256": "352063e7b7c28b841cb67a3eb3c46e12096f42f41be27b437eeb1acdaca6cca3",
+      "environment": [
+        "NODE_ENV"
+      ],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/stripe/create-intent.ts": {
+      "sha256": "a1743068b14c862adffa06c7439322332b2df784afbe3003a680437745904ae2",
+      "environment": [],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/stripe/finalize.ts": {
+      "sha256": "19db63dc0489c8572833e2e9b59bca929f2ba3c0c3e7485d9a2bcfd36de2c529",
+      "environment": [],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/wallet-authorization.ts": {
+      "sha256": "099ac792b43507ffbd6df05188d2c6789d236ec0d93fe5722d4f2a5dd75c58ff",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/checkout/[token]/wallet-authorization/verify.ts": {
+      "sha256": "4ccf0971821fcdb344515130569e366bc1daa5a3c929cc2498da627fb9b519bb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/pay-link.ts": {
+      "sha256": "c115fccaf1c6d55f93f2732f10ff495ae5f8df9fe1c264d5c87f55c1abbe8930",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/link-payment-receipt-service.ts": {
+      "sha256": "31d9e0a7661e826067b37be0e136fc8cdc326d00e2209cf76e00df78f707ba39",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/pay/link-k-consumption-facts.ts": {
+      "sha256": "e6dee785290ad531eac7ed311edd448b06bfb65485a3afccc7fea51dccb5e585",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/pay/link-k-consumption-service.ts": {
+      "sha256": "ba29c51401eea7eaa064b07592d16daeece213bcd89c649b74080316b8097547",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/application/services/principal-idempotency-service.ts": {
+      "sha256": "5c3eb60b82784319ee3d7fceed2c0126bf5e37602a7fad78221a0d16a4916ce3",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/infrastructure/repositories/http-idempotency-repository.ts": {
+      "sha256": "e47951108458aa65fdc661d24b53b2011ad3a5cd824ee4a66104a94d606eef92",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payment-links/[slug]/resume.ts": {
+      "sha256": "ab7151ba33809b1aad170fa822bdade05ae904e31d58d6f63d50e732207cfdd2",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/payments.ts": {
+      "sha256": "5201893c9a1c05b55e23eaa38a0e0429c198bc4245f51827ca74ef3c1bf70e79",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pay/recharges.ts": {
+      "sha256": "37538865493588dc3e5292bab455909ad870e95b6673f35afbbec472b1bfd3f4",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/preferences/complete.ts": {
+      "sha256": "305fe39baea9f99417a61145c91a6798e6220f33c82f2512fbb9b39cb4001ba4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/preferences/save.ts": {
+      "sha256": "fb01757f07227908f85f1098e66bc80e1ffca17bc27b284b3bf66c0c2a4f2241",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/public/digital-audit.ts": {
+      "sha256": "2f0024870ff9db7249dbb13627467f1082af9afeb4d43a947240bff8ba10edbe",
+      "environment": [],
+      "services": [],
+      "httpReferences": [
+        "https://konektag.eu",
+        "https://www.konektag.eu"
+      ]
+    },
+    "src/api/routes/qr/request-confirmation.ts": {
+      "sha256": "5394be2940cbe7d223aeb90aae268b3e26df0dfeea6e13c61f19b4f5bd5b47a4",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/marketing-metrics-service.ts": {
+      "sha256": "183fad8e766cc2b8d678ca18efe9f20abbd44cdc5293b028a0f0dce3f524cedc",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/qr-payment-receipt-service.ts": {
+      "sha256": "617dea29a665cfa82bfc84570bf4edd463ef7223f6fd072a99b81afe29e10b17",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/qr-principal-idempotency-service.ts": {
+      "sha256": "7131e189a9aab59ca4bc00b2337799b958ef9b53091ce5625c1e0613bc2789ed",
+      "environment": [],
+      "services": [
+        "PostgreSQL"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/recharge.ts": {
+      "sha256": "601494e335b50cdb6fc4db5e7a3682984bba0897370ed85dd78391fb44630846",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/application/services/recharge-service.ts": {
+      "sha256": "c795060780ad15ec197f904ce3e52962d89d102c2662ace8e80e2ab7eb1e8280",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/recharge/stripe/confirm.ts": {
+      "sha256": "3caa748d4e62d4de4fc1d8bbe37b90abb581264445078152fc1e80cb72b4f00d",
+      "environment": [
+        "STRIPE_SECRET_KEY"
+      ],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/application/shared/auth-helper.ts": {
+      "sha256": "d7f4502c5d046b610f9aebd3d8bb7c2c8d7fff8b384bbf0292d2446aba64f239",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/recharge/stripe/create-intent.ts": {
+      "sha256": "11d925ad326b01f7d24a906655e851f3a273b1fcd2a4c38e27d923115a78cfb1",
+      "environment": [
+        "STRIPE_SECRET_KEY"
+      ],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/referral/code.ts": {
+      "sha256": "d5704707769147e2ebeafea1e98d0482ad5e60df063f4dfcc29eea460b75578f",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/referral/redeem.ts": {
+      "sha256": "2883e1995d2b4fac9dfae8b821e84da37dc6a36f519144074a91b4b8a35b6feb",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/reviews/create.ts": {
+      "sha256": "6e2a5eb0db6c7caf9065cc3d26e3dfd31207bbc5128bf24b1452de1fff0f113a",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/reviews/report.ts": {
+      "sha256": "d870243047867089b828ab8db7e9681ca92e7da6944c945fd9c96193bcd1290b",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/test-email/send.ts": {
+      "sha256": "9f468a7de98f0c7c79a531c88c4553c48e27b13633f2cc0a0a862c1dee1837ce",
+      "environment": [
+        "PUBLIC_SITE_URL"
+      ],
+      "services": [],
+      "httpReferences": [
+        "http://localhost:4321"
+      ]
+    },
+    "src/api/routes/transactions/index.ts": {
+      "sha256": "9deabb5f6fe98101f728019b1abca40eba25489957e265085cd3e79564da91d9",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/transactions/[id]/transition.ts": {
+      "sha256": "1dc1f2330922535b66b47ebded5b89b3a7919f17f5dd560e4ef418a1782ca705",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/wallet-authorizations/issue.ts": {
+      "sha256": "0849cfcb83dde94276e059f68320427d2ee94acd2379d3bdbcd497fb5f53806e",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/wallet-authorizations/verify.ts": {
+      "sha256": "8e1b553e70e78351576d1d7f860dba43431c96d6e5f7ad36a5569ab3b5fe4e31",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/webhooks/pawapay/checkouts.ts": {
+      "sha256": "4acf91aedb43bcb115a48c4d93eed718c1d8aa827192012ada8beaad6da63b0b",
+      "environment": [],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/webhooks/pawapay/deposits.ts": {
+      "sha256": "4ce49e8f826dce6a88b89b162eb7a0665854ea293678dd203faa79fc44475447",
+      "environment": [],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/webhooks/pawapay/payouts.ts": {
+      "sha256": "047549ac3308c51168886ae09082f20db09b5bb04355058d28f670cc100b02ca",
+      "environment": [],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/webhooks/pawapay/refunds.ts": {
+      "sha256": "a5119ea5fa14eea09d2e8ef47232d0284b2c08e4404e7a60f0fa7c0ab7fc3b64",
+      "environment": [],
+      "services": [
+        "PawaPay"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/webhooks/stripe.ts": {
+      "sha256": "7018c60b090e0cb8f30e99aa920d2979692469c65c765bb0a749bebe6f029b61",
+      "environment": [
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET"
+      ],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/webhooks/stripe/[configurationKey].ts": {
+      "sha256": "501f9a333b8d195a2eb35f0bc8da9f52920406ab455d50a6583a57d8b3d9ef70",
+      "environment": [],
+      "services": [
+        "Stripe"
+      ],
+      "httpReferences": []
+    },
+    "src/api/routes/agent/inquiries/[id].ts": {
+      "sha256": "053f91ad744a047c2e8357ea9d319472fd92fdf6b50fcea7a2322ba9b325f264",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    },
+    "src/api/routes/pro/inquiries/[id].ts": {
+      "sha256": "d6aea5fc750501f1be812cca8bf11cea1b58bb5b7562cc8352950bccdf1723b4",
+      "environment": [],
+      "services": [],
+      "httpReferences": []
+    }
+  },
+  "sharedMiddleware": {
+    "services": {
+      "Directus": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "Keycloak": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "PostgreSQL": [
+        "src/infrastructure/database/pool.ts",
+        "src/infrastructure/repositories/http-idempotency-repository.ts"
+      ]
+    },
+    "referencedEnvironment": {
+      "DATABASE_URL": [
+        "src/infrastructure/database/pool.ts"
+      ],
+      "DATA_ENCRYPTION_KEY": [
+        "src/infrastructure/adapters/encryption-service.ts"
+      ],
+      "KEYCLOAK_ADMIN_CLIENT_ID": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "KEYCLOAK_ADMIN_CLIENT_SECRET": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "KEYCLOAK_BASE_URL": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "KEYCLOAK_CLIENT_ID": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "KEYCLOAK_EXTERNAL_BASE_URL": [
+        "src/api/middleware/security.ts",
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "KEYCLOAK_REALM": [
+        "src/api/middleware/security.ts",
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ],
+      "PUBLIC_SITE_URL": [
+        "src/infrastructure/adapters/keycloak-adapter.ts"
+      ]
+    },
+    "sourceFiles": {
+      "src/api/http.ts": "a2474103d12fa02c4fe7a2c6c9889c4f2a749fca8c7e5d4e53e3ef475144d955",
+      "src/api/middleware/security.ts": "10422d322716d82d7bc42da0f297e5df38632b267a8b03b2378e33998cda3e62",
+      "src/application/services/auth-service.ts": "c9c8e38db4e5e310886a3c262a15b039bab8e9e983f498c90a2e01da66926fd0",
+      "src/application/services/financial-idempotency-scope.ts": "64ca41ead24970b76feefa36632f58b71b3a006793761f754365bdb37d9e0002",
+      "src/application/services/http-idempotency-service.ts": "c0257b03e70d408b3df77a094353abf69e68ef02e7fa0c8c39c6ee616066cc61",
+      "src/application/services/merchant-api-key-service.ts": "6d5c3be2b74c7f8fe8eaa765440cd2f1cebea02428f9c5222acb9be068325431",
+      "src/application/services/user-api-key-service.ts": "28bb25feddb4f31945ce196f7dce8912cc51db2a6d9e48138ebe227d3b128eb2",
+      "src/application/shared/cookie-utils.ts": "d093dae374c134ecbdd18a8a511e0882615f6a87c5c60dd9b470321620abcae9",
+      "src/application/shared/user-api-auth.ts": "e3d1656104e6f28fe050af8a7e84e351c5d7b5f5dcdc64e0a8b038863c817f45",
+      "src/domain/DomainErrors.ts": "7eaed4a0b8786549c2da66756d41fe00ed688ed966df1d1b2c3e56ae6087da0a",
+      "src/infrastructure/adapters/encryption-service.ts": "c390179fa92755a054212110321d29b7f19dbc8ecce22f5d925dca7e1f876bca",
+      "src/infrastructure/adapters/keycloak-adapter.ts": "9dc61c9b6b928336e860d20ed56e65303cfc68e57a55c05ba7ed0dd0c0fd6797",
+      "src/infrastructure/correlation-id.ts": "160012480feec6df99fbe31ca9b7d89c11d4d08e568d71dd89049ae978a98585",
+      "src/infrastructure/database/pool.ts": "e4b77c87e189503f2c8dfdcd711c17d2b4a6400353a9cd2907c15d7468278f5a",
+      "src/infrastructure/repositories/http-idempotency-repository.ts": "e47951108458aa65fdc661d24b53b2011ad3a5cd824ee4a66104a94d606eef92"
+    }
+  }
+}
