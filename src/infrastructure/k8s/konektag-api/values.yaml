@@ -4,6 +4,7 @@ image:
   tag: "" # Full Git commit SHA
 imagePullSecrets: []
 api:
+  enabled: true
   replicas: 1
   existingSecret: ""
   env: {} # API_PUBLIC_URL, PUBLIC_SITE_URL and existing non-secret configuration
@@ -11,15 +12,17 @@ api:
   volumeMounts: [] # Existing CMS/GeoIP mounts if required by selected operations
   volumes: []
 workers:
-  outbox: true
-  accounting: true
+  outbox: false
+  accounting: false
 mcp:
   erpnext:
+    enabled: false
     pathPrefix: /
     existingSecret: ""
     oauthClaim: ""
     env: {}
   m365:
+    enabled: false
     pathPrefix: /m365
     existingSecret: ""
     oauthClaim: ""
@@ -27,6 +30,7 @@ mcp:
     extraVolumes: [] # Existing M365 PFX Secret volume
     extraVolumeMounts: []
   unipile:
+    enabled: false
     pathPrefix: /unipile
     existingSecret: ""
     oauthClaim: ""
@@ -39,6 +43,14 @@ ingress:
 resources:
   requests: {cpu: 100m, memory: 256Mi}
   limits: {cpu: "1", memory: 1Gi}
+
+# Opt-in API routing on the existing website. Keep the frontend catch-all unchanged.
+# No rewrite/strip middleware: /api paths and request/response data pass unchanged.
+siteApiIngress:
+  enabled: false
+  className: traefik
+  host: www.konektag.eu
+  tlsSecret: "" # Existing TLS Secret, supplied only when explicitly enabled
 
 # Scheduled controls already exist on the platform: disable here until their ownership is transferred.
 # Retention is destructive by its existing business policy and is never enabled automatically.

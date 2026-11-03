@@ -101,7 +101,8 @@ for(const record of records) {
       ...((status==='204'||status.startsWith('3'))?{}:{content:Object.fromEntries(mediaTypes.map(type=>[type,{schema:type==='application/json'?responseSchema:{}}]))})
     }]));
     responses.default={description:'Additional responses from authentication, authorization, KYC, idempotency or the shared application service. See x-source and x-error-codes.'};
-    const middlewarePublic=publicExact.includes(record.path)||publicPrefixes.some(p=>record.path.startsWith(p))||!protectedPrefixes.some(p=>record.path.startsWith(p));
+    const middlewarePath=record.canonicalPath || record.path;
+    const middlewarePublic=publicExact.includes(middlewarePath)||publicPrefixes.some(p=>middlewarePath.startsWith(p))||!protectedPrefixes.some(p=>middlewarePath.startsWith(p));
     const handlerAuth=/locals(?:\??\.)?\.user|locals\.user|!user|requireAdmin|requireAuth|isAdmin|authorization/i.test(code);
     const op={operationId:method.toLowerCase()+'_'+record.path.replace(/[^a-zA-Z0-9]+/g,'_').replace(/_$/,''),summary:method+' '+record.path,tags:[record.path.split('/')[2]],description:'Existing Konektag operation. Handler and shared services preserve validation, authorization, error responses and business rules. '+(middlewarePublic?'This path is public at the general middleware level; any handler-specific checks still apply.':'Session/API authentication and account restrictions run before the handler.'),parameters:params,responses,security:middlewarePublic&&!handlerAuth?[]:[{session:[]},{userApiKey:[]},{bearer:[]}],'x-source':record.file,'x-error-codes':errors,'x-response-schema-scope':'Literal response variants found in handler; computed service/database fields remain unconstrained.'};
     if(/request\.json\(/.test(code))op.requestBody={required:true,content:{'application/json':{schema:dedupe(bodySchemas)[0]||{}}}};

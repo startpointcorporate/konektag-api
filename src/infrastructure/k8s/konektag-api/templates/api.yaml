@@ -1,9 +1,10 @@
 {{- $root := . -}}
+{{- if or .Values.api.enabled .Values.workers.outbox .Values.workers.accounting }}
 {{- $repository := required "image.repository is required" .Values.image.repository -}}
 {{- $tag := required "image.tag must be the full Git SHA" .Values.image.tag -}}
 {{- $secret := required "api.existingSecret must reference an existing Secret" .Values.api.existingSecret -}}
 {{- range $role := list "api" "outbox" "accounting" }}
-{{- if or (eq $role "api") (index $root.Values.workers $role) }}
+{{- if or (and (eq $role "api") $root.Values.api.enabled) (and (ne $role "api") (index $root.Values.workers $role)) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -70,6 +71,7 @@ spec:
       {{- end }}
 {{- end }}
 {{- end }}
+{{- if .Values.api.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -78,3 +80,5 @@ metadata:
 spec:
   selector: {app.kubernetes.io/instance: {{ .Release.Name }}, app.kubernetes.io/component: api}
   ports: [{name: http, port: 80, targetPort: http}]
+{{- end }}
+{{- end }}

@@ -21,10 +21,13 @@ try{
  assert.equal((await get('/livez')).status,200);
  assert.match(await (await get('/docs')).text(),/swagger-ui/);
  assert.equal((await get('/docs/swagger-ui-bundle.js')).status,200);
- const spec=await (await get('/openapi.json')).json();assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,305);
+ const spec=await (await get('/openapi.json')).json();assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,307);
  assert.equal((await get('/api/account/balance')).status,401);
  const invalidLegal=await get('/api/legal-documents');assert.equal(invalidLegal.status,422);assert.deepEqual(await invalidLegal.json(),{error:'legal_country_required'});
  assert.equal((await fetch(origin+'/api/pay/payments',{method:'POST',body:'{}',headers:{'content-type':'application/json'}})).status,401);
+ const legacyPost=await fetch(origin+'/v1/payments',{method:'POST',body:'{}',headers:{'content-type':'application/json'}});
+ assert.equal(legacyPost.status,401);assert.deepEqual(await legacyPost.json(),{error:'Invalid API key'});
+ assert.equal((await get('/v1/payments/existing')).status,401);
  assert.equal((await get('/missing')).status,404);
  const health=await get('/api/internal/health');assert.equal(health.status,503);assert.deepEqual((await health.json()).checks,{postgresql:false,redis:false});
  console.log('HTTP smoke passed: docs, OpenAPI, real validation, anonymous denial, dependency failure');

@@ -1,5 +1,6 @@
 {{- $root := . -}}
 {{- range $name, $config := .Values.mcp }}
+{{- if $config.enabled }}
 {{- $secret := required (printf "mcp.%s.existingSecret is required" $name) $config.existingSecret -}}
 {{- $claim := required (printf "mcp.%s.oauthClaim must reference persistent OAuth storage" $name) $config.oauthClaim -}}
 {{- $suffix := ternary "mcp" (printf "mcp-%s" $name) (eq $name "erpnext") }}
@@ -63,4 +64,5 @@ metadata:
 spec:
   selector: {app.kubernetes.io/instance: {{ $root.Release.Name }}, app.kubernetes.io/component: "mcp-{{ $name }}"}
   ports: [{name: http, port: 80, targetPort: http}]
+{{- end }}
 {{- end }}
