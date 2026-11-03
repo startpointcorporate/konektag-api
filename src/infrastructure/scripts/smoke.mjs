@@ -21,6 +21,11 @@ try{
  assert.equal((await get('/livez')).status,200);
  assert.match(await (await get('/docs')).text(),/swagger-ui/);
  assert.equal((await get('/docs/swagger-ui-bundle.js')).status,200);
+ const swaggerInit=await get('/docs/init.js');assert.equal(swaggerInit.status,200);
+ const swaggerScript=await swaggerInit.text();
+ assert.match(swaggerScript,/usePkceWithAuthorizationCodeGrant:true/);
+ assert.match(swaggerScript,/clientId:'frontend-konektag'/);
+ assert.equal((await get('/docs/oauth2-redirect.html')).status,200);
  const spec=await (await get('/openapi.json')).json();assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,307);
  assert.equal((await get('/api/account/balance')).status,401);
  const invalidLegal=await get('/api/legal-documents');assert.equal(invalidLegal.status,422);assert.deepEqual(await invalidLegal.json(),{error:'legal_country_required'});
