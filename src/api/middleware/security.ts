@@ -154,7 +154,7 @@ export const onRequest = ((async (context, routeNext) => {
   // session cookies, user API keys or merchant-specific bearer credentials.
   // The decoded issuer is used only to identify token type; validateToken
   // always verifies the signature, issuer and expiry before trusting identity.
-  const bearerMatch = context.request.headers.get('authorization')?.match(/^Bearer\\s+(\\S+)$/i);
+  const bearerMatch = context.request.headers.get('authorization')?.match(/^Bearer\s+(\S+)$/i);
   const bearerToken = bearerMatch?.[1];
   if (bearerToken && requestPath.startsWith('/api/') && requestPath !== '/api/pay/payments') {
     let isKeycloakUserToken = false;
@@ -162,7 +162,7 @@ export const onRequest = ((async (context, routeNext) => {
       const parts = bearerToken.split('.');
       if (parts.length === 3) {
         const untrusted = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
-        const issuer = (process.env.KEYCLOAK_EXTERNAL_BASE_URL || 'https://login.konektag.eu').replace(/\\/$/, '')
+        const issuer = (process.env.KEYCLOAK_EXTERNAL_BASE_URL || 'https://login.konektag.eu').replace(/\/$/, '')
           + '/realms/' + (process.env.KEYCLOAK_REALM || 'konektag');
         isKeycloakUserToken = untrusted.iss === issuer;
       }
