@@ -1,0 +1,8 @@
+BEGIN;
+ALTER TABLE konektag.daily_reconciliations
+  ADD COLUMN IF NOT EXISTS equation_version VARCHAR(20),
+  ADD COLUMN IF NOT EXISTS calculation_evidence JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS blocks_settlement BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS blocks_clearing BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
+COMMIT;

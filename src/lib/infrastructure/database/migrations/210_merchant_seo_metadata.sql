@@ -1,0 +1,7 @@
+ALTER TABLE konektag.merchant_profiles
+  ADD COLUMN IF NOT EXISTS seo_title VARCHAR(70),
+  ADD COLUMN IF NOT EXISTS seo_description VARCHAR(180),
+  ADD COLUMN IF NOT EXISTS seo_canonical_url VARCHAR(500),
+  ADD COLUMN IF NOT EXISTS og_title VARCHAR(95),
+  ADD COLUMN IF NOT EXISTS og_description VARCHAR(300),
+  ADD COLUMN IF NOT EXISTS og_image_url VARCHAR(500);
