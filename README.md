@@ -65,6 +65,20 @@ Les routes REST importent une seule copie des services `src/application`, modèl
 
 Les catalogues conservés servent aux réponses REST (documents légaux, erreurs de paiement, recommandations de visibilité). Les anciens modèles de pages ont été remplacés par les seules déclarations de données utilisées par les services. L'image de secours de `/api/photo/{id}` est une ressource binaire de cet endpoint.
 
+## Swagger UI avec Keycloak (OAuth2 / PKCE)
+
+Swagger UI est servi localement sur `/docs`. Le bouton **Authorize** utilise le realm `konektag` de `https://login.konektag.eu`, le client public `frontend-konektag`, et le flux Authorization Code avec PKCE S256. Aucun secret administrateur n'est envoyé au navigateur. L'API accepte les JWT **utilisateur** signés par le realm configuré dans `Authorization: Bearer <token>`, en recherchant ensuite l'utilisateur dans `konektag.users` et en conservant les restrictions KYC, compte bloqué et idempotence. Les API keys et tokens marchands conservent leurs chemins existants ; un jeton machine-à-machine `directus-konektag` n'est pas un utilisateur Swagger.
+
+**Précondition obligatoire pour activer la connexion depuis un navigateur :** exposer `/docs`, `/docs/oauth2-redirect.html` et `/openapi.json` sur une origine HTTPS d'API explicitement choisie. Dans Keycloak, ajouter **uniquement** cette URL exacte dans les Valid Redirect URIs du client `frontend-konektag` :
+
+```text
+https://<domaine-api-validé>/docs/oauth2-redirect.html
+```
+
+Définir les Web Origins correspondant à cette origine HTTPS validée et vérifier les règles CORS du serveur. Le chart laisse l'ingress désactivé par défaut ; ne pas activer de redirection wildcard. Aucun domaine n'est inventé ou ajouté automatiquement par cette PR. Les essais sur URL interne du cluster ne peuvent pas réaliser la redirection OAuth navigateur.
+
+Après déploiement de l'image revue, ouvrir `https://<domaine-api-validé>/docs`, cliquer **Authorize**, puis tester `GET /api/auth/me` avec un utilisateur déjà inscrit dans la base Konektag. Le compte machine ne suffit pas. L'absence de compte applicatif pour un sujet Keycloak valide renvoie `USER_NOT_ONBOARDED` (401).
+
 ## OpenAPI
 
 `docs/openapi.yaml` est la seule spécification publiée. `npm run docs:generate` permet de la régénérer depuis les handlers ; vérifier son diff avant commit. Le build produit seulement le JSON dérivé. Les schémas décrivent les objets littéraux et validations Zod locales détectables ; les champs calculés par les services/SQL restent explicitement non contraints. La spécification ne constitue pas une certification des réponses des ressources externes. Voir les extensions `x-source`, `x-error-codes` et `x-response-schema-scope`.
