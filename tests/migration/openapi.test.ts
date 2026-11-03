@@ -13,3 +13,16 @@ it('documents every exported REST operation without inventing routes',()=>{
   }
   expect(new Set(ids).size).toBe(392);
 });
+
+it('documents Keycloak OAuth2 authorization code for Swagger without replacing existing schemes',()=>{
+  const spec=parse(readFileSync('docs/openapi.yaml','utf8'));
+  const oauth=spec.components.securitySchemes.keycloakOAuth;
+  expect(oauth.type).toBe('oauth2');
+  expect(oauth.flows.authorizationCode.authorizationUrl).toBe('https://login.konektag.eu/realms/konektag/protocol/openid-connect/auth');
+  expect(oauth.flows.authorizationCode.tokenUrl).toBe('https://login.konektag.eu/realms/konektag/protocol/openid-connect/token');
+  expect(spec.components.securitySchemes.session).toBeDefined();
+  expect(spec.components.securitySchemes.userApiKey).toBeDefined();
+  expect(spec.components.securitySchemes.bearer).toBeDefined();
+  expect(spec.paths['/api/auth/me'].get.security).toContainEqual({keycloakOAuth:[]});
+  expect(spec.paths['/api/countries'].get.security).toEqual([]);
+});
