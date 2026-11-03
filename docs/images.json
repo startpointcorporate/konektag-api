@@ -1,0 +1,18 @@
+[
+  {
+    "image": "konektag-api:validation",
+    "id": "sha256:1520c47eb5c91c6e2a06fced10fe88d48acc023c7de24c29c88592beef10a757"
+  },
+  {
+    "image": "konektag-mcp:validation",
+    "id": "sha256:82274e0a5150e60b30613d120101bcf4919a412797eb9ecfac5911cbfad63e37"
+  },
+  {
+    "image": "konektag-mcp-m365:validation",
+    "id": "sha256:f85f7d16f7cfbde83e9382eee767e29be54376098ed76a921e83eb42fd45b9c2"
+  },
+  {
+    "image": "konektag-mcp-unipile:validation",
+    "id": "sha256:0e959ebca8f00e7d2c67ef3e82e77ff8972566c0e094549c37ef8a0a807ef070"
+  }
+]

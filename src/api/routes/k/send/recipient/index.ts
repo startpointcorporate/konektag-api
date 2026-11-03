@@ -1,0 +1,7 @@
+import type { RouteHandler } from '../../../../http';
+import { kSendService } from '../../../../../application/services/k-send-application-service.ts';
+const json=(b:unknown,s=200)=>new Response(JSON.stringify(b),{status:s,headers:{'Content-Type':'application/json'}});
+export const GET:RouteHandler=async({url,locals})=>{const u=locals.user;if(!u)return json({error:'Unauthorized'},401);const id=url.searchParams.get('id');return json(id?await kSendService.getRecipient(id,u.keycloak_id):await kSendService.listRecipients(u.keycloak_id));};
+export const POST:RouteHandler=async({request,locals})=>{const u=locals.user;if(!u)return json({error:'Unauthorized'},401);const b=await request.json() as {recipientUserId?:string;fullName?:string};if(!b.recipientUserId||!b.fullName)return json({error:'K_SEND_RECIPIENT_INVALID'},400);return json(await kSendService.saveRecipient(u.keycloak_id,{recipientUserId:b.recipientUserId,fullName:b.fullName}),201);};
+export const PUT:RouteHandler=async({request,url,locals})=>{const u=locals.user;if(!u)return json({error:'Unauthorized'},401);const id=url.searchParams.get('id');if(!id)return json({error:'K_SEND_RECIPIENT_ID_REQUIRED'},400);return json(await kSendService.updateRecipient(id,u.keycloak_id,await request.json()));};
+export const DELETE:RouteHandler=async({url,locals})=>{const u=locals.user;if(!u)return json({error:'Unauthorized'},401);const id=url.searchParams.get('id');if(!id)return json({error:'K_SEND_RECIPIENT_ID_REQUIRED'},400);await kSendService.deleteRecipient(id,u.keycloak_id);return json({success:true});};

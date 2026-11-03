@@ -1,0 +1,412 @@
+{
+  "ADMIN_USER_ID": [
+    "src/infrastructure/scripts/jobs/inject-sanctions-batch.ts"
+  ],
+  "API_PAYMENT_CHECKOUT_EXPIRATION_MINUTES": [
+    "src/application/services/pay/api-payment-checkout-service.ts",
+    "src/application/services/pay/checkout-expiration.ts"
+  ],
+  "API_PUBLIC_URL": [
+    "src/api/server.ts"
+  ],
+  "COMMUNICATION_UNSUBSCRIBE_SECRET": [
+    "src/api/routes/communication/unsubscribe/[channel].ts"
+  ],
+  "CORE02_SIGNING_JWK": [
+    "src/application/core02-identity-service.ts"
+  ],
+  "CORE02_SIGNING_KEY_ID": [
+    "src/application/core02-identity-service.ts"
+  ],
+  "DATABASE_URL": [
+    "src/infrastructure/database/pool.ts"
+  ],
+  "DATA_ENCRYPTION_KEY": [
+    "src/infrastructure/adapters/encryption-service.ts"
+  ],
+  "DIFY_API_KEY": [
+    "src/infrastructure/adapters/dify-adapter.ts"
+  ],
+  "DIFY_BASE_URL": [
+    "src/infrastructure/adapters/dify-adapter.ts"
+  ],
+  "DIRECTUS_ADMIN_EMAIL": [
+    "src/api/routes/countries.ts"
+  ],
+  "DIRECTUS_ADMIN_PASSWORD": [
+    "src/api/routes/countries.ts"
+  ],
+  "ERPNEXT_CATALOG_URL": [
+    "src/application/services/merchant-catalog-access.ts"
+  ],
+  "ERPNEXT_URL": [
+    "src/application/services/merchant-accounting-projection-service.ts",
+    "src/infrastructure/adapters/erpnext-adapter.ts",
+    "src/infrastructure/adapters/frappe-integration-client.ts"
+  ],
+  "ERP_ACCESS_SYNC_TOKEN": [
+    "src/api/routes/internal/erp/account-access.ts"
+  ],
+  "ERP_CURRENCY": [
+    "src/application/services/exchange-rate-service.ts"
+  ],
+  "FRAPPE_API_KEY": [
+    "src/infrastructure/adapters/erpnext-adapter.ts",
+    "src/mcp/mcp/erpnext_client.py"
+  ],
+  "FRAPPE_API_SECRET": [
+    "src/infrastructure/adapters/erpnext-adapter.ts",
+    "src/mcp/mcp/erpnext_client.py"
+  ],
+  "FRAPPE_URL": [
+    "src/mcp/mcp/erpnext_client.py"
+  ],
+  "GEOLITE2_COUNTRY_DB_PATH": [
+    "src/application/services/pay/detected-country-service.ts"
+  ],
+  "GOOGLE_API_KEY": [
+    "src/api/routes/photo/[id].ts"
+  ],
+  "HOST": [
+    "src/api/server.ts"
+  ],
+  "INDEXNOW_KEY": [
+    "src/application/shared/indexnow.ts"
+  ],
+  "INTERNAL_API_TOKEN": [
+    "src/api/routes/internal/kyc-publish-status.ts",
+    "src/api/routes/internal/operational-readiness.ts"
+  ],
+  "KEYCLOAK_ADMIN_CLIENT_ID": [
+    "src/application/outbox-dispatcher.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "KEYCLOAK_ADMIN_CLIENT_SECRET": [
+    "src/application/outbox-dispatcher.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "KEYCLOAK_BASE_URL": [
+    "src/application/outbox-dispatcher.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "KEYCLOAK_CLIENT_ID": [
+    "src/application/outbox-dispatcher.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "KEYCLOAK_EXTERNAL_BASE_URL": [
+    "src/application/outbox-dispatcher.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts"
+  ],
+  "KEYCLOAK_REALM": [
+    "src/application/outbox-dispatcher.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "KONEKTAG_API_KEY": [
+    "src/mcp/mcp/konektag_client.py"
+  ],
+  "KONEKTAG_API_SECRET": [
+    "src/mcp/mcp/konektag_client.py"
+  ],
+  "KONEKTAG_BOOST_ERP_CUSTOMERS": [
+    "src/application/services/merchant-social-boost-service.ts"
+  ],
+  "KONEKTAG_BOOST_PAYMENT_PROFILES": [
+    "src/application/services/merchant-social-boost-service.ts"
+  ],
+  "KONEKTAG_INTEGRATION_SECRET": [
+    "src/application/services/merchant-accounting-projection-service.ts",
+    "src/application/services/pay/payment-context-resolver.ts",
+    "src/infrastructure/adapters/frappe-integration-client.ts"
+  ],
+  "KONEKTAG_MEETING_DEFAULT_AXIS": [
+    "src/application/shared/meeting-crm-native.ts"
+  ],
+  "KONEKTAG_MEETING_LEAD_OWNER": [
+    "src/application/shared/meeting-crm-native.ts"
+  ],
+  "KONEKTAG_URL": [
+    "src/mcp/mcp/konektag_client.py"
+  ],
+  "M365_CLIENT_ID": [
+    "src/mcp/mcp-m365/graph_client.py"
+  ],
+  "M365_MAILBOX": [
+    "src/mcp/mcp-m365/graph_client.py"
+  ],
+  "M365_PFX_PASSWORD": [
+    "src/mcp/mcp-m365/graph_client.py"
+  ],
+  "M365_PFX_PATH": [
+    "src/mcp/mcp-m365/graph_client.py"
+  ],
+  "M365_TENANT_ID": [
+    "src/mcp/mcp-m365/graph_client.py"
+  ],
+  "MAUTIC_BASE_URL": [
+    "src/infrastructure/adapters/mautic-adapter.ts"
+  ],
+  "MAUTIC_OAUTH_CLIENT_ID": [
+    "src/infrastructure/adapters/mautic-adapter.ts"
+  ],
+  "MAUTIC_OAUTH_CLIENT_SECRET": [
+    "src/infrastructure/adapters/mautic-adapter.ts"
+  ],
+  "MCP_HOST": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "MCP_PORT": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "MCP_PUBLIC_URL": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "MINIO_ACCESS_KEY": [
+    "src/api/routes/merchant/media-file.ts",
+    "src/api/routes/merchant/qr-code-file.ts",
+    "src/infrastructure/adapters/minio-adapter.ts",
+    "src/infrastructure/bootstrap.ts",
+    "src/infrastructure/media-storage.ts"
+  ],
+  "MINIO_BUCKET": [
+    "src/api/routes/admin/kyc/document.ts",
+    "src/api/routes/admin/kyc/index.ts",
+    "src/api/routes/merchant/media-file.ts",
+    "src/api/routes/merchant/qr-code-file.ts",
+    "src/infrastructure/adapters/minio-adapter.ts",
+    "src/infrastructure/bootstrap.ts",
+    "src/infrastructure/media-storage.ts"
+  ],
+  "MINIO_ENDPOINT": [
+    "src/api/routes/merchant/media-file.ts",
+    "src/api/routes/merchant/qr-code-file.ts",
+    "src/infrastructure/adapters/minio-adapter.ts",
+    "src/infrastructure/bootstrap.ts",
+    "src/infrastructure/media-storage.ts"
+  ],
+  "MINIO_KYC_BUCKET": [
+    "src/api/routes/admin/kyc/document.ts",
+    "src/api/routes/admin/kyc/index.ts",
+    "src/infrastructure/adapters/minio-adapter.ts",
+    "src/infrastructure/scripts/jobs/purge-expired-data.ts"
+  ],
+  "MINIO_PORT": [
+    "src/api/routes/merchant/media-file.ts",
+    "src/api/routes/merchant/qr-code-file.ts",
+    "src/infrastructure/adapters/minio-adapter.ts",
+    "src/infrastructure/bootstrap.ts",
+    "src/infrastructure/media-storage.ts"
+  ],
+  "MINIO_PUBLIC_ENDPOINT": [
+    "src/infrastructure/media-storage.ts"
+  ],
+  "MINIO_QUARANTINE_BUCKET": [
+    "src/api/routes/admin/kyc/document.ts",
+    "src/api/routes/admin/kyc/index.ts",
+    "src/application/services/kyc-processor.ts",
+    "src/infrastructure/adapters/minio-adapter.ts"
+  ],
+  "MINIO_REJECTED_BUCKET": [
+    "src/infrastructure/adapters/minio-adapter.ts"
+  ],
+  "MINIO_SECRET_KEY": [
+    "src/api/routes/merchant/media-file.ts",
+    "src/api/routes/merchant/qr-code-file.ts",
+    "src/infrastructure/adapters/minio-adapter.ts",
+    "src/infrastructure/bootstrap.ts",
+    "src/infrastructure/media-storage.ts"
+  ],
+  "NODE_ENV": [
+    "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/deposit.ts",
+    "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/return.ts",
+    "src/application/services/pay/api-payment-webhook-service.ts"
+  ],
+  "OAUTH_AUDIENCE": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_AUTHORIZE_URL": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_CLIENT_ID": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_CLIENT_SECRET": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_ISSUER": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_JWKS_URI": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_SEND_AUDIENCE": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_STORE_DIR": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OAUTH_TOKEN_URL": [
+    "src/mcp/mcp-m365/server.py",
+    "src/mcp/mcp-unipile/server.py",
+    "src/mcp/mcp/server.py"
+  ],
+  "OTP_MAX_ATTEMPTS": [
+    "src/infrastructure/adapters/redis-adapter.ts"
+  ],
+  "OTP_TTL_SECONDS": [
+    "src/infrastructure/adapters/redis-adapter.ts"
+  ],
+  "OUTBOX_BATCH_SIZE": [
+    "src/application/outbox-dispatcher.ts"
+  ],
+  "OUTBOX_POLL_INTERVAL_MS": [
+    "src/application/outbox-dispatcher.ts"
+  ],
+  "PAWAPAY_API_TOKEN": [
+    "src/infrastructure/adapters/provider-configuration.ts",
+    "src/infrastructure/scripts/jobs/reconcile-pawapay-deposits.ts"
+  ],
+  "PAWAPAY_API_URL": [
+    "src/infrastructure/adapters/provider-configuration.ts",
+    "src/infrastructure/scripts/jobs/reconcile-pawapay-deposits.ts"
+  ],
+  "PAWAPAY_SIGNATURE_CLOCK_SKEW_SECONDS": [
+    "src/infrastructure/adapters/pawapay-client.ts"
+  ],
+  "PHOTO_FALLBACK_PATH": [
+    "src/api/routes/photo/[id].ts"
+  ],
+  "PORT": [
+    "src/api/server.ts"
+  ],
+  "POSTIZ_ALLOWED_ORIGINS": [
+    "src/application/services/postiz-transport.ts"
+  ],
+  "POSTIZ_API_KEY": [
+    "src/mcp/mcp/postiz_client.py"
+  ],
+  "POSTIZ_API_URL": [
+    "src/application/services/postiz-connections.ts",
+    "src/application/services/postiz-transport.ts",
+    "src/mcp/mcp/postiz_client.py"
+  ],
+  "POSTIZ_MERCHANT_CHANNELS": [
+    "src/application/services/postiz-connections.ts"
+  ],
+  "PUBLIC_APP_URL": [
+    "src/application/services/pay/api-payment-checkout-service.ts"
+  ],
+  "PUBLIC_CORE02_TRUST_ROOTS": [
+    "src/application/offline-payment-sync-service.ts",
+    "src/application/services/qr-signed-verification-service.ts"
+  ],
+  "PUBLIC_DIRECTUS_URL": [
+    "src/api/routes/countries.ts"
+  ],
+  "PUBLIC_MEDIA_ORIGINS": [
+    "src/application/services/merchant-social-service.ts"
+  ],
+  "PUBLIC_SITE_URL": [
+    "src/api/routes/admin/merchants/[id]/pro-activation.ts",
+    "src/api/routes/auth/forgot-password.ts",
+    "src/api/routes/merchant/profiles/[profileId]/pro-renewal.ts",
+    "src/api/routes/pay/pay-link.ts",
+    "src/api/routes/pay/payments.ts",
+    "src/api/routes/pay/recharges.ts",
+    "src/api/routes/qr/request-confirmation.ts",
+    "src/api/routes/test-email/send.ts",
+    "src/application/outbox-dispatcher.ts",
+    "src/application/services/cash-receipt-service.ts",
+    "src/application/services/pay/api-payment-checkout-service.ts",
+    "src/application/services/visibility-shared.ts",
+    "src/application/shared/public-origin.ts",
+    "src/application/shared/seo.ts",
+    "src/infrastructure/adapters/keycloak-adapter.ts"
+  ],
+  "REDIS_PASSWORD": [
+    "src/infrastructure/adapters/redis-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "REDIS_URL": [
+    "src/infrastructure/adapters/redis-adapter.ts",
+    "src/infrastructure/bootstrap.ts"
+  ],
+  "RESEND_API_KEY": [
+    "src/application/services/resend-service.ts"
+  ],
+  "RESEND_FROM": [
+    "src/application/services/resend-service.ts"
+  ],
+  "SANCTIONS_DATA_DIR": [
+    "src/infrastructure/scripts/jobs/inject-sanctions-batch.ts"
+  ],
+  "STRIPE_PUBLIC_KEY": [
+    "src/infrastructure/adapters/provider-configuration.ts"
+  ],
+  "STRIPE_PUBLISHABLE_KEY": [
+    "src/infrastructure/adapters/provider-configuration.ts"
+  ],
+  "STRIPE_SECRET_KEY": [
+    "src/api/routes/recharge/stripe/confirm.ts",
+    "src/api/routes/recharge/stripe/create-intent.ts",
+    "src/api/routes/webhooks/stripe.ts",
+    "src/application/commands/admin/refund-stripe-command.ts",
+    "src/infrastructure/adapters/provider-configuration.ts"
+  ],
+  "STRIPE_WEBHOOK_SECRET": [
+    "src/api/routes/webhooks/stripe.ts",
+    "src/infrastructure/adapters/provider-configuration.ts"
+  ],
+  "UNIPILE_API_KEY": [
+    "src/mcp/mcp-unipile/server.py"
+  ],
+  "UNIPILE_BASE_URL": [
+    "src/mcp/mcp-unipile/server.py"
+  ],
+  "UNIPILE_LINKEDIN_ACCOUNT_ID": [
+    "src/mcp/mcp-unipile/server.py"
+  ],
+  "UNIPILE_MCP_HOST": [
+    "src/mcp/mcp-unipile/server.py"
+  ],
+  "UNIPILE_MCP_PORT": [
+    "src/mcp/mcp-unipile/server.py"
+  ],
+  "UNIPILE_WHATSAPP_ACCOUNT_ID": [
+    "src/mcp/mcp-unipile/server.py"
+  ],
+  "WALLET_INTEGRITY_ENFORCE_RULES": [
+    "src/application/services/wallet-integrity-service.ts"
+  ],
+  "WALLET_INTEGRITY_MODE": [
+    "src/application/services/wallet-integrity-service.ts",
+    "src/infrastructure/scripts/jobs/wallet-integrity-worker.ts"
+  ],
+  "WALLET_INTEGRITY_WARNING_THRESHOLD": [
+    "src/application/services/wallet-integrity-service.ts"
+  ]
+}

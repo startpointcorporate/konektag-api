@@ -1,0 +1,44 @@
+{
+  "name": "konektag-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node src/infrastructure/scripts/build.mjs",
+    "start": "node dist/server.mjs",
+    "dev": "tsx src/api/server.ts",
+    "test": "vitest run",
+    "worker:outbox": "node dist/outbox-worker.mjs",
+    "worker:accounting": "node dist/accounting-worker.mjs",
+    "docs:generate": "node src/infrastructure/scripts/openapi.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1075.0",
+    "@aws-sdk/s3-request-presigner": "3.1075.0",
+    "i18n-iso-countries": "7.14.0",
+    "jose": "5.10.0",
+    "maxmind": "4.3.0",
+    "pg": "8.22.0",
+    "qrcode": "1.5.4",
+    "redis": "4.7.1",
+    "stripe": "22.3.0",
+    "tesseract.js": "7.0.0",
+    "tsx": "4.23.1",
+    "zod": "3.25.76",
+    "yaml": "2.9.1",
+    "swagger-ui-dist": "5.32.0",
+    "cookie": "1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.0.1",
+    "@types/pg": "8.20.0",
+    "@types/qrcode": "1.5.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "esbuild": "0.25.12"
+  }
+}

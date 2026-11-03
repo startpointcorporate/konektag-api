@@ -1,0 +1,118 @@
+name: Build and deploy Konektag backend
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Existing GitHub environment with approvals and K3s configuration
+        required: true
+        type: environment
+      action:
+        type: choice
+        options: [deploy, rollback]
+        default: deploy
+      revision:
+        description: Existing Helm revision (rollback only)
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: konektag-${{ github.workflow }}-${{ github.event.inputs.environment || github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: github.event_name == 'pull_request' || inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24', cache: npm}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip, cache-dependency-path: src/mcp/requirements.lock.txt}
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: node src/infrastructure/scripts/smoke.mjs
+      - run: python -m pip install -r src/mcp/requirements.lock.txt
+      - run: python -m pytest src/mcp/mcp/tests src/mcp/mcp-unipile/tests tests/mcp -q
+      - run: bash -n src/infrastructure/scripts/*.sh
+      - uses: azure/setup-helm@v4.3.0
+      - run: helm lint src/infrastructure/k8s/konektag-api -f tests/fixtures/helm-values.yaml
+  images:
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions: {contents: read, packages: write}
+    strategy:
+      matrix:
+        service: [api, mcp, mcp-m365, mcp-unipile]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require explicit deployment configuration
+        env:
+          ENABLED: ${{ vars.K3S_DEPLOY_ENABLED }}
+          IMAGE_REPOSITORY: ${{ vars.IMAGE_REPOSITORY }}
+        run: test "$ENABLED" = true && test -n "$IMAGE_REPOSITORY"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: src/infrastructure/docker/${{ matrix.service == 'api' && 'api' || 'mcp' }}.Dockerfile
+          build-args: SERVICE=${{ matrix.service }}
+          push: true
+          tags: ${{ vars.IMAGE_REPOSITORY }}-${{ matrix.service }}:${{ github.sha }}
+  deploy:
+    needs: images
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4.3.0
+      - uses: azure/setup-kubectl@v4
+      - name: Deploy into explicitly configured cluster
+        env:
+          KUBE_CONFIG: ${{ secrets.K3S_KUBECONFIG }}
+          DEPLOY_VALUES: ${{ vars.K3S_HELM_VALUES }}
+          NAMESPACE: ${{ vars.K3S_NAMESPACE }}
+          RELEASE: ${{ vars.K3S_RELEASE }}
+          IMAGE_REPOSITORY: ${{ vars.IMAGE_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          umask 077
+          export KUBECONFIG="$RUNNER_TEMP/kubeconfig"
+          export VALUES_FILE="$RUNNER_TEMP/values.yaml"
+          trap 'rm -f "$KUBECONFIG" "$VALUES_FILE"' EXIT
+          test -n "$KUBE_CONFIG" && test -n "$DEPLOY_VALUES"
+          printf '%s' "$KUBE_CONFIG" > "$KUBECONFIG"
+          printf '%s' "$DEPLOY_VALUES" > "$VALUES_FILE"
+          ./src/infrastructure/scripts/deploy.sh
+  rollback:
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'rollback'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4.3.0
+      - uses: azure/setup-kubectl@v4
+      - name: Roll back a reviewed Helm revision
+        env:
+          ENABLED: ${{ vars.K3S_DEPLOY_ENABLED }}
+          KUBE_CONFIG: ${{ secrets.K3S_KUBECONFIG }}
+          NAMESPACE: ${{ vars.K3S_NAMESPACE }}
+          RELEASE: ${{ vars.K3S_RELEASE }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          test "$ENABLED" = true && test -n "$KUBE_CONFIG"
+          umask 077
+          export KUBECONFIG="$RUNNER_TEMP/kubeconfig"
+          trap 'rm -f "$KUBECONFIG"' EXIT
+          printf '%s' "$KUBE_CONFIG" > "$KUBECONFIG"
+          ./src/infrastructure/scripts/rollback.sh

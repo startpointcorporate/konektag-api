@@ -1,0 +1,8 @@
+import type {RouteHandler} from '../../../http';
+import {visibilityHttp,visibilityActor,visibilityBody,visibilityId,VisibilityError} from '../../../../application/services/visibility-shared.ts';
+import {campaignList,prepareCampaign,editCampaign,scheduleCampaign,cancelCampaign} from '../../../../application/services/merchant-social-service.ts';
+import {listSocialBoosts,listSocialBoostTargetCountries,quoteSocialBoost,requestSocialBoost} from '../../../../application/services/merchant-social-boost-service.ts';
+export const GET:RouteHandler=({locals,url})=>visibilityHttp(async()=>{const actor=visibilityActor(locals),merchantId=visibilityId(url.searchParams.get('merchantProfileId'));const [campaigns,boosts,countries]=await Promise.all([campaignList(actor,merchantId),listSocialBoosts(actor,merchantId),listSocialBoostTargetCountries(actor,merchantId)]);return {...campaigns,...boosts,...countries};});
+export const POST:RouteHandler=({locals,request})=>visibilityHttp(async()=>{const b=await visibilityBody(request);if(b.action==='boost-quote')return quoteSocialBoost(visibilityActor(locals),visibilityId(b.campaignId),b);if(b.action==='boost')return requestSocialBoost(visibilityActor(locals),visibilityId(b.campaignId),b);if(b.action==='schedule')return scheduleCampaign(visibilityActor(locals),visibilityId(b.id),b,false);if(b.action==='cancel')return cancelCampaign(visibilityActor(locals),visibilityId(b.id),b.expectedVersion,false);return prepareCampaign(visibilityActor(locals),visibilityId(b.merchantProfileId),b,request.headers.get('X-Idempotency-Key'));});
+export const PUT:RouteHandler=({locals,request})=>visibilityHttp(async()=>{const b=await visibilityBody(request);return editCampaign(visibilityActor(locals),visibilityId(b.id),b);});
+
