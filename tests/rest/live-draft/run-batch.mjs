@@ -43,7 +43,7 @@ try {
   }
   await campaign(root, configFile);
   const settings = JSON.parse(await readFile(configFile, 'utf8'));
-  const reportDir = path.resolve(path.dirname(configFile), settings.outputDirectory || 'work/rest-live-results');
+  const reportDir = path.resolve(settings.outputDirectory || 'work/rest-live-results');
   const runs = (await readdir(reportDir, { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
   const report = JSON.parse(await readFile(path.join(reportDir, runs.at(-1), 'results.json'), 'utf8'));
   console.log('REST', report.operations.length, 'operations:', JSON.stringify(report.summary));
