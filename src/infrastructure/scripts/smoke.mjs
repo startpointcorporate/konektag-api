@@ -26,7 +26,7 @@ try{
  assert.match(swaggerScript,/usePkceWithAuthorizationCodeGrant:true/);
  assert.match(swaggerScript,/clientId:'frontend-konektag'/);
  const redirectHtml=await (await get('/docs/oauth2-redirect.html')).text();
- assert.match(redirectHtml,/oauth2-redirect\\.js/);
+ assert.match(redirectHtml,/oauth2-redirect\.js/);
  const redirectJs=await get('/docs/oauth2-redirect.js');
  assert.equal(redirectJs.status,200);
  assert.match(redirectJs.headers.get('content-type')||'',/javascript/);
