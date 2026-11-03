@@ -1,0 +1,11 @@
+import './routes.mjs';
+import { build } from 'esbuild';
+import { readdir } from 'node:fs/promises';
+const jobs = Object.fromEntries((await readdir('src/infrastructure/scripts/jobs')).filter(f=>f.endsWith('.ts')).map(f=>['jobs/'+f.slice(0,-3),'src/infrastructure/scripts/jobs/'+f]));
+import { mkdir, readFile, writeFile, cp } from 'node:fs/promises';
+import { parse } from 'yaml';
+await mkdir('dist',{recursive:true});
+await build({entryPoints:{...jobs,'worker-readiness':'src/application/worker-readiness.ts',server:'src/api/server.ts','accounting-worker':'src/application/accounting-worker-entry.ts','outbox-worker':'src/application/outbox-worker-entry.ts'},outdir:'dist',bundle:true,splitting:true,format:'esm',platform:'node',target:'node22',packages:'external',outExtension:{'.js':'.mjs'},sourcemap:true});
+const spec = parse(await readFile('docs/openapi.yaml','utf8'));
+await writeFile('dist/openapi.json',JSON.stringify(spec,null,2)+'\n');
+await cp('src/infrastructure/assets','dist/assets',{recursive:true});

@@ -1,0 +1,63 @@
+{{- if .Values.mcpIngress.enabled }}
+{{- $root := . -}}
+{{- $host := required "mcpIngress.host is required" .Values.mcpIngress.host -}}
+{{- $tls := required "mcpIngress.tlsSecret is required" .Values.mcpIngress.tlsSecret -}}
+{{- range $name, $config := .Values.mcp }}
+{{- $prefix := required (printf "mcp.%s.pathPrefix is required" $name) $config.pathPrefix -}}
+{{- if ne $prefix "/" }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $root.Release.Name }}-mcp-{{ $name }}-strip
+spec:
+  stripPrefix:
+    prefixes: [{{ $prefix | quote }}]
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $root.Release.Name }}-mcp-{{ $name }}
+  {{- if ne $prefix "/" }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: {{ printf "%s-%s-mcp-%s-strip@kubernetescrd" $root.Release.Namespace $root.Release.Name $name | quote }}
+  {{- end }}
+spec:
+  ingressClassName: {{ $root.Values.mcpIngress.className }}
+  tls: [{hosts: [{{ $host | quote }}], secretName: {{ $tls }}}]
+  rules:
+    - host: {{ $host }}
+      http:
+        paths:
+          - path: {{ $prefix }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $root.Release.Name }}-mcp-{{ $name }}
+                port: {name: http}
+{{- if ne $prefix "/" }}
+---
+# OAuth discovery is path-aware at the root; do not strip this path.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $root.Release.Name }}-mcp-{{ $name }}-discovery
+spec:
+  ingressClassName: {{ $root.Values.mcpIngress.className }}
+  tls: [{hosts: [{{ $host | quote }}], secretName: {{ $tls }}}]
+  rules:
+    - host: {{ $host }}
+      http:
+        paths:
+          {{- range $discovery := list "oauth-authorization-server" "oauth-protected-resource" }}
+          - path: {{ printf "/.well-known/%s%s" $discovery $prefix }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $root.Release.Name }}-mcp-{{ $name }}
+                port: {name: http}
+          {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

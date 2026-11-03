@@ -1,0 +1,58 @@
+# Values must point to the existing platform. No external software or Secrets are created.
+image:
+  repository: "" # Registry path without suffix: <repository>-api, -mcp, -mcp-m365, -mcp-unipile
+  tag: "" # Full Git commit SHA
+imagePullSecrets: []
+api:
+  replicas: 1
+  existingSecret: ""
+  env: {} # API_PUBLIC_URL, PUBLIC_SITE_URL and existing non-secret configuration
+  nodeSelector: {}
+  volumeMounts: [] # Existing CMS/GeoIP mounts if required by selected operations
+  volumes: []
+workers:
+  outbox: true
+  accounting: true
+mcp:
+  erpnext:
+    pathPrefix: /
+    existingSecret: ""
+    oauthClaim: ""
+    env: {}
+  m365:
+    pathPrefix: /m365
+    existingSecret: ""
+    oauthClaim: ""
+    env: {}
+    extraVolumes: [] # Existing M365 PFX Secret volume
+    extraVolumeMounts: []
+  unipile:
+    pathPrefix: /unipile
+    existingSecret: ""
+    oauthClaim: ""
+    env: {}
+ingress:
+  enabled: false
+  className: traefik
+  host: ""
+  tlsSecret: "" # Existing TLS Secret
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {cpu: "1", memory: 1Gi}
+
+# Scheduled controls already exist on the platform: disable here until their ownership is transferred.
+# Retention is destructive by its existing business policy and is never enabled automatically.
+jobs:
+  daily-reconciliation: {enabled: false, schedule: "0 2 * * *"}
+  inject-sanctions-batch: {enabled: false, schedule: "0 6 * * *"}
+  re-screen-users: {enabled: false, schedule: "0 3 * * 0"}
+  purge-expired-data: {enabled: false, schedule: "0 4 * * *"}
+  postiz-sync-worker: {enabled: false, schedule: "*/5 * * * *"}
+  wallet-integrity-worker: {enabled: false, schedule: "*/5 * * * *"}
+  reconcile-pawapay-deposits: {enabled: false, schedule: ""} # Configure existing cadence before enabling.
+
+mcpIngress:
+  enabled: false
+  className: traefik
+  host: ""
+  tlsSecret: ""

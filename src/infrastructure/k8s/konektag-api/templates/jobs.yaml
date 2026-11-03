@@ -1,0 +1,47 @@
+{{- $root := . -}}
+{{- range $name, $job := .Values.jobs }}
+{{- if $job.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $root.Release.Name }}-{{ $name }}
+spec:
+  schedule: {{ required (printf "jobs.%s.schedule is required" $name) $job.schedule | quote }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 120
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext: {runAsNonRoot: true, runAsUser: 1000, runAsGroup: 1000}
+          {{- with $root.Values.imagePullSecrets }}
+          imagePullSecrets: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: job
+              image: {{ printf "%s-api:%s" $root.Values.image.repository $root.Values.image.tag | quote }}
+              command: [node, "dist/jobs/{{ $name }}.mjs"]
+              envFrom: [{secretRef: {name: {{ $root.Values.api.existingSecret }}}}]
+              env:
+                - {name: NODE_ENV, value: production}
+                - {name: APP_VERSION, value: {{ $root.Values.image.tag | quote }}}
+                {{- range $key, $value := $root.Values.api.env }}
+                - {name: {{ $key }}, value: {{ $value | quote }}}
+                {{- end }}
+              securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+              resources: {{ toYaml $root.Values.resources | nindent 16 }}
+              {{- with $root.Values.api.volumeMounts }}
+              volumeMounts: {{ toYaml . | nindent 16 }}
+              {{- end }}
+          {{- with $root.Values.api.volumes }}
+          volumes: {{ toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
+{{- end }}

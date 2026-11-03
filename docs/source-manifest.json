@@ -1,0 +1,2711 @@
+{
+  "repository": "startpointcorporate/konetag",
+  "commit": "c25c1ac5d42d0e173b9dec28c950617d109d0530",
+  "files": [
+    {
+      "source": "www/frontend-konektag/src/accounting-worker-entry.ts",
+      "destination": "src/application/accounting-worker-entry.ts",
+      "source_sha256": "d1dd77807b7ee1d12650961762df93eaca39e00c50ed9c0b15767c86b8c39417"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/accounting-worker.ts",
+      "destination": "src/application/accounting-worker.ts",
+      "source_sha256": "f769e5f500f8da914cde551eb4c67b55a63844e069b670b3f0463e42495ed36b"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/agent-inquiry-service.ts",
+      "destination": "src/application/agent-inquiry-service.ts",
+      "source_sha256": "25a2aed579994e7eed7b73f1af0bd5cd9429b14921004cabe246675286df2ad4"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/commands/admin/confirm-api-payment-mobile-money-command.ts",
+      "destination": "src/application/commands/admin/confirm-api-payment-mobile-money-command.ts",
+      "source_sha256": "33061e708fb24c376242d22b62fa4195b5f9428edde8f956fbb91fd80664f165"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/commands/admin/confirm-crypto-command.ts",
+      "destination": "src/application/commands/admin/confirm-crypto-command.ts",
+      "source_sha256": "8b4cc1fbef101ec220600b7bb5266f9e99f0340b343f01bb76730bf749106386"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/commands/admin/mobile-money-confirmation.ts",
+      "destination": "src/application/commands/admin/mobile-money-confirmation.ts",
+      "source_sha256": "4860ecae373c14f582cd3fcde1bb5162d72bfc2420f20cef6e6087cfece8231e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/commands/admin/refund-stripe-command.ts",
+      "destination": "src/application/commands/admin/refund-stripe-command.ts",
+      "source_sha256": "2603cbea76dd773e27cee8de11b6b703d70efbd79ace4f8834510de97939efc2"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/core-offline-service.ts",
+      "destination": "src/application/core-offline-service.ts",
+      "source_sha256": "8247ca67d2b8b07a7e2c08601e82d5ec6267e7a5505c608edcddfd5424dff107"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/core-transaction-service.ts",
+      "destination": "src/application/core-transaction-service.ts",
+      "source_sha256": "bf3fa59d52db4e3727ffe3e4f7aaf1bc92b952dc10d313bbfc88c2531af39298"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/core02-identity-service.ts",
+      "destination": "src/application/core02-identity-service.ts",
+      "source_sha256": "344830328a4189f143561ae0f425a38b2aaedbe325d1beec0c75a0cbc90bf530"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/growth-service.ts",
+      "destination": "src/application/growth-service.ts",
+      "source_sha256": "2761c2db0b689a0642319cd42029278dada79b1b9e3ca0cb429e2bd1613ae905"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/marketplace-search-service.ts",
+      "destination": "src/application/marketplace-search-service.ts",
+      "source_sha256": "5b877f6d42d639452fb7cd0964a3afa4b51aaba25a6d567a04345192994f1c90"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-activity-profile.ts",
+      "destination": "src/application/merchant-activity-profile.ts",
+      "source_sha256": "fd556b903b34cbde651dc9313bdeecc62ce29e2250ed989f36a4e64bf8ec6ed4"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-cash-http.ts",
+      "destination": "src/application/merchant-cash-http.ts",
+      "source_sha256": "a941984d905bce61f07ea368230847a66f24c4a70fbd55b7efe49ce669ada508"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-offline-mutation-service.ts",
+      "destination": "src/application/merchant-offline-mutation-service.ts",
+      "source_sha256": "faf0778ee89f5712ae126dd4f9259ae8ff3a0e24f3380e9604d04bf6e3a02787"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-offline-service.ts",
+      "destination": "src/application/merchant-offline-service.ts",
+      "source_sha256": "3b8952b708753004eb49afee9a491c34540b59ee870f9074b251460514c4c04f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-operations-http.ts",
+      "destination": "src/application/merchant-operations-http.ts",
+      "source_sha256": "ef974a91c9855e851ecd45feb37f274a050dd4991e6badb54467cf7dd4aabd44"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-operations-service.ts",
+      "destination": "src/application/merchant-operations-service.ts",
+      "source_sha256": "582261d86252f5f4781194376e10fe497e5a6c45ecfbe26bde79523488a55adf"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-service.ts",
+      "destination": "src/application/merchant-service.ts",
+      "source_sha256": "2dd36291e05626e92816605878a38de71bf3b15d8564c14c6c323135104885d7"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/merchant-tax-service.ts",
+      "destination": "src/application/merchant-tax-service.ts",
+      "source_sha256": "df2a5ebe292089942c6610e28925499b7cfc1e4c6f67085f115c19d584d3020b"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/offline-payment-envelope-service.ts",
+      "destination": "src/application/offline-payment-envelope-service.ts",
+      "source_sha256": "a66f1a77c6d7eb50211f944283f88845987cbb8185c3f620882ea8cb2f8882c0"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/offline-payment-sync-service.ts",
+      "destination": "src/application/offline-payment-sync-service.ts",
+      "source_sha256": "bec8a85d1349579f1f2a97a68b667f15db8239e7319e0b472996da2db09fa463"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/offline-points-readiness.ts",
+      "destination": "src/application/offline-points-readiness.ts",
+      "source_sha256": "f1a2f5bef0524126ea874310ed72c6ffe78d8acdb0a426b40497161c91b70a8f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/outbox-dispatcher.ts",
+      "destination": "src/application/outbox-dispatcher.ts",
+      "source_sha256": "3ebb0a6a15d7d012813282e42b3214c20986a244b77dafe54d6ceb434883aaa5"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/outbox-errors.ts",
+      "destination": "src/application/outbox-errors.ts",
+      "source_sha256": "a57b3139c67a43a71eaed48967a232cfdef36fb0a5bc12844f4167b589303aef"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/pro-inquiry-service.ts",
+      "destination": "src/application/pro-inquiry-service.ts",
+      "source_sha256": "88bf48007ed1e45c574d76bb99e8def58b0bccce96e7fe148232c95178fa67a9"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/projection/recharge-projection.ts",
+      "destination": "src/application/projection/recharge-projection.ts",
+      "source_sha256": "fcc2ad0eb8ac674dd6970c3525baa535a36ff0685b5d94c60b328033ded88898"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/promotion-service.ts",
+      "destination": "src/application/promotion-service.ts",
+      "source_sha256": "e4036bfc738ac29bbf338c87930ece29ea707372de5169b71cf3869429fe684e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/public-catalog-service.ts",
+      "destination": "src/application/public-catalog-service.ts",
+      "source_sha256": "45c0187353d7be0b7cdd09f84d01439f3918878db12f352efba7f575f257901c"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/qrcode-service.ts",
+      "destination": "src/application/qrcode-service.ts",
+      "source_sha256": "30c97ecc483f08556ae2e61348fffcdf846b9baf92049d3aacd24fc3ad3fb1a7"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/queries/admin/card-transactions/list.ts",
+      "destination": "src/application/queries/admin/card-transactions/list.ts",
+      "source_sha256": "75299a6119471851279af715734a191977b217446c1a913c71dc61220acf38da"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/queries/admin/mobile-money-queue/list.ts",
+      "destination": "src/application/queries/admin/mobile-money-queue/list.ts",
+      "source_sha256": "b003120f69ec8c91923193ba595e5c011a12e0d65a45b5b2740d3fb9742569e4"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/queries/admin/recharges/detail.ts",
+      "destination": "src/application/queries/admin/recharges/detail.ts",
+      "source_sha256": "f640fdab71a58efc6119e6210c7ef4661fd11e128186239f0e2764ca8b0f0174"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/queries/admin/recharges/dto.ts",
+      "destination": "src/application/queries/admin/recharges/dto.ts",
+      "source_sha256": "d9045b15c55464894e451a0f18ffafc09d7144c3664b770ac2cab8130b3e74da"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/queries/admin/recharges/list.ts",
+      "destination": "src/application/queries/admin/recharges/list.ts",
+      "source_sha256": "44efe7049733c7b5b75e642031d99c24bc18530e5d53f7453caa00644fa57c86"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/queries/admin/wallet-history/list.ts",
+      "destination": "src/application/queries/admin/wallet-history/list.ts",
+      "source_sha256": "3e5894d35a1d8f9df6e75f4344cfe9890d0008933c71aa18ae7e5c8c924f707f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/account-access-service.ts",
+      "destination": "src/application/services/account-access-service.ts",
+      "source_sha256": "1a41881d1cb8a797a87c184b25606399a60f8946e7bb2605abd62426f25f3cbe"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/account-service.ts",
+      "destination": "src/application/services/account-service.ts",
+      "source_sha256": "6f2dda03c5d8cd5c90ef10213ab279f70d126a0ca82124f8876594634a94a798"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/accounting-service.ts",
+      "destination": "src/application/services/accounting-service.ts",
+      "source_sha256": "b6a4fef699743674c73b1c0becf9cc27871f40d91925c020d4e2e52ab21522b7"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/activation-challenge-service.ts",
+      "destination": "src/application/services/activation-challenge-service.ts",
+      "source_sha256": "d7a85239d18a3c1d571716bf0e1cd3aaf8267d9efd76ad5471f44761e5e48fd6"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/agent-service.ts",
+      "destination": "src/application/services/agent-service.ts",
+      "source_sha256": "34aa1397a25e7543a25a72a8f77a533adafc54ceeed1fa1343dac90d5ba43cd3"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/ambassador-service.ts",
+      "destination": "src/application/services/ambassador-service.ts",
+      "source_sha256": "b3103d7af66e54ec935e526c9578b2b98e3d151a4ec03b85faf0bbc875db7f58"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/analytics-access.ts",
+      "destination": "src/application/services/analytics-access.ts",
+      "source_sha256": "43184d724206f687e7ec22a501f6852f6c029da7d4114420dc60884f3be3b0dc"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/auth-service.ts",
+      "destination": "src/application/services/auth-service.ts",
+      "source_sha256": "55aed3965609d06c3ed090a3f510e782cdf2d001678c2126a5e5309497f4e5b8"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/backoffice-permission-service.ts",
+      "destination": "src/application/services/backoffice-permission-service.ts",
+      "source_sha256": "8d2aeedbaeba307c2a494e02282d73b1845247d85ef0ca3a3b2acd40a7dd900c"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/card-batch-service.ts",
+      "destination": "src/application/services/card-batch-service.ts",
+      "source_sha256": "8980d3953619ec60ef77c6b257d19b53cbf8cdc4c57d84be8277b41d7a63f016"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/card-lifecycle-service.ts",
+      "destination": "src/application/services/card-lifecycle-service.ts",
+      "source_sha256": "e5d3b4977305b3b54eefbeb83f7a4bf955900180f1e5353b4da13df194d75b25"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/cash-receipt-service.ts",
+      "destination": "src/application/services/cash-receipt-service.ts",
+      "source_sha256": "21e4da61d01827295b6796b13c5a5f3b166aea8e9fd287872d9e188a9365e67f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/cash-receipt-template.ts",
+      "destination": "src/application/services/cash-receipt-template.ts",
+      "source_sha256": "8f7bdb2d3da496917d46e9f99017be9eabc3401a3d03b3830b5f70190ee852bb"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/clearing-service.ts",
+      "destination": "src/application/services/clearing-service.ts",
+      "source_sha256": "a439edafdaa5cbab22d7d21e2e50a5e820eb3031cce37c1cee6fdc4fb1b198d8"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/communication-consent-service.ts",
+      "destination": "src/application/services/communication-consent-service.ts",
+      "source_sha256": "5e8816e073a694ed86da9b4c6a06e6610fe2673272c75ddc7c424c215b5c0350"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/consumption-service.ts",
+      "destination": "src/application/services/consumption-service.ts",
+      "source_sha256": "b6b1fe104e244f5f8e1caaa831de0f1939396562d3e5f6f78a5b4d3a9d924838"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/contact-service.ts",
+      "destination": "src/application/services/contact-service.ts",
+      "source_sha256": "9d00ec1315d18de84c0ed578193cc0451a30ab1077b0727a9c69fdaa8c3e2b3e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/country-currency-service.ts",
+      "destination": "src/application/services/country-currency-service.ts",
+      "source_sha256": "5e037c5f3198111b57c1993390a578b945acc13ecc0139aaf8eddc216c3b570a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/entitlement-decision-service.ts",
+      "destination": "src/application/services/entitlement-decision-service.ts",
+      "source_sha256": "da5f6bf7235baebd8d7d3dca393042f16a44cbe4f5021090234a6595aabb8ac0"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/erpnext-contact-service.ts",
+      "destination": "src/application/services/erpnext-contact-service.ts",
+      "source_sha256": "ca070831df2c5974962144ba97a6ee6d411fa138197b58bd006734a139097650"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/erpnext-regulatory-projection-service.ts",
+      "destination": "src/application/services/erpnext-regulatory-projection-service.ts",
+      "source_sha256": "6d03ddfd1a11d2ccbd6508dee1e79a2031c599082cc0910a4e68b374dfd57492"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/exchange-rate-service.ts",
+      "destination": "src/application/services/exchange-rate-service.ts",
+      "source_sha256": "25601e9910067d5b96573685cbb50ffa3b9e9b1b9765c023c1f3024a4f4e8b3a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/financial-eligibility-engine.ts",
+      "destination": "src/application/services/financial-eligibility-engine.ts",
+      "source_sha256": "427f79287e8947bf994cb676cd56241a7dcd57498ed0a0b22080ac6c8f5321cf"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/financial-idempotency-scope.ts",
+      "destination": "src/application/services/financial-idempotency-scope.ts",
+      "source_sha256": "64ca41ead24970b76feefa36632f58b71b3a006793761f754365bdb37d9e0002"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/financial-operation-service.ts",
+      "destination": "src/application/services/financial-operation-service.ts",
+      "source_sha256": "82fe8d22fcaa57c2422bd50ec7dcd42a4e9366a7b77be417f377903407222904"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/financial-transaction-service.ts",
+      "destination": "src/application/services/financial-transaction-service.ts",
+      "source_sha256": "0f0d984c3b8c1e19e875e9e3fa7e393f334861d3a0e817c8fa82e223c0a16dce"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/frappe-master-data-projection-service.ts",
+      "destination": "src/application/services/frappe-master-data-projection-service.ts",
+      "source_sha256": "6a4a2dac438d332812ccf1d3df3bd470bc0b4da655bbd2c1658ff00640e20aa4"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/http-idempotency-service.ts",
+      "destination": "src/application/services/http-idempotency-service.ts",
+      "source_sha256": "8607777abcf13bfa4d54a78bd9d0668e5d7a858aecd87f87d108097f1b41d153"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/k-points-service.ts",
+      "destination": "src/application/services/k-points-service.ts",
+      "source_sha256": "b053156af264427f6b2aca22ead2cb0db8a75a9e90bd290d40c5fcd5fde24da3"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/k-send-application-service.ts",
+      "destination": "src/application/services/k-send-application-service.ts",
+      "source_sha256": "04fb687551282606de81494fc6406dad75e17ce7e6ce9a183cccf5719d27cf34"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/k-send-otp-service.ts",
+      "destination": "src/application/services/k-send-otp-service.ts",
+      "source_sha256": "21a874c190717e9b6291e19f45e1e2813b9692b9fbae2c83bd15e893f51429f7"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/kyc-processor.ts",
+      "destination": "src/application/services/kyc-processor.ts",
+      "source_sha256": "80deeaeae2b0b727b79079664362b0fc652e55ef14e17690268c8cf9b31fd57d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/kyc-service.ts",
+      "destination": "src/application/services/kyc-service.ts",
+      "source_sha256": "2a3a9cc34dcbaed46a7ea924eb09931c1b45a27f8f1075db22307065a00c3fd1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/ledger-service.ts",
+      "destination": "src/application/services/ledger-service.ts",
+      "source_sha256": "5c2c7160f4959ccfaff94b118ddc7bb50ea3d466c2ce308e2a82f46503da42bf"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/legal-document-service.ts",
+      "destination": "src/application/services/legal-document-service.ts",
+      "source_sha256": "cfe00c9a04c0fb7efd8e2b8095ffe8e185ee4f3e76acb50f47be5990b7b8eeb3"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/link-payment-receipt-service.ts",
+      "destination": "src/application/services/link-payment-receipt-service.ts",
+      "source_sha256": "4bf7104983a8db53dfbfedae505ea37dc78269044a45559365458d0721d1cdec"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/loyalty-service.ts",
+      "destination": "src/application/services/loyalty-service.ts",
+      "source_sha256": "8cd2ec9248d79603e2c83193350d0dcaccf2430913779c0aed872227831a54ab"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/maker-checker-service.ts",
+      "destination": "src/application/services/maker-checker-service.ts",
+      "source_sha256": "eb0173046ba1d678376cf58222be6e72d12808afb3824604cc2d03d3d5606217"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/marketing-metrics-service.ts",
+      "destination": "src/application/services/marketing-metrics-service.ts",
+      "source_sha256": "620520f3688fd9a056e38a2a6096b0e75267ebb4f1d5058d1482d4944192e298"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/mautic-company-sync-service.ts",
+      "destination": "src/application/services/mautic-company-sync-service.ts",
+      "source_sha256": "409bad5cf0bf15e85a2052e8304aac245ce0f4a1c2fed27ebdf6356b9a42ff42"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/mautic-contact-sync-service.ts",
+      "destination": "src/application/services/mautic-contact-sync-service.ts",
+      "source_sha256": "d1d9daae652d9773c6de1c5354a06564a6624650155c37d0a364585315acf7fe"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/mautic-marketing-sync-service.ts",
+      "destination": "src/application/services/mautic-marketing-sync-service.ts",
+      "source_sha256": "505a9ce25ea789cfa106d4b12b29ef53b713e8ec72ddf2b94a9fecb3a7f5a582"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-accounting-projection-service.ts",
+      "destination": "src/application/services/merchant-accounting-projection-service.ts",
+      "source_sha256": "2a8aa072f952131af75963171c325b562a7a65598e4022ddeb50a57de0422175"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-activation-service.ts",
+      "destination": "src/application/services/merchant-activation-service.ts",
+      "source_sha256": "0028bba24f4e4dd54160e6e6d8961090c35156faa0e1abb7bfa01818f4e048d6"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-api-key-service.ts",
+      "destination": "src/application/services/merchant-api-key-service.ts",
+      "source_sha256": "10fd5064cb31879c1825a8a1d6c6f0194e07b0978dd9f9827e8d8385125673ac"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-business-report.ts",
+      "destination": "src/application/services/merchant-business-report.ts",
+      "source_sha256": "2f8e1082912e3ae688d759094e94a3f9089bcd2fed04f713564c6f1b3639d827"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-cash-service.ts",
+      "destination": "src/application/services/merchant-cash-service.ts",
+      "source_sha256": "5a4becfe8a720ad786976a11c81662241d2133cf21f299f9d576b59a3f04415e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-catalog-access.ts",
+      "destination": "src/application/services/merchant-catalog-access.ts",
+      "source_sha256": "e3ad632419e8dc9379f2db4ea805cd28aa1ab11c3ea0e36182851ff562f353dc"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-discovery-service.ts",
+      "destination": "src/application/services/merchant-discovery-service.ts",
+      "source_sha256": "acc1221351e4fe172fc2828b9c8c0b92a6575ab1ed324452c4f2940d060b327b"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-kyb-service.ts",
+      "destination": "src/application/services/merchant-kyb-service.ts",
+      "source_sha256": "efe4c5be6b7c5dfa4edb94865a7ba534711cfcd54a287556d9bf76282aacc682"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-pro-subscription-service.ts",
+      "destination": "src/application/services/merchant-pro-subscription-service.ts",
+      "source_sha256": "e51fe9441259bc9573fc9c94145cbf344a9a26205dd96b890a718f5594139148"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-settlement-payout-service.ts",
+      "destination": "src/application/services/merchant-settlement-payout-service.ts",
+      "source_sha256": "177f103b5d0db403b4b841d6cf26fe5e13c8e58c3727048e64bcdd6c6a1bc00b"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-boost-price-resolver.ts",
+      "destination": "src/application/services/merchant-social-boost-price-resolver.ts",
+      "source_sha256": "caf3b9f8dea515cdc2da038540b22f3a99d85c3961a7b0da91bf0b5065cf36ea"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-boost-pricing-service.ts",
+      "destination": "src/application/services/merchant-social-boost-pricing-service.ts",
+      "source_sha256": "3dc2b2046c602c71a38de442a88bb677e2821ef2b49331ce9ee1b2ed9e1ed869"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-boost-service.ts",
+      "destination": "src/application/services/merchant-social-boost-service.ts",
+      "source_sha256": "ccaa04ac8f99851a8de752196e2a55e85e9ad45b265d43d0d135d8bc90955b06"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-service.ts",
+      "destination": "src/application/services/merchant-social-service.ts",
+      "source_sha256": "c7658d831248a16e5f2cc0334494d3bcd09549220c463df6bf338171df77dfac"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/merchant-upgrade-advice.ts",
+      "destination": "src/application/services/merchant-upgrade-advice.ts",
+      "source_sha256": "9c36e4e3a5c8ddd340e5a8cbbde763f9b8fc4154b75093de79df6e5f3effdf36"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/notification-service.ts",
+      "destination": "src/application/services/notification-service.ts",
+      "source_sha256": "3d0ecb7c45b04b661ee54e603e31e0d1be95c8739fa29d7892cc4d83264e1243"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/onboarding-service.ts",
+      "destination": "src/application/services/onboarding-service.ts",
+      "source_sha256": "eafbda364d18c3e442fcf0c932db55af711b55daf5e7462d7f0339d5c06e283a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/operation-currency-service.ts",
+      "destination": "src/application/services/operation-currency-service.ts",
+      "source_sha256": "605508a7f8659b8cc2e1ab911bbfa702345db96bf99e6e2d3186dd10e092c946"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/operational-health-service.ts",
+      "destination": "src/application/services/operational-health-service.ts",
+      "source_sha256": "31392d3ad283d4133166d0760629a3011d77c0e3c66b2ef0d008a36db8f3aee8"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/api-payment-checkout-service.ts",
+      "destination": "src/application/services/pay/api-payment-checkout-service.ts",
+      "source_sha256": "acc935ae6c8a85ef6a4c36de41b2d6edffa313c93169349efc3f60c1505593a7"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/api-payment-webhook-service.ts",
+      "destination": "src/application/services/pay/api-payment-webhook-service.ts",
+      "source_sha256": "7045aad59c55e7e1d8bb1ba7641e566543cb202b24c5fa66dfbf979420523951"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/checkout-expiration.ts",
+      "destination": "src/application/services/pay/checkout-expiration.ts",
+      "source_sha256": "90133e34a628ea1e56c73ae18e8d6041e5dd2847f9b65ba94db5935b6053d3bc"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/detected-country-service.ts",
+      "destination": "src/application/services/pay/detected-country-service.ts",
+      "source_sha256": "04a9dda8e0a794c20ca3a5e28edfb88f7f405b8fa471656de60845c6d28b1e0d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/link-k-consumption-facts.ts",
+      "destination": "src/application/services/pay/link-k-consumption-facts.ts",
+      "source_sha256": "5bf8897673f0db9966d2a3966892f147d4285e8ffc66132645c2185498dad141"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/link-k-consumption-service.ts",
+      "destination": "src/application/services/pay/link-k-consumption-service.ts",
+      "source_sha256": "35bc7d996db6448047eefbbb570114b0bb2963a0cdd12ac6af3b146c9441a2f4"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/merchant-commission-service.ts",
+      "destination": "src/application/services/pay/merchant-commission-service.ts",
+      "source_sha256": "5a4db38d563af7478db921c34981588343df543fc46d3847edf5f90e884bdba2"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/money-unit.ts",
+      "destination": "src/application/services/pay/money-unit.ts",
+      "source_sha256": "51a102fa5591af1b0bc6286fd8a818a183b646652cc335d99cf11e2105501e7b"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/pawapay-deposit-service.ts",
+      "destination": "src/application/services/pay/pawapay-deposit-service.ts",
+      "source_sha256": "940e4fe459a1c9c20bca0c7475197203f487a2c644d0ff95b6cb7786148fd1aa"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/payment-context-resolver.ts",
+      "destination": "src/application/services/pay/payment-context-resolver.ts",
+      "source_sha256": "b545c3a1250c6cfc8ac36581bf52be6ff3306979c694bc0d7e82cd44799ce356"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/payment-country-resolver.ts",
+      "destination": "src/application/services/pay/payment-country-resolver.ts",
+      "source_sha256": "7645f73767a1b5976cdb45bd394e3ee605e91bfed6f91e54cfef85d542ad19e1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/payment-provider-attempt-service.ts",
+      "destination": "src/application/services/pay/payment-provider-attempt-service.ts",
+      "source_sha256": "0e7a5b25b47559213608c9dbf79e4f3d10d13c8725884842424cee09b1648e3f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/points-acquisition-service.ts",
+      "destination": "src/application/services/pay/points-acquisition-service.ts",
+      "source_sha256": "6486c01466941d8557bf44b78a409ad33c3ccc305e548eb1d7fdd17f46e6a486"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/points-benefits-service.ts",
+      "destination": "src/application/services/pay/points-benefits-service.ts",
+      "source_sha256": "015b75db750e7515821a5a4e20a4c305204720d9081594e8ad1944d65c10fe30"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/points-reservation-service.ts",
+      "destination": "src/application/services/pay/points-reservation-service.ts",
+      "source_sha256": "938334d42e3b7e2fa3d12ff57391051675f75a319da0fcf7a59edf69e14c0de6"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/points-wallet-service.ts",
+      "destination": "src/application/services/pay/points-wallet-service.ts",
+      "source_sha256": "bc833362b4b7a1b42aa0d04e6d7cf7e8eae28cce99dcd9b3e63471728da777ac"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/pro-payment-provider.ts",
+      "destination": "src/application/services/pay/pro-payment-provider.ts",
+      "source_sha256": "715dd486270979e82c749fd316a9d7d9d5ebd5ab1c099c1a10e2cd714ae1f3dc"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/pro-pricing-resolver.ts",
+      "destination": "src/application/services/pay/pro-pricing-resolver.ts",
+      "source_sha256": "7c6f6ecbe2d782f6a18cf91b6335da304789b35251bed277f71edb236861e5ee"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/qr-points-quantity.ts",
+      "destination": "src/application/services/pay/qr-points-quantity.ts",
+      "source_sha256": "36615c4b81c9f77c4ede6a836ca2fc51b067bdc0e344aaec4feb95a2969663d4"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/pay/wallet-debit-authorization-service.ts",
+      "destination": "src/application/services/pay/wallet-debit-authorization-service.ts",
+      "source_sha256": "acb8b422e4712ee309ee6956f4a1768f8f518730e82ab5e7f698836c6bcb1557"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/payment-link-service.ts",
+      "destination": "src/application/services/payment-link-service.ts",
+      "source_sha256": "0fc1e944ac3d7cfb8f604bed2e9356bb248b3cb9d2d40f9b8d2cec5c368d4eeb"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/points-k-valuation-service.ts",
+      "destination": "src/application/services/points-k-valuation-service.ts",
+      "source_sha256": "e9cb7ec8d0b0d72db9f5c441618ed683c8c37d10b12ec586f106f70b9ffb559d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/postiz-connections.ts",
+      "destination": "src/application/services/postiz-connections.ts",
+      "source_sha256": "b645a19e04cdba2d97fa06f586d67b8f7932773f64b6da8b8c7d734bc3ceccc1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/postiz-transport.ts",
+      "destination": "src/application/services/postiz-transport.ts",
+      "source_sha256": "7abd8ceefa6ea73366d03316ff0cd65d6f4875b1fcc476dff771f84b93fc55af"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/preferences-service.ts",
+      "destination": "src/application/services/preferences-service.ts",
+      "source_sha256": "b5c3a233fa3db20a3672098316cd23f144851732083d3abf3bea4dfb75621286"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/principal-idempotency-service.ts",
+      "destination": "src/application/services/principal-idempotency-service.ts",
+      "source_sha256": "c3de492d6b6b1e4a808fcc56cec8e3e7661be0500b5ffa332e768e0d2c55173c"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/process-evidence-service.ts",
+      "destination": "src/application/services/process-evidence-service.ts",
+      "source_sha256": "324b5d0d42c6386eca3ce967d0a040218c620e6945ccda7d1ddf9efc94969410"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/public-marketplace-sql.ts",
+      "destination": "src/application/services/public-marketplace-sql.ts",
+      "source_sha256": "fe1b06a838e409b24b9efde1fca43fac30d448c44426cb0c46db118459feaa33"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/public-merchant-media.ts",
+      "destination": "src/application/services/public-merchant-media.ts",
+      "source_sha256": "c33254cbbdf94e8cf55f04cc1255f05fdeb009f61cfe077f5566e73fbf11a314"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/public-merchant.ts",
+      "destination": "src/application/services/public-merchant.ts",
+      "source_sha256": "f49e10bd3940d2ed876f36b17b2cb8489a3a171f8dba01af0f98a71acad0cb4e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/public-payment-link-service.ts",
+      "destination": "src/application/services/public-payment-link-service.ts",
+      "source_sha256": "c85f5b8d882e0e59058316a4c4762a90067ae27c3e198dd4a456e77a8f66cf2a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/qr-payment-receipt-service.ts",
+      "destination": "src/application/services/qr-payment-receipt-service.ts",
+      "source_sha256": "296ecfdb5ea1a97d2e131b32c287f83c927efe347659d0153b994c533d46d26c"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/qr-principal-idempotency-service.ts",
+      "destination": "src/application/services/qr-principal-idempotency-service.ts",
+      "source_sha256": "1a9884612041f9acfb90af8da9e25c29c68c61e840f3cabb022a36be89843a87"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/qr-service.ts",
+      "destination": "src/application/services/qr-service.ts",
+      "source_sha256": "239e4f435b001df4b776b1eb6ba7b1d73b087591304c6a929d8c90e3a468d06a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/qr-signed-verification-service.ts",
+      "destination": "src/application/services/qr-signed-verification-service.ts",
+      "source_sha256": "95137634fdf068d1bdeeeb64cc2d19aab7bbe206c030b8933f65900ca9a3cb05"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/recharge-service.ts",
+      "destination": "src/application/services/recharge-service.ts",
+      "source_sha256": "53eeb6835e777c34b5361c0757d6f6d72301cd4c97744cf6b04472c43bf2e9bc"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/reconciliation-service.ts",
+      "destination": "src/application/services/reconciliation-service.ts",
+      "source_sha256": "7530bdbe986bc8fb420bcc0f3fd78201a217ade3d490a38f083f089f44255185"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/referral-service.ts",
+      "destination": "src/application/services/referral-service.ts",
+      "source_sha256": "803f5f47af816eebaf66652a31782982b1a1fb0d0f2f1364cb3779cfcc35ff3f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/resend-service.ts",
+      "destination": "src/application/services/resend-service.ts",
+      "source_sha256": "4e9d9ab212e33fd890f24101ee80ff2527eb7fb7d3b5958605aaf1ed546d5beb"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/review-community-service.ts",
+      "destination": "src/application/services/review-community-service.ts",
+      "source_sha256": "ec09a807dd160a0a06e914fb5ddc0ea25ac0d8131461eae36d5ebc76441812e1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/review-service.ts",
+      "destination": "src/application/services/review-service.ts",
+      "source_sha256": "5737b525efd8e0bc9b605891010c7ad065d7a7b2ada09bf183f1405654746238"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/screening-batch-service.ts",
+      "destination": "src/application/services/screening-batch-service.ts",
+      "source_sha256": "9e0d4d152d139e1fd06cd2db70b6b9c53f00f7b3cc7b0fea7c0d408e916beee9"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/settlement-service.ts",
+      "destination": "src/application/services/settlement-service.ts",
+      "source_sha256": "c94218dd2c50909ab8ddffca24ac883770fe54104b5e76baf38131f5d084f032"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/subscription-pricing.ts",
+      "destination": "src/application/services/subscription-pricing.ts",
+      "source_sha256": "c5208f8d2b4c967bcbbaa0a2cbd6bea8f12d881bb1b3d676bb9f0c0c97b38612"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/user-api-key-service.ts",
+      "destination": "src/application/services/user-api-key-service.ts",
+      "source_sha256": "20ed49ba0179848fd40955edbe6cbe1bd2653b062ae4e716530977e3e3b6a042"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/user-kyc-gate-service.ts",
+      "destination": "src/application/services/user-kyc-gate-service.ts",
+      "source_sha256": "95bf84e33bca85cf2111fa4b76ff98468998f450e5bb6ff26cff5c26dd73cd96"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/visibility-shared.ts",
+      "destination": "src/application/services/visibility-shared.ts",
+      "source_sha256": "f8921f4f7b067e45e96161bed32bc16fde71c8eea102515554645538e31eb93c"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/wallet-integrity-rules.ts",
+      "destination": "src/application/services/wallet-integrity-rules.ts",
+      "source_sha256": "c76759794e6441a7290250b8801ea78d81ab65c2c3fbe36727caf6be68b7b310"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/wallet-integrity-service.ts",
+      "destination": "src/application/services/wallet-integrity-service.ts",
+      "source_sha256": "26424e0de5ba9fc09130fcb07ff5e88ddf676af8d88dfaece76bbb535fba9082"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/auth-helper.ts",
+      "destination": "src/application/shared/auth-helper.ts",
+      "source_sha256": "186ccd6a7ecd76c5989b106a2fc99deadc10e7ec7c415d740fd0fd4921f7c04e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/contract/merchant-contract-document.ts",
+      "destination": "src/application/shared/contract/merchant-contract-document.ts",
+      "source_sha256": "9375d0b7bb9ee891835131806a6502ab778ad54715f0e3f0cc7e95a12b3a269e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/contract/merchant-contract-template.json",
+      "destination": "src/application/shared/contract/merchant-contract-template.json",
+      "source_sha256": "66e242baf1506d6fb33c95eb6d16e436020a00cd308aab5720b5ff97ba7ab8da"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/cookie-utils.ts",
+      "destination": "src/application/shared/cookie-utils.ts",
+      "source_sha256": "d093dae374c134ecbdd18a8a511e0882615f6a87c5c60dd9b470321620abcae9"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/core02/contracts.ts",
+      "destination": "src/application/shared/core02/contracts.ts",
+      "source_sha256": "c60e88fd1706f8272c4ae22239e5aced45baca0e2c521e26fb9838c2a4ff5fb0"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/core02/crypto.ts",
+      "destination": "src/application/shared/core02/crypto.ts",
+      "source_sha256": "789757d0da8e14ab88ecbe58fecfda6bd960959f42b68715e7a3b67f4d6625bc"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/core02/qr.ts",
+      "destination": "src/application/shared/core02/qr.ts",
+      "source_sha256": "e537cc84e7c00a22e46fe744d83fd47d6ca3b584db56ad0ef1a5d2f973eb768a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/Accounting.ts",
+      "destination": "src/domain/Accounting.ts",
+      "source_sha256": "c55ee5cff98bdd6e31043367098fee6f62c0b4f68b7ddfa9090cad1197a893d1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/Ambassador.ts",
+      "destination": "src/domain/Ambassador.ts",
+      "source_sha256": "ac8050384e9efcd4fe4cd3704d03266eee5ddc2eeb06faf0685a7ecb061e041d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/CommunicationConsent.ts",
+      "destination": "src/domain/CommunicationConsent.ts",
+      "source_sha256": "78a19bcdaccdbd742a55d38be71fcdf0e93d6ba713d092d0e0a1b75cb320c3c3"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/DomainErrors.ts",
+      "destination": "src/domain/DomainErrors.ts",
+      "source_sha256": "7eaed4a0b8786549c2da66756d41fe00ed688ed966df1d1b2c3e56ae6087da0a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/MerchantErrors.ts",
+      "destination": "src/domain/MerchantErrors.ts",
+      "source_sha256": "14aded30d8296babc1bf621e88e8c32b812d5e4453ed0283d7b8a54b43f6a769"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/MerchantLocation.ts",
+      "destination": "src/domain/MerchantLocation.ts",
+      "source_sha256": "e4b9f0039e0523023e70205e045e50d9b34afd4a06ac5cbb1d450a73adb52e43"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/MerchantProfile.ts",
+      "destination": "src/domain/MerchantProfile.ts",
+      "source_sha256": "917265e47ea3b01bf932c92cfc232ae3bfa2973cb468f5b35bba7e1c8005fe7d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/OnboardingStateMachine.ts",
+      "destination": "src/domain/OnboardingStateMachine.ts",
+      "source_sha256": "9a60835e3bfe8a9e5a8178273e59a7953266340f1571346246947019a16e5088"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/RechargeProjection.ts",
+      "destination": "src/domain/RechargeProjection.ts",
+      "source_sha256": "19d41ec96236bc6eab63129c0a22c36aa7bdb00c3ad7d12d793c8ff630a1528e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/RechargeWorkflow.ts",
+      "destination": "src/domain/RechargeWorkflow.ts",
+      "source_sha256": "f5afd61a2ecf8fd1e283d740dff9dd8af7920f3454e1b76a2159d7a8c1c30b28"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/RegulatoryProfile.ts",
+      "destination": "src/domain/RegulatoryProfile.ts",
+      "source_sha256": "06f333c9530c53bb8750b7aa5ed9d3aab60e01d8aabd5f5276a74e0073e0b84e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/core-business.ts",
+      "destination": "src/domain/core-business.ts",
+      "source_sha256": "ff6f1c8e9b3cc64945e3bc43b5310f578714499c8ca6c1fa70135e0bff843421"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/core-offline.ts",
+      "destination": "src/domain/core-offline.ts",
+      "source_sha256": "ec0be00837ac5fb56ad3f9eb64d1dbefe328c7da3e3bef60ef3f0a50c8df39fa"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/merchant-cash.ts",
+      "destination": "src/domain/merchant-cash.ts",
+      "source_sha256": "55e1c75ddbd743b6c3113026d2edfe2dcf95c0a16aca76845585a3b490443902"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/native-catalog-retirement.ts",
+      "destination": "src/domain/native-catalog-retirement.ts",
+      "source_sha256": "1e550c9158d05c1a66c82ab336d8ba62743878c996de29e7037ae0572aac4cb8"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/points-k-valuation.ts",
+      "destination": "src/domain/points-k-valuation.ts",
+      "source_sha256": "4c838ea8e5ff65006bba0a4b797d5993f5451ed7234d086782a8323811c6529e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/domain/public-catalog.ts",
+      "destination": "src/domain/public-catalog.ts",
+      "source_sha256": "15fff5f2353dbcb8bbce80baed412e38dafc9e423935988a41d4e819ad593f59"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/i18n.ts",
+      "destination": "src/application/shared/i18n.ts",
+      "source_sha256": "19369f8572577ef9c4f4160c1db199af15a194da726fc02e99b1b9c944e09ebd"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/indexnow.ts",
+      "destination": "src/application/shared/indexnow.ts",
+      "source_sha256": "347a71fdfe99c64391dacfd53263fa1f0a872e0b9405474481b0b73034fd91de"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/accounting-destination.ts",
+      "destination": "src/infrastructure/adapters/accounting-destination.ts",
+      "source_sha256": "0c4d0a6c859353a5194c11b1bdf17054f6a689b92403bcbc53d5b85f0f382714"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/dify-adapter.ts",
+      "destination": "src/infrastructure/adapters/dify-adapter.ts",
+      "source_sha256": "4f3c84e491a30bf059bff17f49692549779d8a8c008fdd503c884936bbfdfd2d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/encryption-service.ts",
+      "destination": "src/infrastructure/adapters/encryption-service.ts",
+      "source_sha256": "c390179fa92755a054212110321d29b7f19dbc8ecce22f5d925dca7e1f876bca"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/erpnext-adapter.ts",
+      "destination": "src/infrastructure/adapters/erpnext-adapter.ts",
+      "source_sha256": "9fe535cc88040b7ccad47d14cbd7b8e81a1cd25bff6709a9ddd16424d5dec2e0"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/frappe-integration-client.ts",
+      "destination": "src/infrastructure/adapters/frappe-integration-client.ts",
+      "source_sha256": "acb6988589eed5e3688c1bbe1dafa969120fcb4994a26a856fad6926eea47040"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/keycloak-adapter.ts",
+      "destination": "src/infrastructure/adapters/keycloak-adapter.ts",
+      "source_sha256": "ea21ffca48eeb081312a2224bf36d17fada32daf2f8d5e8360b814e59332e940"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/mautic-adapter.ts",
+      "destination": "src/infrastructure/adapters/mautic-adapter.ts",
+      "source_sha256": "4c8adb0daa864f049f187e18d7d376de506914d29e6d593f473445e2e456b630"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/minio-adapter.ts",
+      "destination": "src/infrastructure/adapters/minio-adapter.ts",
+      "source_sha256": "b214d6c2026d9f4e1dc8d5487827ff8976ef302109134352a9a85cd8a22305ac"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/pawapay-client.ts",
+      "destination": "src/infrastructure/adapters/pawapay-client.ts",
+      "source_sha256": "5f43b552d60401c20d2d05fff3a1559dfc973fab94510665104558092e2beff5"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/payment-rail.ts",
+      "destination": "src/infrastructure/adapters/payment-rail.ts",
+      "source_sha256": "5e5181b4b3ddd67ef794898a39ebed4296a1731552e70fdd79dff7425dcf6e29"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/provider-configuration.ts",
+      "destination": "src/infrastructure/adapters/provider-configuration.ts",
+      "source_sha256": "7e9ace11b671e24eaa8973fb27a64e488554e6e0af6f1fd4881b7f3ee3ade9e1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/adapters/redis-adapter.ts",
+      "destination": "src/infrastructure/adapters/redis-adapter.ts",
+      "source_sha256": "cfbef9d6a9813fa55159a2edf5d40eca012e1aa7290b33eb2b814d72d5953cbb"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/bootstrap.ts",
+      "destination": "src/infrastructure/bootstrap.ts",
+      "source_sha256": "b96357dad8209e0b21c08a7214ee73d6ca96967be38d6d45b32f9774e04b9a28"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/correlation-id.ts",
+      "destination": "src/infrastructure/correlation-id.ts",
+      "source_sha256": "160012480feec6df99fbe31ca9b7d89c11d4d08e568d71dd89049ae978a98585"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/database/pool.ts",
+      "destination": "src/infrastructure/database/pool.ts",
+      "source_sha256": "e4b77c87e189503f2c8dfdcd711c17d2b4a6400353a9cd2907c15d7468278f5a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/media-storage.ts",
+      "destination": "src/infrastructure/media-storage.ts",
+      "source_sha256": "4650a212edda71d052bc8e8da1f62f63bc5f9f3a32cd8813f087feac97219fe6"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/ambassador-repository.ts",
+      "destination": "src/infrastructure/repositories/ambassador-repository.ts",
+      "source_sha256": "6ea852c018871427cd9fd8de97a62e14e456ac7528ffcdf6dc3f8decfb8b08a2"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/audit-log-repository.ts",
+      "destination": "src/infrastructure/repositories/audit-log-repository.ts",
+      "source_sha256": "201d197144d35eaaeddc9d0fcd80cdc849f7fea24df2e0757562c99dfc85476a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/clearing-repository.ts",
+      "destination": "src/infrastructure/repositories/clearing-repository.ts",
+      "source_sha256": "7e374ab592d79f7769dbc2509646f15c5997e1128082de0ab304af6ea3c5fbca"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/communication-consent-repository.ts",
+      "destination": "src/infrastructure/repositories/communication-consent-repository.ts",
+      "source_sha256": "bd2f8cb85938421db483726b5687ac3918a2d63a22706bf7b70eb3067cb5d438"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/configuration-repository.ts",
+      "destination": "src/infrastructure/repositories/configuration-repository.ts",
+      "source_sha256": "1920b36443167f8bce8a9590a243585ab7bec056d1730b506c33696596607655"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/finance-read-repository.ts",
+      "destination": "src/infrastructure/repositories/finance-read-repository.ts",
+      "source_sha256": "1e4a1ee2d508c85892cd4a813050028bdf7b0bc2a0be6f3e034eed9b1caefc13"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/financial-operation-repository.ts",
+      "destination": "src/infrastructure/repositories/financial-operation-repository.ts",
+      "source_sha256": "4b2ea88f3b17482f50c59c7b6190eb1ddbd76c0bb9633482219ee52e518f4274"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/http-idempotency-repository.ts",
+      "destination": "src/infrastructure/repositories/http-idempotency-repository.ts",
+      "source_sha256": "e47951108458aa65fdc661d24b53b2011ad3a5cd824ee4a66104a94d606eef92"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/idempotency-repository.ts",
+      "destination": "src/infrastructure/repositories/idempotency-repository.ts",
+      "source_sha256": "056527113114c16726808cb7f66301eeaead6d3c63d66465f70467f58e8b447a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/k-send-beneficiary-repository.ts",
+      "destination": "src/infrastructure/repositories/k-send-beneficiary-repository.ts",
+      "source_sha256": "58e0d35c0442b48f5fba915cca8ca11eddab42db6ec50fb51dcd542f6e38f4fa"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/k-send-repository.ts",
+      "destination": "src/infrastructure/repositories/k-send-repository.ts",
+      "source_sha256": "1c780ce5b6943ee695ecb991acf51387f00c784de5927efb4535ea3efe57377c"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/kyc-order-repository.ts",
+      "destination": "src/infrastructure/repositories/kyc-order-repository.ts",
+      "source_sha256": "53919dae122324ac08a002636120aef9c892af8839a85d0a3c55401a52d306a2"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/merchant-settlement-repository.ts",
+      "destination": "src/infrastructure/repositories/merchant-settlement-repository.ts",
+      "source_sha256": "38606327f274565f2b2b00b7288318faa688021e22b0e3e574450c94617e864f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/outbox-repository.ts",
+      "destination": "src/infrastructure/repositories/outbox-repository.ts",
+      "source_sha256": "3639deb3b8185217bf62b33162724906491ce9b8c42668845944ead00455894f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/preferences-repository.ts",
+      "destination": "src/infrastructure/repositories/preferences-repository.ts",
+      "source_sha256": "639f78e254676baa7aa10771bc29c1f8177ca4c30c02381093a24ee5b4b70983"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/regulatory-profile-repository.ts",
+      "destination": "src/infrastructure/repositories/regulatory-profile-repository.ts",
+      "source_sha256": "a5c4675b1a147bd309bff25cd9a080447e44ee2b4a904e0c8233f0bd3c5101f5"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/repositories/user-repository.ts",
+      "destination": "src/infrastructure/repositories/user-repository.ts",
+      "source_sha256": "61aae1f103155d50c5b4616ac59581d6d2f1ae1f45d4843a157e6e8ebf229668"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/infrastructure/unit-of-work.ts",
+      "destination": "src/infrastructure/unit-of-work.ts",
+      "source_sha256": "5fc176ab1f424968c8edb6d46d318ec4e2fdd52e0ff78650c04f7627781b9cc5"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/marketplace/merchant-profile-view.ts",
+      "destination": "src/application/shared/marketplace/public-merchant-snapshot.ts",
+      "source_sha256": "e232ee8cd77f7346585e3fdf6b9ff858ad7ec10dab91cb847c07661abd9fd39d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/marketplace/slug.ts",
+      "destination": "src/application/shared/marketplace/slug.ts",
+      "source_sha256": "37403c0a76deaec37f95a07dc2830c5f35cb30f4d883f1c8f05e2fd39acdb195"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/media-validation.ts",
+      "destination": "src/application/shared/media-validation.ts",
+      "source_sha256": "56f21b0cfc344857fed8c2112223593a356f5ef7a740c59689a4b34082a064b1"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/meeting-crm-native.ts",
+      "destination": "src/application/shared/meeting-crm-native.ts",
+      "source_sha256": "93a1740ceab40c8ae9aacaf97c02d75e4415142caea63e9b29698421cb30c774"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/meeting-ics.ts",
+      "destination": "src/application/shared/meeting-ics.ts",
+      "source_sha256": "9d90c0951afae3d14d39713279862a244a1c072c24755f34f9d56f16f0cf9e5a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/meeting-native.ts",
+      "destination": "src/application/shared/meeting-native.ts",
+      "source_sha256": "4f423d850b3708acf63d3d2901ae577f41a87c67d609bf77ef2441c3d2d007ad"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/meeting-receipt.ts",
+      "destination": "src/application/shared/meeting-receipt.ts",
+      "source_sha256": "6863522617cfd3ac884654ed27a2f087b477f2d317127b9c658c46efb904fd6b"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/merchant-seo-audit.ts",
+      "destination": "src/application/shared/merchant-seo-audit.ts",
+      "source_sha256": "4eddacb814a1049a45b87c64f17a5382d58a4c6abcc07237bc6ee63613c96998"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/merchant-visibility-criteria.ts",
+      "destination": "src/application/shared/merchant-visibility-criteria.ts",
+      "source_sha256": "5861e914423f26643fc1279e4465fcfdd35465e736021c41af0422d0e32a653f"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/merchant-visibility.ts",
+      "destination": "src/application/shared/merchant-visibility.ts",
+      "source_sha256": "53db988014815d69b0b333dddec05bbb6ddc207f85385e1e7aeec25910955172"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/offline-pay/http.ts",
+      "destination": "src/application/shared/offline-pay/http.ts",
+      "source_sha256": "ec3e348828e9a6c572981d7b55d03c5d63768db84fb76d7484756419c5561b5e"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/offline-pay/merchant-order.ts",
+      "destination": "src/application/shared/offline-pay/merchant-order.ts",
+      "source_sha256": "c4750fc5b75274a4686ad516e925cde75bd8f634aa8d616adbcdcb999b388c98"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/offline-pay/protocol.ts",
+      "destination": "src/application/shared/offline-pay/protocol.ts",
+      "source_sha256": "b3b30bfa9fde5d8a662396d008412ba7c8e81247bc18e601ab172502251b5083"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/public-origin.ts",
+      "destination": "src/application/shared/public-origin.ts",
+      "source_sha256": "6a20857ce2dc6b1171355fb6a9af57e4319ccddf70a7f88dba7bf93e84e9c3e7"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/search-observation.ts",
+      "destination": "src/application/shared/search-observation.ts",
+      "source_sha256": "449dea29216df154f9d38f271d3901fe0dfec907d4eb37c2cb6e3825196be58d"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/seo.ts",
+      "destination": "src/application/shared/seo.ts",
+      "source_sha256": "fbc839cc5ea07290d638008e9bea288613b377a9017c6e289ecc44909982626a"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/types.ts",
+      "destination": "src/application/shared/types.ts",
+      "source_sha256": "4dfa3f9d2d721368cd45f0ccca4db1e2606ff9625bc33651a648f659d8828318"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/user-api-auth.ts",
+      "destination": "src/application/shared/user-api-auth.ts",
+      "source_sha256": "4ab8a07fe4856d4d0c471b19e7dd735ced80ea4a433192bf37345ba67a132516"
+    },
+    {
+      "source": "www/frontend-konektag/src/locales/payment/catalog.ts",
+      "destination": "src/application/catalogs/payment/catalog.ts",
+      "source_sha256": "194f13a84e37dda66f46fadb0a8b7889fdca31beadfbd2d5e565dbcb8a205910"
+    },
+    {
+      "source": "www/frontend-konektag/src/locales/privacy/catalog.ts",
+      "destination": "src/application/catalogs/privacy/catalog.ts",
+      "source_sha256": "3b59c6d6eeff5c0a282cec372c6b4b599baf5f0af36983e22051f7895598aaef"
+    },
+    {
+      "source": "www/frontend-konektag/src/locales/terms/catalog.ts",
+      "destination": "src/application/catalogs/terms/catalog.ts",
+      "source_sha256": "5a728743835827881895d830c620cfe2917b9de8728abf2728de9669ebbe7252"
+    },
+    {
+      "source": "www/frontend-konektag/src/middleware.ts",
+      "destination": "src/api/middleware/security.ts",
+      "source_sha256": "c5daa7a2e1859231e0f953622f00d601fd93005ded1132628c6824465a6971f4"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/api-keys/[id].ts",
+      "destination": "src/api/routes/account/api-keys/[id].ts",
+      "source_sha256": "3d7b3156819f5c1b0e2a4b078f48636b01789b4b2a827c4fbf03731ba197ab56"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/api-keys/index.ts",
+      "destination": "src/api/routes/account/api-keys/index.ts",
+      "source_sha256": "1e62f9d6fa6082d06c9fc08205017d13104abfa2ccac020e1ee8344ca0d74b82"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/balance.ts",
+      "destination": "src/api/routes/account/balance.ts",
+      "source_sha256": "acc9d705aa17c9340661cb0d30825e106ca2aaf62d60e632932fa30469f2269b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/history/index.ts",
+      "destination": "src/api/routes/account/history/index.ts",
+      "source_sha256": "2560b15579043cc1fdaf2ee76b3262253275032958784a92ee95c496baa55e68"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/index.ts",
+      "destination": "src/api/routes/account/index.ts",
+      "source_sha256": "09892bc164427453473ac3f07ed1abd1c2a58c37dcc8b1341380116c99785204"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/kyc-gate.ts",
+      "destination": "src/api/routes/account/kyc-gate.ts",
+      "source_sha256": "87b2e071f9f6eebff5a5e3894c4c3b751aefa6de9abf6684022cc9eff3d50487"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/payment-claims/index.ts",
+      "destination": "src/api/routes/account/payment-claims/index.ts",
+      "source_sha256": "5e1a99cc41c08a72b646967bc7ea73af4b6831d1da68cd96d89146a03865b3ff"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/pending-transactions.ts",
+      "destination": "src/api/routes/account/pending-transactions.ts",
+      "source_sha256": "4254548ef039aa20a7bd795790da08ea7597d357b17f212aafa5dda87e261606"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/transactions/[id]/retry.ts",
+      "destination": "src/api/routes/account/transactions/[id]/retry.ts",
+      "source_sha256": "301443825be3a265b6fcd84d8acbbeb23f6f4a113e447a9dcb7691e2089c4655"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/account/update-profile.ts",
+      "destination": "src/api/routes/account/update-profile.ts",
+      "source_sha256": "67a5f83e2cce4fc8649a6211149f1a2c818390e60d7a789d997d4015f2d85dcd"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/activation-campaign/current.ts",
+      "destination": "src/api/routes/activation-campaign/current.ts",
+      "source_sha256": "dc7f3b85059a37e5493832bc189fd54636de9914073a0a82a69bd6e935f8281d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/activation-challenge/current.ts",
+      "destination": "src/api/routes/activation-challenge/current.ts",
+      "source_sha256": "6978cda813f2fe1e4ecef6de7e74322ccf9905a04d751073c87fcf58178946e8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/activation-campaigns/[id].ts",
+      "destination": "src/api/routes/admin/activation-campaigns/[id].ts",
+      "source_sha256": "3aa9581190b29d7614f6ee1be8da956c505568af5859f6fac8f8cd3962c2267c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/activation-campaigns/[id]/[action].ts",
+      "destination": "src/api/routes/admin/activation-campaigns/[id]/[action].ts",
+      "source_sha256": "503007a50661228a13ae87eb14a6b08654f65fc92ab3e3d36509a58928e0024c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/activation-campaigns/[id]/statistics.ts",
+      "destination": "src/api/routes/admin/activation-campaigns/[id]/statistics.ts",
+      "source_sha256": "ba0ee3a9f37c0d83e6e8d7cbd2a1006b289eabc3c82f6d22533207223a1d67ba"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/activation-campaigns/index.ts",
+      "destination": "src/api/routes/admin/activation-campaigns/index.ts",
+      "source_sha256": "e17a4fcacb93cce10601041db44622d67d1b06b940cde98cd955cf503add5911"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/boost-pricing.ts",
+      "destination": "src/api/routes/admin/boost-pricing.ts",
+      "source_sha256": "49bd8843a41a253e94546982395b7e854e70ae7adbec85b55ff09c293069446d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/boost-pricing/prices.ts",
+      "destination": "src/api/routes/admin/boost-pricing/prices.ts",
+      "source_sha256": "fe70a21b5894740bd1332256fab9046fd684047b26d6a1558da06afc87147b0d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/boost-pricing/update.ts",
+      "destination": "src/api/routes/admin/boost-pricing/update.ts",
+      "source_sha256": "b452c38856a7ae369ddca937922f33571c10c7da2cbccf56a21fd0f1e4fde419"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/card-batches.ts",
+      "destination": "src/api/routes/admin/card-batches.ts",
+      "source_sha256": "1e0bc771454eaa591ca734d529f59c0e59eff57096330640993a3947e0f4f252"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/card-transactions.ts",
+      "destination": "src/api/routes/admin/card-transactions.ts",
+      "source_sha256": "ed59a9e802e7c1ac1f2cc81f94689a23892fe155f53c51a9eb60d30411171bbe"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/cards/lifecycle.ts",
+      "destination": "src/api/routes/admin/cards/lifecycle.ts",
+      "source_sha256": "210f8c09d54a5ab7d8df4e0151ee197356311a5294d9fb6976a627659b85a8ef"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/categories/[id].ts",
+      "destination": "src/api/routes/admin/categories/[id].ts",
+      "source_sha256": "720bc420a948fd9ad303b800b993929ff5b5cc4fd278b3d58daf20820d395a6a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/categories/index.ts",
+      "destination": "src/api/routes/admin/categories/index.ts",
+      "source_sha256": "aa4d78dcfe2a93e51f2d8c12dcbc94709ac63d99b2c123f898051c4c21d22b03"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/clearing/[id].ts",
+      "destination": "src/api/routes/admin/clearing/[id].ts",
+      "source_sha256": "2cc1f4e5db6ceff6ddb04e81fda7cd48873cfd100053e653d90b5121ec662849"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/clearing/approve.ts",
+      "destination": "src/api/routes/admin/clearing/approve.ts",
+      "source_sha256": "0e80fc957144b42baa02a4221f974dc68d17a2ec5e7cfa0a63d37e6c759b94f0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/clearing/freeze.ts",
+      "destination": "src/api/routes/admin/clearing/freeze.ts",
+      "source_sha256": "1abdf0756ce780d555a5ba2d6f0a8f1ba6884beebd519032ba79fa70c10f9f9f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/clearing/index.ts",
+      "destination": "src/api/routes/admin/clearing/index.ts",
+      "source_sha256": "99ce3ca7476c47dcb47aeb661e69fc3b590509f743cb9da2153df6a5ca3b273c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/clearing/settle.ts",
+      "destination": "src/api/routes/admin/clearing/settle.ts",
+      "source_sha256": "e6ce37ea7bcd827cccc2687f07947254a7b9373a3be559c6ac2af3354091cfca"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/dashboard/stats.ts",
+      "destination": "src/api/routes/admin/dashboard/stats.ts",
+      "source_sha256": "81bf10453cb3eadfdaa11305ce2b7c68beb9bf83448010d88cce8ab9de4917c8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/disputes/[id].ts",
+      "destination": "src/api/routes/admin/disputes/[id].ts",
+      "source_sha256": "54c629cca78eee9f277a32d80633d138048b87ca6e5562d0d0ee6bc70fc03430"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/disputes/index.ts",
+      "destination": "src/api/routes/admin/disputes/index.ts",
+      "source_sha256": "1b70d9e3654fc4456dad7b44bcac4729c814d31ec2ff1e6736f432e3a5e422d9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/dashboard/[entity].ts",
+      "destination": "src/api/routes/admin/finance/dashboard/[entity].ts",
+      "source_sha256": "6ba58143b8709bccc28faa98331de8f605240b62a0e752c748203313a342b505"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/interco/[id].ts",
+      "destination": "src/api/routes/admin/finance/interco/[id].ts",
+      "source_sha256": "e56da41facef93fe641bdf140e352e2f43438206059b21ac2bf370175ab5b460"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/interco/index.ts",
+      "destination": "src/api/routes/admin/finance/interco/index.ts",
+      "source_sha256": "f3d763daf4a34f4fd4a86751f587c1dbe05ae1e693b637abe281c0029ac15c1f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/klots/[id].ts",
+      "destination": "src/api/routes/admin/finance/klots/[id].ts",
+      "source_sha256": "d9fa2ead072ea704a6512acb1558aaa061300680aed7d98786f90cf303e20575"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/klots/index.ts",
+      "destination": "src/api/routes/admin/finance/klots/index.ts",
+      "source_sha256": "614e16921692dac4f160b9fced5641ac16c7a4c7fe0581cdf67778ed9befee55"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/legal-entities.ts",
+      "destination": "src/api/routes/admin/finance/legal-entities.ts",
+      "source_sha256": "0fe3a8f5be526f698bbcfae902d85a80756d07b84fc0c50b72c63c6d23c4e68c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/finance/network/[entity].ts",
+      "destination": "src/api/routes/admin/finance/network/[entity].ts",
+      "source_sha256": "a1433e2f0a611aa19659ff8656f252c9bc594611fd192479af158e5cc37bc7d6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/kyc/document.ts",
+      "destination": "src/api/routes/admin/kyc/document.ts",
+      "source_sha256": "02955093a7c6014da6b1d43138c96cb33f81d5aa0207551e4c7984016376f773"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/kyc/index.ts",
+      "destination": "src/api/routes/admin/kyc/index.ts",
+      "source_sha256": "c9c674a707660d19a0c543d621fe7dee4b579e3fa81d5abf29d7bbae7969d6c9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-sales/[id].ts",
+      "destination": "src/api/routes/admin/merchant-sales/[id].ts",
+      "source_sha256": "1133c4da65445475e5e328a6d16153520042f4e979459b7b42a2d443e64c0d29"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-sales/index.ts",
+      "destination": "src/api/routes/admin/merchant-sales/index.ts",
+      "source_sha256": "836663cb5e1b075bbb12b6c8c502293e25a3117964af5367b102f13650a7e8f5"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/[id].ts",
+      "destination": "src/api/routes/admin/merchant-settlements/[id].ts",
+      "source_sha256": "d975f6919472dfc44cc01d4b46776b5c25161bec6bd092b7e7a467d2eda6efcf"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/[id]/confirm.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/[id]/confirm.ts",
+      "source_sha256": "56117951e939589dcbea55ae8bf251a35538e9ec63bd1eec182442c59294ddc2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/approve.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/approve.ts",
+      "source_sha256": "2d184418edff1d3b85ae7a820d51b4c820149771ef0d43dec1a2d2062f39d7ea"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/confirm.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/confirm.ts",
+      "source_sha256": "c096570f5d549acc52df6facb1c2528a5b2c869034f342161d327d883f0ed438"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/index.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/index.ts",
+      "source_sha256": "c63d7fd86fbbdc053b1cad6e10bb70511bba4f7698192ca36431670cc2013a57"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/prepare.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/prepare.ts",
+      "source_sha256": "cc08fb580038b1fb35b1e88e0bfcf86c62dda07a07567cd13399a5ef28089c7b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/submit-payout.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/submit-payout.ts",
+      "source_sha256": "89ce5968f736b58ee33d58685aa6736480367bd4d37bb4b949594ca5ae6eb075"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/submit-proof.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/submit-proof.ts",
+      "source_sha256": "ba934c532684252841decbac1b2dacbfc7b894e6c30514573070b7645df57250"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-settlements/verify-proof.ts",
+      "destination": "src/api/routes/admin/merchant-settlements/verify-proof.ts",
+      "source_sha256": "30db2b3983dde91ce6b988fd2df937c414472f915cb3aa6e6034aee9e8ede084"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchant-visibility/index.ts",
+      "destination": "src/api/routes/admin/merchant-visibility/index.ts",
+      "source_sha256": "2139c050650796a2bd438c46fc9b4288e85a40756e548c3ed258e1d44624c6ef"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/[id].ts",
+      "destination": "src/api/routes/admin/merchants/[id].ts",
+      "source_sha256": "799578a035b8d1fa0304d3a9f2a504ab38268e1f877e54a4ec2f47d5db1177af"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/[id]/commission-rates/index.ts",
+      "destination": "src/api/routes/admin/merchants/[id]/commission-rates/index.ts",
+      "source_sha256": "60dd1c1e0990bf2b4d2ba195c2b4fda8702078a9afa0531dd2540b11727f90fd"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/[id]/kyb.ts",
+      "destination": "src/api/routes/admin/merchants/[id]/kyb.ts",
+      "source_sha256": "e224d472a02caa0f6dc9a2c3fe2f7dc6868852e941dcfb5658d1ad23956a4137"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/[id]/kyb/contract.ts",
+      "destination": "src/api/routes/admin/merchants/[id]/kyb/contract.ts",
+      "source_sha256": "6e73aebeee427c0d88d1f3aa439a986618fa58188d02d87e165af71031fa3ec9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/[id]/pro-activation.ts",
+      "destination": "src/api/routes/admin/merchants/[id]/pro-activation.ts",
+      "source_sha256": "01e5ad507fe4d5920d2b457e9478056501e19e5357a531c11ba8c96fc5df92c1"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/agents.ts",
+      "destination": "src/api/routes/admin/merchants/agents.ts",
+      "source_sha256": "52a339cadea05509b532710ec854520c08b41af6ae7e6a7b179a5be0ec8eda7c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/certification/index.ts",
+      "destination": "src/api/routes/admin/merchants/certification/index.ts",
+      "source_sha256": "1c09acffb784c92f8be5f93f531eb1874f59fcebd35ddfa11872fc384429e1bb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/claims.ts",
+      "destination": "src/api/routes/admin/merchants/claims.ts",
+      "source_sha256": "ab1544e4140fcb500e31f31a7ac4cc209f4edab5b7405a9c7df6b1bbc936884b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/merchants/index.ts",
+      "destination": "src/api/routes/admin/merchants/index.ts",
+      "source_sha256": "1df6a1993159c2c6493884ed82db1029da4aad16345f885f97cc67c9d056d230"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/mobile-money-queue.ts",
+      "destination": "src/api/routes/admin/mobile-money-queue.ts",
+      "source_sha256": "a6baa3cc5d3a1176333446ed9eb1082fa4c101226dbbf5a49bbf91b4cf5c6cec"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/mobile-money-queue/api-payments/[id]/confirm.ts",
+      "destination": "src/api/routes/admin/mobile-money-queue/api-payments/[id]/confirm.ts",
+      "source_sha256": "246b46399abdb9b8ab0aaf129bedc4ac95aa8a9528cf46606bc1dd7988e5dadc"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/mobile-money-queue/recharges/[id]/confirm.ts",
+      "destination": "src/api/routes/admin/mobile-money-queue/recharges/[id]/confirm.ts",
+      "source_sha256": "0fffaebe9a33e989a0c9db73cac3ddc9d73fdd7a4867cb877c766d8abe8b8ff2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/mobile-money/acquisitions.ts",
+      "destination": "src/api/routes/admin/mobile-money/acquisitions.ts",
+      "source_sha256": "02859dd8b9046b86148b147395fc1e8db6e991d26ee52217e74dafc9dccb0037"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/offer-categories/[id].ts",
+      "destination": "src/api/routes/admin/offer-categories/[id].ts",
+      "source_sha256": "799e6252b6ce1d508d82e9bd0b0f3a669fa1ba6539df1da6020053090c114f51"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/offer-categories/index.ts",
+      "destination": "src/api/routes/admin/offer-categories/index.ts",
+      "source_sha256": "bfa058c675c076e6322196539ff63f724d9d12da8fbbb045db6ad0a0f9e95ecb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/offer-subcategories/[id].ts",
+      "destination": "src/api/routes/admin/offer-subcategories/[id].ts",
+      "source_sha256": "a04c7a9b56b1f297fa8ed4311ca92956ffc49bf453710c040c989bce1000d1e9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/offer-subcategories/index.ts",
+      "destination": "src/api/routes/admin/offer-subcategories/index.ts",
+      "source_sha256": "b459d839d96d23fe5c95644668e44b59fbaafcdb96f86e0ba105f81753452374"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/payment-claims/[id]/approve.ts",
+      "destination": "src/api/routes/admin/payment-claims/[id]/approve.ts",
+      "source_sha256": "b4a6057c17c283a5fda71e3ee035cdff14f1c4f32e198d8c82fa161877dd5ef4"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/payment-claims/[id]/reject.ts",
+      "destination": "src/api/routes/admin/payment-claims/[id]/reject.ts",
+      "source_sha256": "25f42f2c22e03c4f8aaf2f60939c10388bbfcdd5fd3aa35ee4e4ac63993553ab"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/pro-subscriptions/[id].ts",
+      "destination": "src/api/routes/admin/pro-subscriptions/[id].ts",
+      "source_sha256": "8a5a018ea53f24cf670a00397488276dd244e1754f81c1ea5732e435d46a08ac"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/pro-subscriptions/index.ts",
+      "destination": "src/api/routes/admin/pro-subscriptions/index.ts",
+      "source_sha256": "659e576009cfcb64464237a3cf20b1086a880139450ec1979702d2b71165f8a9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/[id].ts",
+      "destination": "src/api/routes/admin/recharges/[id].ts",
+      "source_sha256": "755112c0a107d36b3879a60f4b7fe6071f344d607b60615781fee59ee5b4c3cf"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/[id]/confirm-crypto.ts",
+      "destination": "src/api/routes/admin/recharges/[id]/confirm-crypto.ts",
+      "source_sha256": "5b65e91e3c1dbf258a3c2bb2b8ddfe57720d0e1a85396d3f39474d225ac92f28"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/[id]/confirm-mobile-money.ts",
+      "destination": "src/api/routes/admin/recharges/[id]/confirm-mobile-money.ts",
+      "source_sha256": "f24989e9864504e91b1fd23a8d7fbdcfd935b22d5850b8dc7677b90d1f5e0a2f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/[id]/refund-crypto.ts",
+      "destination": "src/api/routes/admin/recharges/[id]/refund-crypto.ts",
+      "source_sha256": "986ca6b82518c965d9cd10ec72a4da0e9578b4248116772be5130c817071d624"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/[id]/refund-mobile-money.ts",
+      "destination": "src/api/routes/admin/recharges/[id]/refund-mobile-money.ts",
+      "source_sha256": "eb1ef7f1043ec79416679b44e685e70748b95f56c724b9e59a537baff75a8165"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/[id]/refund-stripe.ts",
+      "destination": "src/api/routes/admin/recharges/[id]/refund-stripe.ts",
+      "source_sha256": "eccc40feeba2edaa6a5f1e86c5943ac164d3fc49cab439532180dde3c61be7c0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/recharges/index.ts",
+      "destination": "src/api/routes/admin/recharges/index.ts",
+      "source_sha256": "d3f39f07b45f313c651eac236ff32b0d256a8deb30e9fc0941b517bd52997e9d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/regulatory-projections/[type]/[code].ts",
+      "destination": "src/api/routes/admin/regulatory-projections/[type]/[code].ts",
+      "source_sha256": "113bf8e11ee0612d9d026da27d8612f2947e041d419f12daa25912daea321d80"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/screening/index.ts",
+      "destination": "src/api/routes/admin/screening/index.ts",
+      "source_sha256": "0e3497b98af04cd6284b7636ff170e6eb6682f1822dc13fde195720e6f14fd69"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/users/[id]/access.ts",
+      "destination": "src/api/routes/admin/users/[id]/access.ts",
+      "source_sha256": "807e373a8089ce89c8ecebfb37cc89280df07b3498352605258d8a96620693d9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/users/index.ts",
+      "destination": "src/api/routes/admin/users/index.ts",
+      "source_sha256": "f950d0feee3933d1d16fc4ffb055621a0d2972eceaed2d3fda58f1d126460c61"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/wallet-history.ts",
+      "destination": "src/api/routes/admin/wallet-history.ts",
+      "source_sha256": "dcba1206bb2945a7822df3d693d4f3433a4c91683827970198521af9c30562b2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/admin/wallet-integrity.ts",
+      "destination": "src/api/routes/admin/wallet-integrity.ts",
+      "source_sha256": "c5fd9622aa4344c693683627125e4d90630186c3f7db627b363d2c8651dfdd74"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/agent/inquiries/[id].ts",
+      "destination": "src/api/routes/agent/inquiries/[id].ts",
+      "source_sha256": "bd845990bc2a1edf608641ab6ed5613e3fcc83c9d0db949fe287ec08ad7daae4"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/agent/inquiries/index.ts",
+      "destination": "src/api/routes/agent/inquiries/index.ts",
+      "source_sha256": "62945e755e1dd449ef47fee561a4efda29323b01d2032ae9ab3ff62b7993b477"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/agents/[name]/index.ts",
+      "destination": "src/api/routes/agents/[name]/index.ts",
+      "source_sha256": "ac704d665f967f476b9bc8b9ebfc605cb61a38d60cb0906d8488fa75cc004e56"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/agents/index.ts",
+      "destination": "src/api/routes/agents/index.ts",
+      "source_sha256": "9f0bdb0b43a3c57051768724f8facfad7eb8010f0d50fc6f4a53cba53d3ddd7e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/auth/change-password.ts",
+      "destination": "src/api/routes/auth/change-password.ts",
+      "source_sha256": "9aa7d93fc0da0cb404c27eab2a10c2ada8040742cb1e2226a705f285c145bac0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/auth/country-confirmation.ts",
+      "destination": "src/api/routes/auth/country-confirmation.ts",
+      "source_sha256": "65b90af9a7b3e4cae486c2042cae9c85d4d8fb0e606d7fc69159c7f10d9a9d1b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/auth/forgot-password.ts",
+      "destination": "src/api/routes/auth/forgot-password.ts",
+      "source_sha256": "8880791d2719dc3bfa8160f77ead40631a6fb79b1488b673ecdb80a44328b098"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/auth/me.ts",
+      "destination": "src/api/routes/auth/me.ts",
+      "source_sha256": "80e892b4c4d697d4298a1ab181209fb38d04c7b60443017d99675fec5805d614"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/auth/reset-password.ts",
+      "destination": "src/api/routes/auth/reset-password.ts",
+      "source_sha256": "8994dc73190f6f7ab8bf152796605f4cd0301d2e278bb8c13174bb0b68e24144"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/bookings/index.ts",
+      "destination": "src/api/routes/bookings/index.ts",
+      "source_sha256": "15ca9ea0ab821f78495b0ae8258c3a9723e82fecea8830953df0213b6bee29e9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/cards/redeem.ts",
+      "destination": "src/api/routes/cards/redeem.ts",
+      "source_sha256": "812062b9d3c8f0cdb9da4d81a478334fd652d34e081f1080d7204487719eb70f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/cash-agent/index.ts",
+      "destination": "src/api/routes/cash-agent/index.ts",
+      "source_sha256": "8aba3fcfb2909f5a668f4807f5c0b592c8d9b995a629c1c75cbaebf5a1c22bf5"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/catalog/checkout.ts",
+      "destination": "src/api/routes/catalog/checkout.ts",
+      "source_sha256": "1b4ea895b215c358cbf272a5bba5a14a83b6be43e49d22b5ece44af97f29cf2e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/catalog/quote.ts",
+      "destination": "src/api/routes/catalog/quote.ts",
+      "source_sha256": "ad99c0f5524acbb76bce7c45547f830f3e095e504a61bc1b666775f6e806393e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/catalog/reels.ts",
+      "destination": "src/api/routes/catalog/reels.ts",
+      "source_sha256": "ccbeb90d8fc1b7c4172bc4c077e002d42d29232bf8d5639ed570b30863114c89"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/chat/index.ts",
+      "destination": "src/api/routes/chat/index.ts",
+      "source_sha256": "1597a631a5e4482379aeecc67fc16390476582e96973a799942daf5ab1875353"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/communication/preferences.ts",
+      "destination": "src/api/routes/communication/preferences.ts",
+      "source_sha256": "e810787bea5dbd37a732b842a2b514f299ddaaec94d1d91372c3577319ab2055"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/communication/unsubscribe/[channel].ts",
+      "destination": "src/api/routes/communication/unsubscribe/[channel].ts",
+      "source_sha256": "be9ab68a58733f490073865e61f70cf5cc4e2b7b75c8d951043c0bdf009ddace"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/consent/marketing.ts",
+      "destination": "src/api/routes/consent/marketing.ts",
+      "source_sha256": "2b4c08f2f8b0e68c45cf48f572b983957c559c0b977219c538a970d265835c36"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/countries.ts",
+      "destination": "src/api/routes/countries.ts",
+      "source_sha256": "9662aa390b6adbefc272a5f89ef090025497e2d20bc1bc4b5493b394d8915f97"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/device-identity/index.ts",
+      "destination": "src/api/routes/device-identity/index.ts",
+      "source_sha256": "67a8070cb7c84e4438ca0e564298a25780d58c5243ffe0f0e62ef590f55cd5db"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/agent/application.ts",
+      "destination": "src/api/routes/earn/agent/application.ts",
+      "source_sha256": "49bb0e59a5292895c7ef32571671bf51e18f182456dc2062a947747323284d61"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/agent/apply.ts",
+      "destination": "src/api/routes/earn/agent/apply.ts",
+      "source_sha256": "64ebc20a55d319e8d9ef2f0319d8d5e760a811e796a1f03a469ba77e0b95b971"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/agent/commissions.ts",
+      "destination": "src/api/routes/earn/agent/commissions.ts",
+      "source_sha256": "ede4a34249a9fbad1a481ae8ef45fef97f08bf476dca4167ceacab57555d1593"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/agent/dashboard.ts",
+      "destination": "src/api/routes/earn/agent/dashboard.ts",
+      "source_sha256": "4d7ccfd1399a9d3247d2bd2d844ea63c0911b35a6e9caf0c22984e51a798653d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/commissions.ts",
+      "destination": "src/api/routes/earn/representative/commissions.ts",
+      "source_sha256": "a2fd89d16876223a9ecb62bb6623305914856614d6066cc4a2f3f17f150eb749"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/missions/[name]/index.ts",
+      "destination": "src/api/routes/earn/representative/missions/[name]/index.ts",
+      "source_sha256": "18271add1380f18f9273bd73c90c9ebea5657ca0db8034b037cff71d8633b463"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/missions/[name]/reserve.ts",
+      "destination": "src/api/routes/earn/representative/missions/[name]/reserve.ts",
+      "source_sha256": "e046ecbae79c3fc0cb91f5df133cca701ecb976ec3b9944711501cb80f4ca10e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/missions/[name]/submit.ts",
+      "destination": "src/api/routes/earn/representative/missions/[name]/submit.ts",
+      "source_sha256": "df1ab50961b0b98bceff0a859d1b9f71e0c4bff5a58571d8c60d87b551edef23"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/missions/index.ts",
+      "destination": "src/api/routes/earn/representative/missions/index.ts",
+      "source_sha256": "f40ec99076efbb66b8c817270759c3aafa13e35b4b313612cad0110db53b5588"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/my-missions.ts",
+      "destination": "src/api/routes/earn/representative/my-missions.ts",
+      "source_sha256": "f004f1c46f141749da0a30cecb8a32df201277a0fa03b5c7c0c91b342be4a0ad"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/earn/representative/register.ts",
+      "destination": "src/api/routes/earn/representative/register.ts",
+      "source_sha256": "00ead8177aaf9a0c7c31735737b015056ce1e8366c314f54d8d92d3f7741d3c3"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/email/send-verification.ts",
+      "destination": "src/api/routes/email/send-verification.ts",
+      "source_sha256": "a2667208dd4194134ab5baa591cc43950645ee37fc002fc7e6e37860e92df654"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/email/verify.ts",
+      "destination": "src/api/routes/email/verify.ts",
+      "source_sha256": "c8a98df792ee579f569cb0206986f10143e8721809566ae249769c0e6eee1b86"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/favorites/merchants.ts",
+      "destination": "src/api/routes/favorites/merchants.ts",
+      "source_sha256": "fc4ba2587e66804304336ce58ccab453c9d74ebaa22f47e175e24e39234a51f8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/favorites/users.ts",
+      "destination": "src/api/routes/favorites/users.ts",
+      "source_sha256": "f81075dade1ed767f203e2eb84842253b54a4b52cd408f495bffc41c20c2405f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/geo/neighborhoods.ts",
+      "destination": "src/api/routes/geo/neighborhoods.ts",
+      "source_sha256": "c0887461b53f70ca24f4569c1bdb2a098d65bfd764a28b3d25781d3b89f4f52f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/growth/contents.ts",
+      "destination": "src/api/routes/growth/contents.ts",
+      "source_sha256": "2c1a54d10574f913a5aeaaf5575a849f71d70828dfbe7d13dd0489f690f1bb59"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/growth/destinations.ts",
+      "destination": "src/api/routes/growth/destinations.ts",
+      "source_sha256": "dd3efb41df5dee6c0d68875beb86f4ae4feac1e4ffc03d02499ddee18acc2aa6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/growth/events.ts",
+      "destination": "src/api/routes/growth/events.ts",
+      "source_sha256": "ab3321ab69fba4d48b0909d865a075406dd0cbcfada54dc459a5297baa94b6a5"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/growth/events/stats.ts",
+      "destination": "src/api/routes/growth/events/stats.ts",
+      "source_sha256": "fac2bbf3b40505ce9a7dbf5702432a00ae77e512d19e9b45ad64f7a1e5c0d220"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/internal/dify-health.ts",
+      "destination": "src/api/routes/internal/dify-health.ts",
+      "source_sha256": "7eb24a20dec6872a5e05f3d70fb028d67ac73a97798057eaf98984b8f8ba7f10"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/internal/erp/account-access.ts",
+      "destination": "src/api/routes/internal/erp/account-access.ts",
+      "source_sha256": "c98b73ba792a121b651ea7304a6786ec2acab23816244cca9a5d5a67a9124f05"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/internal/health.ts",
+      "destination": "src/api/routes/internal/health.ts",
+      "source_sha256": "99b09813ef6b37c1ccb954426650edef6234cdc0cc83a0f742587cb2a166a695"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/internal/kyc-publish-status.ts",
+      "destination": "src/api/routes/internal/kyc-publish-status.ts",
+      "source_sha256": "ee26e456e273ed32491f4aca22d224829f01cf12c557c1b09bf697912fffcd64"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/internal/operational-readiness.ts",
+      "destination": "src/api/routes/internal/operational-readiness.ts",
+      "source_sha256": "44489686681999f60163b1a7360b5c5ba039ec8781b06393389215e19b4612bb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/k/send/[id].ts",
+      "destination": "src/api/routes/k/send/[id].ts",
+      "source_sha256": "dfdd6e596baac0de86d311786eb305c5a1b84d0d15bb16c67d539be63ac3afcb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/k/send/balance.ts",
+      "destination": "src/api/routes/k/send/balance.ts",
+      "source_sha256": "ba35f74ccd47ff5cd6ad734f90c631dc10280d4604589e1ee6351d0a47647d20"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/k/send/index.ts",
+      "destination": "src/api/routes/k/send/index.ts",
+      "source_sha256": "cfdb38ba35d451ff5a6c5d59c51243a7d5f9a2c9922ad75be7dedab0ae9265c0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/k/send/quote.ts",
+      "destination": "src/api/routes/k/send/quote.ts",
+      "source_sha256": "b96e3e8520d7be8801ea3663a03d9f08adfbdb3b7ea309133e4682766d05ed8d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/k/send/recipient/[id]/qr.ts",
+      "destination": "src/api/routes/k/send/recipient/[id]/qr.ts",
+      "source_sha256": "085e92773269e6ea2b4923d99089f161bdf879b69c10a3e384d5d2962ea19507"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/k/send/recipient/index.ts",
+      "destination": "src/api/routes/k/send/recipient/index.ts",
+      "source_sha256": "8dd0984db542a1c3be0a3259e7549df55fc2e733f35b2755a6a3b788cf09f5d2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/kyc/init.ts",
+      "destination": "src/api/routes/kyc/init.ts",
+      "source_sha256": "7483453666c23bf2473ad08db92f41569985e0e1a2eedfea9e6538aed251332b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/kyc/resubmit.ts",
+      "destination": "src/api/routes/kyc/resubmit.ts",
+      "source_sha256": "36d45a60ce508889ac7e10a601c247f0672154bcedf052dec70df8df2f1c16f1"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/kyc/skip.ts",
+      "destination": "src/api/routes/kyc/skip.ts",
+      "source_sha256": "195314a765ef680bfb48fe4fef9258d6c360b2471593625236502106d15c0f5f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/kyc/status-stream.ts",
+      "destination": "src/api/routes/kyc/status-stream.ts",
+      "source_sha256": "2dbc311ec8f9de21bf5753426d5625021a84de069945186956e0bba7b0793955"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/kyc/status.ts",
+      "destination": "src/api/routes/kyc/status.ts",
+      "source_sha256": "3df7ea21799cbc59af56be7cac4cd8f32614c6538ad615d1f06c08819e0f41eb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/legal-documents.ts",
+      "destination": "src/api/routes/legal-documents.ts",
+      "source_sha256": "6b6d80268eb7f6d7e7426b97de6cf54724e75b9503854b89b818b25c5c9b964c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/loyalty/index.ts",
+      "destination": "src/api/routes/loyalty/index.ts",
+      "source_sha256": "85995629bee33296708f4d832791dd8913504f17304fea8696cda70ca631e6f6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/marketplace/taxonomy/categories.ts",
+      "destination": "src/api/routes/marketplace/taxonomy/categories.ts",
+      "source_sha256": "4b96d6f514c425634c610abb15414066819866fa0033074f65edf43932bd74a0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/marketplace/taxonomy/subcategories.ts",
+      "destination": "src/api/routes/marketplace/taxonomy/subcategories.ts",
+      "source_sha256": "e85efc06376ff5dcd906ab5d46752d06ceb0a71b3b148e3d8d83aa68dd4ce34b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/meeting-request.ts",
+      "destination": "src/api/routes/meeting-request.ts",
+      "source_sha256": "58912618866e15dfd5c4d5e578b4f9d1fe8e1e9e2ec75f26efc3fa180244b213"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/meeting-slots.ts",
+      "destination": "src/api/routes/meeting-slots.ts",
+      "source_sha256": "7aecb96e415b6e7a886a820405b0847f60c0a5ed091ecf532b5656655e14166f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/[slug].ts",
+      "destination": "src/api/routes/merchant/[slug].ts",
+      "source_sha256": "3420630ea81ee7bb259a8ce3b1464583b1303cfe95be609a66db572075089bec"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/activation-status.ts",
+      "destination": "src/api/routes/merchant/activation-status.ts",
+      "source_sha256": "f4d67ebcdea3ffb63e8f18dc9fd8d8c484eed56f08da903c8dddf0cbd56c36c6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/analytics/business.ts",
+      "destination": "src/api/routes/merchant/analytics/business.ts",
+      "source_sha256": "89e4fa0453cc9c168cc7f06a5491c78917ce6dc184ac6dcce62597ae504f80ce"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/analytics/export.ts",
+      "destination": "src/api/routes/merchant/analytics/export.ts",
+      "source_sha256": "c215b0998242063025f636d70c956b5d68dbc6825e9b06810236d69aef4faee2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/analytics/stats.ts",
+      "destination": "src/api/routes/merchant/analytics/stats.ts",
+      "source_sha256": "f3222ddfdd14a3ed6dc061dbf3773845e9fa36f6edadef8c01f76eedaa86b781"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/analytics/track.ts",
+      "destination": "src/api/routes/merchant/analytics/track.ts",
+      "source_sha256": "c2c054733a2a7e7f57ac87f2c954cedbe61b74530f325eec080866ec28d1d20a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/api-key.ts",
+      "destination": "src/api/routes/merchant/api-key.ts",
+      "source_sha256": "b63905164be652d03e9900e666a93580a394c7b43c162eaec7b2a0f99e993495"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/api-webhook.ts",
+      "destination": "src/api/routes/merchant/api-webhook.ts",
+      "source_sha256": "9e269643455179e0fc9ea1381f5fbf8ca5ac11d3070cd1fbd4d1f3bf787dbce4"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cards/[number]/index.ts",
+      "destination": "src/api/routes/merchant/cards/[number]/index.ts",
+      "source_sha256": "5f83a7bb27d1fa7cdadf51c5f45967f041892106d4d55032234d2952cdc84490"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cards/sales-declarations.ts",
+      "destination": "src/api/routes/merchant/cards/sales-declarations.ts",
+      "source_sha256": "575bfdde21df32e431a9b4fbc6abc3ea993d74067fc408fd3abef656bc55efb5"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cards/sales-history.ts",
+      "destination": "src/api/routes/merchant/cards/sales-history.ts",
+      "source_sha256": "30672a0dbda18ab0f317277bdf2456c2984256755c2e60f5cace7ebddaba969d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cards/sales-today.ts",
+      "destination": "src/api/routes/merchant/cards/sales-today.ts",
+      "source_sha256": "8323a8e3a2745739db1c52c799a346f903c3563d4d7f832d5b9c075a3a83a981"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cards/sell.ts",
+      "destination": "src/api/routes/merchant/cards/sell.ts",
+      "source_sha256": "069da33ab03ce40c2c5f8e8131a9b6a428c0e53b1d3e2a226a2fcc9eca186d44"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cash-sales/[id]/adjustments.ts",
+      "destination": "src/api/routes/merchant/cash-sales/[id]/adjustments.ts",
+      "source_sha256": "09b342072a93c7e30b0a8caa03203bb3fabeeee1f0b8a00bc2831e31c8210445"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cash-sales/[id]/index.ts",
+      "destination": "src/api/routes/merchant/cash-sales/[id]/index.ts",
+      "source_sha256": "abe3380be1c3c7c4095cd229a0aae4ecaec9845474f97d01478c227a722df8d3"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cash-sales/[id]/receipt.ts",
+      "destination": "src/api/routes/merchant/cash-sales/[id]/receipt.ts",
+      "source_sha256": "505d96e81405048828135ccfaf73d531c2aa0942365bc8ec9b8b7b0e3c527422"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/cash-sales/index.ts",
+      "destination": "src/api/routes/merchant/cash-sales/index.ts",
+      "source_sha256": "8e4cea0073f9717ac54b5425af99bec83be49b44db90b33e3be12e28444cbe4c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/certification-status.ts",
+      "destination": "src/api/routes/merchant/certification-status.ts",
+      "source_sha256": "32448f5c36c1e0fe2c9d17aaf07a8fe058dfd17b3559b1ac57ffe1999ffd2b09"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/certification/documents.ts",
+      "destination": "src/api/routes/merchant/certification/documents.ts",
+      "source_sha256": "ee433f8c942183007f19ddc47f7e542be04777500f0b91b37af6614c4d77ca9c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/certification/documents/[id].ts",
+      "destination": "src/api/routes/merchant/certification/documents/[id].ts",
+      "source_sha256": "fb18c6d57abff5be4fadba633886b2ca885a916e416159d4d3b3a76e20dcd5b8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/certification/index.ts",
+      "destination": "src/api/routes/merchant/certification/index.ts",
+      "source_sha256": "d3401b16a242754fbcb3d16161ea12ab9b93104fc833584c391c7dc363843767"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/claim.ts",
+      "destination": "src/api/routes/merchant/claim.ts",
+      "source_sha256": "b3a4d69308f3aedd3201140875fab55be3e4773def8b5f7fbdd122d346abd2ac"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/commerce.ts",
+      "destination": "src/api/routes/merchant/commerce.ts",
+      "source_sha256": "487af7c2bdba45d36eae25b03c7872253cdabf9fb67cdc9561716cca61a84b87"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/contact.ts",
+      "destination": "src/api/routes/merchant/contact.ts",
+      "source_sha256": "868a3fb6c159357383c763155436ebd22de0e2b1f0c354e34c39c945b0cf747b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/create-reference.ts",
+      "destination": "src/api/routes/merchant/create-reference.ts",
+      "source_sha256": "d984f06a96496ff7a0403b7af29c3befa3bcbd6f9e5e2e94a0799e946417cf7e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/hotel.ts",
+      "destination": "src/api/routes/merchant/hotel.ts",
+      "source_sha256": "f189fd1ba9b3e4ff3c57d8986408c8e4292cd6e4746d32721a06490d10bb8a82"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/kyb/documents.ts",
+      "destination": "src/api/routes/merchant/kyb/documents.ts",
+      "source_sha256": "ad4eb04c755a743e46935ef83ac7341e72392f126f14a8b73d01eb04fd8c26f5"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/kyb/index.ts",
+      "destination": "src/api/routes/merchant/kyb/index.ts",
+      "source_sha256": "4e3ae93ebc79f5e6be7e8e2f21ba72ad2bd67f3789b9a33f8177fa259fc64b4b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/links.ts",
+      "destination": "src/api/routes/merchant/links.ts",
+      "source_sha256": "80275e12a24c479519a263428a3946f3d9d6f458b8f72babd9fbf09ca0dc30c7"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/media-file.ts",
+      "destination": "src/api/routes/merchant/media-file.ts",
+      "source_sha256": "09a5104da3fa9ae682a70a8389510f3259c49cad78a9c19f6367ec7f08f8ce2b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/media.ts",
+      "destination": "src/api/routes/merchant/media.ts",
+      "source_sha256": "77457f1ec9d6c7c227c1cb8e46ab156d0e61b82e26ebc8f4face0b7724c20694"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/media/[id].ts",
+      "destination": "src/api/routes/merchant/media/[id].ts",
+      "source_sha256": "a6dc0e10f2f833bc05f8616592a4fc771e81c9a741f64876c46b1144d8d425ab"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/media/reorder.ts",
+      "destination": "src/api/routes/merchant/media/reorder.ts",
+      "source_sha256": "50ef04bb3b4c02c519908267ec84fe66dadecc00e616bd062cbbafe56bcb98a1"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/members/add.ts",
+      "destination": "src/api/routes/merchant/members/add.ts",
+      "source_sha256": "2eb124762a6ea0bbbaa74abf78fad56d39ddd28556a944ea01f1cfdfb390d682"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/members/remove.ts",
+      "destination": "src/api/routes/merchant/members/remove.ts",
+      "source_sha256": "40f7caf7bca02788dffd155d51339d9021c177f4d47605d6cde0d92761e94beb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/messages.ts",
+      "destination": "src/api/routes/merchant/messages.ts",
+      "source_sha256": "43e18509dc971c1e8cf2515b5561a612ef608e886040628daf30ed05c2ee9ac4"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/my-assignment-requests.ts",
+      "destination": "src/api/routes/merchant/my-assignment-requests.ts",
+      "source_sha256": "7b3a417320cf86beb7c31f9fa2ecd22057e7f40d1f32a9570770b8a978d893ba"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/my-profiles.ts",
+      "destination": "src/api/routes/merchant/my-profiles.ts",
+      "source_sha256": "d7068d597d488c95aa93540832ff649a185fe45b818e79909fcb0cf4671600b5"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/offline-mutations.ts",
+      "destination": "src/api/routes/merchant/offline-mutations.ts",
+      "source_sha256": "37edb5bb3dbb86bf989bcdb8e9c70a8858c9bfa712a29b8e6e4b1c75004f8651"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/offline-snapshot.ts",
+      "destination": "src/api/routes/merchant/offline-snapshot.ts",
+      "source_sha256": "4ff443fade406484da2d16f393d3db18986a3ecc279055cf40d920bdb50dd55b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/opening-hours.ts",
+      "destination": "src/api/routes/merchant/opening-hours.ts",
+      "source_sha256": "d6595972615b3548ed9e0e86c2042d33639946479dc15fbc7fadad742c8717f9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/operations/index.ts",
+      "destination": "src/api/routes/merchant/operations/index.ts",
+      "source_sha256": "c6589e331c1811e9e6e0d7d72e5dbbcc3464d78c9631998f6d9b0272bb076fed"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/operations/transactions.ts",
+      "destination": "src/api/routes/merchant/operations/transactions.ts",
+      "source_sha256": "260d6471597ad7c331464b2a3d36f0e5af3cd03731d2951572780a01b6d78bf7"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/pro-renewal-links/[id].ts",
+      "destination": "src/api/routes/merchant/pro-renewal-links/[id].ts",
+      "source_sha256": "69e9dd06a131a77abbc86006fa7c0510d7256b667418905997d0cb755f00773d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/products.ts",
+      "destination": "src/api/routes/merchant/products.ts",
+      "source_sha256": "a74452e8c21d8150c6d1d0b95d49e53c36ae41bd3c645167423839a2665b4a17"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/products/[id].ts",
+      "destination": "src/api/routes/merchant/products/[id].ts",
+      "source_sha256": "aeef11819cf3b9c42004b7f16ec799c2866dea74bba6019b05544770e628d123"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/profile.ts",
+      "destination": "src/api/routes/merchant/profile.ts",
+      "source_sha256": "36919711fc4a649ad5e3ff6e764dbae591f737b0fa5fd24b5fa91ac93a62546d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/profiles/[profileId]/pro-renewal.ts",
+      "destination": "src/api/routes/merchant/profiles/[profileId]/pro-renewal.ts",
+      "source_sha256": "7c0ce84286fee96be79e697bb0b82e68d3d97ac8be8027bed1348a129f74c47a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/profiles/[profileId]/pro-status.ts",
+      "destination": "src/api/routes/merchant/profiles/[profileId]/pro-status.ts",
+      "source_sha256": "73aeaee906f5dde1670cebfa6321b1d83c1bb1fdc2403db850f2ebd81cbda2d2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/promotions/[id].ts",
+      "destination": "src/api/routes/merchant/promotions/[id].ts",
+      "source_sha256": "93e9ef6ef1b6b744e40deacfa95a3ae06e94a99be62269e4d6905cf1e0c2b908"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/promotions/index.ts",
+      "destination": "src/api/routes/merchant/promotions/index.ts",
+      "source_sha256": "dfc0068b02604516fb38779d4cc07d07219ed0720beab3ee84a8e29375ce74e3"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/publication-status.ts",
+      "destination": "src/api/routes/merchant/publication-status.ts",
+      "source_sha256": "52d36eed50039a603ea0d684eb7d1a31a918673b253882af130a0b87d6b9ff1f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/publish-establishment.ts",
+      "destination": "src/api/routes/merchant/publish-establishment.ts",
+      "source_sha256": "cad8d4340c0e12c7d3447ffbbd91e89e95b90d23e954ac422ae37e252db6a1e7"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/publish.ts",
+      "destination": "src/api/routes/merchant/publish.ts",
+      "source_sha256": "7618afd40fdf3e0a786e10e923b159c27077833cfea50500fdb18ecf66c64fc1"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/qr-code-file.ts",
+      "destination": "src/api/routes/merchant/qr-code-file.ts",
+      "source_sha256": "7de1d1e6b5b42f54d62a784e303da3aa83ecd9ad52c8645513532fcd98416958"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/qr-code/[name].ts",
+      "destination": "src/api/routes/merchant/qr-code/[name].ts",
+      "source_sha256": "b84ed01f126d44b73d0a686d52f28b5b0ef43608086ac4710340ec9a304f190c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/qr-codes.ts",
+      "destination": "src/api/routes/merchant/qr-codes.ts",
+      "source_sha256": "5dec255908d468a4f0d849cba53464f62fe33f8ce3bbe6fc7d1d1752c0793a34"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/qrcode.ts",
+      "destination": "src/api/routes/merchant/qrcode.ts",
+      "source_sha256": "bdfffc1f409fcb8722db5edcc52d694aaa714fdfaf6777740c5a61fc84550a64"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/reels.ts",
+      "destination": "src/api/routes/merchant/reels.ts",
+      "source_sha256": "fadb1bd035f87c8967a60f34123a3cce4faddd86a8c4bd1e6cb201cc3ceea45a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/remove-member.ts",
+      "destination": "src/api/routes/merchant/remove-member.ts",
+      "source_sha256": "a07d1dbc1c1751aeafb29041a8ca4a0c67e0041f6dc55f5b8609dfea2a4cab1f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/restaurant.ts",
+      "destination": "src/api/routes/merchant/restaurant.ts",
+      "source_sha256": "e2bf0b5da1f5d130fbbf0e4d3e7c60a3c6cdf862b2fda20dc12a0b3fec182828"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/sales/index.ts",
+      "destination": "src/api/routes/merchant/sales/index.ts",
+      "source_sha256": "27c0d3b39b48f977f78650b0c9fb2f3787fefe084f5e6abcda591cca63812534"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/search.ts",
+      "destination": "src/api/routes/merchant/search.ts",
+      "source_sha256": "b8acfb14ca1464cf66459b434d2e57deec9e612503c7d61a85e48f8c869a51eb"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/settlement-configuration.ts",
+      "destination": "src/api/routes/merchant/settlement-configuration.ts",
+      "source_sha256": "d72c89c08b1eb6b2abf99960c3f9f7cca881a1e2d935bba2e2fd3c69e442b72e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/settlements/index.ts",
+      "destination": "src/api/routes/merchant/settlements/index.ts",
+      "source_sha256": "defb255f26eaeb1f2dcf51ca06d97ea521edc9882a9185fe07856003b7f96aab"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/suspend.ts",
+      "destination": "src/api/routes/merchant/suspend.ts",
+      "source_sha256": "768e7d2bdc7196dff61382e303340f5df2a385a59b22873a6105c30a923608c3"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/taxes.ts",
+      "destination": "src/api/routes/merchant/taxes.ts",
+      "source_sha256": "363ae028141c7774c65511f1711057e837b43f8104255a05779c28c0f9ee589a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/unpublish.ts",
+      "destination": "src/api/routes/merchant/unpublish.ts",
+      "source_sha256": "13993fd426db052da8a1093ab4f3b97f460ed65605447604554b8609cb5ac8e9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/visibility-completion.ts",
+      "destination": "src/api/routes/merchant/visibility-completion.ts",
+      "source_sha256": "a7c481a0097a737c3775f5d06d630c59d64c1028b00247054099302f142288a0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/visibility/campaigns.ts",
+      "destination": "src/api/routes/merchant/visibility/campaigns.ts",
+      "source_sha256": "e4a0a95654f6190304e0305475d2f029a7c05819748ae7af64381f1662b148fe"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/visibility/catalog-access.ts",
+      "destination": "src/api/routes/merchant/visibility/catalog-access.ts",
+      "source_sha256": "6faf63db6effb06d74e0ca068e8bd508c3ae1785a89cae90c98cec498bc0b07f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/visibility/discovery.ts",
+      "destination": "src/api/routes/merchant/visibility/discovery.ts",
+      "source_sha256": "2596ffec869bfbb6a1aec8a5250f805e80ea9b87950c65102bc0a8529822bd62"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/visibility/reviews.ts",
+      "destination": "src/api/routes/merchant/visibility/reviews.ts",
+      "source_sha256": "ba1c2a1c83463536ff0bcdf75653596ca658dc3586ded373e836643a5368a471"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/merchant/visibility/upgrade.ts",
+      "destination": "src/api/routes/merchant/visibility/upgrade.ts",
+      "source_sha256": "642c05a34fbbccdc3904553622f81f057f13ddf5b589a2ae8f7bb36fec0c450c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/notifications/count.ts",
+      "destination": "src/api/routes/notifications/count.ts",
+      "source_sha256": "90b4b5d9914b9157fddbafac8dc5db196337036792d10da47675e706318d7aca"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/notifications/index.ts",
+      "destination": "src/api/routes/notifications/index.ts",
+      "source_sha256": "2f77a8f820c78fa110dad8c63c4cccce2926e15f57724185dbda8455a58bc7e0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/notifications/mark-all-read.ts",
+      "destination": "src/api/routes/notifications/mark-all-read.ts",
+      "source_sha256": "4a1667e0b38fff7067b463fe063fa620a4f3a140b753ca7a7937922da66b0fff"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/offline/v1/batch.ts",
+      "destination": "src/api/routes/offline/v1/batch.ts",
+      "source_sha256": "f89423475ff204b4827bde9f201ec55b65569dc9f8b241cec592594762e0d76c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/offline/v1/envelope.ts",
+      "destination": "src/api/routes/offline/v1/envelope.ts",
+      "source_sha256": "86c26bfd185d58048eb293aa4c8eabdd399715cf18504a18e5d865fd1d529634"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/onboarding/check-username.ts",
+      "destination": "src/api/routes/onboarding/check-username.ts",
+      "source_sha256": "e510ffaced7bea063e977018d0c5bd8ac7e5425eb2e86c852b68cb04adb86b72"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/onboarding/register.ts",
+      "destination": "src/api/routes/onboarding/register.ts",
+      "source_sha256": "4bdbb20dce3fa1566a3eee1b48f4cd765e9f886e69a3a0b76afc79cc6c48ebd6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/onboarding/send-otp.ts",
+      "destination": "src/api/routes/onboarding/send-otp.ts",
+      "source_sha256": "d9301df0683bac71d746cd8cfd36974124611ec7652fdc76214469e9d49ff577"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/onboarding/verify-otp.ts",
+      "destination": "src/api/routes/onboarding/verify-otp.ts",
+      "source_sha256": "7e2196fff7088749a0259ad08ff3f73cc253a2a26115c6557e981435cce31b35"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/orders/index.ts",
+      "destination": "src/api/routes/orders/index.ts",
+      "source_sha256": "03f8a106d1dae0d953a99ba2625430cce1952153f58124d9cfcacfc3f60ec2d8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token].ts",
+      "destination": "src/api/routes/pay/checkout/[token].ts",
+      "source_sha256": "949b54cb3e027696e46fc85ba2d214d1f714e908c38551f70959940bb404121e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/cancel.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/cancel.ts",
+      "source_sha256": "d1410de76c2bf92260976a66ad7c2e5fb96764d1963c6624952806f4bc4d19af"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/confirm.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/confirm.ts",
+      "source_sha256": "9d44046306ef6c4bc38eec636acc979c296c07688ae0e0cb8c66ad1e730a3537"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/funding.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/funding.ts",
+      "source_sha256": "2895914a30ce5788106c9938e73fad5e4264b208a734ddf8b211bf00d5576440"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/mobile-money/pawapay/deposit.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/deposit.ts",
+      "source_sha256": "72e62d2a5484d6213620c9e2882df88bfd21b7b24d63cc3c8ebc16b5d87d4e6a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/mobile-money/pawapay/return.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/return.ts",
+      "source_sha256": "c5cf9dc932414eb5a5cb5bc73131a139324943467a404912289b63ac265a9bd6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/status-stream.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/status-stream.ts",
+      "source_sha256": "b3c70af0fb234f22dedabf29fbdb0f36ced0dca8fb4de551d5edceab2024ef56"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/stripe/create-intent.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/stripe/create-intent.ts",
+      "source_sha256": "59b320c80d316a8fc0aef320942db8658c9e6ee28d4146ec2e96a3d6e6bab01c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/stripe/finalize.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/stripe/finalize.ts",
+      "source_sha256": "9796165d0cfb2cea977fd6ee142114fbf2121076c4f681ec3bb4ca406f105bad"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/wallet-authorization.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/wallet-authorization.ts",
+      "source_sha256": "32ce48f02331f13cb33f358cd0b92d32ebf466cc18a3bfde0f7712e91e89b497"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/[token]/wallet-authorization/verify.ts",
+      "destination": "src/api/routes/pay/checkout/[token]/wallet-authorization/verify.ts",
+      "source_sha256": "0e8201a9b124760af94dae068719c4cc091887afd21bd009ab4255561a507bfa"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/checkout/resume.ts",
+      "destination": "src/api/routes/pay/checkout/resume.ts",
+      "source_sha256": "078a21d0d5d06c793ae78f8848528ceffa22734589ca6049101fa8682a254e0b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/countries.ts",
+      "destination": "src/api/routes/pay/countries.ts",
+      "source_sha256": "9c849217ddfae12a8bbea0c16404969edc1fee99834f20b6a6905a7df99b284c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/detected-country.ts",
+      "destination": "src/api/routes/pay/detected-country.ts",
+      "source_sha256": "1b26225f1a60212a74ee250c8fd65b8ebfb5ab0049bdf23b21174e3d24b0b95a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/pay-link.ts",
+      "destination": "src/api/routes/pay/pay-link.ts",
+      "source_sha256": "7327361ec6f4e688368ce05ee656b53cf76b30ef41a89d38b5bb9b650f89a009"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payment-context.ts",
+      "destination": "src/api/routes/pay/payment-context.ts",
+      "source_sha256": "dac9cf552095cb558138832ac791632af0e592589c755510779d557b1fec8872"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payment-country.ts",
+      "destination": "src/api/routes/pay/payment-country.ts",
+      "source_sha256": "2cb1b05dcc8ef4b7e30bbdca7f26b58ae94448e7c70120573683356f739624b3"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payment-links.ts",
+      "destination": "src/api/routes/pay/payment-links.ts",
+      "source_sha256": "943ea428dc38c3cd09fa506edf39e25ec640aefa891c6ad72bd9668cb8d6ba0b"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payment-links/[slug]/resume.ts",
+      "destination": "src/api/routes/pay/payment-links/[slug]/resume.ts",
+      "source_sha256": "30c47ecb022a690a09548ccef68652836304f093fa5d07bd84d5bc962b0a157a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payments.ts",
+      "destination": "src/api/routes/pay/payments.ts",
+      "source_sha256": "d8330ebe49e73aee29abcf91d55ecbb8e1d942b90bfa0113f331188a4fb4bccd"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payments/[id].ts",
+      "destination": "src/api/routes/pay/payments/[id].ts",
+      "source_sha256": "6862a4fd86da4200a09e658c78dbe843b50c46c53b3e8a22bf1ca6c180cd9d30"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payments/by-reference.ts",
+      "destination": "src/api/routes/pay/payments/by-reference.ts",
+      "source_sha256": "11ad55e79b8d3d58ca84e009a51b59cb96aa6a8265c7fca846d75665d4650cf4"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/payments/confirm.ts",
+      "destination": "src/api/routes/pay/payments/confirm.ts",
+      "source_sha256": "ebd066f3cb0a857d29ca61ce29038d44ec639948d68aae63c843303612ec8156"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/points/value.ts",
+      "destination": "src/api/routes/pay/points/value.ts",
+      "source_sha256": "2016e9a225aa6c2d2137ee354ef07e47fa279edcd4db47988c146b8af1bcec87"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/recharges.ts",
+      "destination": "src/api/routes/pay/recharges.ts",
+      "source_sha256": "78a0e894dd10d5f8a172d18d957e88afe57be7a28cf0126b14a7ac6cec056a05"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pay/settlements.ts",
+      "destination": "src/api/routes/pay/settlements.ts",
+      "source_sha256": "9b0b15f0c22f0073f959164adb58f9aa654e525b3fe0b58dd535a693d45b8654"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/photo/[id].ts",
+      "destination": "src/api/routes/photo/[id].ts",
+      "source_sha256": "3ec0b4b9ac8ca4bb6064759ec7465823d8fe1270dd4b0ba1e6c25718d4c09bd0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/preferences/complete.ts",
+      "destination": "src/api/routes/preferences/complete.ts",
+      "source_sha256": "39f5fc9830f587bb2b0e8464adb4d1fceddc15d1531916df99c51bc891101ac2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/preferences/dashboard.ts",
+      "destination": "src/api/routes/preferences/dashboard.ts",
+      "source_sha256": "8454af9e726a27c6087fd740b091ec511bb2e342968443a52cb378cb50c51570"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/preferences/features.ts",
+      "destination": "src/api/routes/preferences/features.ts",
+      "source_sha256": "8dfae20172fbde0585588bcab5d0d2d77d27cc7645f0608d5862cb72144d6940"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/preferences/index.ts",
+      "destination": "src/api/routes/preferences/index.ts",
+      "source_sha256": "4aaf7ec2da0f2bb11c42e633a5d24c496e6641fe0e71e848cf95c2b38dbef36a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/preferences/save.ts",
+      "destination": "src/api/routes/preferences/save.ts",
+      "source_sha256": "ba1acc911d82454d39954eab9beccd2570370d8268af9dbfea6533fab5ce0848"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pro/inquiries/[id].ts",
+      "destination": "src/api/routes/pro/inquiries/[id].ts",
+      "source_sha256": "b843005cd4db6f8481217bd7c7606286fa9797a0511534ae953401fe01a0050c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pro/inquiries/index.ts",
+      "destination": "src/api/routes/pro/inquiries/index.ts",
+      "source_sha256": "8e5d758631312ece5a5fa423723d2254f1676c742f63a5736953332b6e6996f3"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/pro/pricing.ts",
+      "destination": "src/api/routes/pro/pricing.ts",
+      "source_sha256": "4368e816d739211da8372ba54b60387840770f1de857bd5fb4685d4a05f586d1"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/profile/public.ts",
+      "destination": "src/api/routes/profile/public.ts",
+      "source_sha256": "45a73ed370cff691056771cb7741516f373cc36097a145a15bf0d81b37d3abf0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/promotions/index.ts",
+      "destination": "src/api/routes/promotions/index.ts",
+      "source_sha256": "7153fc4d49accee4d19fac13c4f41f30863de66108aa464021ad33c03c6ec44c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/public/boost-cpm.ts",
+      "destination": "src/api/routes/public/boost-cpm.ts",
+      "source_sha256": "d86a063645ef89c79bfb2b64d476c08e8a4612eefe72312aac9029aaf18c7c79"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/public/digital-audit.ts",
+      "destination": "src/api/routes/public/digital-audit.ts",
+      "source_sha256": "1b9752556c39e8c65ef913d27470804f04c0c3cf2365eef936e8d263da526f3e"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/public/users.ts",
+      "destination": "src/api/routes/public/users.ts",
+      "source_sha256": "2496d32256242c5a66c921b6571e0b274c501b8ad66d2c499387ab527f2d19de"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/public/users/[id].ts",
+      "destination": "src/api/routes/public/users/[id].ts",
+      "source_sha256": "a1ef1812d7332ef6c761e9b8c7ca6f32ccd8a3c516dcbfb219b1aee7e616825c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/public/users/[id]/analytics.ts",
+      "destination": "src/api/routes/public/users/[id]/analytics.ts",
+      "source_sha256": "1fba5281895cedfd026cc80f734a4e7b582362957d447a498642b7efd4c3edd2"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/[id].ts",
+      "destination": "src/api/routes/qr/[id].ts",
+      "source_sha256": "8f56bb15b6f06010fc517c559b5aca9b12b158d2d0658c84e13195ba682b8663"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/code.ts",
+      "destination": "src/api/routes/qr/code.ts",
+      "source_sha256": "2b033cd65f00d1834acd714cfd7e5044bad98a8778c933bf5b67f3eaeaa34738"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/confirm.ts",
+      "destination": "src/api/routes/qr/confirm.ts",
+      "source_sha256": "30110cfca2d2d65ebd4dd8aaf715c11fa5426b4993589e6e5c2a6aa33c1f0f4f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/index.ts",
+      "destination": "src/api/routes/qr/index.ts",
+      "source_sha256": "77d547f1daff05b15effbd698b5b54ba8822d1486c2c295cab2ced7c8f712b53"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/personal-link.ts",
+      "destination": "src/api/routes/qr/personal-link.ts",
+      "source_sha256": "e3ed71ca595b2108fd15d8b7d409177b642897448fe09b64558e78f015e919d0"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/request-confirmation.ts",
+      "destination": "src/api/routes/qr/request-confirmation.ts",
+      "source_sha256": "ff06b0ca3be98b2391df79a0bf51f3d36399cbce46915f4ee1df146b4043b1ed"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/qr/user-link-quote.ts",
+      "destination": "src/api/routes/qr/user-link-quote.ts",
+      "source_sha256": "f5c814f3ab176c50ecfe1ee766b7f38aef585c50c5a877514d188aab57c94011"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/recharge.ts",
+      "destination": "src/api/routes/recharge.ts",
+      "source_sha256": "e10f668b877a8caae5a11992813c2281c208c4e160f04601fe9cd8d6cb2ade05"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/recharge/stripe/confirm.ts",
+      "destination": "src/api/routes/recharge/stripe/confirm.ts",
+      "source_sha256": "16d6ce0fcd2791e7d8edb364c63f0cf161c2303233abafe03647f44d87f524c8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/recharge/stripe/create-intent.ts",
+      "destination": "src/api/routes/recharge/stripe/create-intent.ts",
+      "source_sha256": "64efe1ccf8a55cdac7bf18e5521c40293697f47aa30ac9480a744c07b088b87f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/referral/code.ts",
+      "destination": "src/api/routes/referral/code.ts",
+      "source_sha256": "bb9b2abfb54d40b2e35734a4182f27dcafa0aa4db1a464790fd1c4ea2473cca8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/referral/redeem.ts",
+      "destination": "src/api/routes/referral/redeem.ts",
+      "source_sha256": "f71c7eb1670afe1a6b8b2aa87f16361377ba36e11c3503bf7c11555b53cc30f8"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/referral/stats.ts",
+      "destination": "src/api/routes/referral/stats.ts",
+      "source_sha256": "68b01737ad8ffc45c5adf42f2274ae2173fa35abf983ff5ad581d377f684e574"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/reviews/by-merchant.ts",
+      "destination": "src/api/routes/reviews/by-merchant.ts",
+      "source_sha256": "9364d47d3078d93e587c1702b7c79eb02b2dd47bf3a1149197944f0cf65566ed"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/reviews/create.ts",
+      "destination": "src/api/routes/reviews/create.ts",
+      "source_sha256": "f84d5e1474bfb44865200c9e4339fa1e2fa9afd7b3bc66dcc326bb3baaf58abc"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/reviews/index.ts",
+      "destination": "src/api/routes/reviews/index.ts",
+      "source_sha256": "07f7ac11ae05e48149e159339b3fe3d8f6d415bd50fb0b2b15cbbaee8ec7ae34"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/reviews/report.ts",
+      "destination": "src/api/routes/reviews/report.ts",
+      "source_sha256": "1b26614d09f67f56e5a9672cc760d4ae737babc6cb06720df4a4ee5daf8243fd"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/test-email/send.ts",
+      "destination": "src/api/routes/test-email/send.ts",
+      "source_sha256": "28282240b39d5495e87702905b482eca894260824deecf7514c0ff8f55ed5140"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/transactions/[id]/transition.ts",
+      "destination": "src/api/routes/transactions/[id]/transition.ts",
+      "source_sha256": "177984ee0b18ed3822f81a52044d8d7bb38eb07722780c176e747070fbe7d24a"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/transactions/index.ts",
+      "destination": "src/api/routes/transactions/index.ts",
+      "source_sha256": "9d011a952ce39b67a82ef1dad7b36766ead1e8023d3abbceef22e3b5ca60109d"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/users/search.ts",
+      "destination": "src/api/routes/users/search.ts",
+      "source_sha256": "4438d156ad88f31384544901cd3a54325033a603cf12e89d149a22269783b965"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/wallet-authorizations/issue.ts",
+      "destination": "src/api/routes/wallet-authorizations/issue.ts",
+      "source_sha256": "10bfffb65c2294ea8caacbdd66a29e10b45e4818ff277e6609496a77e64eccdc"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/wallet-authorizations/verify.ts",
+      "destination": "src/api/routes/wallet-authorizations/verify.ts",
+      "source_sha256": "b5d1df4c607d697a68329e1c3ac4851dd181d52c59cf2d625fa837e45c40303f"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/webhooks/pawapay/checkouts.ts",
+      "destination": "src/api/routes/webhooks/pawapay/checkouts.ts",
+      "source_sha256": "4aba02f0917c4edc1b0869dca60c816be7cd23ad2f4d15c188359bee16352f36"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/webhooks/pawapay/deposits.ts",
+      "destination": "src/api/routes/webhooks/pawapay/deposits.ts",
+      "source_sha256": "0b06e0a01d20a77f0c4c8f27f7c95477d7ab3c652ea1d072731ac588135480b9"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/webhooks/pawapay/payouts.ts",
+      "destination": "src/api/routes/webhooks/pawapay/payouts.ts",
+      "source_sha256": "bd37e38f1da2a768f9ce157b236fcb4d459d4555f0cf4850ed4b289c0c0bc74c"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/webhooks/pawapay/refunds.ts",
+      "destination": "src/api/routes/webhooks/pawapay/refunds.ts",
+      "source_sha256": "8c55ba82815b6b2e64adfb7a8a8c4cfce295b409f1c2b9d7ffbbc7a6624c08ad"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/webhooks/stripe.ts",
+      "destination": "src/api/routes/webhooks/stripe.ts",
+      "source_sha256": "3cceccbe402b8ee334110709588cc832ba700fb7d88c19b38ed3c974f5f512b6"
+    },
+    {
+      "source": "www/frontend-konektag/src/pages/api/webhooks/stripe/[configurationKey].ts",
+      "destination": "src/api/routes/webhooks/stripe/[configurationKey].ts",
+      "source_sha256": "748109d454028db846077fb4547ca5b67a634b49aa814ec178e536a58fcae81d"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/reconcile-pawapay-deposits.ts",
+      "destination": "src/infrastructure/scripts/jobs/reconcile-pawapay-deposits.ts",
+      "source_sha256": "e8740d9deea200305955519fe9ead3a1afe6a2738c44763624ca69682b9510be"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/wallet-integrity-worker.ts",
+      "destination": "src/infrastructure/scripts/jobs/wallet-integrity-worker.ts",
+      "source_sha256": "9384cc1d610e273c9ec143d79538b7f545d3049aff1dd877f17576871ced7439"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/postiz-sync-worker.ts",
+      "destination": "src/infrastructure/scripts/jobs/postiz-sync-worker.ts",
+      "source_sha256": "007ceb60105d97e533a28a0270ecf35243414e2f51501a3f5dc6a11f90944101"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/purge-expired-data.ts",
+      "destination": "src/infrastructure/scripts/jobs/purge-expired-data.ts",
+      "source_sha256": "bdbf342fc9e1593fe6c8b05c08e35d6550c7dc0bb7b4d5d09a7ac5ab9a9bd081"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/re-screen-users.ts",
+      "destination": "src/infrastructure/scripts/jobs/re-screen-users.ts",
+      "source_sha256": "3e95d28c13bb214a072d105d6b6e2808dbed604be10b09c374afc2ff4e36c4dd"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/inject-sanctions-batch.ts",
+      "destination": "src/infrastructure/scripts/jobs/inject-sanctions-batch.ts",
+      "source_sha256": "9b2455e19ce35082397fce76f256a1837b957e718382fa4ae95ff755557189ad"
+    },
+    {
+      "source": "www/frontend-konektag/scripts/daily-reconciliation.ts",
+      "destination": "src/infrastructure/scripts/jobs/daily-reconciliation.ts",
+      "source_sha256": "577e97b424737db9cfba2f29e9e3d4b7344b19bd5d80dd32e21802f56cbf25d0"
+    },
+    {
+      "source": "www/frontend-konektag/src/lib/application/services/daily-reconciliation-service.ts",
+      "destination": "src/application/services/daily-reconciliation-service.ts",
+      "source_sha256": "6289bbbe52db9fe88fcf378f5ffa75c6ac98b0da49b87691502b5154cf1c5845"
+    }
+  ]
+}

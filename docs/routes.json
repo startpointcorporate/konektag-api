@@ -1,0 +1,3291 @@
+[
+  {
+    "path": "/api/pay/checkout/{token}/mobile-money/pawapay/deposit",
+    "file": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/deposit.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/mobile-money/pawapay/deposit/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/pay/checkout/{token}/mobile-money/pawapay/return",
+    "file": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/return.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/mobile-money/pawapay/return/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/admin/merchants/{id}/kyb/contract",
+    "file": "src/api/routes/admin/merchants/[id]/kyb/contract.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/merchants/([^/]+)/kyb/contract/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/admin/mobile-money-queue/api-payments/{id}/confirm",
+    "file": "src/api/routes/admin/mobile-money-queue/api-payments/[id]/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/mobile-money-queue/api-payments/([^/]+)/confirm/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/admin/mobile-money-queue/recharges/{id}/confirm",
+    "file": "src/api/routes/admin/mobile-money-queue/recharges/[id]/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/mobile-money-queue/recharges/([^/]+)/confirm/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/earn/representative/missions/{name}/reserve",
+    "file": "src/api/routes/earn/representative/missions/[name]/reserve.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/earn/representative/missions/([^/]+)/reserve/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/earn/representative/missions/{name}/submit",
+    "file": "src/api/routes/earn/representative/missions/[name]/submit.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/earn/representative/missions/([^/]+)/submit/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/k/send/recipient/{id}/qr",
+    "file": "src/api/routes/k/send/recipient/[id]/qr.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/k/send/recipient/([^/]+)/qr/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/pay/checkout/{token}/stripe/create-intent",
+    "file": "src/api/routes/pay/checkout/[token]/stripe/create-intent.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/stripe/create-intent/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/pay/checkout/{token}/stripe/finalize",
+    "file": "src/api/routes/pay/checkout/[token]/stripe/finalize.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/stripe/finalize/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/pay/checkout/{token}/wallet-authorization/verify",
+    "file": "src/api/routes/pay/checkout/[token]/wallet-authorization/verify.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/wallet-authorization/verify/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 506
+  },
+  {
+    "path": "/api/account/transactions/{id}/retry",
+    "file": "src/api/routes/account/transactions/[id]/retry.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/account/transactions/([^/]+)/retry/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/activation-campaigns/{id}/statistics",
+    "file": "src/api/routes/admin/activation-campaigns/[id]/statistics.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/activation-campaigns/([^/]+)/statistics/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/finance/dashboard/{entity}",
+    "file": "src/api/routes/admin/finance/dashboard/[entity].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/dashboard/([^/]+)/?$",
+    "keys": [
+      "entity"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/finance/interco/{id}",
+    "file": "src/api/routes/admin/finance/interco/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/interco/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/finance/klots/{id}",
+    "file": "src/api/routes/admin/finance/klots/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/klots/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/finance/network/{entity}",
+    "file": "src/api/routes/admin/finance/network/[entity].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/network/([^/]+)/?$",
+    "keys": [
+      "entity"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/merchant-settlements/{id}/confirm",
+    "file": "src/api/routes/admin/merchant-settlements/[id]/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/([^/]+)/confirm/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/merchants/{id}/commission-rates",
+    "file": "src/api/routes/admin/merchants/[id]/commission-rates/index.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "pattern": "^/api/admin/merchants/([^/]+)/commission-rates/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/merchants/{id}/kyb",
+    "file": "src/api/routes/admin/merchants/[id]/kyb.ts",
+    "methods": [
+      "GET",
+      "PATCH",
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchants/([^/]+)/kyb/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/merchants/{id}/pro-activation",
+    "file": "src/api/routes/admin/merchants/[id]/pro-activation.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchants/([^/]+)/pro-activation/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/payment-claims/{id}/approve",
+    "file": "src/api/routes/admin/payment-claims/[id]/approve.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/payment-claims/([^/]+)/approve/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/payment-claims/{id}/reject",
+    "file": "src/api/routes/admin/payment-claims/[id]/reject.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/payment-claims/([^/]+)/reject/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/recharges/{id}/confirm-crypto",
+    "file": "src/api/routes/admin/recharges/[id]/confirm-crypto.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/recharges/([^/]+)/confirm-crypto/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/recharges/{id}/confirm-mobile-money",
+    "file": "src/api/routes/admin/recharges/[id]/confirm-mobile-money.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/recharges/([^/]+)/confirm-mobile-money/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/recharges/{id}/refund-crypto",
+    "file": "src/api/routes/admin/recharges/[id]/refund-crypto.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/recharges/([^/]+)/refund-crypto/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/recharges/{id}/refund-mobile-money",
+    "file": "src/api/routes/admin/recharges/[id]/refund-mobile-money.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/recharges/([^/]+)/refund-mobile-money/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/recharges/{id}/refund-stripe",
+    "file": "src/api/routes/admin/recharges/[id]/refund-stripe.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/recharges/([^/]+)/refund-stripe/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/users/{id}/access",
+    "file": "src/api/routes/admin/users/[id]/access.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/users/([^/]+)/access/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/earn/representative/missions/{name}",
+    "file": "src/api/routes/earn/representative/missions/[name]/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/representative/missions/([^/]+)/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/merchant/cash-sales/{id}/adjustments",
+    "file": "src/api/routes/merchant/cash-sales/[id]/adjustments.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/cash-sales/([^/]+)/adjustments/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/merchant/cash-sales/{id}/receipt",
+    "file": "src/api/routes/merchant/cash-sales/[id]/receipt.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/cash-sales/([^/]+)/receipt/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/merchant/certification/documents/{id}",
+    "file": "src/api/routes/merchant/certification/documents/[id].ts",
+    "methods": [
+      "DELETE"
+    ],
+    "pattern": "^/api/merchant/certification/documents/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/merchant/profiles/{profileId}/pro-renewal",
+    "file": "src/api/routes/merchant/profiles/[profileId]/pro-renewal.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/profiles/([^/]+)/pro-renewal/?$",
+    "keys": [
+      "profileId"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/merchant/profiles/{profileId}/pro-status",
+    "file": "src/api/routes/merchant/profiles/[profileId]/pro-status.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/profiles/([^/]+)/pro-status/?$",
+    "keys": [
+      "profileId"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/pay/checkout/{token}/cancel",
+    "file": "src/api/routes/pay/checkout/[token]/cancel.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/cancel/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/pay/checkout/{token}/confirm",
+    "file": "src/api/routes/pay/checkout/[token]/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/confirm/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/pay/checkout/{token}/funding",
+    "file": "src/api/routes/pay/checkout/[token]/funding.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/funding/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/pay/checkout/{token}/status-stream",
+    "file": "src/api/routes/pay/checkout/[token]/status-stream.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/status-stream/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/pay/checkout/{token}/wallet-authorization",
+    "file": "src/api/routes/pay/checkout/[token]/wallet-authorization.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/wallet-authorization/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/pay/payment-links/{slug}/resume",
+    "file": "src/api/routes/pay/payment-links/[slug]/resume.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/payment-links/([^/]+)/resume/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/public/users/{id}/analytics",
+    "file": "src/api/routes/public/users/[id]/analytics.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/public/users/([^/]+)/analytics/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/admin/boost-pricing/prices",
+    "file": "src/api/routes/admin/boost-pricing/prices.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/boost-pricing/prices/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/boost-pricing/update",
+    "file": "src/api/routes/admin/boost-pricing/update.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/boost-pricing/update/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/cards/lifecycle",
+    "file": "src/api/routes/admin/cards/lifecycle.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/cards/lifecycle/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/clearing/approve",
+    "file": "src/api/routes/admin/clearing/approve.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/clearing/approve/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/clearing/freeze",
+    "file": "src/api/routes/admin/clearing/freeze.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/clearing/freeze/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/clearing/settle",
+    "file": "src/api/routes/admin/clearing/settle.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/clearing/settle/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/dashboard/stats",
+    "file": "src/api/routes/admin/dashboard/stats.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/dashboard/stats/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/finance/interco",
+    "file": "src/api/routes/admin/finance/interco/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/interco/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/finance/klots",
+    "file": "src/api/routes/admin/finance/klots/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/klots/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/finance/legal-entities",
+    "file": "src/api/routes/admin/finance/legal-entities.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/finance/legal-entities/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/kyc/document",
+    "file": "src/api/routes/admin/kyc/document.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/kyc/document/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchant-settlements/approve",
+    "file": "src/api/routes/admin/merchant-settlements/approve.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/approve/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchant-settlements/confirm",
+    "file": "src/api/routes/admin/merchant-settlements/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/confirm/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchant-settlements/prepare",
+    "file": "src/api/routes/admin/merchant-settlements/prepare.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/prepare/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchant-settlements/submit-payout",
+    "file": "src/api/routes/admin/merchant-settlements/submit-payout.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/submit-payout/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchant-settlements/submit-proof",
+    "file": "src/api/routes/admin/merchant-settlements/submit-proof.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/submit-proof/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchant-settlements/verify-proof",
+    "file": "src/api/routes/admin/merchant-settlements/verify-proof.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/verify-proof/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchants/agents",
+    "file": "src/api/routes/admin/merchants/agents.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/merchants/agents/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchants/certification",
+    "file": "src/api/routes/admin/merchants/certification/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchants/certification/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/merchants/claims",
+    "file": "src/api/routes/admin/merchants/claims.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchants/claims/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/mobile-money/acquisitions",
+    "file": "src/api/routes/admin/mobile-money/acquisitions.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/mobile-money/acquisitions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/agent/application",
+    "file": "src/api/routes/earn/agent/application.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/agent/application/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/agent/apply",
+    "file": "src/api/routes/earn/agent/apply.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/earn/agent/apply/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/agent/commissions",
+    "file": "src/api/routes/earn/agent/commissions.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/agent/commissions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/agent/dashboard",
+    "file": "src/api/routes/earn/agent/dashboard.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/agent/dashboard/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/representative/commissions",
+    "file": "src/api/routes/earn/representative/commissions.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/representative/commissions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/representative/missions",
+    "file": "src/api/routes/earn/representative/missions/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/representative/missions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/representative/my-missions",
+    "file": "src/api/routes/earn/representative/my-missions.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/earn/representative/my-missions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/earn/representative/register",
+    "file": "src/api/routes/earn/representative/register.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/earn/representative/register/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/growth/events/stats",
+    "file": "src/api/routes/growth/events/stats.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/growth/events/stats/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/internal/erp/account-access",
+    "file": "src/api/routes/internal/erp/account-access.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/internal/erp/account-access/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/k/send/balance",
+    "file": "src/api/routes/k/send/balance.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/k/send/balance/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/k/send/quote",
+    "file": "src/api/routes/k/send/quote.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/k/send/quote/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/k/send/recipient",
+    "file": "src/api/routes/k/send/recipient/index.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ],
+    "pattern": "^/api/k/send/recipient/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/marketplace/taxonomy/categories",
+    "file": "src/api/routes/marketplace/taxonomy/categories.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/marketplace/taxonomy/categories/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/marketplace/taxonomy/subcategories",
+    "file": "src/api/routes/marketplace/taxonomy/subcategories.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/marketplace/taxonomy/subcategories/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/analytics/business",
+    "file": "src/api/routes/merchant/analytics/business.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/analytics/business/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/analytics/export",
+    "file": "src/api/routes/merchant/analytics/export.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/analytics/export/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/analytics/stats",
+    "file": "src/api/routes/merchant/analytics/stats.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/analytics/stats/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/analytics/track",
+    "file": "src/api/routes/merchant/analytics/track.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/analytics/track/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/cards/sales-declarations",
+    "file": "src/api/routes/merchant/cards/sales-declarations.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/cards/sales-declarations/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/cards/sales-history",
+    "file": "src/api/routes/merchant/cards/sales-history.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/cards/sales-history/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/cards/sales-today",
+    "file": "src/api/routes/merchant/cards/sales-today.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/cards/sales-today/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/cards/sell",
+    "file": "src/api/routes/merchant/cards/sell.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/cards/sell/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/certification/documents",
+    "file": "src/api/routes/merchant/certification/documents.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/certification/documents/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/kyb/documents",
+    "file": "src/api/routes/merchant/kyb/documents.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/kyb/documents/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/media/reorder",
+    "file": "src/api/routes/merchant/media/reorder.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/media/reorder/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/members/add",
+    "file": "src/api/routes/merchant/members/add.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/members/add/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/members/remove",
+    "file": "src/api/routes/merchant/members/remove.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/members/remove/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/operations/transactions",
+    "file": "src/api/routes/merchant/operations/transactions.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/operations/transactions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/visibility/campaigns",
+    "file": "src/api/routes/merchant/visibility/campaigns.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT"
+    ],
+    "pattern": "^/api/merchant/visibility/campaigns/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/visibility/catalog-access",
+    "file": "src/api/routes/merchant/visibility/catalog-access.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/visibility/catalog-access/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/visibility/discovery",
+    "file": "src/api/routes/merchant/visibility/discovery.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/visibility/discovery/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/visibility/reviews",
+    "file": "src/api/routes/merchant/visibility/reviews.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/visibility/reviews/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/visibility/upgrade",
+    "file": "src/api/routes/merchant/visibility/upgrade.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/visibility/upgrade/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/offline/v1/batch",
+    "file": "src/api/routes/offline/v1/batch.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/offline/v1/batch/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/offline/v1/envelope",
+    "file": "src/api/routes/offline/v1/envelope.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/offline/v1/envelope/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/pay/checkout/resume",
+    "file": "src/api/routes/pay/checkout/resume.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/resume/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/pay/payments/by-reference",
+    "file": "src/api/routes/pay/payments/by-reference.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/payments/by-reference/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/pay/payments/confirm",
+    "file": "src/api/routes/pay/payments/confirm.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/payments/confirm/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/pay/points/value",
+    "file": "src/api/routes/pay/points/value.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/pay/points/value/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/recharge/stripe/confirm",
+    "file": "src/api/routes/recharge/stripe/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/recharge/stripe/confirm/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/recharge/stripe/create-intent",
+    "file": "src/api/routes/recharge/stripe/create-intent.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/recharge/stripe/create-intent/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/webhooks/pawapay/checkouts",
+    "file": "src/api/routes/webhooks/pawapay/checkouts.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/webhooks/pawapay/checkouts/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/webhooks/pawapay/deposits",
+    "file": "src/api/routes/webhooks/pawapay/deposits.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/webhooks/pawapay/deposits/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/webhooks/pawapay/payouts",
+    "file": "src/api/routes/webhooks/pawapay/payouts.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/webhooks/pawapay/payouts/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/webhooks/pawapay/refunds",
+    "file": "src/api/routes/webhooks/pawapay/refunds.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/webhooks/pawapay/refunds/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/activation-campaigns/{id}/{action}",
+    "file": "src/api/routes/admin/activation-campaigns/[id]/[action].ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/activation-campaigns/([^/]+)/([^/]+)/?$",
+    "keys": [
+      "id",
+      "action"
+    ],
+    "score": 305
+  },
+  {
+    "path": "/api/admin/regulatory-projections/{type}/{code}",
+    "file": "src/api/routes/admin/regulatory-projections/[type]/[code].ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/regulatory-projections/([^/]+)/([^/]+)/?$",
+    "keys": [
+      "type",
+      "code"
+    ],
+    "score": 305
+  },
+  {
+    "path": "/api/account/api-keys/{id}",
+    "file": "src/api/routes/account/api-keys/[id].ts",
+    "methods": [
+      "DELETE"
+    ],
+    "pattern": "^/api/account/api-keys/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/activation-campaigns/{id}",
+    "file": "src/api/routes/admin/activation-campaigns/[id].ts",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "pattern": "^/api/admin/activation-campaigns/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/categories/{id}",
+    "file": "src/api/routes/admin/categories/[id].ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "pattern": "^/api/admin/categories/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/clearing/{id}",
+    "file": "src/api/routes/admin/clearing/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/clearing/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/disputes/{id}",
+    "file": "src/api/routes/admin/disputes/[id].ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/admin/disputes/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/merchant-sales/{id}",
+    "file": "src/api/routes/admin/merchant-sales/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/merchant-sales/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/merchant-settlements/{id}",
+    "file": "src/api/routes/admin/merchant-settlements/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/merchants/{id}",
+    "file": "src/api/routes/admin/merchants/[id].ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchants/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/offer-categories/{id}",
+    "file": "src/api/routes/admin/offer-categories/[id].ts",
+    "methods": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "pattern": "^/api/admin/offer-categories/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/offer-subcategories/{id}",
+    "file": "src/api/routes/admin/offer-subcategories/[id].ts",
+    "methods": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "pattern": "^/api/admin/offer-subcategories/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/pro-subscriptions/{id}",
+    "file": "src/api/routes/admin/pro-subscriptions/[id].ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "pattern": "^/api/admin/pro-subscriptions/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/admin/recharges/{id}",
+    "file": "src/api/routes/admin/recharges/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/recharges/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/agent/inquiries/{id}",
+    "file": "src/api/routes/agent/inquiries/[id].ts",
+    "methods": [
+      "PUT"
+    ],
+    "pattern": "^/api/agent/inquiries/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/communication/unsubscribe/{channel}",
+    "file": "src/api/routes/communication/unsubscribe/[channel].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/communication/unsubscribe/([^/]+)/?$",
+    "keys": [
+      "channel"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/k/send/{id}",
+    "file": "src/api/routes/k/send/[id].ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "pattern": "^/api/k/send/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/cards/{number}",
+    "file": "src/api/routes/merchant/cards/[number]/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/cards/([^/]+)/?$",
+    "keys": [
+      "number"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/cash-sales/{id}",
+    "file": "src/api/routes/merchant/cash-sales/[id]/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/cash-sales/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/media/{id}",
+    "file": "src/api/routes/merchant/media/[id].ts",
+    "methods": [
+      "DELETE",
+      "PUT"
+    ],
+    "pattern": "^/api/merchant/media/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/pro-renewal-links/{id}",
+    "file": "src/api/routes/merchant/pro-renewal-links/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/pro-renewal-links/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/products/{id}",
+    "file": "src/api/routes/merchant/products/[id].ts",
+    "methods": [
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "pattern": "^/api/merchant/products/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/promotions/{id}",
+    "file": "src/api/routes/merchant/promotions/[id].ts",
+    "methods": [
+      "PUT",
+      "POST",
+      "DELETE"
+    ],
+    "pattern": "^/api/merchant/promotions/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/merchant/qr-code/{name}",
+    "file": "src/api/routes/merchant/qr-code/[name].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/qr-code/([^/]+)/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/pay/checkout/{token}",
+    "file": "src/api/routes/pay/checkout/[token].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/pay/payments/{id}",
+    "file": "src/api/routes/pay/payments/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/payments/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/pro/inquiries/{id}",
+    "file": "src/api/routes/pro/inquiries/[id].ts",
+    "methods": [
+      "PUT"
+    ],
+    "pattern": "^/api/pro/inquiries/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/public/users/{id}",
+    "file": "src/api/routes/public/users/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/users/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/transactions/{id}/transition",
+    "file": "src/api/routes/transactions/[id]/transition.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/transactions/([^/]+)/transition/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/webhooks/stripe/{configurationKey}",
+    "file": "src/api/routes/webhooks/stripe/[configurationKey].ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/webhooks/stripe/([^/]+)/?$",
+    "keys": [
+      "configurationKey"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/account/api-keys",
+    "file": "src/api/routes/account/api-keys/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/account/api-keys/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/account/balance",
+    "file": "src/api/routes/account/balance.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/account/balance/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/account/history",
+    "file": "src/api/routes/account/history/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/account/history/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/account/kyc-gate",
+    "file": "src/api/routes/account/kyc-gate.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/account/kyc-gate/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/account/payment-claims",
+    "file": "src/api/routes/account/payment-claims/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/account/payment-claims/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/account/pending-transactions",
+    "file": "src/api/routes/account/pending-transactions.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/account/pending-transactions/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/account/update-profile",
+    "file": "src/api/routes/account/update-profile.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/account/update-profile/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/activation-campaign/current",
+    "file": "src/api/routes/activation-campaign/current.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/activation-campaign/current/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/activation-challenge/current",
+    "file": "src/api/routes/activation-challenge/current.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/activation-challenge/current/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/activation-campaigns",
+    "file": "src/api/routes/admin/activation-campaigns/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/activation-campaigns/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/boost-pricing",
+    "file": "src/api/routes/admin/boost-pricing.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/boost-pricing/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/card-batches",
+    "file": "src/api/routes/admin/card-batches.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/card-batches/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/card-transactions",
+    "file": "src/api/routes/admin/card-transactions.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/card-transactions/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/categories",
+    "file": "src/api/routes/admin/categories/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/categories/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/clearing",
+    "file": "src/api/routes/admin/clearing/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/clearing/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/disputes",
+    "file": "src/api/routes/admin/disputes/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/disputes/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/kyc",
+    "file": "src/api/routes/admin/kyc/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/kyc/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/merchant-sales",
+    "file": "src/api/routes/admin/merchant-sales/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/merchant-sales/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/merchant-settlements",
+    "file": "src/api/routes/admin/merchant-settlements/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/merchant-settlements/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/merchant-visibility",
+    "file": "src/api/routes/admin/merchant-visibility/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchant-visibility/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/merchants",
+    "file": "src/api/routes/admin/merchants/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/merchants/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/mobile-money-queue",
+    "file": "src/api/routes/admin/mobile-money-queue.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/mobile-money-queue/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/offer-categories",
+    "file": "src/api/routes/admin/offer-categories/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/offer-categories/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/offer-subcategories",
+    "file": "src/api/routes/admin/offer-subcategories/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/offer-subcategories/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/pro-subscriptions",
+    "file": "src/api/routes/admin/pro-subscriptions/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/pro-subscriptions/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/recharges",
+    "file": "src/api/routes/admin/recharges/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/recharges/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/screening",
+    "file": "src/api/routes/admin/screening/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/screening/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/users",
+    "file": "src/api/routes/admin/users/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/users/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/wallet-history",
+    "file": "src/api/routes/admin/wallet-history.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/wallet-history/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/wallet-integrity",
+    "file": "src/api/routes/admin/wallet-integrity.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/wallet-integrity/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/agent/inquiries",
+    "file": "src/api/routes/agent/inquiries/index.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/agent/inquiries/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/auth/change-password",
+    "file": "src/api/routes/auth/change-password.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/auth/change-password/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/auth/country-confirmation",
+    "file": "src/api/routes/auth/country-confirmation.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/auth/country-confirmation/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/auth/forgot-password",
+    "file": "src/api/routes/auth/forgot-password.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/auth/forgot-password/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/auth/me",
+    "file": "src/api/routes/auth/me.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/auth/me/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/auth/reset-password",
+    "file": "src/api/routes/auth/reset-password.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/auth/reset-password/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/cards/redeem",
+    "file": "src/api/routes/cards/redeem.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/cards/redeem/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/catalog/checkout",
+    "file": "src/api/routes/catalog/checkout.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/catalog/checkout/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/catalog/quote",
+    "file": "src/api/routes/catalog/quote.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/catalog/quote/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/catalog/reels",
+    "file": "src/api/routes/catalog/reels.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/catalog/reels/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/communication/preferences",
+    "file": "src/api/routes/communication/preferences.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/communication/preferences/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/consent/marketing",
+    "file": "src/api/routes/consent/marketing.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/consent/marketing/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/email/send-verification",
+    "file": "src/api/routes/email/send-verification.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/email/send-verification/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/email/verify",
+    "file": "src/api/routes/email/verify.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/email/verify/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/favorites/merchants",
+    "file": "src/api/routes/favorites/merchants.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "pattern": "^/api/favorites/merchants/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/favorites/users",
+    "file": "src/api/routes/favorites/users.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "pattern": "^/api/favorites/users/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/geo/neighborhoods",
+    "file": "src/api/routes/geo/neighborhoods.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/geo/neighborhoods/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/growth/contents",
+    "file": "src/api/routes/growth/contents.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/growth/contents/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/growth/destinations",
+    "file": "src/api/routes/growth/destinations.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/growth/destinations/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/growth/events",
+    "file": "src/api/routes/growth/events.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/growth/events/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/internal/dify-health",
+    "file": "src/api/routes/internal/dify-health.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/internal/dify-health/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/internal/health",
+    "file": "src/api/routes/internal/health.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/internal/health/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/internal/kyc-publish-status",
+    "file": "src/api/routes/internal/kyc-publish-status.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/internal/kyc-publish-status/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/internal/operational-readiness",
+    "file": "src/api/routes/internal/operational-readiness.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/internal/operational-readiness/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/k/send",
+    "file": "src/api/routes/k/send/index.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/k/send/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/kyc/init",
+    "file": "src/api/routes/kyc/init.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/kyc/init/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/kyc/resubmit",
+    "file": "src/api/routes/kyc/resubmit.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/kyc/resubmit/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/kyc/skip",
+    "file": "src/api/routes/kyc/skip.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/kyc/skip/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/kyc/status",
+    "file": "src/api/routes/kyc/status.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/kyc/status/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/kyc/status-stream",
+    "file": "src/api/routes/kyc/status-stream.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/kyc/status-stream/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/activation-status",
+    "file": "src/api/routes/merchant/activation-status.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/activation-status/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/api-key",
+    "file": "src/api/routes/merchant/api-key.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "pattern": "^/api/merchant/api-key/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/api-webhook",
+    "file": "src/api/routes/merchant/api-webhook.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/api-webhook/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/cash-sales",
+    "file": "src/api/routes/merchant/cash-sales/index.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/merchant/cash-sales/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/certification",
+    "file": "src/api/routes/merchant/certification/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/certification/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/certification-status",
+    "file": "src/api/routes/merchant/certification-status.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/certification-status/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/claim",
+    "file": "src/api/routes/merchant/claim.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/claim/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/commerce",
+    "file": "src/api/routes/merchant/commerce.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/commerce/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/contact",
+    "file": "src/api/routes/merchant/contact.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/contact/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/create-reference",
+    "file": "src/api/routes/merchant/create-reference.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/create-reference/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/hotel",
+    "file": "src/api/routes/merchant/hotel.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/hotel/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/kyb",
+    "file": "src/api/routes/merchant/kyb/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/kyb/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/links",
+    "file": "src/api/routes/merchant/links.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/links/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/media",
+    "file": "src/api/routes/merchant/media.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/media/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/media-file",
+    "file": "src/api/routes/merchant/media-file.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/media-file/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/messages",
+    "file": "src/api/routes/merchant/messages.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/merchant/messages/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/my-assignment-requests",
+    "file": "src/api/routes/merchant/my-assignment-requests.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/my-assignment-requests/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/my-profiles",
+    "file": "src/api/routes/merchant/my-profiles.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/my-profiles/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/offline-mutations",
+    "file": "src/api/routes/merchant/offline-mutations.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/offline-mutations/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/offline-snapshot",
+    "file": "src/api/routes/merchant/offline-snapshot.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/offline-snapshot/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/opening-hours",
+    "file": "src/api/routes/merchant/opening-hours.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/merchant/opening-hours/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/operations",
+    "file": "src/api/routes/merchant/operations/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/operations/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/products",
+    "file": "src/api/routes/merchant/products.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/products/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/profile",
+    "file": "src/api/routes/merchant/profile.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT"
+    ],
+    "pattern": "^/api/merchant/profile/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/promotions",
+    "file": "src/api/routes/merchant/promotions/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/promotions/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/publication-status",
+    "file": "src/api/routes/merchant/publication-status.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/publication-status/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/publish",
+    "file": "src/api/routes/merchant/publish.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/publish/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/publish-establishment",
+    "file": "src/api/routes/merchant/publish-establishment.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/publish-establishment/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/qr-code-file",
+    "file": "src/api/routes/merchant/qr-code-file.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/qr-code-file/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/qr-codes",
+    "file": "src/api/routes/merchant/qr-codes.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/qr-codes/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/qrcode",
+    "file": "src/api/routes/merchant/qrcode.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/qrcode/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/reels",
+    "file": "src/api/routes/merchant/reels.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "pattern": "^/api/merchant/reels/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/remove-member",
+    "file": "src/api/routes/merchant/remove-member.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/remove-member/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/restaurant",
+    "file": "src/api/routes/merchant/restaurant.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/restaurant/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/sales",
+    "file": "src/api/routes/merchant/sales/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/sales/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/search",
+    "file": "src/api/routes/merchant/search.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/search/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/settlement-configuration",
+    "file": "src/api/routes/merchant/settlement-configuration.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/merchant/settlement-configuration/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/settlements",
+    "file": "src/api/routes/merchant/settlements/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/settlements/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/suspend",
+    "file": "src/api/routes/merchant/suspend.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/suspend/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/taxes",
+    "file": "src/api/routes/merchant/taxes.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/merchant/taxes/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/unpublish",
+    "file": "src/api/routes/merchant/unpublish.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/merchant/unpublish/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/merchant/visibility-completion",
+    "file": "src/api/routes/merchant/visibility-completion.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/visibility-completion/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/notifications/count",
+    "file": "src/api/routes/notifications/count.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/notifications/count/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/notifications/mark-all-read",
+    "file": "src/api/routes/notifications/mark-all-read.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/notifications/mark-all-read/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/onboarding/check-username",
+    "file": "src/api/routes/onboarding/check-username.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/onboarding/check-username/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/onboarding/register",
+    "file": "src/api/routes/onboarding/register.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/onboarding/register/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/onboarding/send-otp",
+    "file": "src/api/routes/onboarding/send-otp.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/onboarding/send-otp/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/onboarding/verify-otp",
+    "file": "src/api/routes/onboarding/verify-otp.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/onboarding/verify-otp/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/countries",
+    "file": "src/api/routes/pay/countries.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/countries/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/detected-country",
+    "file": "src/api/routes/pay/detected-country.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/detected-country/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/pay-link",
+    "file": "src/api/routes/pay/pay-link.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/pay-link/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/payment-context",
+    "file": "src/api/routes/pay/payment-context.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/payment-context/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/payment-country",
+    "file": "src/api/routes/pay/payment-country.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/payment-country/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/payment-links",
+    "file": "src/api/routes/pay/payment-links.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/pay/payment-links/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/payments",
+    "file": "src/api/routes/pay/payments.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/payments/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/recharges",
+    "file": "src/api/routes/pay/recharges.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/recharges/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pay/settlements",
+    "file": "src/api/routes/pay/settlements.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/settlements/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/preferences/complete",
+    "file": "src/api/routes/preferences/complete.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/preferences/complete/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/preferences/dashboard",
+    "file": "src/api/routes/preferences/dashboard.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/preferences/dashboard/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/preferences/features",
+    "file": "src/api/routes/preferences/features.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/preferences/features/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/preferences/save",
+    "file": "src/api/routes/preferences/save.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/preferences/save/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pro/inquiries",
+    "file": "src/api/routes/pro/inquiries/index.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/pro/inquiries/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/pro/pricing",
+    "file": "src/api/routes/pro/pricing.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pro/pricing/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/profile/public",
+    "file": "src/api/routes/profile/public.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/profile/public/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/boost-cpm",
+    "file": "src/api/routes/public/boost-cpm.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/boost-cpm/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/digital-audit",
+    "file": "src/api/routes/public/digital-audit.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/digital-audit/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/users",
+    "file": "src/api/routes/public/users.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/users/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/qr/code",
+    "file": "src/api/routes/qr/code.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/qr/code/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/qr/confirm",
+    "file": "src/api/routes/qr/confirm.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/qr/confirm/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/qr/personal-link",
+    "file": "src/api/routes/qr/personal-link.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/qr/personal-link/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/qr/request-confirmation",
+    "file": "src/api/routes/qr/request-confirmation.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/qr/request-confirmation/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/qr/user-link-quote",
+    "file": "src/api/routes/qr/user-link-quote.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/qr/user-link-quote/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/referral/code",
+    "file": "src/api/routes/referral/code.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/referral/code/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/referral/redeem",
+    "file": "src/api/routes/referral/redeem.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/referral/redeem/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/referral/stats",
+    "file": "src/api/routes/referral/stats.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/referral/stats/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/reviews/by-merchant",
+    "file": "src/api/routes/reviews/by-merchant.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/reviews/by-merchant/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/reviews/create",
+    "file": "src/api/routes/reviews/create.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/reviews/create/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/reviews/report",
+    "file": "src/api/routes/reviews/report.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/reviews/report/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/test-email/send",
+    "file": "src/api/routes/test-email/send.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/test-email/send/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/users/search",
+    "file": "src/api/routes/users/search.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/users/search/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/wallet-authorizations/issue",
+    "file": "src/api/routes/wallet-authorizations/issue.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/wallet-authorizations/issue/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/wallet-authorizations/verify",
+    "file": "src/api/routes/wallet-authorizations/verify.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/wallet-authorizations/verify/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/webhooks/stripe",
+    "file": "src/api/routes/webhooks/stripe.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/webhooks/stripe/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/agents/{name}",
+    "file": "src/api/routes/agents/[name]/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/agents/([^/]+)/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 203
+  },
+  {
+    "path": "/api/merchant/{slug}",
+    "file": "src/api/routes/merchant/[slug].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/merchant/([^/]+)/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 203
+  },
+  {
+    "path": "/api/photo/{id}",
+    "file": "src/api/routes/photo/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/photo/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 203
+  },
+  {
+    "path": "/api/qr/{id}",
+    "file": "src/api/routes/qr/[id].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/qr/([^/]+)/?$",
+    "keys": [
+      "id"
+    ],
+    "score": 203
+  },
+  {
+    "path": "/api/account",
+    "file": "src/api/routes/account/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/account/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/agents",
+    "file": "src/api/routes/agents/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/agents/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/bookings",
+    "file": "src/api/routes/bookings/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/bookings/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/cash-agent",
+    "file": "src/api/routes/cash-agent/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/cash-agent/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/chat",
+    "file": "src/api/routes/chat/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/chat/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/countries",
+    "file": "src/api/routes/countries.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/countries/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/device-identity",
+    "file": "src/api/routes/device-identity/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/device-identity/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/legal-documents",
+    "file": "src/api/routes/legal-documents.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/legal-documents/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/loyalty",
+    "file": "src/api/routes/loyalty/index.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/loyalty/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/meeting-request",
+    "file": "src/api/routes/meeting-request.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/meeting-request/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/meeting-slots",
+    "file": "src/api/routes/meeting-slots.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/meeting-slots/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/notifications",
+    "file": "src/api/routes/notifications/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/notifications/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/orders",
+    "file": "src/api/routes/orders/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/orders/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/preferences",
+    "file": "src/api/routes/preferences/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/preferences/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/promotions",
+    "file": "src/api/routes/promotions/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/promotions/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/qr",
+    "file": "src/api/routes/qr/index.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/qr/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/recharge",
+    "file": "src/api/routes/recharge.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/recharge/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/reviews",
+    "file": "src/api/routes/reviews/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/reviews/?$",
+    "keys": [],
+    "score": 202
+  },
+  {
+    "path": "/api/transactions",
+    "file": "src/api/routes/transactions/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/transactions/?$",
+    "keys": [],
+    "score": 202
+  }
+]

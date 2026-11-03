@@ -1,0 +1,7 @@
+# Synthetic names for offline rendering only; these resources are not created.
+image: {repository: ghcr.io/example/konektag, tag: "0123456789abcdef0123456789abcdef01234567"}
+api: {existingSecret: fixture-api}
+mcp:
+  erpnext: {existingSecret: fixture-erpnext, oauthClaim: fixture-erpnext-oauth}
+  m365: {existingSecret: fixture-m365, oauthClaim: fixture-m365-oauth}
+  unipile: {existingSecret: fixture-unipile, oauthClaim: fixture-unipile-oauth}

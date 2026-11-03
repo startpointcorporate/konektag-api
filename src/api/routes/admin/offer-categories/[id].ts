@@ -1,0 +1,16 @@
+import type { RequestContext } from '../../../http';
+import type { RouteHandler } from '../../../http';
+import { z } from 'zod';
+import pool from '../../../../infrastructure/database/pool.ts';
+const Id=z.string().uuid(),Activity=z.enum(['Restaurant','Hotel','Commerce']);
+const Patch=z.object({code:z.string().min(1).max(100).optional(),activityCode:Activity.optional(),nameI18n:z.record(z.string(),z.string()).optional(),sortOrder:z.number().int().optional(),isActive:z.boolean().optional()}).strict().refine(v=>Object.keys(v).length>0,'EMPTY_PATCH');
+const json=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{'Content-Type':'application/json'}});
+async function isAdmin(locals: RequestContext['locals']): Promise<boolean> {
+  if (!locals.user) return false;
+  const { rows: [databaseUser] } = await pool.query('SELECT role FROM konektag.users WHERE id = $1', [locals.user.id]);
+  return databaseUser?.role === 'admin';
+}
+const idOf=(v:string|undefined)=>{const r=Id.safeParse(v);return r.success?r.data:null;};
+export const GET:RouteHandler=async({locals,params})=>{if(!(await isAdmin(locals)))return json({error:'Unauthorized'},401);const id=idOf(params.id);if(!id)return json({error:'INVALID_CATEGORY_ID'},422);const {rows:[row]}=await pool.query('SELECT * FROM konektag.offer_categories WHERE id=$1 AND deleted_at IS NULL',[id]);return row?json({category:row}):json({error:'CATEGORY_NOT_FOUND'},404);};
+export const PATCH:RouteHandler=async({locals,params,request})=>{if(!(await isAdmin(locals)))return json({error:'Unauthorized'},401);const id=idOf(params.id);if(!id)return json({error:'INVALID_CATEGORY_ID'},422);let raw:unknown;try{raw=await request.json();}catch{return json({error:'INVALID_JSON'},400);}const parsed=Patch.safeParse(raw);if(!parsed.success)return json({errors:parsed.error.flatten().fieldErrors},422);const cur=(await pool.query('SELECT * FROM konektag.offer_categories WHERE id=$1 AND deleted_at IS NULL',[id])).rows[0];if(!cur)return json({error:'CATEGORY_NOT_FOUND'},404);const b=parsed.data;if(b.activityCode&&b.activityCode!==cur.activity_code){const used=await pool.query('SELECT 1 FROM konektag.merchant_products WHERE offer_category_id=$1 AND deleted_at IS NULL LIMIT 1',[id]);if(used.rowCount)return json({error:'CATEGORY_ACTIVITY_IN_USE'},409);}try{const {rows:[row]}=await pool.query('UPDATE konektag.offer_categories SET code=$2,activity_code=$3,name_i18n=$4,sort_order=$5,is_active=$6,updated_at=now() WHERE id=$1 RETURNING *',[id,b.code??cur.code,b.activityCode??cur.activity_code,JSON.stringify(b.nameI18n??cur.name_i18n),b.sortOrder??cur.sort_order,b.isActive??cur.is_active]);return json({category:row});}catch(e:any){if(e?.code==='23505')return json({error:'CATEGORY_CODE_EXISTS'},409);console.error('[admin/offer-categories/:id]',e);return json({error:'SERVER_ERROR'},500);}};
+export const DELETE:RouteHandler=async({locals,params})=>{if(!(await isAdmin(locals)))return json({error:'Unauthorized'},401);const id=idOf(params.id);if(!id)return json({error:'INVALID_CATEGORY_ID'},422);const r=await pool.query('UPDATE konektag.offer_categories SET is_active=false,updated_at=now() WHERE id=$1 AND deleted_at IS NULL RETURNING id',[id]);return r.rowCount?json({success:true}):json({error:'CATEGORY_NOT_FOUND'},404);};
