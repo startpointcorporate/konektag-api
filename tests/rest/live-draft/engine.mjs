@@ -130,16 +130,19 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
   const actor = async name => {
     if (!name) return {};
     const identity = fixture.actors?.[name];
-    if (!identity?.testOnly || !identity.userId || !identity.keycloakId || !identity.username) throw new Blocked(`Existing test account required: ${name}`);
+    if (!identity?.testOnly || !identity.username || !identity.tokenEnv) throw new Blocked(`Existing test account required: ${name}`);
     const token = requiredEnv(identity.tokenEnv);
     if (!verifiedActors.has(name)) {
-      // The token is authenticated by the API, while this local subject check
-      // prevents selecting another fixture owner's token by accident.
+      // The JWT is only decoded locally for a subject check; API verifies signature and expiry.
       let subject;
       try { subject = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()).sub; } catch {}
-      if (subject !== identity.keycloakId) throw new Blocked(`Token subject mismatch: ${name}`);
-      const users = await sql({ sql: 'SELECT id,keycloak_id,username,role FROM konektag.users WHERE id=$1 AND deleted_at IS NULL', params: [identity.userId] });
-      assert.equal(users.length, 1); subset(users[0], { keycloak_id: identity.keycloakId, username: identity.username, role: identity.role });
+      if (!subject) throw new Blocked(`Valid Keycloak user token required: ${name}`);
+      if (identity.keycloakId && subject !== identity.keycloakId) throw new Blocked(`Token subject mismatch: ${name}`);
+      const users = await sql({ sql: 'SELECT id,keycloak_id,username,role FROM konektag.users WHERE username=$1 AND deleted_at IS NULL', params: [identity.username] });
+      if (users.length !== 1 || users[0].keycloak_id !== subject || (identity.userId && users[0].id !== identity.userId) || (identity.role && users[0].role !== identity.role)) {
+        throw new Blocked(`Keycloak token/SQL account mismatch: ${name}`);
+      }
+      Object.assign(identity, { userId: users[0].id, keycloakId: users[0].keycloak_id, role: users[0].role });
       vars[name] = { ...identity }; verifiedActors.add(name);
     }
     return identity.auth === 'cookie' ? { Cookie: `konektag_access_token=${token}` } : { Authorization: `Bearer ${token}` };
