@@ -186,7 +186,7 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
     if (response.status !== expanded.status) {
       throw new Error(`HTTP_STATUS expected=${expanded.status} actual=${response.status}`);
     }
-    let body;
+    let body = null; // 204/303 have no body; keep a deterministic, hashable evidence value.
     if (expanded.sse) {
       assert.match(response.headers.get('content-type') || '', /text\/event-stream/);
       const reader = response.body.getReader(); let text = '';
