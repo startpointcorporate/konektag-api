@@ -95,7 +95,7 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
   const sql = async descriptor => {
     if (!pool && !remoteSql) throw new Blocked('PostgreSQL observer connection unavailable');
     const q = expand(descriptor);
-    if (!/^\\s*(SELECT|WITH)\\b/i.test(q.sql) || q.sql.includes(';')) throw new Error('Only single read-only observer SQL statements allowed');
+    if (!/^\s*(SELECT|WITH)\b/i.test(q.sql) || q.sql.includes(';')) throw new Error('Only single read-only observer SQL statements allowed');
     if (remoteSql) return JSON.parse(JSON.stringify(await observeFromExistingPod(q)));
     const client = await pool.connect();
     try {
