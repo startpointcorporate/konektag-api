@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Non-destructive batch on existing K3s API. Existing runner and catalog are reused.
-import { readFile, writeFile, mkdtemp, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { campaign } from './engine.mjs';
@@ -32,6 +32,16 @@ if (index >= 0 && !external) {
   }
   try {
     await campaign(root, configFile);
+    const settings = JSON.parse(await readFile(configFile, 'utf8'));
+    const { readdir } = await import('node:fs/promises');
+    const reportDir = settings.outputDirectory || 'work/rest-live-results';
+    const runs = (await readdir(reportDir, { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
+    if (runs.length) {
+      const report = JSON.parse(await readFile(path.join(reportDir, runs.at(-1), 'results.json'), 'utf8'));
+      console.log('REST', report.operations.length, 'operations :', JSON.stringify(report.summary));
+      for (const row of report.operations.filter(row => row.status === 'FAIL')) console.error('FAIL', row.operation, row.scenarios?.[0]?.reason || row.reason || '');
+      for (const row of report.operations.filter(row => row.status === 'BLOCKED' && !String(row.reason || '').startsWith('Fixture required:'))) console.log('BLOCKED', row.operation, row.reason || '');
+    }
   } catch (e) {
     console.error('Runner stopped:', e instanceof Error ? e.message : String(e));
     process.exitCode = 2;
