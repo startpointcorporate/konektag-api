@@ -1,0 +1,9 @@
+{
+  "file": "tests/rest/operations.test.ts",
+  "sha256": "4f95fdcae64da9562993cc7ea6ae5c02459c369b2fb8c1767260d9c783982720",
+  "assertions": [
+    "Real router, canonical aliases, parameters, method, raw body, query, cookies",
+    "Invalid credentials rejected by real middleware with no DB/token fallback and no handler loading",
+    "Generated evidence remains partial for every operation"
+  ]
+}

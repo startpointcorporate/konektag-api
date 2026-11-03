@@ -1,0 +1,2050 @@
+[
+  {
+    "file": "tests/unit/analytics-sec1.test.ts",
+    "operations": [
+      "GET /api/merchant/analytics/stats"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Commerce owner/manager scope in every SQL query, aggregate/CSV response, foreign commerce refusal."
+    ],
+    "constraints": [],
+    "sha256": "4f0a7568ddda9424e7e0e404ed9e45f8aab3714d927b3f431587ed6a06dbfa26",
+    "tests": [
+      "SEC-1 stats rejects anonymous before any SQL",
+      "SEC-1 stats filters every analytics query by the authorized commerce",
+      "SEC-1 stats rejects foreign/unknown/empty slug B before analytics",
+      "SEC-1 stats rejects foreign/unknown/empty slug missing before analytics",
+      "SEC-1 stats rejects foreign/unknown/empty slug  before analytics",
+      "SEC-1 stats rejects a membership denied by the existing guard",
+      "SEC-1 stats resolves a sole authorized commerce without slug",
+      "SEC-1 stats rejects no eligible commerce without slug",
+      "SEC-1 stats requires slug for multiple equal-priority memberships (primary=false)",
+      "SEC-1 stats requires slug for multiple equal-priority memberships (primary=true)",
+      "SEC-1 stats uses the unique primary membership",
+      "SEC-1 stats fails closed when authorization storage fails",
+      "SEC-1 CSV rejects anonymous before any SQL",
+      "SEC-1 CSV filters every analytics query by the authorized commerce",
+      "SEC-1 CSV rejects foreign/unknown/empty slug B before analytics",
+      "SEC-1 CSV rejects foreign/unknown/empty slug missing before analytics",
+      "SEC-1 CSV rejects foreign/unknown/empty slug  before analytics",
+      "SEC-1 CSV rejects a membership denied by the existing guard",
+      "SEC-1 CSV resolves a sole authorized commerce without slug",
+      "SEC-1 CSV rejects no eligible commerce without slug",
+      "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=false)",
+      "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=true)",
+      "SEC-1 CSV uses the unique primary membership",
+      "SEC-1 CSV fails closed when authorization storage fails"
+    ]
+  },
+  {
+    "file": "tests/unit/analytics-sec1.test.ts",
+    "operations": [
+      "GET /api/merchant/analytics/export"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Commerce owner/manager scope in every SQL query, aggregate/CSV response, foreign commerce refusal."
+    ],
+    "constraints": [],
+    "sha256": "4f0a7568ddda9424e7e0e404ed9e45f8aab3714d927b3f431587ed6a06dbfa26",
+    "tests": [
+      "SEC-1 stats rejects anonymous before any SQL",
+      "SEC-1 stats filters every analytics query by the authorized commerce",
+      "SEC-1 stats rejects foreign/unknown/empty slug B before analytics",
+      "SEC-1 stats rejects foreign/unknown/empty slug missing before analytics",
+      "SEC-1 stats rejects foreign/unknown/empty slug  before analytics",
+      "SEC-1 stats rejects a membership denied by the existing guard",
+      "SEC-1 stats resolves a sole authorized commerce without slug",
+      "SEC-1 stats rejects no eligible commerce without slug",
+      "SEC-1 stats requires slug for multiple equal-priority memberships (primary=false)",
+      "SEC-1 stats requires slug for multiple equal-priority memberships (primary=true)",
+      "SEC-1 stats uses the unique primary membership",
+      "SEC-1 stats fails closed when authorization storage fails",
+      "SEC-1 CSV rejects anonymous before any SQL",
+      "SEC-1 CSV filters every analytics query by the authorized commerce",
+      "SEC-1 CSV rejects foreign/unknown/empty slug B before analytics",
+      "SEC-1 CSV rejects foreign/unknown/empty slug missing before analytics",
+      "SEC-1 CSV rejects foreign/unknown/empty slug  before analytics",
+      "SEC-1 CSV rejects a membership denied by the existing guard",
+      "SEC-1 CSV resolves a sole authorized commerce without slug",
+      "SEC-1 CSV rejects no eligible commerce without slug",
+      "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=false)",
+      "SEC-1 CSV requires slug for multiple equal-priority memberships (primary=true)",
+      "SEC-1 CSV uses the unique primary membership",
+      "SEC-1 CSV fails closed when authorization storage fails"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-cancel-route.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/cancel"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Cancellation public response and exact checkout token; CSRF and paid-order refusal without mutation."
+    ],
+    "constraints": [],
+    "sha256": "5d2488e1dbe6f53fcc136a36bfba4c952260d14f3df13ad16814c5c4f241acbf",
+    "tests": [
+      "API checkout cancel route rejects cross-origin cancellation requests",
+      "API checkout cancel route cancels an active checkout and returns the updated public order",
+      "API checkout cancel route returns 409 when cancellation is no longer allowed"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-create-route.test.ts",
+    "operations": [
+      "POST /api/pay/payments"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Canonical merchant currency, forwarded itemized amounts and frontend checkout URL; currency refusal without order creation."
+    ],
+    "constraints": [],
+    "sha256": "45ca5b8d905db6c488a2e91db971230bca91554b4f65e12c9e2b4f03bfd8a0b6",
+    "tests": [
+      "API payment creation currency contract derives a missing currency from the authenticated merchant legal entity",
+      "API payment creation currency contract rejects a currency that is not canonical for the authenticated merchant",
+      "API payment creation currency contract forwards generic checkout fields (purpose, items, references, redirect URLs)",
+      "API payment creation currency contract supports itemized orders without an explicit subtotal",
+      "API payment creation currency contract builds the checkout URL with the requested locale instead of always French"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-funding-route.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/funding"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Payment Context selection response and exact provider funding arguments; forged selection refusal."
+    ],
+    "constraints": [],
+    "sha256": "56f34a87350b94927e155e50922a8ca67a133d18143d82298366ed9fd2c8b539",
+    "tests": [
+      "API payment funding route prepares funding from a Payment Context selection without calling the fee route",
+      "API payment funding route rejects a frontend selection that is not issued by Payment Context"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-order-route.test.ts",
+    "operations": [
+      "GET /api/pay/payments/{id}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Legacy order envelope, owning merchant query scope, unknown and unauthenticated order refusal."
+    ],
+    "constraints": [],
+    "sha256": "c0e87d4c8686e7766916c3a350179fc3407d8a5ed213e66d77e14aa96ccf6e2e",
+    "tests": [
+      "API payment order route reads the modern PostgreSQL order and preserves the order envelope",
+      "API payment order route preserves the 404 error contract for an unknown order",
+      "API payment order route requires an authenticated merchant principal",
+      "API payment order route scopes API-key reads to the owning merchant"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-recharge-route.test.ts",
+    "operations": [
+      "POST /api/pay/recharges"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated recharge target and response envelope; invalid country and anonymous refusal without creation."
+    ],
+    "constraints": [],
+    "sha256": "3b7b1cb76cd89dde85424da82942a124d898f8dcd003735f66140965606394bb",
+    "tests": [
+      "wallet recharge checkout route uses the authenticated user as the recharge target and ignores forged target fields",
+      "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+      "wallet recharge checkout route requires an authenticated user"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-reference-route.test.ts",
+    "operations": [
+      "GET /api/pay/payments/by-reference"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Merchant AND API environment lookup scope, public projection, no token disclosure, invalid principal refusal."
+    ],
+    "constraints": [],
+    "sha256": "e95687a17df636fa687d13994e3d8e624604fcfbfb180de3db532cd9457b7b5e",
+    "tests": [
+      "Merchant payment lookup by reference (additive ERP integration) refuses missing and invalid API keys without reading orders",
+      "Merchant payment lookup by reference (additive ERP integration) requires a nonempty transaction reference",
+      "Merchant payment lookup by reference (additive ERP integration) scopes reference lookup to merchant AND key environment",
+      "Merchant payment lookup by reference (additive ERP integration) does not reveal another merchant payment or checkout token",
+      "Merchant payment lookup by reference (additive ERP integration) does not expose backend exceptions"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-status-stream-route.test.ts",
+    "operations": [
+      "GET /api/pay/checkout/{token}/status-stream"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "SSE safe state fields, no secrets, subscription cleanup; invalid checkout creates no subscription."
+    ],
+    "constraints": [],
+    "sha256": "f6a3e8b64cf1e633674c8ab292b02e0667e415b31ecebb637b744c1764a1d82e",
+    "tests": [
+      "API payment status stream route validates the checkout, streams only safe status fields, and disables proxy buffering",
+      "API payment status stream route returns 404 without creating a Redis subscription for an invalid token"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-stripe-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/stripe/create-intent"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
+    ],
+    "constraints": [],
+    "sha256": "f330cf3e968f0283dd51280812e98ad234ec067e225f151f28cd1310948fdf05",
+    "tests": [
+      "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
+      "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
+      "API payment Stripe routes creates an intent from the stored external XOF amount and passes the authenticated payer",
+      "API payment Stripe routes returns the stored PaymentIntent status without allowing the browser to settle it",
+      "API payment Stripe routes returns a configuration error when the publishable key is missing"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-stripe-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/stripe/finalize"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
+    ],
+    "constraints": [],
+    "sha256": "f330cf3e968f0283dd51280812e98ad234ec067e225f151f28cd1310948fdf05",
+    "tests": [
+      "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
+      "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
+      "API payment Stripe routes creates an intent from the stored external XOF amount and passes the authenticated payer",
+      "API payment Stripe routes returns the stored PaymentIntent status without allowing the browser to settle it",
+      "API payment Stripe routes returns a configuration error when the publishable key is missing"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-wallet-authorization-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/wallet-authorization"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Server-derived amount and six-digit OTP forwarding, no authorization identifier disclosure; caller override refusal."
+    ],
+    "constraints": [],
+    "sha256": "3445070c166487133ea6e9da91188c42638078a3618c822c9f46310dc192360c",
+    "tests": [
+      "API checkout Wallet authorization routes derives the Wallet amount server-side and rejects caller overrides",
+      "API checkout Wallet authorization routes accepts only a six-digit OTP and returns no authorization identifier"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-wallet-authorization-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/wallet-authorization/verify"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Server-derived amount and six-digit OTP forwarding, no authorization identifier disclosure; caller override refusal."
+    ],
+    "constraints": [],
+    "sha256": "3445070c166487133ea6e9da91188c42638078a3618c822c9f46310dc192360c",
+    "tests": [
+      "API checkout Wallet authorization routes derives the Wallet amount server-side and rejects caller overrides",
+      "API checkout Wallet authorization routes accepts only a six-digit OTP and returns no authorization identifier"
+    ]
+  },
+  {
+    "file": "tests/unit/api-pro-pricing.test.ts",
+    "operations": [
+      "GET /api/pro/pricing"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Authoritative EUR/XAF minor amounts without conversion and country resolver arguments; missing prices and inconsistent currencies."
+    ],
+    "constraints": [],
+    "sha256": "a9c73a9d1f42bcb0797ba22833fb48e9e8bff255754668e2535cd52794380a2f",
+    "tests": [
+      "GET /api/pro/pricing returns final FR minor-unit amounts from the resolver without reconversion",
+      "GET /api/pro/pricing returns final XAF amounts for CG without FX",
+      "GET /api/pro/pricing returns final XAF amounts for CM without FX",
+      "GET /api/pro/pricing returns final XAF amounts for GA without FX",
+      "GET /api/pro/pricing returns the resolver error code for a country without a Price List",
+      "GET /api/pro/pricing rejects malformed country codes before resolving pricing",
+      "GET /api/pro/pricing rejects inconsistent currencies returned for monthly and annual pricing"
+    ]
+  },
+  {
+    "file": "tests/unit/api-qr-merchant-authorization.test.ts",
+    "operations": [
+      "GET /api/qr"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Exact owner/manager guard, no unauthorized listing and preserved client payment list."
+    ],
+    "constraints": [],
+    "sha256": "91a15eff3dd73e055be51205ef3f2b12edc04b24ec9855ff2580530a17f7c18c",
+    "tests": [
+      "GET /api/qr?type=merchant does not list an arbitrary merchant profile without exact owner/manager authorization",
+      "GET /api/qr?type=merchant preserves client payment listing"
+    ]
+  },
+  {
+    "file": "tests/unit/forgot-password.test.ts",
+    "operations": [
+      "POST /api/auth/forgot-password",
+      "POST /api/auth/reset-password"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "No account disclosure, stored reset token and localized email URL, reset-password call and used-token update; invalid/expired/used token refusal."
+    ],
+    "constraints": [],
+    "sha256": "7bcaab6c222ac8fc5daed3b7db6639db253420657a3047764658c49ec53e047e",
+    "tests": [
+      "POST /api/auth/forgot-password rejects empty email",
+      "POST /api/auth/forgot-password rejects invalid email format",
+      "POST /api/auth/forgot-password returns success even if email not found (no disclosure)",
+      "POST /api/auth/forgot-password generates token and sends email for existing user",
+      "POST /api/auth/reset-password rejects missing token",
+      "POST /api/auth/reset-password rejects short password",
+      "POST /api/auth/reset-password rejects invalid token",
+      "POST /api/auth/reset-password rejects expired token",
+      "POST /api/auth/reset-password rejects already used token",
+      "POST /api/auth/reset-password resets password and marks token used"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-product-get.test.ts",
+    "operations": [
+      "GET /api/merchant/products/{id}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Owned product envelope, unowned product/unknown UUID refusal."
+    ],
+    "constraints": [],
+    "sha256": "6801b253bbf01aecd19cea27da6dfb46a46db997628252147744db41daf0dff8",
+    "tests": [
+      "GET /api/merchant/products/:id returns product for authenticated user",
+      "GET /api/merchant/products/:id returns 401 for unauthenticated user",
+      "GET /api/merchant/products/:id returns 422 for invalid UUID",
+      "GET /api/merchant/products/:id returns 404 for product not found",
+      "GET /api/merchant/products/:id returns 403 for product not owned"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-products-get.test.ts",
+    "operations": [
+      "GET /api/merchant/products"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated product list and authorization failure contract."
+    ],
+    "constraints": [],
+    "sha256": "573449c401a8b4ba7bc9eda0756753c605d15a8323912b74038f4ebec9a44105",
+    "tests": [
+      "GET /api/merchant/products returns products for authenticated user",
+      "GET /api/merchant/products returns 401 for unauthenticated user",
+      "GET /api/merchant/products propagates authorization errors correctly"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-product-delete.test.ts",
+    "operations": [
+      "DELETE /api/merchant/products/{id}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Explicit NATIVE_CATALOG_RETIRED body, no-store and no mutation for authenticated requests."
+    ],
+    "constraints": [],
+    "sha256": "e91b241b8000a020a0fa1cc8d58f31140ee64fbffaa34c7dcf1b22b3a63d4dd9",
+    "tests": [
+      "DELETE native catalogue retirement contract requires authentication before any mutation",
+      "DELETE native catalogue retirement contract returns the explicit retirement for authenticated valid requests without modifying historical products",
+      "DELETE native catalogue retirement contract returns the explicit retirement for authenticated invalid-json requests without modifying historical products",
+      "DELETE native catalogue retirement contract returns the explicit retirement for authenticated invalid-id requests without modifying historical products",
+      "DELETE native catalogue retirement contract returns the explicit retirement for authenticated empty requests without modifying historical products",
+      "DELETE native catalogue retirement contract returns the explicit retirement for authenticated enriched requests without modifying historical products"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-product-patch.test.ts",
+    "operations": [
+      "PATCH /api/merchant/products/{id}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Explicit NATIVE_CATALOG_RETIRED body, no-store and no mutation for authenticated requests."
+    ],
+    "constraints": [],
+    "sha256": "7eb9f9db5ce56b4575a35e694a24649051e257d0b6b4a8f7089fd97b77cbc3e6",
+    "tests": [
+      "PATCH native catalogue retirement contract requires authentication before any mutation",
+      "PATCH native catalogue retirement contract returns the explicit retirement for authenticated valid requests without modifying historical products",
+      "PATCH native catalogue retirement contract returns the explicit retirement for authenticated invalid-json requests without modifying historical products",
+      "PATCH native catalogue retirement contract returns the explicit retirement for authenticated invalid-id requests without modifying historical products",
+      "PATCH native catalogue retirement contract returns the explicit retirement for authenticated empty requests without modifying historical products",
+      "PATCH native catalogue retirement contract returns the explicit retirement for authenticated enriched requests without modifying historical products"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-products-post.test.ts",
+    "operations": [
+      "POST /api/merchant/products"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Explicit NATIVE_CATALOG_RETIRED body, no-store and no mutation for authenticated requests."
+    ],
+    "constraints": [],
+    "sha256": "7089cf13690da0f434cb1531579ca2f6cde5e77a27924c842ee6253661babb5e",
+    "tests": [
+      "POST native catalogue retirement contract requires authentication before any mutation",
+      "POST native catalogue retirement contract returns the explicit retirement for authenticated valid requests without modifying historical products",
+      "POST native catalogue retirement contract returns the explicit retirement for authenticated invalid-json requests without modifying historical products",
+      "POST native catalogue retirement contract returns the explicit retirement for authenticated invalid-id requests without modifying historical products",
+      "POST native catalogue retirement contract returns the explicit retirement for authenticated empty requests without modifying historical products",
+      "POST native catalogue retirement contract returns the explicit retirement for authenticated enriched requests without modifying historical products"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-sales-route.test.ts",
+    "operations": [
+      "GET /api/merchant/sales"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Sales summary response and authenticated merchant filters passed to PostgreSQL; anonymous refusal."
+    ],
+    "constraints": [],
+    "sha256": "1ff53fcdd77880fa612baa12cedc2e22699f99830b9533a0d3376226423763b4",
+    "tests": [
+      "GET /api/merchant/sales rejects unauthenticated reads",
+      "GET /api/merchant/sales returns the summary contract for the logged-in merchant",
+      "GET /api/merchant/sales passes the authenticated merchant scope and filters to PostgreSQL"
+    ]
+  },
+  {
+    "file": "tests/unit/payment-context-route.test.ts",
+    "operations": [
+      "GET /api/pay/payment-context"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Resolved country/payment context response and exact resolver country; missing mapping error body."
+    ],
+    "constraints": [],
+    "sha256": "3e3968f031b3a7b1c6228c5dd72dc5cf5529bfd0b91d15c3532d75c1e64fca45",
+    "tests": [
+      "GET /api/pay/payment-context returns the resolved France payment context without creating a payment",
+      "GET /api/pay/payment-context supports market and reports resolution errors"
+    ]
+  },
+  {
+    "file": "tests/unit/payment-country-route.test.ts",
+    "operations": [
+      "GET /api/pay/payment-country"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Detected/payment country mapping, exact resolver input and typed mapping error bodies."
+    ],
+    "constraints": [],
+    "sha256": "9099c13d17fbfeb4112bb4b7c6e14ec408a1cadfe3c7d40ca19cf226e7d85821",
+    "tests": [
+      "GET /api/pay/payment-country returns BE payment country",
+      "GET /api/pay/payment-country maps PAYMENT_COUNTRY_INVALID to HTTP 400",
+      "GET /api/pay/payment-country maps PAYMENT_COUNTRY_MAPPING_NOT_FOUND to HTTP 404",
+      "GET /api/pay/payment-country maps PAYMENT_COUNTRY_MAPPING_AMBIGUOUS to HTTP 422"
+    ]
+  },
+  {
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "operations": [
+      "POST /api/pay/payment-links"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Official server valuation and hash, exact minor amounts persisted and response; forged quantity ignored and unapproved rate refusal."
+    ],
+    "constraints": [],
+    "sha256": "1db4d5f516d9d543fb68da7d2cccbb835b0a168dd97fc23df45bfe14e629313d",
+    "tests": [
+      "payment link amount validation rejects invalid amount -1 before side effects",
+      "payment link amount validation rejects invalid amount 0 before side effects",
+      "payment link amount validation rejects invalid amount bad before side effects",
+      "payment link amount validation creates a link for a positive integer amount",
+      "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
+      "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
+      "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
+      "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
+      "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
+      "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
+      "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
+      "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
+      "payment link amount validation issues an official server valuation without merchant-local evidence",
+      "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
+      "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
+      "payment link amount validation rejects a requested currency different from the merchant country currency",
+      "payment link amount validation rejects issuance when no approved server valuation rate is available"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-inquiry-route.test.ts",
+    "operations": [
+      "POST /api/pro/inquiries"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Authorized commerce bound to inquiry creation; anonymous and foreign commerce create nothing."
+    ],
+    "constraints": [],
+    "sha256": "447fbbdb8b74aa02391915a63f0edfa39125141e9c81cf766d833995a115404f",
+    "tests": [
+      "linked Pro inquiry rejects an untrusted commerce id without an authenticated merchant",
+      "linked Pro inquiry rejects a commerce outside the actor membership",
+      "linked Pro inquiry links a verified merchant request to its commerce"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-initial-payment.test.ts",
+    "operations": [
+      "POST /api/admin/merchants/{id}/pro-activation"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Returns initial checkout link, inserts renewal intent without activating subscription; field team creates nothing."
+    ],
+    "constraints": [],
+    "sha256": "fbeee6479a006e8462cd302fcbe531f7f1951c7a84a79f70f1c46f2c68acb6fa",
+    "tests": [
+      "initial Pro payment after central approval returns a payment link and does not activate before payment",
+      "initial Pro payment after central approval denies a field team account before creating a link",
+      "initial Pro payment after central approval creates the first subscription only for an approved paid intent",
+      "initial Pro payment after central approval does not create a subscription for an unpaid order",
+      "initial Pro payment after central approval does not create the first subscription twice on webhook replay"
+    ]
+  },
+  {
+    "file": "tests/unit/public-link-projection.test.ts",
+    "operations": [
+      "GET /api/pay/payment-links"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+    ],
+    "constraints": [],
+    "sha256": "964f716327c56a89c36b237b8ccb1f6172a52926200611e7246ddced873dc002",
+    "tests": [
+      "returns only the public projection and never mutates state",
+      "returns only a terminal state for CONSUMED",
+      "returns only a terminal state for EXPIRED",
+      "handles elapsed expiration and missing links",
+      "does not expose an ERP identity when the business name is absent",
+      "does not expose internal DB errors",
+      "retains the authenticated single-Link contract",
+      "retains the merchant list contract",
+      "refuses anonymous resume without writing a pending payment"
+    ]
+  },
+  {
+    "file": "tests/unit/public-link-projection.test.ts",
+    "operations": [
+      "POST /api/pay/payment-links/{slug}/resume"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+    ],
+    "constraints": [],
+    "sha256": "964f716327c56a89c36b237b8ccb1f6172a52926200611e7246ddced873dc002",
+    "tests": [
+      "returns only the public projection and never mutates state",
+      "returns only a terminal state for CONSUMED",
+      "returns only a terminal state for EXPIRED",
+      "handles elapsed expiration and missing links",
+      "does not expose an ERP identity when the business name is absent",
+      "does not expose internal DB errors",
+      "retains the authenticated single-Link contract",
+      "retains the merchant list contract",
+      "refuses anonymous resume without writing a pending payment"
+    ]
+  },
+  {
+    "file": "tests/unit/stripe-webhook.test.ts",
+    "operations": [
+      "POST /api/webhooks/stripe"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Verified provider event settlement arguments and event processed evidence; replay, invalid signature and metadata mismatch never settle again."
+    ],
+    "constraints": [],
+    "sha256": "f8560d51055f85387ac273c6cc5a405697677b08d1f674aebdf84b38bcbe7211",
+    "tests": [
+      "Stripe webhook route rejects a Stripe event with an invalid signature",
+      "Stripe webhook route deduplicates a previously received event without settling again",
+      "Stripe webhook route does not settle a metadata-mismatched provider event",
+      "Stripe webhook route settles a verified API-card event and marks it processed",
+      "Stripe webhook route logs the verified event identity without exposing finalization errors to Stripe",
+      "Stripe webhook route refuses a retired legacy recharge without crediting it or marking its event processed",
+      "Stripe webhook route settles a wallet recharge through its API checkout with provider and event evidence",
+      "Stripe webhook route does not credit a recharge again when Stripe redelivers a processed event"
+    ]
+  },
+  {
+    "file": "tests/unit/wallet-debit-authorization-routes.test.ts",
+    "operations": [
+      "POST /api/wallet-authorizations/issue"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Retired issuance response body ENDPOINT_DISABLED."
+    ],
+    "constraints": [],
+    "sha256": "db18bef7eb2e9bb6752e31b7a1be5601941bed3878e4d3fc82814cfd1eded66b",
+    "tests": [
+      "wallet authorization routes disables browser issuance of arbitrary Wallet operation snapshots"
+    ]
+  },
+  {
+    "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+    "operations": [
+      "POST /api/webhooks/pawapay/checkouts"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Unimplemented PawaPay callbacks return an explicit 501 error body, log no payload and perform no financial effects."
+    ],
+    "constraints": [],
+    "sha256": "ac7fc17ce3d024a524371c0c9f9e15576395a43ea21ad5286a33221eca535289",
+    "tests": [
+      "PawaPay placeholder webhooks returns 501 for checkouts without financial side effects",
+      "PawaPay placeholder webhooks returns 501 for payouts without financial side effects",
+      "PawaPay placeholder webhooks returns 501 for refunds without financial side effects"
+    ]
+  },
+  {
+    "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+    "operations": [
+      "POST /api/webhooks/pawapay/payouts"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Unimplemented PawaPay callbacks return an explicit 501 error body, log no payload and perform no financial effects."
+    ],
+    "constraints": [],
+    "sha256": "ac7fc17ce3d024a524371c0c9f9e15576395a43ea21ad5286a33221eca535289",
+    "tests": [
+      "PawaPay placeholder webhooks returns 501 for checkouts without financial side effects",
+      "PawaPay placeholder webhooks returns 501 for payouts without financial side effects",
+      "PawaPay placeholder webhooks returns 501 for refunds without financial side effects"
+    ]
+  },
+  {
+    "file": "tests/unit/pawapay-placeholder-webhooks.test.ts",
+    "operations": [
+      "POST /api/webhooks/pawapay/refunds"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Unimplemented PawaPay callbacks return an explicit 501 error body, log no payload and perform no financial effects."
+    ],
+    "constraints": [],
+    "sha256": "ac7fc17ce3d024a524371c0c9f9e15576395a43ea21ad5286a33221eca535289",
+    "tests": [
+      "PawaPay placeholder webhooks returns 501 for checkouts without financial side effects",
+      "PawaPay placeholder webhooks returns 501 for payouts without financial side effects",
+      "PawaPay placeholder webhooks returns 501 for refunds without financial side effects"
+    ]
+  },
+  {
+    "file": "tests/unit/p05-cash-agent-disabled.test.ts",
+    "operations": [
+      "GET /api/cash-agent",
+      "POST /api/cash-agent"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "status-only"
+    ],
+    "assertions": [
+      "Explicit disabled cash-agent behavior."
+    ],
+    "constraints": [],
+    "sha256": "1435e1af2823a7eede109aa5eca41144e3c7753ab97dd5f0e06b88fd6ca0add6",
+    "tests": [
+      "P05 cash agent cannot be enabled through its public route"
+    ]
+  },
+  {
+    "file": "tests/unit/p03-legacy-routes.test.ts",
+    "operations": [
+      "POST /api/admin/recharges/{id}/confirm-mobile-money"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Retired browser confirmation cannot dispatch a credit."
+    ],
+    "constraints": [],
+    "sha256": "b65125560abfad9fa2b7ef87455d7b020b4eafd6276d839d572ff6aba317358d",
+    "tests": [
+      "P03 legacy Mobile Money routes rejects browser confirmation callbacks without dispatching a credit"
+    ]
+  },
+  {
+    "file": "tests/unit/p03-legacy-routes.test.ts",
+    "operations": [
+      "POST /api/admin/mobile-money-queue/recharges/{id}/confirm"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Retired browser confirmation cannot dispatch a credit."
+    ],
+    "constraints": [],
+    "sha256": "b65125560abfad9fa2b7ef87455d7b020b4eafd6276d839d572ff6aba317358d",
+    "tests": [
+      "P03 legacy Mobile Money routes rejects browser confirmation callbacks without dispatching a credit"
+    ]
+  },
+  {
+    "file": "tests/unit/legacy-settlement-confirm.test.ts",
+    "operations": [
+      "POST /api/admin/merchant-settlements/{id}/confirm"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Retired settlement confirmation cannot dispatch a payout."
+    ],
+    "constraints": [],
+    "sha256": "428a469c49619cedcb44dad0aa5745d28ffc81e685c657a09f9bf646bf97eb93",
+    "tests": [
+      "retires the legacy settlement confirmation mutation"
+    ]
+  },
+  {
+    "file": "tests/unit/admin-card-transactions.test.ts",
+    "operations": [
+      "GET /api/admin/card-transactions"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Safe card projection, exact eight digit BIN and filtered query parameters; admin refusal."
+    ],
+    "constraints": [],
+    "sha256": "a5401295eb4cc63b578800d204124730cf05b6d0739ec436c03d508c323c36ac",
+    "tests": [
+      "Admin card transaction query uses an explicit safe projection and preserves only an eight-digit BIN",
+      "GET /api/admin/card-transactions requires the admin role",
+      "GET /api/admin/card-transactions does not return prohibited card fields and only returns a valid BIN",
+      "GET /api/admin/card-transactions rejects invalid country, provider, and date windows before querying attempts"
+    ]
+  },
+  {
+    "file": "tests/unit/admin-dashboard-stats.test.ts",
+    "operations": [
+      "GET /api/admin/dashboard/stats"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Explicit KPI and queue metrics and empty-state response assertions."
+    ],
+    "constraints": [],
+    "sha256": "1d35daab20c2997fa47493528f1fee5fa9d6652cf0dabfdab812c587f171876a",
+    "tests": [
+      "GET /api/admin/dashboard/stats returns 403 without admin role",
+      "GET /api/admin/dashboard/stats returns all KPIs and metrics for admin",
+      "GET /api/admin/dashboard/stats returns zeroes when no data exists"
+    ]
+  },
+  {
+    "file": "tests/unit/admin-wallet-history.test.ts",
+    "operations": [
+      "GET /api/admin/wallet-history"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Single reference/type financial match and sanitized authorization projection; admin refusal."
+    ],
+    "constraints": [],
+    "sha256": "85eae111b8723c4213b38f997c63ee29c3834b9d63ee7503e1d493bc192fbe42",
+    "tests": [
+      "Admin wallet history query uses a safe projection and returns a financial transaction only for one exact reference/type match",
+      "GET /api/admin/wallet-history requires the admin role",
+      "GET /api/admin/wallet-history never returns authentication, delivery, email, raw payee, or Redis fields"
+    ]
+  },
+  {
+    "file": "tests/unit/digital-audit-a03.test.ts",
+    "operations": [
+      "POST /api/public/digital-audit"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Stored Digital Audit and received response, exact email tagging, duplicate refusal, outbox retry on Mautic failure and rollback on persistence failure."
+    ],
+    "constraints": [],
+    "sha256": "31c5c4907c4bb1f1925f5e8a248f7d4819e6416a3eab7d23c56d5d6f2d36432b",
+    "tests": [
+      "A03 public digital audit → Mautic accepts canonical public Origin behind an internal reverse proxy URL",
+      "A03 public digital audit → Mautic rejects an untrusted Origin before any CRM write",
+      "A03 public digital audit → Mautic blocks an existing NEW audit without CRM writes or Mautic tagging",
+      "A03 public digital audit → Mautic blocks an existing IN_PROGRESS audit without CRM writes or Mautic tagging",
+      "A03 public digital audit → Mautic blocks an existing COMPLETED audit without CRM writes or Mautic tagging",
+      "A03 public digital audit → Mautic allows a new audit when all previous audits are CANCELLED",
+      "A03 public digital audit → Mautic blocks if one of multiple audits is not CANCELLED",
+      "A03 public digital audit → Mautic accepts an organic request absent from Mautic without creating a Mautic Contact",
+      "A03 public digital audit → Mautic records and tags a request from an existing ERPNext Contact without a new Lead",
+      "A03 public digital audit → Mautic reuses the Contact without creating a Lead",
+      "A03 public digital audit → Mautic refuses ambiguous Contacts without creating an audit or tagging Mautic",
+      "A03 public digital audit → Mautic does not create a duplicate Contact when an existing Lead is found",
+      "A03 public digital audit → Mautic accepts a committed audit if Mautic is temporarily unavailable and leaves an outbox retry",
+      "A03 public digital audit → Mautic returns an error and does not tag when the request could not be stored"
+    ]
+  },
+  {
+    "file": "tests/unit/finance-dashboard-route.test.ts",
+    "operations": [
+      "GET /api/admin/finance/dashboard/{entity}"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Finance entity-scoped repositories and response contract, but only one happy-path test."
+    ],
+    "constraints": [],
+    "sha256": "a120071a00a5cbae3e6d2e69dd1f904949290877c6887e28f75927c897e4c534",
+    "tests": [
+      "admin finance dashboard route preserves the response contract using PostgreSQL finance repositories"
+    ]
+  },
+  {
+    "file": "tests/unit/core02-identity-route.test.ts",
+    "operations": [
+      "GET /api/device-identity",
+      "POST /api/device-identity"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Owner certification/revocation arguments, origin/schema/size guards and sanitized errors; success response body not asserted."
+    ],
+    "constraints": [],
+    "sha256": "3e285ab8969aba92bd2976e79c5136847ae302ad7c3cc9753a2970c7e1942da1",
+    "tests": [
+      "CORE02 identity API authorization and boundaries requires authentication on GET and POST",
+      "CORE02 identity API authorization and boundaries sets no-store for success and error responses",
+      "CORE02 identity API authorization and boundaries rejects origin https://attacker.invalid",
+      "CORE02 identity API authorization and boundaries rejects origin null",
+      "CORE02 identity API authorization and boundaries rejects origin ",
+      "CORE02 identity API authorization and boundaries rejects wrong content type",
+      "CORE02 identity API authorization and boundaries binds certification to authenticated user",
+      "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+      "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+      "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+      "CORE02 identity API authorization and boundaries rejects unknown commands, fields and invalid schema",
+      "CORE02 identity API authorization and boundaries bounds request body even without content length",
+      "CORE02 identity API authorization and boundaries revokes only authenticated owner scope",
+      "CORE02 identity API authorization and boundaries does not expose internal errors or secrets",
+      "CORE02 identity API authorization and boundaries reports unavailable signing authority without details",
+      "CORE02 identity API authorization and boundaries rejects invalid certificate lookup key",
+      "returns sanitized 500 for GET infrastructure failure",
+      "returns sanitized 500 for POST infrastructure failure",
+      "keeps recognized OWNER_MISMATCH rejection at 400",
+      "keeps recognized PROOF_INVALID rejection at 400",
+      "keeps recognized Invalid signature rejection at 400",
+      "keeps recognized KEY_EXPIRED rejection at 400",
+      "maps policy and capacity failures to sanitized 503",
+      "keeps malformed request JSON at 400"
+    ]
+  },
+  {
+    "file": "tests/unit/mobile-money-queue.test.ts",
+    "operations": [
+      "GET /api/admin/mobile-money-queue"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "status-only"
+    ],
+    "assertions": [
+      "REST tests only check forbidden statuses; receipt idempotency and queue projection assertions invoke services, not the route."
+    ],
+    "constraints": [],
+    "sha256": "a5119fa40d36b998b0c3e3c119bdca2425851b935068e84fb077b91f22d4b6ec",
+    "tests": [
+      "Mobile Money admin queue rejects raw sender data and never maps it into queue rows",
+      "Mobile Money admin queue accepts the same receipt idempotently and rejects a conflicting receipt",
+      "Mobile Money admin queue rejects API payments outside awaiting_mobile_money before writing a receipt",
+      "Mobile Money admin queue returns forbidden for an unauthenticated list request",
+      "Mobile Money admin queue returns forbidden for a non-admin user"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/mobile-money/pawapay/deposit"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
+    ],
+    "constraints": [],
+    "sha256": "54328f72597061a60f0ec45873cbff1376ed61404d01a1bc02771ac41c18c482",
+    "tests": [
+      "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+      "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
+      "PawaPay locale propagation routes defaults to fr when lang and referer locale are unavailable",
+      "PawaPay locale propagation routes redirects provider return to pending page using requested locale",
+      "PawaPay locale propagation routes keeps redirecting even when fetching deposit details fails"
+    ]
+  },
+  {
+    "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+    "operations": [
+      "GET /api/pay/checkout/{token}/mobile-money/pawapay/return"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
+    ],
+    "constraints": [],
+    "sha256": "54328f72597061a60f0ec45873cbff1376ed61404d01a1bc02771ac41c18c482",
+    "tests": [
+      "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+      "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
+      "PawaPay locale propagation routes defaults to fr when lang and referer locale are unavailable",
+      "PawaPay locale propagation routes redirects provider return to pending page using requested locale",
+      "PawaPay locale propagation routes keeps redirecting even when fetching deposit details fails"
+    ]
+  },
+  {
+    "file": "tests/unit/clearing-fx-validation.test.ts",
+    "operations": [
+      "POST /api/admin/clearing/settle"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Client FX override refusal at REST boundary; remaining service assertions do not validate successful REST settlement."
+    ],
+    "constraints": [],
+    "sha256": "7fa6fa6f2440e48c7ed5e9a92ffa56e05d7e6895ca63704d9fb30bdd17d909dc",
+    "tests": [
+      "clearing FX validation boundary rejects a client supplied FX rate before clearing settlement",
+      "clearing FX validation boundary fails closed before posting when a cross-currency batch has no authoritative FX evidence",
+      "clearing FX validation boundary does not require FX evidence for a same-currency batch",
+      "clearing FX validation boundary rejects authoritative FX evidence whose currency pair does not match the clearing entities",
+      "clearing FX validation boundary rejects incomplete authoritative FX evidence before posting",
+      "clearing FX validation boundary settles a cross-currency batch using authoritative FX evidence"
+    ]
+  },
+  {
+    "file": "tests/unit/legal-documents-route.test.ts",
+    "operations": [
+      "GET /api/legal-documents"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Country/locale delegation and unavailable error verified; success body was not asserted in the original tests."
+    ],
+    "constraints": [],
+    "sha256": "215ad2e38c42ac0f7364734e81da190e56836f91e3ce6eb47c84b99f828e3c04",
+    "tests": [
+      "GET /api/legal-documents loads documents for the real country and UI locale",
+      "GET /api/legal-documents fails closed when applicable documents cannot be loaded"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-establishment-routes.test.ts",
+    "operations": [
+      "GET /api/pay/settlements"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+    ],
+    "constraints": [],
+    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "tests": [
+      "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
+      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+      "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
+      "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-establishment-routes.test.ts",
+    "operations": [
+      "GET /api/pay/payment-links"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+    ],
+    "constraints": [],
+    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "tests": [
+      "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
+      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+      "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
+      "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-establishment-routes.test.ts",
+    "operations": [
+      "GET /api/merchant/settlements"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+    ],
+    "constraints": [],
+    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "tests": [
+      "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
+      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+      "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
+      "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+    ]
+  },
+  {
+    "file": "tests/unit/merchant-kyb-contract.test.ts",
+    "operations": [
+      "GET /api/admin/merchants/{id}/kyb/contract"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Contract and membership checks; limited success-path evidence."
+    ],
+    "constraints": [],
+    "sha256": "cca6195ba0a34f4c96e6e8abeae4bf6e9f38a6825a004f7082d60bc6239de0f8",
+    "tests": [
+      "preserves the contract articles, escapes stored values and leaves missing fields to complete",
+      "rejects unauthenticated and non-admin access before reading a dossier",
+      "rejects a missing merchant or deleted owner",
+      "downloads an editable contract without changing signed reference or KYB gates",
+      "rejects malformed merchant ids and reports generation errors without private data",
+      "prefills the owner contact from the encrypted account without exposing encrypted data",
+      "generates a contract without querying any activity profiles",
+      "reports unexpected merchant query errors without exposing private details"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-entitlement-routes.test.ts",
+    "operations": [
+      "POST /api/merchant/api-key",
+      "DELETE /api/merchant/api-key"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Capability decisions and no unauthorized mutation; broader response contracts not asserted for every imported method."
+    ],
+    "constraints": [],
+    "sha256": "1496e1bab28100d6b680039c1111a0877b61456666641f25a9767d6c7a748e6b",
+    "tests": [
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards refuses new keys for ABSENT before mutation",
+      "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+      "direct Pro route guards refuses new keys for EXPIRED before mutation",
+      "direct Pro route guards refuses new keys for INACTIVE before mutation",
+      "direct Pro route guards creates with server-approved Pro capability",
+      "direct Pro route guards revokes expired keys using a free security capability",
+      "direct Pro route guards refuses configuration and rotation before webhook mutation",
+      "direct Pro route guards permits webhook deactivation after expiry",
+      "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+      "direct Pro route guards denies export before querying analytics",
+      "direct Pro route guards propagates a backend failure without creating a key"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-entitlement-routes.test.ts",
+    "operations": [
+      "PUT /api/merchant/api-webhook",
+      "POST /api/merchant/api-webhook"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Capability decisions and no unauthorized mutation; broader response contracts not asserted for every imported method."
+    ],
+    "constraints": [],
+    "sha256": "1496e1bab28100d6b680039c1111a0877b61456666641f25a9767d6c7a748e6b",
+    "tests": [
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards refuses new keys for ABSENT before mutation",
+      "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+      "direct Pro route guards refuses new keys for EXPIRED before mutation",
+      "direct Pro route guards refuses new keys for INACTIVE before mutation",
+      "direct Pro route guards creates with server-approved Pro capability",
+      "direct Pro route guards revokes expired keys using a free security capability",
+      "direct Pro route guards refuses configuration and rotation before webhook mutation",
+      "direct Pro route guards permits webhook deactivation after expiry",
+      "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+      "direct Pro route guards denies export before querying analytics",
+      "direct Pro route guards propagates a backend failure without creating a key"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-entitlement-routes.test.ts",
+    "operations": [
+      "POST /api/pay/payments"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Capability decisions and no unauthorized mutation; broader response contracts not asserted for every imported method."
+    ],
+    "constraints": [],
+    "sha256": "1496e1bab28100d6b680039c1111a0877b61456666641f25a9767d6c7a748e6b",
+    "tests": [
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards refuses new keys for ABSENT before mutation",
+      "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+      "direct Pro route guards refuses new keys for EXPIRED before mutation",
+      "direct Pro route guards refuses new keys for INACTIVE before mutation",
+      "direct Pro route guards creates with server-approved Pro capability",
+      "direct Pro route guards revokes expired keys using a free security capability",
+      "direct Pro route guards refuses configuration and rotation before webhook mutation",
+      "direct Pro route guards permits webhook deactivation after expiry",
+      "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+      "direct Pro route guards denies export before querying analytics",
+      "direct Pro route guards propagates a backend failure without creating a key"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-entitlement-routes.test.ts",
+    "operations": [
+      "GET /api/merchant/analytics/export"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Capability decisions and no unauthorized mutation; broader response contracts not asserted for every imported method."
+    ],
+    "constraints": [],
+    "sha256": "1496e1bab28100d6b680039c1111a0877b61456666641f25a9767d6c7a748e6b",
+    "tests": [
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards requires identity",
+      "direct Pro route guards refuses new keys for ABSENT before mutation",
+      "direct Pro route guards refuses new keys for SCHEDULED before mutation",
+      "direct Pro route guards refuses new keys for EXPIRED before mutation",
+      "direct Pro route guards refuses new keys for INACTIVE before mutation",
+      "direct Pro route guards creates with server-approved Pro capability",
+      "direct Pro route guards revokes expired keys using a free security capability",
+      "direct Pro route guards refuses configuration and rotation before webhook mutation",
+      "direct Pro route guards permits webhook deactivation after expiry",
+      "direct Pro route guards denies use of an old valid API key without Pro before creating an order",
+      "direct Pro route guards denies export before querying analytics",
+      "direct Pro route guards propagates a backend failure without creating a key"
+    ]
+  },
+  {
+    "file": "tests/unit/pro-renewal-link.test.ts",
+    "operations": [
+      "GET /api/merchant/pro-renewal-links/{id}"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Renewal redirect and provider guard assertions; limited success/error coverage."
+    ],
+    "constraints": [],
+    "sha256": "e7bc8b7b065deb455a52d48e1a00a9a4a066ab7f19177ad1344f598661687c7d",
+    "tests": [
+      "Pro renewal payment link creates the FR corridor order only after the link is opened",
+      "Pro renewal payment link creates the CG corridor order only after the link is opened",
+      "Pro renewal payment link does not create an order for a Frappe provider unsupported by its Checkout route",
+      "Pro renewal payment link requires the network merchant of the selected legal entity"
+    ]
+  },
+  {
+    "file": "tests/unit/user-api-auth-middleware.test.ts",
+    "operations": [
+      "GET /api/admin/merchants"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "API-key middleware and admin role behavior; no business merchants response assertion."
+    ],
+    "constraints": [],
+    "sha256": "97cf3f0d56ddf79878f47db4f6e724a086bae9442035d20d3ab8484d50af19f6",
+    "tests": [
+      "authenticates an API-only call without using cookies or Keycloak login",
+      "rejects invalid credentials even when an admin cookie is supplied",
+      "preserves admin route checks and reflects a role change on the next call",
+      "rejects blocked users before invoking a route",
+      "keeps KYC restrictions on API calls, including the financial-idempotency path",
+      "keeps financial account holds before route execution",
+      "binds financial idempotency to the API user and legal entity",
+      "returns 503 without falling back to a cookie when API authentication storage is unavailable",
+      "does not accept personal credentials on HTML pages"
+    ]
+  },
+  {
+    "file": "tests/unit/user-api-key-routes.test.ts",
+    "operations": [
+      "GET /api/account/api-keys",
+      "POST /api/account/api-keys"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Owner binding, one-time secret and origin guards; some methods lack response-body assertions."
+    ],
+    "constraints": [],
+    "sha256": "2d05a9a25032f5bdb2fe9ee91b8e8979be67112d70d40d929e8f64bfb28d0ea0",
+    "tests": [
+      "returns credentials once at creation with no-store headers",
+      "lists only the signed-in user metadata",
+      "rejects invalid or owner-injection requests",
+      "rejects invalid or owner-injection requests",
+      "rejects invalid or owner-injection requests",
+      "rejects invalid or owner-injection requests",
+      "rejects cross-origin creation",
+      "requires a browser session for key management",
+      "rejects unauthenticated or blocked users",
+      "does not revoke another user key",
+      "allows the owner to revoke a key",
+      "creates and revokes behind the HTTPS reverse proxy using the target Host",
+      "rejects unsafe origins behind the proxy: https://attacker.test",
+      "rejects unsafe origins behind the proxy: https://www.konektag.eu:8443",
+      "rejects unsafe origins behind the proxy: null",
+      "rejects unsafe origins behind the proxy: https://www.konektag.eu/path",
+      "rejects unsafe origins behind the proxy: "
+    ]
+  },
+  {
+    "file": "tests/unit/user-api-key-routes.test.ts",
+    "operations": [
+      "DELETE /api/account/api-keys/{id}"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "reviewed-partial"
+    ],
+    "assertions": [
+      "Owner binding, one-time secret and origin guards; some methods lack response-body assertions."
+    ],
+    "constraints": [],
+    "sha256": "2d05a9a25032f5bdb2fe9ee91b8e8979be67112d70d40d929e8f64bfb28d0ea0",
+    "tests": [
+      "returns credentials once at creation with no-store headers",
+      "lists only the signed-in user metadata",
+      "rejects invalid or owner-injection requests",
+      "rejects invalid or owner-injection requests",
+      "rejects invalid or owner-injection requests",
+      "rejects invalid or owner-injection requests",
+      "rejects cross-origin creation",
+      "requires a browser session for key management",
+      "rejects unauthenticated or blocked users",
+      "does not revoke another user key",
+      "allows the owner to revoke a key",
+      "creates and revokes behind the HTTPS reverse proxy using the target Host",
+      "rejects unsafe origins behind the proxy: https://attacker.test",
+      "rejects unsafe origins behind the proxy: https://www.konektag.eu:8443",
+      "rejects unsafe origins behind the proxy: null",
+      "rejects unsafe origins behind the proxy: https://www.konektag.eu/path",
+      "rejects unsafe origins behind the proxy: "
+    ]
+  },
+  {
+    "file": "tests/migration/health.test.ts",
+    "operations": [
+      "GET /api/internal/health"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "PostgreSQL/Redis combined readiness body and Redis false handling."
+    ],
+    "constraints": [],
+    "sha256": "ae36e13304208c6e23564df70556ed5af28edf5c36867b3f9147ecd0ff8ead23",
+    "tests": [
+      "requires both existing runtime dependencies to be healthy",
+      "does not report Redis ready when ping returns false",
+      "reports database unavailability"
+    ]
+  },
+  {
+    "file": "tests/rest/onboarding.test.ts",
+    "operations": [
+      "GET /api/onboarding/check-username"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Normalized active-user lookup and availability body; short names perform no lookup."
+    ],
+    "constraints": [],
+    "sha256": "a2db04aa92c81574c3617ac48e63cfac354b3b9eb48fd246d6404b665e0cf9d2",
+    "tests": [
+      "onboarding username rejects short username  without reading users",
+      "onboarding username rejects short username ab without reading users",
+      "onboarding username reports availability true using normalized, active user lookup",
+      "onboarding username reports availability false using normalized, active user lookup"
+    ]
+  },
+  {
+    "file": "tests/rest/onboarding.test.ts",
+    "operations": [
+      "POST /api/onboarding/send-otp"
+    ],
+    "level": "unit",
+    "status": "blocked",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Exact OTP/template recipient and locale, validation with no provider call, sanitized provider exceptions; false delivery defect characterized."
+    ],
+    "constraints": [
+      "Known defect #7: sendTemplate(false) still reports success. Correction proposed, production code unchanged."
+    ],
+    "sha256": "a2db04aa92c81574c3617ac48e63cfac354b3b9eb48fd246d6404b665e0cf9d2",
+    "tests": [
+      "onboarding OTP sends the generated OTP to the normalized recipient with locale fallback",
+      "onboarding OTP characterizes issue #7: a false Resend result still produces a success response",
+      "onboarding OTP returns a sanitized error when Resend throws",
+      "onboarding OTP does not send when the OTP store is unavailable",
+      "onboarding OTP send rejects malformed JSON without calling providers",
+      "onboarding OTP send rejects invalid fields without calling providers"
+    ]
+  },
+  {
+    "file": "tests/rest/onboarding.test.ts",
+    "operations": [
+      "POST /api/onboarding/verify-otp"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Exact email/code verification and invalid/expired/rate-limited error bodies."
+    ],
+    "constraints": [],
+    "sha256": "a2db04aa92c81574c3617ac48e63cfac354b3b9eb48fd246d6404b665e0cf9d2",
+    "tests": [
+      "onboarding OTP verify rejects malformed JSON without calling providers",
+      "onboarding OTP verify rejects invalid fields without calling providers",
+      "onboarding OTP verifies precisely the submitted email and OTP",
+      "onboarding OTP preserves INVALID_OTP as a business error",
+      "onboarding OTP preserves OTP_EXPIRED as a business error",
+      "onboarding OTP preserves OTP_TOO_MANY_ATTEMPTS as a business error"
+    ]
+  },
+  {
+    "file": "tests/rest/onboarding.test.ts",
+    "operations": [
+      "GET /api/legal-documents"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Applicable legal evidence body, normalized country/locale and no-store; invalid country performs no read."
+    ],
+    "constraints": [],
+    "sha256": "a2db04aa92c81574c3617ac48e63cfac354b3b9eb48fd246d6404b665e0cf9d2",
+    "tests": [
+      "onboarding legal evidence and registration returns country-specific legal evidence without caching it",
+      "onboarding legal evidence and registration rejects a missing legal country without loading documents"
+    ]
+  },
+  {
+    "file": "tests/rest/onboarding.test.ts",
+    "operations": [
+      "POST /api/onboarding/register"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Registration evidence, OTP consumption ordering, idempotency/conflict errors, frontend cookies; invalid requests do not create accounts."
+    ],
+    "constraints": [],
+    "sha256": "a2db04aa92c81574c3617ac48e63cfac354b3b9eb48fd246d6404b665e0cf9d2",
+    "tests": [
+      "onboarding legal evidence and registration returns country-specific legal evidence without caching it",
+      "onboarding legal evidence and registration rejects a missing legal country without loading documents",
+      "onboarding legal evidence and registration requires idempotency before attempting registration",
+      "onboarding legal evidence and registration rejects invalid registration {\"acceptedTerms\":false} before OTP consumption or account creation",
+      "onboarding legal evidence and registration rejects invalid registration {\"password\":\"short\"} before OTP consumption or account creation",
+      "onboarding legal evidence and registration rejects invalid registration {\"username\":\"!!\"} before OTP consumption or account creation",
+      "onboarding legal evidence and registration rejects invalid registration {\"legalDocuments\":[]} before OTP consumption or account creation",
+      "onboarding legal evidence and registration rejects invalid registration {\"legalCountry\":\"???\"} before OTP consumption or account creation",
+      "onboarding legal evidence and registration refuses an unverified email without creating an account or consuming verification",
+      "onboarding legal evidence and registration fails closed when legal evidence cannot be verified",
+      "onboarding legal evidence and registration preserves IDEMPOTENCY_CONFLICT without issuing cookies",
+      "onboarding legal evidence and registration preserves USERNAME_OR_EMAIL_EXISTS without issuing cookies",
+      "onboarding legal evidence and registration runs the onboarding HTTP handlers in order and preserves the frontend session envelope"
+    ]
+  },
+  {
+    "file": "tests/rest/onboarding.test.ts",
+    "operations": [
+      "GET /api/auth/me",
+      "PUT /api/auth/me"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated profile envelope and owner binding, field validation, missing user and anonymous refusal without effects."
+    ],
+    "constraints": [],
+    "sha256": "a2db04aa92c81574c3617ac48e63cfac354b3b9eb48fd246d6404b665e0cf9d2",
+    "tests": [
+      "onboarding legal evidence and registration runs the onboarding HTTP handlers in order and preserves the frontend session envelope",
+      "auth profile GET refuses anonymous access before providers",
+      "auth profile PUT refuses anonymous access before providers",
+      "auth profile updates only the authenticated Keycloak principal",
+      "auth profile rejects invalid profile {\"firstName\":1} without writing",
+      "auth profile rejects invalid profile {\"phoneNumber\":false} without writing",
+      "auth profile preserves the missing profile error"
+    ]
+  },
+  {
+    "file": "tests/rest/registration-effects.test.ts",
+    "operations": [
+      "POST /api/onboarding/register"
+    ],
+    "level": "integration",
+    "status": "covered",
+    "facets": [
+      "business",
+      "idempotency",
+      "compensation"
+    ],
+    "assertions": [
+      "Real application service: Keycloak creation, encrypted local user, legal consent snapshots, audit/outbox, idempotency duplicate refusal and compensation on insertion failure."
+    ],
+    "constraints": [
+      "Faked UnitOfWork/repositories: SQL transactions and real provider connectivity are not certified."
+    ],
+    "sha256": "bbcfce81a9840a7af40b4228083fab4ed50014c9c4235dbfbf1be3e2885e1a24",
+    "tests": [
+      "registers through the real application service, writes legal evidence and emits a PII-free event",
+      "rejects a duplicate idempotency key before a second Keycloak account or event",
+      "compensates the Keycloak account when inserting the local user fails",
+      "does not insert a local user when Keycloak creation fails"
+    ]
+  },
+  {
+    "file": "tests/rest/community.test.ts",
+    "operations": [
+      "POST /api/referral/code",
+      "POST /api/referral/redeem",
+      "GET /api/referral/stats"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Session-to-local-user mapping, referral code/stats/redeem response, forged owner ignored and duplicate/self-referral errors."
+    ],
+    "constraints": [],
+    "sha256": "309426cf1d8f867554cb0427752da27f7b6733191d884f595235c10e1e580166",
+    "tests": [
+      "referral code rejects anonymous callers before lookup or mutation",
+      "referral stats rejects anonymous callers before lookup or mutation",
+      "referral redeem rejects anonymous callers before lookup or mutation",
+      "referral creates or retrieves a code only for the resolved authenticated user",
+      "referral returns referral stats only for the resolved user",
+      "referral applies a referral to the authenticated user, ignoring a forged user id",
+      "referral refuses an empty code without mutation",
+      "referral maps INVALID_CODE without inventing success",
+      "referral maps SELF_REFERRAL without inventing success",
+      "referral maps ALREADY_REDEEMED without inventing success"
+    ]
+  },
+  {
+    "file": "tests/rest/community.test.ts",
+    "operations": [
+      "GET /api/reviews/by-merchant",
+      "POST /api/reviews/create",
+      "GET /api/reviews"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated author binding, rating validation without writes, history owner scope and bounded merchant pagination; provider failure."
+    ],
+    "constraints": [],
+    "sha256": "309426cf1d8f867554cb0427752da27f7b6733191d884f595235c10e1e580166",
+    "tests": [
+      "reviews requires an authenticated author before creating a review",
+      "reviews refuses rating 0 without writing a review",
+      "reviews refuses rating 6 without writing a review",
+      "reviews refuses rating invalid without writing a review",
+      "reviews binds the review to the authenticated author and returns the created review",
+      "reviews reports a rejected review without pretending it was created",
+      "reviews returns the historical anonymous empty envelope without reading data",
+      "reviews scopes review history to the resolved owner",
+      "reviews bounds public pagination and returns the merchant review aggregate",
+      "reviews reports unavailable merchant reviews explicitly"
+    ]
+  },
+  {
+    "file": "tests/rest/preferences.test.ts",
+    "operations": [
+      "POST /api/preferences/complete",
+      "GET /api/preferences/dashboard",
+      "PUT /api/preferences/dashboard",
+      "GET /api/preferences/features",
+      "POST /api/preferences/save",
+      "GET /api/preferences"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated principal scoping, stored layouts, feature save/completion arguments and response; validation and invalid transition refusal."
+    ],
+    "constraints": [],
+    "sha256": "7d22182f709351a360de34995f6aa07c935d12d749e70777d1a7fdfed673dad3",
+    "tests": [
+      "preferences read refuses anonymous access before side effects",
+      "preferences dashboard refuses anonymous access before side effects",
+      "preferences update refuses anonymous access before side effects",
+      "preferences save refuses anonymous access before side effects",
+      "preferences complete refuses anonymous access before side effects",
+      "preferences returns the available feature contract",
+      "preferences returns the stored dashboard widgets only for the session principal",
+      "preferences rejects an unknown section without querying preferences",
+      "preferences keeps the historical dashboard fallback on database failure",
+      "preferences returns a stored layout and role",
+      "preferences upserts layout for the session owner, ignoring a forged user id",
+      "preferences validates feature selection before saving",
+      "preferences saves the selected features for the authenticated user",
+      "preferences reports a rejected feature selection",
+      "preferences completes onboarding for the authenticated user and keeps the frontend redirect",
+      "preferences preserves invalid state transition errors"
+    ]
+  },
+  {
+    "file": "tests/rest/frontend-session.test.ts",
+    "operations": [
+      "GET /api/auth/me"
+    ],
+    "level": "integration",
+    "status": "covered",
+    "facets": [
+      "business",
+      "session",
+      "refusal"
+    ],
+    "assertions": [
+      "Real router and session middleware, authenticated profile body, expired-access refresh with two secure cookies, invalid API credentials never fall back to cookies."
+    ],
+    "constraints": [],
+    "sha256": "12b0e6184db729b58b8682681bb7c472d6663a3f833f76176f8ec8492a9120b3",
+    "tests": [
+      "reads the frontend profile through the real router and session middleware",
+      "refreshes an expired access cookie and emits two compatible session cookies",
+      "refuses anonymous profile reads without calling Keycloak or PostgreSQL",
+      "does not fall back to a valid session cookie after invalid personal API credentials"
+    ]
+  },
+  {
+    "file": "tests/rest/customer-reads.test.ts",
+    "operations": [
+      "GET /api/notifications",
+      "GET /api/notifications/count",
+      "POST /api/notifications/mark-all-read"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Session principal binding, notification list/count/read response and service error; no anonymous access."
+    ],
+    "constraints": [],
+    "sha256": "d5b90929d6f3792cd42dafbb28938bf7e2ccfff2ef89d044c3bfc43770b6d51a",
+    "tests": [
+      "notifications /api/notifications scopes success to the session owner",
+      "notifications /api/notifications refuses anonymous access before any read or update",
+      "notifications /api/notifications reports service failure without claiming success",
+      "notifications /api/notifications/count scopes success to the session owner",
+      "notifications /api/notifications/count refuses anonymous access before any read or update",
+      "notifications /api/notifications/count reports service failure without claiming success",
+      "notifications /api/notifications/mark-all-read scopes success to the session owner",
+      "notifications /api/notifications/mark-all-read refuses anonymous access before any read or update",
+      "notifications /api/notifications/mark-all-read reports service failure without claiming success"
+    ]
+  },
+  {
+    "file": "tests/rest/customer-reads.test.ts",
+    "operations": [
+      "GET /api/orders",
+      "GET /api/bookings"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Customer-specific ORDER/RESERVATION SQL, bounded pagination, exact legacy envelope and anonymous/database fallback."
+    ],
+    "constraints": [],
+    "sha256": "d5b90929d6f3792cd42dafbb28938bf7e2ccfff2ef89d044c3bfc43770b6d51a",
+    "tests": [
+      "orders and bookings /api/orders keeps the anonymous empty contract without reading customer data",
+      "orders and bookings /api/orders returns only the resolved customer's ORDER rows with bounded pagination",
+      "orders and bookings /api/orders keeps the historical empty fallback on missing users or database failure",
+      "orders and bookings /api/bookings keeps the anonymous empty contract without reading customer data",
+      "orders and bookings /api/bookings returns only the resolved customer's RESERVATION rows with bounded pagination",
+      "orders and bookings /api/bookings keeps the historical empty fallback on missing users or database failure"
+    ]
+  },
+  {
+    "file": "tests/rest/customer-reads.test.ts",
+    "operations": [
+      "GET /api/promotions"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Active and expiry filters, bound category query, public response and historical failure envelope."
+    ],
+    "constraints": [],
+    "sha256": "d5b90929d6f3792cd42dafbb28938bf7e2ccfff2ef89d044c3bfc43770b6d51a",
+    "tests": [
+      "promotions filters active, unexpired promotions by a bound category and returns their data",
+      "promotions preserves the explicit inactive filter and empty failure envelope"
+    ]
+  },
+  {
+    "file": "tests/rest/customer-reads.test.ts",
+    "operations": [
+      "GET /api/kyc/status",
+      "POST /api/kyc/skip",
+      "GET /api/account/kyc-gate",
+      "GET /api/activation-challenge/current"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Internal user binding, KYC state projection and transition rejection, activation challenge envelope, anonymous refusal."
+    ],
+    "constraints": [],
+    "sha256": "d5b90929d6f3792cd42dafbb28938bf7e2ccfff2ef89d044c3bfc43770b6d51a",
+    "tests": [
+      "KYC and activation /api/kyc/status binds the result to the authenticated internal user",
+      "KYC and activation /api/kyc/status refuses anonymous access without side effects",
+      "KYC and activation /api/kyc/skip binds the result to the authenticated internal user",
+      "KYC and activation /api/kyc/skip refuses anonymous access without side effects",
+      "KYC and activation /api/activation-challenge/current binds the result to the authenticated internal user",
+      "KYC and activation /api/activation-challenge/current refuses anonymous access without side effects",
+      "KYC and activation returns a sanitized KYC status infrastructure error",
+      "KYC and activation preserves a forbidden KYC state transition",
+      "KYC and activation projects only KYC gate fields when verified=true",
+      "KYC and activation projects only KYC gate fields when verified=false",
+      "KYC and activation does not query the KYC gate for anonymous users"
+    ]
+  },
+  {
+    "file": "tests/rest/favorites.test.ts",
+    "operations": [
+      "GET /api/favorites/merchants",
+      "POST /api/favorites/merchants",
+      "DELETE /api/favorites/merchants",
+      "GET /api/favorites/users",
+      "POST /api/favorites/users",
+      "DELETE /api/favorites/users"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "validation",
+      "idempotency",
+      "refusal"
+    ],
+    "assertions": [
+      "Favorites owner-scoped list/delete, exact created IDs, duplicate replay/conflict behavior, self/unpublished favorite refusal, required input without writes."
+    ],
+    "constraints": [],
+    "sha256": "72405435823d55fb75c400153a4c9a4cf987c3120b088a0f3d2705e427792a9d",
+    "tests": [
+      "favorites merchants GET refuses anonymous access before any data access",
+      "favorites merchants POST refuses anonymous access before any data access",
+      "favorites merchants DELETE refuses anonymous access before any data access",
+      "favorites merchants lists only the authenticated owner favorites",
+      "favorites merchants requires a target before any insert",
+      "favorites merchants deletes only a favorite belonging to the session owner",
+      "favorites merchants does not delete anything when the id is absent",
+      "favorites merchants preserves not-found when the favorite does not belong to the caller",
+      "favorites users GET refuses anonymous access before any data access",
+      "favorites users POST refuses anonymous access before any data access",
+      "favorites users DELETE refuses anonymous access before any data access",
+      "favorites users lists only the authenticated owner favorites",
+      "favorites users requires a target before any insert",
+      "favorites users deletes only a favorite belonging to the session owner",
+      "favorites users does not delete anything when the id is absent",
+      "favorites users preserves not-found when the favorite does not belong to the caller",
+      "inserts a merchant favorite for the authenticated owner and returns its id",
+      "preserves the merchant duplicate conflict without claiming a new favorite",
+      "adds a published user favorite with replay=false",
+      "adds a published user favorite with replay=true",
+      "refuses self-favorite before inserting",
+      "refuses an unpublished or missing target before inserting"
+    ]
+  }
+]

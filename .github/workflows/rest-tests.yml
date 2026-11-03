@@ -1,0 +1,39 @@
+name: REST test coverage
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  rest-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run docs:generate
+      - run: git diff --exit-code -- src/api/registry.ts docs/routes.json docs/openapi.yaml
+      - name: Execute tests and reject coverage regressions
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if test -n "$BASE_REF" && test "$BASE_REF" != 0000000000000000000000000000000000000000; then
+            npm run test:rest:coverage -- --check --baseline-ref "$BASE_REF"
+          else
+            npm run test:rest:coverage -- --check
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rest-test-results
+          path: |
+            work/rest-results.json
+            docs/rest-test-coverage.json
+            docs/rest-test-coverage.md
