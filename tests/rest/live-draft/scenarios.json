@@ -4485,7 +4485,7 @@
             "assertions": [
               {
                 "path": "/error",
-                "equals": "INVALID_REQUEST"
+                "equals": "DEVICE_IDENTITY_REJECTED"
               }
             ],
             "actor": "owner"
