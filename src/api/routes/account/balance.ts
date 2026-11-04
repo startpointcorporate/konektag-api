@@ -22,6 +22,11 @@ export const GET: RouteHandler = async ({ request, locals }) => {
       points_balance: points.balance, points_reserved: points.reserved, points_available: points.available, source: 'points',
     }), { status: 200, headers: { 'Cache-Control': 'no-cache' } });
   } catch (err: any) {
+    console.error('[account/balance] wallet balance failed', {
+      name: err instanceof Error ? err.name : 'UnknownError',
+      code: typeof err?.code === 'string' ? err.code : undefined,
+      detail: typeof err?.constraint === 'string' ? err.constraint : undefined,
+    });
     return Response.json({ error: 'WALLET_BALANCE_UNAVAILABLE' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
   }
 };
