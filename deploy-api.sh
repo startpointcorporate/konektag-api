@@ -42,60 +42,72 @@ git archive --format=tar HEAD |
   ssh "$HOST" "$K exec -i $SETUP -- tar -xf - -C /app/releases/$SHA"
 
 echo "=== Build on Linux x64 inside K3s ==="
-ssh "$HOST" "$K exec $SETUP -- sh -c '
-  set -eu
-  cd /app/releases/$SHA
-  test \"$(node -p process.platform)\" = linux
-  test \"$(node -p process.arch)\" = x64
-  npm ci --no-audit --no-fund
-  npm run build
-  test -s dist/server.mjs
-  test -s dist/openapi.json
-  node -e \"const s=require(\x27./dist/openapi.json\x27); if(s.openapi!==\x273.1.0\x27) process.exit(1)\" 
-  npm prune --omit=dev --no-audit --no-fund
-  touch .ready
-  echo BUILD_OK
-'"
-
+ssh "$HOST" "$K exec -i $SETUP -- sh -s -- $SHA" <<'REMOTE_BUILD'
+set -eu
+version="$1"
+cd "/app/releases/$version"
+test "$(node -p process.platform)" = linux
+test "$(node -p process.arch)" = x64
+npm ci --no-audit --no-fund
+npm run build
+test -s dist/server.mjs
+test -s dist/openapi.json
+node -e 'const fs=require("node:fs");const s=JSON.parse(fs.readFileSync("dist/openapi.json","utf8"));if(s.openapi!=="3.1.0")process.exit(1)'
+npm prune --omit=dev --no-audit --no-fund
+touch .ready
+echo BUILD_OK
+REMOTE_BUILD
 ACTIVATED=0
 rollback() {
   if [ "$ACTIVATED" = 1 ]; then
-    echo "ERROR: release failed, restoring $CURRENT" >&2
-    ssh "$HOST" "$K exec deployment/$APP -- sh -c 'printf \"%s\\n\" \"$CURRENT\" > /app/active-version.tmp && mv /app/active-version.tmp /app/active-version'" || true
+    echo "ERROR: deployment failed; restoring $CURRENT" >&2
+    ssh "$HOST" "$K exec -i deployment/$APP -- sh -s -- $CURRENT" <<'REMOTE_ROLLBACK' || true
+set -eu
+version="$1"
+printf "%s\n" "$version" > /app/active-version.tmp
+mv /app/active-version.tmp /app/active-version
+REMOTE_ROLLBACK
   fi
 }
 trap rollback ERR INT TERM
 
 echo "=== Atomic activation ==="
-ssh "$HOST" "$K exec deployment/$APP -- sh -c 'test -f /app/releases/$SHA/.ready && printf \"%s\\n\" \"$SHA\" > /app/active-version.tmp && mv /app/active-version.tmp /app/active-version'"
+ssh "$HOST" "$K exec -i deployment/$APP -- sh -s -- $SHA" <<'REMOTE_ACTIVATE'
+set -eu
+version="$1"
+test -f "/app/releases/$version/.ready"
+printf "%s\n" "$version" > /app/active-version.tmp
+mv /app/active-version.tmp /app/active-version
+REMOTE_ACTIVATE
 ACTIVATED=1
 
 echo "=== Validate running process and HTTP ==="
 OK=0
 for attempt in $(seq 1 30); do
-  if ssh "$HOST" "$K exec deployment/$APP -- node -e '
-    const fs=require("node:fs");
-    const expected=process.argv[1];
-    const processes=fs.readdirSync("/proc").filter(p=>/^\\d+$/.test(p));
-    const running=processes.some(pid=>{
-      try {
-        const cmd=fs.readFileSync("/proc/"+pid+"/cmdline","utf8").replace(/\\0/g," ");
-        return cmd.includes("node dist/server.mjs") &&
-          fs.readlinkSync("/proc/"+pid+"/cwd")==="/app/releases/"+expected;
-      } catch { return false; }
-    });
-    if(!running) process.exit(1);
-    (async()=>{
-      for(const path of ["/livez","/api/internal/health","/openapi.json","/docs"]){
-        const r=await fetch("http://127.0.0.1:3000"+path);
-        if(!r.ok) process.exit(1);
-        if(path==="/api/internal/health"){
-          const d=await r.json();
-          if(d.checks?.postgresql!==true || d.checks?.redis!==true) process.exit(1);
-        }
-      }
-    })().catch(()=>process.exit(1));
-  ' $SHA" >/dev/null 2>&1; then
+  if ssh "$HOST" "$K exec -i deployment/$APP -- node - $SHA" >/dev/null 2>&1 <<'REMOTE_CHECK'
+const fs=require("node:fs");
+const expected=process.argv[2];
+const processes=fs.readdirSync("/proc").filter(p=>/^\d+$/.test(p));
+const running=processes.some(pid=>{
+  try {
+    const cmd=fs.readFileSync("/proc/"+pid+"/cmdline","utf8").replace(/\0/g," ");
+    return cmd.includes("node dist/server.mjs") &&
+      fs.readlinkSync("/proc/"+pid+"/cwd")==="/app/releases/"+expected;
+  } catch { return false; }
+});
+if(!running) process.exit(1);
+(async()=>{
+  for(const path of ["/livez","/api/internal/health","/openapi.json","/docs"]){
+    const r=await fetch("http://127.0.0.1:3000"+path);
+    if(!r.ok) process.exit(1);
+    if(path==="/api/internal/health"){
+      const d=await r.json();
+      if(d.checks?.postgresql!==true || d.checks?.redis!==true) process.exit(1);
+    }
+  }
+})().catch(()=>process.exit(1));
+REMOTE_CHECK
+  then
     OK=1
     break
   fi
