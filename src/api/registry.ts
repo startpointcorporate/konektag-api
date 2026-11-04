@@ -264,6 +264,7 @@ export const routes = [
   { path: "/api/pro/pricing", pattern: new RegExp("^/api/pro/pricing/?$"), keys: [], methods: ["GET"], load: () => import("./routes/pro/pricing") },
   { path: "/api/profile/public", pattern: new RegExp("^/api/profile/public/?$"), keys: [], methods: ["GET","PUT"], load: () => import("./routes/profile/public") },
   { path: "/api/public/boost-cpm", pattern: new RegExp("^/api/public/boost-cpm/?$"), keys: [], methods: ["GET"], load: () => import("./routes/public/boost-cpm") },
+  { path: "/api/public/commercial-request", pattern: new RegExp("^/api/public/commercial-request/?$"), keys: [], methods: ["POST"], load: () => import("./routes/public/commercial-request") },
   { path: "/api/public/digital-audit", pattern: new RegExp("^/api/public/digital-audit/?$"), keys: [], methods: ["POST"], load: () => import("./routes/public/digital-audit") },
   { path: "/api/public/users", pattern: new RegExp("^/api/public/users/?$"), keys: [], methods: ["GET"], load: () => import("./routes/public/users") },
   { path: "/api/qr/code", pattern: new RegExp("^/api/qr/code/?$"), keys: [], methods: ["GET"], load: () => import("./routes/qr/code") },
