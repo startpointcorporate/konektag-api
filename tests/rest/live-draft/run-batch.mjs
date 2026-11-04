@@ -3,6 +3,8 @@
 import { readFile, writeFile, mkdtemp, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import readline from 'node:readline/promises';
+import { spawnSync } from 'node:child_process';
 import { campaign } from './engine.mjs';
 
 const root = process.cwd();
@@ -18,6 +20,40 @@ try {
   const fixturePath = option('--fixtures') || process.env.REST_LIVE_FIXTURES;
   const writeRequested = args.includes('--allow-fixture-writes');
   if (externalConfig && (fixturePath || writeRequested)) throw new Error('Use either --config or --fixtures/--allow-fixture-writes');
+  // Authenticate only the already designated test identity, never create or alter a user.
+  // A short-lived token stays in this process and is never written to the fixtures/report.
+  if (!externalConfig && !fixturePath && !process.env.REST_LIVE_OWNER_TOKEN && !args.includes('--anonymous')) {
+    if (!process.stdin.isTTY) throw new Error('Owner token missing in non-interactive mode. Set REST_LIVE_OWNER_TOKEN or use --anonymous.');
+    const terminal = readline.createInterface({ input: process.stdin, output: process.stdout });
+    let password;
+    try {
+      process.stdout.write('Mot de passe Keycloak de konektag-test-002 : ');
+      spawnSync('stty', ['-echo'], { stdio: 'inherit' });
+      password = await terminal.question('');
+    } finally {
+      spawnSync('stty', ['echo'], { stdio: 'inherit' });
+      process.stdout.write('\\n');
+      terminal.close();
+    }
+    try {
+      const response = await fetch('https://login.konektag.eu/realms/konektag/protocol/openid-connect/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'password', client_id: 'frontend-konektag',
+          username: 'konektag-test-002', password
+        }),
+        signal: AbortSignal.timeout(15000)
+      });
+      if (!response.ok) throw new Error(`Keycloak test account authentication failed: HTTP ${response.status}`);
+      const data = await response.json();
+      if (typeof data.access_token !== 'string' || !data.access_token) throw new Error('Keycloak returned no user access token');
+      process.env.REST_LIVE_OWNER_TOKEN = data.access_token;
+      console.log('Identité de recette authentifiée : konektag-test-002');
+    } finally {
+      password = undefined;
+    }
+  }
   const dir = await mkdtemp(path.join(tmpdir(), 'konektag-rest-'));
   let configFile = externalConfig ? path.resolve(externalConfig) : path.join(dir, 'config.json');
   if (!externalConfig) {
