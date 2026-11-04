@@ -114,7 +114,13 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
   function check(body, assertions) {
     for (const a of assertions) {
       const value = at(body, a.path);
-      if ('equals' in a) assert.deepEqual(value, a.equals, a.path);
+      if ('equals' in a) {
+        if (typeof a.equals === 'string' && value !== a.equals) {
+          const safeActual = typeof value === 'string' && /^[A-Z][A-Z0-9_]{1,63}$/.test(value) ? value : '(redacted)';
+          throw new Error(`ASSERTION_MISMATCH path=${a.path} expected=${JSON.stringify(a.equals)} actual=${safeActual}`);
+        }
+        if (typeof a.equals !== 'string') assert.deepEqual(value, a.equals, a.path);
+      }
       if ('subset' in a) subset(value, a.subset);
       if ('contains' in a) { assert.ok(Array.isArray(value), a.path); assert.ok(value.some(item => { try { subset(item, a.contains); return true; } catch { return false; } }), a.path); }
       if ('excludes' in a) { assert.ok(Array.isArray(value), a.path); assert.ok(!value.some(item => { try { subset(item, a.excludes); return true; } catch { return false; } }), a.path); }
@@ -187,7 +193,9 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
       throw new Blocked('AUTH_REQUIRED: protected endpoint needs an authenticated test actor');
     }
     if (response.status !== expanded.status) {
-      throw new Error(`HTTP_STATUS expected=${expanded.status} actual=${response.status}`);
+      const actualCode = await response.clone().json().then(v => v?.error).catch(() => null);
+      const safeCode = typeof actualCode === 'string' && /^[A-Z][A-Z0-9_]{1,63}$/.test(actualCode) ? ` error=${actualCode}` : '';
+      throw new Error(`HTTP_STATUS expected=${expanded.status} actual=${response.status}${safeCode}`);
     }
     let body = null; // 204/303 have no body; keep a deterministic, hashable evidence value.
     if (expanded.sse) {
@@ -337,7 +345,7 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
             result.status = e instanceof Blocked ? 'BLOCKED' : 'FAIL';
             // Never serialize raw errors: driver/fetch/assertion errors can contain credentials or PII.
             result.reason = e instanceof Blocked ? e.message
-              : /^HTTP_(STATUS|HEADER)_/.test(e?.message || '') ? e.message
+              : /^(HTTP_(STATUS|HEADER)_|ASSERTION_MISMATCH)/.test(e?.message || '') ? e.message
               : 'Business/content/persistence assertion or real dependency request failed';
           } finally {
             for (const compensation of cleanup.reverse()) {
