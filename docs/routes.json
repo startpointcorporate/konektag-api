@@ -2865,6 +2865,16 @@
     "score": 303
   },
   {
+    "path": "/api/public/commercial-request",
+    "file": "src/api/routes/public/commercial-request.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/commercial-request/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
     "path": "/api/public/digital-audit",
     "file": "src/api/routes/public/digital-audit.ts",
     "methods": [

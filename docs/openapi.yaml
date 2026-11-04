@@ -20097,6 +20097,45 @@ paths:
       x-error-codes:
         - CPM_SERVICE_UNAVAILABLE
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/public/commercial-request:
+    post:
+      operationId: post__api_public_commercial_request
+      summary: POST /api/public/commercial-request
+      tags:
+        - public
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. This path is public at the general middleware level; any handler-specific checks
+        still apply.
+      parameters:
+        - name: content-type
+          in: header
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security: []
+      x-source: src/api/routes/public/commercial-request.ts
+      x-error-codes:
+        - BAD_CONTENT_TYPE
+        - PAYLOAD_TOO_LARGE
+        - BAD_JSON
+        - BAD_FIELDS
+        - SPAM_REJECTED
+        - SERVICE_UNAVAILABLE
+        - RATE_LIMITED
+        - SERVICE_UNAVAILABLE
+        - INVALID_VERIFICATION
+        - VERIFICATION_UNAVAILABLE
+        - CRM_AMBIGUOUS
+        - CRM_UNAVAILABLE
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
   /api/public/digital-audit:
     post:
       operationId: post__api_public_digital_audit
