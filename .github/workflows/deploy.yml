@@ -34,26 +34,25 @@ jobs:
         shell: bash
         env:
           ENABLED: ${{ vars.K3S_DEPLOY_ENABLED }}
-          SSH_HOST: ${{ secrets.K3S_SSH_HOST }}
-          SSH_USER: ${{ secrets.K3S_SSH_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.K3S_SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.K3S_SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_CORE_HOST }}
+          SSH_PORT: ${{ secrets.SSH_CORE_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_CORE_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_CORE_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           test "$ENABLED" = "true" || { echo "Enable K3S_DEPLOY_ENABLED in the protected environment" >&2; exit 1; }
-          test -n "$SSH_HOST" && test -n "$SSH_USER" &&
-            test -n "$SSH_PRIVATE_KEY" && test -n "$SSH_KNOWN_HOSTS" || {
-              echo "Missing K3S_SSH_HOST/USER/PRIVATE_KEY/KNOWN_HOSTS" >&2
+          test -n "$SSH_HOST" &&
+            test -n "$SSH_PORT" && test -n "$SSH_PRIVATE_KEY" && test -n "$SSH_KNOWN_HOSTS" || {
+              echo "Missing SSH_CORE_HOST/PORT/PRIVATE_KEY/KNOWN_HOSTS" >&2
               exit 1
             }
 
       - name: Configure secure SSH alias for deployment
         shell: bash
         env:
-          SSH_HOST: ${{ secrets.K3S_SSH_HOST }}
-          SSH_USER: ${{ secrets.K3S_SSH_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.K3S_SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.K3S_SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_CORE_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_CORE_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_CORE_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           umask 077
@@ -63,14 +62,17 @@ jobs:
           cat > "$HOME/.ssh/config" <<SSHCONFIG
           Host konektag-core
             HostName $SSH_HOST
-            User $SSH_USER
+            User ci-deploy
+            Port $SSH_PORT
             IdentityFile ~/.ssh/konektag_ci
             StrictHostKeyChecking yes
             BatchMode yes
             IdentitiesOnly yes
             ConnectTimeout 15
           SSHCONFIG
-          ssh-keygen -F "$SSH_HOST" -f "$HOME/.ssh/known_hosts" >/dev/null || {
+          HOST_LOOKUP="$SSH_HOST"
+          if [ "$SSH_PORT" != "22" ]; then HOST_LOOKUP="[$SSH_HOST]:$SSH_PORT"; fi
+          ssh-keygen -F "$HOST_LOOKUP" -f "$HOME/.ssh/known_hosts" >/dev/null || {
             echo "The pinned known_hosts does not contain the configured host" >&2
             exit 1
           }
