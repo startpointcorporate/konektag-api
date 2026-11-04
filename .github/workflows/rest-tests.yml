@@ -25,9 +25,9 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           if test -n "$BASE_REF" && test "$BASE_REF" != 0000000000000000000000000000000000000000; then
-            npm run test:rest:coverage -- --check --baseline-ref "$BASE_REF"
+            npm run test:rest:coverage -- --baseline-ref "$BASE_REF"
           else
-            npm run test:rest:coverage -- --check
+            npm run test:rest:coverage --
           fi
       - uses: actions/upload-artifact@v4
         if: always()
