@@ -13,7 +13,7 @@ export const POST: RouteHandler = async ({ request, locals }) => {
 
     const { rows: [userRow] } = await pool.query(
       `SELECT id, encrypted_data, email_verified FROM konektag.users WHERE keycloak_id = $1 AND deleted_at IS NULL`,
-      [user.sub]
+      [user.keycloak_id]
     );
     if (!userRow) {
       return new Response(JSON.stringify({ error: 'Utilisateur introuvable' }), { status: 404 });
