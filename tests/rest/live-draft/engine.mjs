@@ -345,7 +345,7 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
             result.status = e instanceof Blocked ? 'BLOCKED' : 'FAIL';
             // Never serialize raw errors: driver/fetch/assertion errors can contain credentials or PII.
             result.reason = e instanceof Blocked ? e.message
-              : /^(HTTP_(STATUS|HEADER)_|ASSERTION_MISMATCH)/.test(e?.message || '') ? e.message
+              : /^(HTTP_STATUS(?:\s|$)|HTTP_HEADER_MISMATCH\b|ASSERTION_MISMATCH\b)/.test(e?.message || '') ? e.message
               : 'Business/content/persistence assertion or real dependency request failed';
           } finally {
             for (const compensation of cleanup.reverse()) {
