@@ -14684,7 +14684,7 @@
     "operation": "POST /api/email/send-verification",
     "domain": "email",
     "source": "src/api/routes/email/send-verification.ts",
-    "sourceSha256": "0b044fae33098d595bd2dd5d3eb58650bfa9d4e2a7a5189272351f1d8dda52e4",
+    "sourceSha256": "a9e79cbaf599e8556c971c77c67a262b83ae313ec184ef08018f8f7417dfdaab",
     "rule": "Already verified user cannot trigger another verification email.",
     "scenarios": [
       {
