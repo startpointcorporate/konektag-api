@@ -274,7 +274,8 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
     const campaignStartedAt = Date.now();
-    const totalOperations = inventory.operations.length;
+    const selectedOperations = config.operations?.length ? inventory.operations.filter(o => config.operations.includes(o.operation)) : inventory.operations;
+    const totalOperations = selectedOperations.length;
     let completedOperations = 0;
     console.log(`[REST LIVE] Début : ${totalOperations} opérations | ${report.baseUrl}`);
     const announceEnd = (row, startedAt) => {
@@ -289,7 +290,7 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
         console.log(`[REST LIVE] Progression ${completedOperations}/${totalOperations} | ${JSON.stringify(counts)} | durée totale ${Math.round((Date.now() - campaignStartedAt)/1000)}s`);
       }
     };
-    for (const operation of inventory.operations) {
+    for (const operation of selectedOperations) {
       const operationStartedAt = Date.now();
       console.log(`[REST LIVE ${completedOperations + 1}/${totalOperations}] START ${operation.operation}`);
       const definition = byOperation.get(operation.operation);
