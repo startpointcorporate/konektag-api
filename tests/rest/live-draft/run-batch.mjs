@@ -18,6 +18,10 @@ try {
   const externalConfig = option('--config') || process.env.REST_LIVE_CONFIG;
   const fixturePath = option('--fixtures') || process.env.REST_LIVE_FIXTURES;
   const writeRequested = args.includes('--allow-fixture-writes');
+  const only = option('--only');
+  const focusedOperations = only ? only.split(',').map(x => x.trim()).filter(Boolean) : null;
+  if (only && !focusedOperations.length) throw new Error('--only requires at least one operation');
+
   if (externalConfig && (fixturePath || writeRequested)) throw new Error('Use either --config or --fixtures/--allow-fixture-writes');
   // Authenticate only the already designated test identity, never create or alter a user.
   // A short-lived token stays in this process and is never written to the fixtures/report.
@@ -70,6 +74,7 @@ try {
     }
     const config = {
       baseUrl: 'https://api.konektag.eu',
+      ...(focusedOperations ? { operations: focusedOperations } : {}),
       fixtures: fixturesFile,
       postgresql: { k3sExec: { sshHost: 'konektag-core', namespace: 'konektag-api', deployment: 'konektag-api' } },
       allowFixtureWrites: writeRequested && Boolean(fixturePath),
@@ -82,7 +87,9 @@ try {
   const reportDir = path.resolve(settings.outputDirectory || 'work/rest-live-results');
   const runs = (await readdir(reportDir, { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
   const report = JSON.parse(await readFile(path.join(reportDir, runs.at(-1), 'results.json'), 'utf8'));
-  console.log('REST', report.operations.length, 'operations:', JSON.stringify(report.summary));
+  const considered = focusedOperations ? report.operations.filter(r => focusedOperations.includes(r.operation)) : report.operations;
+  const focusedSummary = Object.fromEntries(['PASS','FAIL','BLOCKED','NOT TESTED'].map(key => [key, considered.filter(r => r.status === key).length]));
+  console.log('REST', considered.length, focusedOperations ? 'selected operations:' : 'operations:', JSON.stringify(focusedSummary));
   for (const row of report.operations.filter(row => row.status === 'FAIL')) {
     console.error('FAIL', row.operation, row.scenarios?.[0]?.reason || row.reason || '');
   }
