@@ -3,7 +3,6 @@
 import { readFile, writeFile, mkdtemp, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import readline from 'node:readline/promises';
 import { spawnSync } from 'node:child_process';
 import { campaign } from './engine.mjs';
 
@@ -24,17 +23,13 @@ try {
   // A short-lived token stays in this process and is never written to the fixtures/report.
   if (!externalConfig && !fixturePath && !process.env.REST_LIVE_OWNER_TOKEN && !args.includes('--anonymous')) {
     if (!process.stdin.isTTY) throw new Error('Owner token missing in non-interactive mode. Set REST_LIVE_OWNER_TOKEN or use --anonymous.');
-    const terminal = readline.createInterface({ input: process.stdin, output: process.stdout });
-    let password;
-    try {
-      process.stdout.write('Mot de passe Keycloak de konektag-test-002 : ');
-      spawnSync('stty', ['-echo'], { stdio: 'inherit' });
-      password = await terminal.question('');
-    } finally {
-      spawnSync('stty', ['echo'], { stdio: 'inherit' });
-      process.stdout.write('\\n');
-      terminal.close();
-    }
+    // Read from the controlling terminal directly. This works even when npm wraps
+    // stdout and prevents a readline prompt from being displayed.
+    const input = spawnSync('bash', ['-c',
+      "IFS= read -r -s -p 'Mot de passe Keycloak de konektag-test-002 : ' password </dev/tty || exit; printf '\\n' >/dev/tty; printf '%s' \"$password\""
+    ], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
+    if (input.status !== 0 || !input.stdout) throw new Error('Saisie du mot de passe annulée');
+    let password = input.stdout;
     try {
       const response = await fetch('https://login.konektag.eu/realms/konektag/protocol/openid-connect/token', {
         method: 'POST',
