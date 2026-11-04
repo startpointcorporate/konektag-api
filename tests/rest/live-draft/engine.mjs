@@ -273,17 +273,35 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
   const stop = () => { interrupted = true; };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
+    const campaignStartedAt = Date.now();
+    const totalOperations = inventory.operations.length;
+    let completedOperations = 0;
+    console.log(`[REST LIVE] Début : ${totalOperations} opérations | ${report.baseUrl}`);
+    const announceEnd = (row, startedAt) => {
+      const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+      completedOperations++;
+      const reason = row.status === 'BLOCKED' ? ` | ${row.reason || 'Prérequis manquant'}`
+        : row.status === 'FAIL' ? ` | ${row.scenarios?.find(s => s.status === 'FAIL')?.reason || row.reason || 'Échec à analyser'}`
+        : '';
+      console.log(`[REST LIVE ${completedOperations}/${totalOperations}] ${row.status.padEnd(10)} ${row.operation} (${elapsed}s)${reason}`);
+      if (completedOperations % 25 === 0 || completedOperations === totalOperations) {
+        const counts = Object.fromEntries(['PASS','FAIL','BLOCKED','NOT TESTED'].map(k => [k, report.operations.filter(o => o.status === k).length]));
+        console.log(`[REST LIVE] Progression ${completedOperations}/${totalOperations} | ${JSON.stringify(counts)} | durée totale ${Math.round((Date.now() - campaignStartedAt)/1000)}s`);
+      }
+    };
     for (const operation of inventory.operations) {
+      const operationStartedAt = Date.now();
+      console.log(`[REST LIVE ${completedOperations + 1}/${totalOperations}] START ${operation.operation}`);
       const definition = byOperation.get(operation.operation);
       const row = { operation: operation.operation, status: 'NOT TESTED', scenarios: [], baselineBusinessStatus: operation.businessStatus,
         unexercised: definition?.unexercised || [] };
       report.operations.push(row);
       if (!definition || (config.operations?.length && !config.operations.includes(operation.operation)) || (config.domains?.length && !config.domains.includes(operation.domain)) || interrupted) {
-        row.reason = interrupted ? 'Interrupted before operation' : definition ? 'Domain excluded' : 'Existing reviewed tests retained; no live scenario in this campaign'; continue;
+        row.reason = interrupted ? 'Interrupted before operation' : definition ? 'Domain excluded' : 'Existing reviewed tests retained; no live scenario in this campaign'; announceEnd(row, operationStartedAt); continue;
       }
       const source = await readFile(path.join(root, definition.source), 'utf8');
       if (createHash('sha256').update(source).digest('hex') !== definition.sourceSha256) {
-        row.status = 'BLOCKED'; row.reason = 'Handler changed: re-examine its business scenarios'; continue;
+        row.status = 'BLOCKED'; row.reason = 'Handler changed: re-examine its business scenarios'; announceEnd(row, operationStartedAt); continue;
       }
       for (const template of definition.scenarios) {
         try {
@@ -361,10 +379,11 @@ try {const client=await pool.connect();try{await client.query('BEGIN READ ONLY')
             reason: e instanceof Blocked ? e.message : 'Invalid fixture binding', evidence: [] });
         }
       }
-      if (!row.scenarios.length && row.status === 'BLOCKED') { await save(); continue; }
+      if (!row.scenarios.length && row.status === 'BLOCKED') { await save(); announceEnd(row, operationStartedAt); continue; }
       row.status = row.scenarios.some(s => s.status === 'FAIL') ? 'FAIL' : row.scenarios.some(s => s.status === 'BLOCKED') ? 'BLOCKED' : row.scenarios.length ? 'PASS' : 'BLOCKED';
       if (row.status === 'BLOCKED') row.reason = row.scenarios.find(s => s.status === 'BLOCKED')?.reason || definition.exception;
       await save();
+      announceEnd(row, operationStartedAt);
     }
   } finally {
     await save(); await pool?.end(); if (redis?.isOpen) await redis.disconnect();
