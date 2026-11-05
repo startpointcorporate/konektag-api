@@ -55,6 +55,7 @@ describe('target country visibility',()=>{
   mocks.manager.mockResolvedValue({country:'FR'});
   mocks.query.mockResolvedValueOnce({rows:[{company:'Konektag France',country_code:'FR'}]})
     .mockResolvedValueOnce({rows:[{code:'FR',name:'France',channels:['facebook']}]})
+    .mockResolvedValueOnce({rows:[{company:'Konektag France'}]}) // explicit market owner
     .mockResolvedValueOnce({rows:[{company:'Konektag France',country_code:'FR'}]})
     .mockResolvedValueOnce({rows:[mapping]});
   const result=await listSocialBoostTargetCountries('actor','merchant');

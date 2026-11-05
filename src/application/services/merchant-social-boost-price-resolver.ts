@@ -59,12 +59,21 @@ export async function resolveBoostCpm(channel:string,targetCountry:string,contex
  */
 export async function resolveTargetBoostCpm(channel:string,targetCountry:string,db:any=pool){
  const target=targetCountry.trim().toUpperCase();
- const region=target==='LB'?'LB':['CG','CM','GA','TD','CF','GQ'].includes(target)?'CG':'FR';
- const profiles=(await boostBillingProfiles(db)).filter((p:any)=>p.country_code===region);
+ if(!/^[A-Z]{2}$/.test(target))throw new VisibilityError('INVALID_TARGET_COUNTRY',400);
+ // The market is assigned by active company/country mappings, never by the
+ // client's address or by a hard-coded continent/CEMAC fallback.
+ const {rows:owners}=await db.query(`SELECT DISTINCT billing_company AS company
+   FROM konektag.merchant_social_boost_pricing
+   WHERE target_country=$1 AND is_active=TRUE AND billing_company IS NOT NULL
+   ORDER BY billing_company`,[target]);
+ if(owners.length!==1)throw new VisibilityError(
+   owners.length===0?'BOOST_TARGET_MARKET_NOT_CONFIGURED':'BOOST_TARGET_MARKET_AMBIGUOUS',503);
+ const company=String(owners[0].company);
+ const profiles=(await boostBillingProfiles(db)).filter((p:any)=>p.company===company);
  if(profiles.length!==1)throw new VisibilityError('BOOST_TARGET_BILLING_PROFILE_UNRESOLVED',503);
- const profile=profiles[0],currency=boostMerchantCurrency(region);
- const result=await resolveBoostCpm(channel,target,{company:profile.company,currency},db);
- return {...result,currency,company:String(profile.company)};
+ const currency=boostMerchantCurrency(profiles[0].country_code);
+ const result=await resolveBoostCpm(channel,target,{company,currency},db);
+ return {...result,currency,company};
 }
 
 /** Convert an approved CPM to the merchant's invoice currency using a live, evidenced rate. */

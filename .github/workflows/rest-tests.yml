@@ -19,6 +19,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run docs:generate
+      - run: npm run typecheck
       - run: git diff --exit-code -- src/api/registry.ts docs/routes.json docs/openapi.yaml
       - name: Execute tests and reject coverage regressions
         env:
