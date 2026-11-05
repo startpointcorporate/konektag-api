@@ -2855,6 +2855,16 @@
     "score": 303
   },
   {
+    "path": "/api/public/boost-estimate",
+    "file": "src/api/routes/public/boost-estimate.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/boost-estimate/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
     "path": "/api/public/boost-cpm",
     "file": "src/api/routes/public/boost-cpm.ts",
     "methods": [
