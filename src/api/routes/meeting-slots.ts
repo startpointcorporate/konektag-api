@@ -2,16 +2,16 @@ import type { RouteHandler } from '../http';
 import { z } from 'zod';
 import { availableSlots, nativeError } from '../../application/shared/meeting-native.ts';
 
-const schema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) });
+const schema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), country:z.enum(['CG','FR','LB']) });
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
   status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
 });
 
 export const GET:RouteHandler=async ({request})=>{
-  const parsed=schema.safeParse({date:new URL(request.url).searchParams.get('date')});
-  if(!parsed.success)return json({error:'DATE_UNAVAILABLE'},422);
+  const parsed=schema.safeParse({date:new URL(request.url).searchParams.get('date'),country:new URL(request.url).searchParams.get('country')});
+  if(!parsed.success)return json({error:'INVALID_MEETING_PARAMETERS'},422);
   try{
-    return json(await availableSlots(parsed.data.date),200);
+    return json(await availableSlots(parsed.data.date,parsed.data.country),200);
   }catch(error){
     const code=nativeError(error).code;
     console.error('[meeting-slots] ERPNext availability failed', { code, errorClass:error instanceof Error?error.name:'Unknown' });
