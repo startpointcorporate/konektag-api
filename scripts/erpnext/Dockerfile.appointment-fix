@@ -1,0 +1,13 @@
+# Minimal official upstream fix layered on the EXISTING custom image.
+# Keeps Frappe, ERPNext, CRM, Hospitality Core and Lumen Restaurants as built.
+FROM docker.io/konektag/erpnext:v16.53.0-custom
+USER root
+COPY scripts/erpnext/apply_official_appointment_fix.py /tmp/apply_official_appointment_fix.py
+RUN python3 /tmp/apply_official_appointment_fix.py \
+      /home/frappe/frappe-bench/apps/erpnext/erpnext/crm/doctype/appointment/appointment.py \
+    && python3 -m py_compile /home/frappe/frappe-bench/apps/erpnext/erpnext/crm/doctype/appointment/appointment.py \
+    && test -d /home/frappe/frappe-bench/apps/hospitality_core \
+    && test -d /home/frappe/frappe-bench/apps/lumen_restaurants \
+    && test -d /home/frappe/frappe-bench/apps/crm \
+    && rm /tmp/apply_official_appointment_fix.py
+USER frappe
