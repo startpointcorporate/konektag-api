@@ -1,0 +1,66 @@
+name: One-time archive and prune obsolete branches
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    if: startsWith(github.event.head_commit.message, 'chore: cleanup repository branches')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Snapshot and delete only explicitly approved temporary branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branches=(
+            'chore/remove-retired-payment-confirm-endpoints'
+            'feat/extract-rest-mcp-backend'
+            'feat/frappe-crm-contact-meeting-bootstrap-20261105'
+            'feat/k3s-volume-cd'
+            'feat/k3s-volume-deploy-script'
+            'feat/public-commercial-crm-requests-20261104'
+            'feat/swagger-keycloak-pkce'
+            'fix/first-k3s-start'
+            'fix/pin-backend-to-vps3'
+            'fix/public-cpm-partial-network-availability-20261105'
+            'fix/reuse-infra-ssh-for-api-cd'
+            'fix/swagger-oauth2-redirect-js'
+            'fix/temporarily-remove-two-email-tests'
+            'test/rest-coverage-issue-7'
+            'chore/cleanup-branches-api-20261105'
+          )
+          gh api "repos/$GITHUB_REPOSITORY/branches?per_page=100" > branches.json
+          gh api "repos/$GITHUB_REPOSITORY/pulls?state=open&per_page=100" > pulls.json
+          for branch in "${branches[@]}"; do
+            protected=$(jq -r --arg b "$branch" '.[] | select(.name == $b) | .protected' branches.json)
+            sha=$(jq -r --arg b "$branch" '.[] | select(.name == $b) | .commit.sha' branches.json)
+            if [ -z "$sha" ]; then echo "Already absent: $branch"; continue; fi
+            if [ "$protected" != false ]; then echo "Refuse protected branch $branch" >&2; exit 1; fi
+            if jq -e --arg b "$branch" --arg repo "$GITHUB_REPOSITORY" '.[] | select(.head.ref == $b and .head.repo.full_name == $repo)' pulls.json >/dev/null; then
+              echo "Refuse branch with open PR: $branch" >&2; exit 1
+            fi
+            archive="archive/pre-cleanup-20261105/$branch"
+            saved=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$archive" --jq '.object.sha' 2>/dev/null || true)
+            if [ -n "$saved" ] && [ "$saved" != "$sha" ]; then
+              echo "Archive collision for $branch" >&2; exit 1
+            fi
+            if [ -z "$saved" ]; then
+              gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$archive" -f sha="$sha" >/dev/null
+            fi
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" >/dev/null
+            echo "Archived and deleted: $branch"
+          done
+          gh api "repos/$GITHUB_REPOSITORY/branches?per_page=100" > remaining.json
+          echo "Remaining branches:"
+          jq -r '.[].name' remaining.json
+          expected=$(printf '%s\n' 'main' | sort)
+          actual=$(jq -r '.[].name' remaining.json | sort)
+          if [ "$actual" != "$expected" ]; then
+            echo "Unexpected remaining branches; inspect manually" >&2
+            exit 1
+          fi
+          echo "Branch cleanup verified."
