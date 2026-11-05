@@ -99,7 +99,9 @@ export async function availableSlots(dateString:string,country:MeetingCountry):P
   // ERPNext makes the final per-agent assignment and overlap validation at insert.
   const taken=bookings.map(x=>toMinutes(x.scheduled_time));
   const capacity=Number(settings.number_of_agents);
-  // ERPNext creates one Event per Appointment. Counting that Event again would\n  // hide the second agent's remaining capacity at the same time.\n  const appointmentEvents=new Set(bookings.map(b=>b.calendar_event).filter(Boolean));\n  const blocks=events.filter(e=>!appointmentEvents.has(e.name)).map(e=>({
+  // ERPNext creates one Event per Appointment. Do not count that Event twice.
+  // Otherwise the second agent's remaining slot would be hidden.
+  const appointmentEvents=new Set(bookings.map(b=>b.calendar_event).filter(Boolean));\n  const blocks=events.filter(e=>!appointmentEvents.has(e.name)).map(e=>({
     from:e.starts_on.slice(0,10)<dateString?0:toMinutes(e.starts_on),
     to:e.ends_on.slice(0,10)>dateString?1440:toMinutes(e.ends_on),
   }));
