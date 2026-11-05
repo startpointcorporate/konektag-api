@@ -8,8 +8,8 @@ type BookingSettings = {
   agent_list?: Array<{user:string}>;
   availability_of_slots?: Array<{day_of_week:string;from_time:string;to_time:string}>;
 };
-type Appointment = { name: string; scheduled_time: string; status: string };
-type EventRecord = { starts_on:string; ends_on:string; status:string };
+type Appointment = { name: string; scheduled_time: string; status: string; calendar_event?: string | null };
+type EventRecord = { name:string; starts_on:string; ends_on:string; status:string };
 
 // Each legal entity operates its own appointment timezone.
 const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -55,7 +55,7 @@ async function getAppointments(day:string,erpnext:ReturnType<typeof meetingErpne
   const list=await erpnext.query('Appointment',[
     ['scheduled_time','between',[day+' 00:00:00',day+' 23:59:59']],
     ['status','!=','Closed'],
-  ],['name','scheduled_time','status'],501) as Appointment[];
+  ],['name','scheduled_time','status','calendar_event'],501) as Appointment[];
   if(!Array.isArray(list)||list.length>500)throw new BookingError('BOOKING_UNAVAILABLE');
   return list;
 }
@@ -65,7 +65,7 @@ async function getEvents(day:string,erpnext:ReturnType<typeof meetingErpnext>):P
     ['starts_on','<',day+' 23:59:59'],
     ['ends_on','>',day+' 00:00:00'],
     ['status','not in',['Cancelled','Closed']],
-  ],['starts_on','ends_on','status'],501) as EventRecord[];
+  ],['name','starts_on','ends_on','status'],501) as EventRecord[];
   if(!Array.isArray(events)||events.length>500)throw new BookingError('BOOKING_UNAVAILABLE');
   return events;
 }
@@ -99,7 +99,7 @@ export async function availableSlots(dateString:string,country:MeetingCountry):P
   // ERPNext makes the final per-agent assignment and overlap validation at insert.
   const taken=bookings.map(x=>toMinutes(x.scheduled_time));
   const capacity=Number(settings.number_of_agents);
-  const blocks=events.map(e=>({
+  // ERPNext creates one Event per Appointment. Counting that Event again would\n  // hide the second agent's remaining capacity at the same time.\n  const appointmentEvents=new Set(bookings.map(b=>b.calendar_event).filter(Boolean));\n  const blocks=events.filter(e=>!appointmentEvents.has(e.name)).map(e=>({
     from:e.starts_on.slice(0,10)<dateString?0:toMinutes(e.starts_on),
     to:e.ends_on.slice(0,10)>dateString?1440:toMinutes(e.ends_on),
   }));
