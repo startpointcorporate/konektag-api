@@ -4,12 +4,14 @@ import { createHash } from 'node:crypto';
 import { redisAdapter } from '../../infrastructure/adapters/redis-adapter.ts';
 
 // Native Appointment booking; no custom Python Frappe methods or new credentials.
-import { saveAppointment, nativeError, APPOINTMENT_TIMEZONE } from '../../application/shared/meeting-native.ts';
+import { saveAppointment, nativeError } from '../../application/shared/meeting-native.ts';
+import { meetingTimezones } from '../../application/shared/meeting-site.ts';
 import { createMeetingIcs } from '../../application/shared/meeting-ics.ts';
 import { sendMeetingReceipt } from '../../application/shared/meeting-receipt.ts';
 import { resolveMeetingLead, updateMeetingLead, LeadSetupError } from '../../application/shared/meeting-crm-native.ts';
 const locales=['fr','en','ar','pt','es','sw','ha','yo','zh','hi'] as const;
 const schema=z.object({
+  country:z.enum(['CG','FR','LB']),
   firstName:z.string().trim().min(1).max(100),
   lastName:z.string().trim().min(1).max(100),
   company:z.string().trim().min(2).max(160),
@@ -39,6 +41,7 @@ export const POST:RouteHandler=async ({request})=>{
   if(value.website)return json({ok:true},200); // honeypot
   // Validate IANA time zone and requested future local datetime.
   try{
+    if(value.timezone!==meetingTimezones[value.country])return json({ok:false,error:'INVALID_TIMEZONE'},400);
     new Intl.DateTimeFormat('en',{timeZone:value.timezone});
     const day=new Date(value.date+'T12:00:00Z');
     if(!Number.isFinite(day.getTime())||day.toISOString().slice(0,10)!==value.date)return json({ok:false,error:'Invalid date'},400);
@@ -57,18 +60,18 @@ export const POST:RouteHandler=async ({request})=>{
     // Native Appointment.before_insert() calls link_customer_lead().
     // Supply a qualified Lead before that hook, otherwise Frappe may try
     // to create a Lead without the mandatory Konektag commercial axis.
-    const lead=await resolveMeetingLead(value);
-    const appointment=await saveAppointment(value,lead.name);
+    const lead=await resolveMeetingLead(value,value.country);
+    const appointment=await saveAppointment(value,lead.name,value.country);
     // The Appointment is authoritative; subsequent CRM stage updates should
     // not report a booking failure or invite the customer to submit twice.
     let crmSynced=false;
     try{
-      await updateMeetingLead(lead,appointment.name,value);
+      await updateMeetingLead(lead,appointment.name,value,value.country);
       crmSynced=true;
     }catch(crmError){
       console.error('[meeting-request] Appointment booked but Lead stage update failed',appointment.name,crmError);
     }
-    const ics=createMeetingIcs(appointment.name,value.date,value.time,APPOINTMENT_TIMEZONE);
+    const ics=createMeetingIcs(appointment.name,value.date,value.time,meetingTimezones[value.country]);
     // Sending is best-effort and must never turn a successful Appointment into a failed response.
     let emailSent=false;
     if(value.email){
