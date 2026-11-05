@@ -61,6 +61,8 @@ siteApiIngress:
 # Retention is destructive by its existing business policy and is never enabled automatically.
 jobs:
   daily-reconciliation: {enabled: false, schedule: "0 2 * * *"}
+  # Observed provider CPM only; opt in after authorizing Meta/TikTok accounts, Secrets and DB migration 226.
+  cpm-daily: {enabled: false, schedule: "15 5 * * *"}
   inject-sanctions-batch: {enabled: false, schedule: "0 6 * * *"}
   re-screen-users: {enabled: false, schedule: "0 3 * * 0"}
   purge-expired-data: {enabled: false, schedule: "0 4 * * *"}
