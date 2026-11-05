@@ -22212,6 +22212,7 @@ paths:
         - Payload too large
         - Invalid JSON
         - Invalid fields
+        - INVALID_TIMEZONE
         - Invalid date
         - Date in the past
         - Invalid timezone
@@ -22233,6 +22234,10 @@ paths:
           in: query
           schema:
             type: string
+        - name: country
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: Response from the migrated handler
@@ -22250,7 +22255,7 @@ paths:
       security: []
       x-source: src/api/routes/meeting-slots.ts
       x-error-codes:
-        - DATE_UNAVAILABLE
+        - INVALID_MEETING_PARAMETERS
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
   /api/notifications:
     get:
