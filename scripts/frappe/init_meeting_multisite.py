@@ -48,7 +48,8 @@ def easter_western(year):
 def easter_orthodox(year):
     # Julian Easter converted to Gregorian (13-day delta in 2026-2027).
     a, b, c = year % 4, year % 7, year % 19
-    d, e = (19 * c + 15) % 30, (2 * a + 4 * b - d + 34) % 7
+    d = (19 * c + 15) % 30
+    e = (2 * a + 4 * b - d + 34) % 7
     month = (d + e + 114) // 31
     day = (d + e + 114) % 31 + 1
     return dt.date(year, month, day) + dt.timedelta(days=13)
