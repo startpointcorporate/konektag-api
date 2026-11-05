@@ -1,6 +1,9 @@
 name: Deploy Konektag API to K3s PVC
 
 on:
+  workflow_run:
+    workflows: ["REST test coverage"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       environment:
@@ -18,14 +21,38 @@ concurrency:
 jobs:
   deploy:
     name: Publish committed API version to K3s
+    # Only a successful push-to-main CI may deploy automatically. PR CI is excluded.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || vars.K3S_DEPLOY_ENVIRONMENT }}
     timeout-minutes: 20
     steps:
-      - name: Checkout selected commit
+      - name: Checkout exactly the CI-validated commit
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
+
+      - name: Verify CI commit is still main HEAD
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          REPOSITORY: ${{ github.repository }}
+          DEPLOY_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || vars.K3S_DEPLOY_ENVIRONMENT }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_ENVIRONMENT" || { echo "Set repository variable K3S_DEPLOY_ENVIRONMENT to the existing protected environment name" >&2; exit 1; }
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA" || { echo "Checkout SHA differs from CI SHA" >&2; exit 1; }
+          MAIN_SHA="$(git ls-remote "https://github.com/$REPOSITORY.git" refs/heads/main | cut -f1)"
+          test -n "$MAIN_SHA" && test "$MAIN_SHA" = "$EXPECTED_SHA" || {
+            echo "Commit superseded on main; refusing stale deployment" >&2
+            exit 1
+          }
 
       - name: Validate deploy script syntax
         run: bash -n deploy-api.sh
