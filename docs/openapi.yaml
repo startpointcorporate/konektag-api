@@ -20064,29 +20064,30 @@ paths:
       description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
         responses and business rules. This path is public at the general middleware level; any handler-specific checks
         still apply.
-      parameters: []
+      parameters:
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: network
+          in: query
+          schema:
+            type: string
+        - name: groupBy
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a283
-                anyOf:
-                  - type: object
-                    properties:
-                      countries: {}
-                      markets: {}
-                      estimated:
-                        type: boolean
-                        const: true
-                      guaranteed:
-                        type: boolean
-                        const: false
-                  - type: object
-                    properties:
-                      error:
-                        type: string
-                        const: CPM_SERVICE_UNAVAILABLE
+              schema: &a283 {}
+        "400":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a283
         "503":
           description: Error or redirect from the migrated handler
           content:
@@ -20098,6 +20099,7 @@ paths:
       security: []
       x-source: src/api/routes/public/boost-cpm.ts
       x-error-codes:
+        - INVALID_CPM_FILTER
         - CPM_SERVICE_UNAVAILABLE
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
   /api/public/boost-estimate:

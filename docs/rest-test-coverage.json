@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 317,
-    "executedTests": 2644,
-    "passedTests": 2644
+    "executedTests": 2649,
+    "passedTests": 2649
   },
   "operations": [
     {
@@ -9529,7 +9529,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/cpm-public-catalogue.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
