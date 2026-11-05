@@ -36,8 +36,9 @@ export const GET:RouteHandler=async()=>{
      console.warn('[public-boost-cpm] channel unavailable',{country:code,channel,reason});
     }
    }
-   // Only show countries with a complete, verified channel grid.
-   if(channels.length===CHANNELS.length)countries.push({code,name,channels});
+   // A country with at least one verified network remains eligible.
+   // Never require an unrelated channel's ERPNext mapping to exist.
+   if(channels.length>0)countries.push({code,name,channels});
    else unavailableCountries.push({code,name,reason});
   }
   return new Response(JSON.stringify({countries,unavailableCountries,estimated:true}),{headers:{'Content-Type':'application/json','Cache-Control':'public, max-age=60'}});

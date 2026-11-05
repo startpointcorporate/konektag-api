@@ -13,8 +13,8 @@ export const GET:RouteHandler=async ({request})=>{
   try{
     return json(await availableSlots(parsed.data.date),200);
   }catch(error){
-    console.error('[meeting-slots] ERPNext native slots query failed',error);
     const code=nativeError(error).code;
-    return json({error:code},code==='DATE_UNAVAILABLE'?422:503);
+    console.error('[meeting-slots] ERPNext availability failed', { code, errorClass:error instanceof Error?error.name:'Unknown' });
+    return json({error:code, ...(code==='BOOKING_UNAVAILABLE'?{reason:'FRAPPE_BOOKING_SETTINGS_OR_ACCESS'}:{})},code==='DATE_UNAVAILABLE'?422:503);
   }
 };

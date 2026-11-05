@@ -12,7 +12,7 @@ const schema=z.object({
   country:z.string().trim().min(2).max(100),message:z.string().trim().min(3).max(2000),
   requestedDate:z.string().optional().default(""),requestedTime:z.string().optional().default(""),
   timezone:z.string().optional().default(""),website:z.string().max(200).optional().default(""),
-  turnstileToken:z.string().min(1).max(2048),
+  turnstileToken:z.string().max(2048).optional().default(""),
 }).strict();
 type Input=z.infer<typeof schema>;
 const reply=(body:unknown,status:number)=>Response.json(body,{status,headers:{"Cache-Control":"no-store"}});
@@ -41,9 +41,9 @@ function receipt(v:Input,leadId:string){
   return {subject,html:'<!doctype html><html lang="'+v.locale+'"><body style="font-family:Arial,sans-serif;background:#f7f3ff;padding:24px"><main style="max-width:580px;margin:auto;background:#fff;border-radius:16px;padding:28px"><h1>Konektag</h1><p>'+(fr?"Bonjour ":"Hello ")+escapeHtml(v.name)+',</p><p>'+escapeHtml(status)+'</p>'+preference+'<p style="font-size:12px;color:#536077">'+(fr?"Référence":"Reference")+": "+escapeHtml(leadId)+'</p></main></body></html>'};
 }
 
-async function verifyCaptcha(token:string,request:Request):Promise<boolean>{
+async function verifyCaptcha(token:string):Promise<boolean>{
   const secret=process.env.TURNSTILE_SECRET_KEY;
-  if(!secret)return false;
+  if(!secret)return true; // Turnstile is optional; Redis limits remain mandatory.
   const body=new URLSearchParams({secret,response:token});
   const response=await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify",{
     method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body,
@@ -55,7 +55,7 @@ async function verifyCaptcha(token:string,request:Request):Promise<boolean>{
   return result.success===true && result.hostname===host && result.action==="commercial-request";
 }
 
-export const POST:RouteHandler=async ({request})=>{
+export const POST:RouteHandler=async ({request,clientAddress})=>{
   if(!request.headers.get("content-type")?.includes("application/json"))return reply({ok:false,error:"BAD_CONTENT_TYPE"},415);
   const raw=await request.text();
   if(raw.length>12000)return reply({ok:false,error:"PAYLOAD_TOO_LARGE"},413);
@@ -65,14 +65,23 @@ export const POST:RouteHandler=async ({request})=>{
   if(!parsed.success||!validateMeeting(parsed.data))return reply({ok:false,error:"BAD_FIELDS"},400);
   const v=parsed.data;
   if(v.website)return reply({ok:false,error:"SPAM_REJECTED"},400);
-  if(!process.env.RESEND_API_KEY||!process.env.KONEKTAG_MEETING_LEAD_OWNER||!process.env.KONEKTAG_MEETING_DEFAULT_AXIS||!process.env.TURNSTILE_SECRET_KEY)
+  if(!process.env.RESEND_API_KEY||!process.env.KONEKTAG_MEETING_LEAD_OWNER||!process.env.KONEKTAG_MEETING_DEFAULT_AXIS )
     return reply({ok:false,error:"SERVICE_UNAVAILABLE"},503);
   try{
-    const allowed=await redisAdapter.checkRateLimit("commercial-request:"+createHash("sha256").update(v.email).digest("hex"),4,3600);
-    if(!allowed)return reply({ok:false,error:"RATE_LIMITED"},429);
+    // Independent shared rate limits: distributed via Redis across API pods.
+    // clientAddress is the TCP peer supplied by the HTTP server, not an untrusted X-Forwarded-For header.
+    const emailHash=createHash("sha256").update(v.email.toLowerCase()).digest("hex");
+    const peerHash=createHash("sha256").update(clientAddress||"unknown-peer").digest("hex");
+    const emailAllowed=await redisAdapter.checkRateLimit("commercial-request:email:"+emailHash,4,3600);
+    const peerAllowed=await redisAdapter.checkRateLimit("commercial-request:peer:"+peerHash,120,3600);
+    if(!emailAllowed||!peerAllowed)return reply({ok:false,error:"RATE_LIMITED"},429);
   }catch{return reply({ok:false,error:"SERVICE_UNAVAILABLE"},503);}
-  try{if(!await verifyCaptcha(v.turnstileToken,request))return reply({ok:false,error:"INVALID_VERIFICATION"},403);}
-  catch{return reply({ok:false,error:"VERIFICATION_UNAVAILABLE"},503);}
+  // If both an optional Turnstile secret and a token were provided, validate it.
+  // Never require a third-party anti-spam account merely to accept a contact form.
+  if(process.env.TURNSTILE_SECRET_KEY && v.turnstileToken){
+    try{if(!await verifyCaptcha(v.turnstileToken))return reply({ok:false,error:"INVALID_VERIFICATION"},403);}
+    catch{return reply({ok:false,error:"VERIFICATION_UNAVAILABLE"},503);}
+  }
   let leadId:string;
   try{
     const matches=await erpnext.query("Lead",[["email_id","=",v.email]],["name","custom_activity_summary"],3) as Array<{name:string;custom_activity_summary?:string}>;
