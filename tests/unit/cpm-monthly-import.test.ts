@@ -1,4 +1,5 @@
-import {describe,it,expect} from "vitest";
+import {describe,it,expect,vi} from "vitest";
+vi.mock("../../src/infrastructure/database/pool.ts",()=>({default:{connect:vi.fn()}}));
 import {validateMonthlyFile} from "../../src/infrastructure/scripts/jobs/cpm-monthly-import.ts";
 
 const row={billingCompany:"Konektag Congo",targetCountry:"CG",countryName:"Congo",
