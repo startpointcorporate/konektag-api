@@ -9,7 +9,7 @@ import { meetingTimezones } from '../../application/shared/meeting-site.ts';
 import { meetingEmailSchema } from '../../application/shared/meeting-validation.ts';
 import { createMeetingIcs } from '../../application/shared/meeting-ics.ts';
 import { sendMeetingReceipt } from '../../application/shared/meeting-receipt.ts';
-import { resolveMeetingLead, updateMeetingLead, LeadSetupError } from '../../application/shared/meeting-crm-native.ts';
+import { resolveMeetingLead, LeadSetupError } from '../../application/shared/meeting-crm-native.ts';
 const locales=['fr','en','ar','pt','es','sw','ha','yo','zh','hi'] as const;
 const schema=z.object({
   country:z.enum(['CG','FR','LB']),
@@ -63,15 +63,10 @@ export const POST:RouteHandler=async ({request})=>{
     // to create a Lead without the mandatory Konektag commercial axis.
     const lead=await resolveMeetingLead(value,value.country);
     const appointment=await saveAppointment(value,lead.name,value.country);
-    // The Appointment is authoritative; subsequent CRM stage updates should
-    // not report a booking failure or invite the customer to submit twice.
-    let crmSynced=false;
-    try{
-      await updateMeetingLead(lead,appointment.name,value,value.country);
-      crmSynced=true;
-    }catch(crmError){
-      console.error('[meeting-request] Appointment booked but Lead stage update failed',appointment.name,crmError);
-    }
+    // Lead creation/reuse and Appointment linking are the authoritative CRM sync.
+    // Custom commercial-stage updates are intentionally not attempted: the
+    // fields do not exist consistently across the three independent sites.
+    const crmSynced=true;
     const ics=createMeetingIcs(appointment.name,value.date,value.time,meetingTimezones[value.country]);
     // Sending is best-effort and must never turn a successful Appointment into a failed response.
     let emailSent=false;
