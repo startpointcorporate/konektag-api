@@ -20075,10 +20075,14 @@ paths:
                   - type: object
                     properties:
                       countries: {}
+                      markets: {}
                       unavailableCountries: {}
                       estimated:
                         type: boolean
                         const: true
+                      guaranteed:
+                        type: boolean
+                        const: false
                   - type: object
                     properties:
                       error:
