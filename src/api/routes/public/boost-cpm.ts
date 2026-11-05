@@ -38,10 +38,11 @@ export const GET:RouteHandler=async()=>{
     group.push(c);ownersByCompany.set(c.billingCompany,group);
   }
   const markets=[...ownersByCompany.entries()].map(([billingCompany,targetCountries])=>({billingCompany,targetCountries}));
-  return Response.json({countries,markets,estimated:true,guaranteed:false},
-   {headers:{"Cache-Control":"public, max-age=60"}});
+  return new Response(JSON.stringify({countries,markets,estimated:true,guaranteed:false}),
+   {headers:{"Content-Type":"application/json","Cache-Control":"public, max-age=60"}});
  }catch(error){
   console.error("[public-boost-cpm] monthly range query failed",error instanceof Error?error.message:"UNKNOWN");
-  return Response.json({error:"CPM_SERVICE_UNAVAILABLE"},{status:503,headers:{"Cache-Control":"no-store"}});
+  return new Response(JSON.stringify({error:"CPM_SERVICE_UNAVAILABLE"}),
+   {status:503,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}});
  }
 };
