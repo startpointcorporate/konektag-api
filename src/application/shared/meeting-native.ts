@@ -47,7 +47,7 @@ export function nativeError(error:unknown):BookingError{
 const getSettings=async(erpnext:ReturnType<typeof meetingErpnext>):Promise<BookingSettings>=>{
   const s=await erpnext.get('Appointment Booking Settings','Appointment Booking Settings') as BookingSettings;
   if(!s||Number(s.enable_scheduling)!==1||Number(s.appointment_duration)!==30||
-    Number(s.number_of_agents)!==1||!Array.isArray(s.availability_of_slots))
+    ![1,2].includes(Number(s.number_of_agents))||!Array.isArray(s.agent_list)||s.agent_list.length<Number(s.number_of_agents)||!Array.isArray(s.availability_of_slots))
     throw new BookingError('BOOKING_UNAVAILABLE');
   return s;
 };
@@ -95,7 +95,10 @@ export async function availableSlots(dateString:string,country:MeetingCountry):P
   if(!windows.length||await isHoliday(dateString,settings.holiday_list,erpnext))
     return {date:dateString,timezone,duration_minutes:30,slots:[]};
   const [bookings,events]=await Promise.all([getAppointments(dateString,erpnext),getEvents(dateString,erpnext)]);
+  // One appointment consumes one agent, not the entire site calendar.
+  // ERPNext makes the final per-agent assignment and overlap validation at insert.
   const taken=bookings.map(x=>toMinutes(x.scheduled_time));
+  const capacity=Number(settings.number_of_agents);
   const blocks=events.map(e=>({
     from:e.starts_on.slice(0,10)<dateString?0:toMinutes(e.starts_on),
     to:e.ends_on.slice(0,10)>dateString?1440:toMinutes(e.ends_on),
@@ -104,7 +107,7 @@ export async function availableSlots(dateString:string,country:MeetingCountry):P
   for(const row of windows){
     const start=timeMins(row.from_time),end=timeMins(row.to_time);
     for(let min=Math.ceil(start/30)*30;min+30<=end;min+=30){
-      if(taken.some(t=>intersects(min,min+30,t,t+30)))continue;
+      if(taken.filter(t=>intersects(min,min+30,t,t+30)).length>=capacity)continue;
       if(blocks.some(b=>intersects(min,min+30,b.from,b.to)))continue;
       options.add(min);
     }
