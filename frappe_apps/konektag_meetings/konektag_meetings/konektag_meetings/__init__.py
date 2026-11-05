@@ -1,1 +1,0 @@
-# Konektag Meetings module.
