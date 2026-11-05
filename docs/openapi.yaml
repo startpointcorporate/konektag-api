@@ -20076,7 +20076,6 @@ paths:
                     properties:
                       countries: {}
                       markets: {}
-                      unavailableCountries: {}
                       estimated:
                         type: boolean
                         const: true
