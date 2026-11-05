@@ -77,7 +77,7 @@ export const POST:RouteHandler=async ({request})=>{
     if(value.email){
       try{
         emailSent=await sendMeetingReceipt({
-          id:appointment.name,date:value.date,time:value.time,timezone:APPOINTMENT_TIMEZONE,
+          id:appointment.name,date:value.date,time:value.time,timezone:meetingTimezones[value.country],
           firstName:value.firstName,email:value.email,locale:value.locale
         },ics);
         if(!emailSent)console.error('[meeting-request] Receipt email not accepted',appointment.name);
