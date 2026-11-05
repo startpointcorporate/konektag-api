@@ -6,7 +6,7 @@ permissions:
   contents: write
 jobs:
   cleanup:
-    if: startsWith(github.event.head_commit.message, 'chore: cleanup repository branches')
+    if: "${{ startsWith(github.event.head_commit.message, 'chore: cleanup repository branches') }}"
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
