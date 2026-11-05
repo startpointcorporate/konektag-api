@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 308,
-    "operations": 393,
+    "paths": 309,
+    "operations": 394,
     "covered": 77,
-    "partial": 315,
+    "partial": 316,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 316,
-    "executedTests": 2627,
-    "passedTests": 2627
+    "businessUncovered": 317,
+    "executedTests": 2644,
+    "passedTests": 2644
   },
   "operations": [
     {
@@ -17747,6 +17747,46 @@
         "tests/unit/pro-inquiry-route.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "POST /api/public/boost-estimate",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/boost-estimate",
+      "source": "src/api/routes/public/boost-estimate.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/boost-estimate] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/boost-estimate] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/cpm-public-estimate.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
     },
     {
       "operation": "POST /api/public/commercial-request",
