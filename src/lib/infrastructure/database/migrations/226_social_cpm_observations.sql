@@ -1,28 +1,21 @@
 BEGIN;
-
--- Provider insights are historic observations, not ERPNext selling prices.
--- Never overwrite Item Price or configured Konektag market ownership.
-CREATE TABLE IF NOT EXISTS konektag.social_cpm_daily_observations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  observation_day DATE NOT NULL,
-  billing_company TEXT NOT NULL,
-  platform TEXT NOT NULL CHECK (platform IN ('facebook','instagram','tiktok')),
+-- Monthly operator-approved CPM ranges, indicative and non-guaranteed.
+-- Kept distinct from ERPNext Item Prices (actual invoicing/quotes).
+CREATE TABLE IF NOT EXISTS konektag.social_cpm_monthly_ranges (
+  month DATE NOT NULL,
+  billing_company TEXT NOT NULL CHECK (length(trim(billing_company)) BETWEEN 2 AND 140),
   target_country CHAR(2) NOT NULL CHECK (target_country ~ '^[A-Z]{2}$'),
-  ad_account_ref TEXT NOT NULL,
-  source TEXT NOT NULL CHECK (source IN ('meta_ads_insights','tiktok_ads_reporting')),
+  target_country_name TEXT NOT NULL,
+  network TEXT NOT NULL CHECK (network IN ('facebook','instagram','tiktok')),
   currency CHAR(3) NOT NULL CHECK (currency ~ '^[A-Z]{3}$'),
-  spend_major NUMERIC(24,6) NOT NULL CHECK (spend_major >= 0),
-  impressions BIGINT NOT NULL CHECK (impressions > 0),
-  cpm_major NUMERIC(24,6) GENERATED ALWAYS AS
-    (ROUND((spend_major * 1000 / impressions),6)) STORED,
-  collected_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  CONSTRAINT social_cpm_daily_observation_unique
-    UNIQUE (observation_day,billing_company,platform,target_country,ad_account_ref,source)
+  cpm_low NUMERIC(18,6) NOT NULL CHECK (cpm_low > 0),
+  cpm_high NUMERIC(18,6) NOT NULL CHECK (cpm_high >= cpm_low),
+  source_file_sha256 CHAR(64) NOT NULL,
+  imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (month,target_country,network)
 );
-CREATE INDEX IF NOT EXISTS social_cpm_observation_market_idx
-  ON konektag.social_cpm_daily_observations
-  (billing_company,target_country,platform,observation_day DESC);
-
--- No provider credentials, ad account IDs or user identifiers are written to
--- this migration. Accounts are keyed by opaque references supplied at runtime.
+CREATE INDEX IF NOT EXISTS social_cpm_monthly_ranges_company_month_idx
+  ON konektag.social_cpm_monthly_ranges (billing_company,month DESC,target_country);
+-- A month of country allocations must not be split between companies.
+-- Enforced by the importer transaction as well as read-side fail-closed checks.
 COMMIT;
