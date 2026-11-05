@@ -1,5 +1,6 @@
 /** Native ERPNext Appointment inventory via existing REST token. No Frappe app deployment. */
 import { meetingErpnext, meetingTimezones, type MeetingCountry } from './meeting-site.ts';
+import { requiredAppointmentEmail } from './meeting-validation.ts';
 
 type Slot = {time: string};
 type BookingSettings = {
@@ -122,6 +123,7 @@ export async function saveAppointment(data:{
   company:string;reason:string;details:string;platform:string;
 }, leadName:string,country:MeetingCountry):Promise<{name:string;scheduled_time:string}>{
   // Refresh inventory before the native insert: native Appointment validates it again.
+  const email=requiredAppointmentEmail(data.email);
   const erpnext=meetingErpnext(country);
   const availability=await availableSlots(data.date,country);
   if(!availability.slots.some(s=>s.time===data.time))throw new BookingError('SLOT_UNAVAILABLE');
@@ -135,7 +137,7 @@ export async function saveAppointment(data:{
     status:'Open',
     customer_name:data.firstName+' '+data.lastName,
     customer_phone_number:data.whatsapp,
-    customer_email:data.email||undefined,
+    customer_email:email,
     customer_details:description,
     appointment_with:'Lead',
     party:leadName,
