@@ -20055,6 +20055,51 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/boost-estimate:
+    post:
+      operationId: post__api_public_boost_estimate
+      summary: POST /api/public/boost-estimate
+      tags:
+        - public
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. This path is public at the general middleware level; any handler-specific checks
+        still apply.
+      parameters: []
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        "400":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        "404":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        "422":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security: []
+      x-source: src/api/routes/public/boost-estimate.ts
+      x-error-codes:
+        - INVALID_CPM_REQUEST
+        - INVALID_CPM_REQUEST
+        - INVALID_CPM_REQUEST
+        - INVALID_CPM_REQUEST
+        - CPM_RATE_NOT_AVAILABLE
+        - CPM_CURRENCY_MISMATCH
+        - INVALID_CPM_REQUEST
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
   /api/public/boost-cpm:
     get:
       operationId: get__api_public_boost_cpm
