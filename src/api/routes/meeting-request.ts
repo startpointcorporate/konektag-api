@@ -6,6 +6,7 @@ import { redisAdapter } from '../../infrastructure/adapters/redis-adapter.ts';
 // Native Appointment booking; no custom Python Frappe methods or new credentials.
 import { saveAppointment, nativeError } from '../../application/shared/meeting-native.ts';
 import { meetingTimezones } from '../../application/shared/meeting-site.ts';
+import { meetingEmailSchema } from '../../application/shared/meeting-validation.ts';
 import { createMeetingIcs } from '../../application/shared/meeting-ics.ts';
 import { sendMeetingReceipt } from '../../application/shared/meeting-receipt.ts';
 import { resolveMeetingLead, updateMeetingLead, LeadSetupError } from '../../application/shared/meeting-crm-native.ts';
@@ -15,7 +16,7 @@ const schema=z.object({
   firstName:z.string().trim().min(1).max(100),
   lastName:z.string().trim().min(1).max(100),
   company:z.string().trim().min(2).max(160),
-  email:z.union([z.string().trim().email().max(254),z.literal('')]).optional().default(''),
+  email:meetingEmailSchema,
   whatsapp:z.string().regex(/^\+[1-9]\d{6,14}$/),
   reason:z.enum(['discover','partner','visibility','digital','demo','institutional','other']),
   details:z.string().max(2000).optional().default(''),
