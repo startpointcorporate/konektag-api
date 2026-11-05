@@ -111,7 +111,10 @@ def holidays(country):
     return sorted((day, name) for day, name in items.items())
 
 def normalize_time(value):
-    return str(value or "")[:8].ljust(8, "0")
+    parts = str(value or "").split(":")
+    if len(parts) != 3:
+        return str(value or "")
+    return ":".join(str(int(p)).zfill(2) for p in parts)
 
 def audit(frappe, site, config):
     issues = []
@@ -120,6 +123,9 @@ def audit(frappe, site, config):
             issues.append("Missing DocType " + name)
     if issues:
         return None, None, issues, []
+    timezone = frappe.db.get_single_value("System Settings", "time_zone")
+    if str(timezone or "") != config["timezone"]:
+        issues.append("Site System Settings timezone mismatch: expected " + config["timezone"] + ", got " + str(timezone))
     for user in config["agents"]:
         if not frappe.db.exists("User", {"name": user, "enabled": 1}):
             issues.append("Agent missing or disabled: " + user)
