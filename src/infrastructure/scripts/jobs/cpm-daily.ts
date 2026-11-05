@@ -26,7 +26,9 @@ async function fetchJson(url:URL,headers:Record<string,string>):Promise<any>{
 }
 async function meta(a:AdAccountConfig,token:string):Promise<Raw[]>{
  const rows:Raw[]=[];
- let url=new URL("https://graph.facebook.com/v24.0/act_"+a.accountId+"/insights");
+ const graphVersion=process.env.KONEKTAG_CPM_META_GRAPH_VERSION||"v24.0";
+ if(!/^v\d{1,2}\.\d$/.test(graphVersion))throw new Error("META_GRAPH_VERSION_INVALID");
+ let url=new URL("https://graph.facebook.com/"+graphVersion+"/act_"+a.accountId+"/insights");
  url.searchParams.set("fields","spend,impressions");
  url.searchParams.set("breakdowns","country,publisher_platform");
  url.searchParams.set("time_range",JSON.stringify({since:day,until:day}));
