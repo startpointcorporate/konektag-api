@@ -101,7 +101,8 @@ export async function availableSlots(dateString:string,country:MeetingCountry):P
   const capacity=Number(settings.number_of_agents);
   // ERPNext creates one Event per Appointment. Do not count that Event twice.
   // Otherwise the second agent's remaining slot would be hidden.
-  const appointmentEvents=new Set(bookings.map(b=>b.calendar_event).filter(Boolean));\n  const blocks=events.filter(e=>!appointmentEvents.has(e.name)).map(e=>({
+  const appointmentEvents=new Set(bookings.map(b=>b.calendar_event).filter(Boolean));
+  const blocks=events.filter(e=>!appointmentEvents.has(e.name)).map(e=>({
     from:e.starts_on.slice(0,10)<dateString?0:toMinutes(e.starts_on),
     to:e.ends_on.slice(0,10)>dateString?1440:toMinutes(e.ends_on),
   }));
