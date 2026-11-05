@@ -12,9 +12,10 @@ const code2=/^[A-Z]{2}$/, code3=/^[A-Z]{3}$/;
 export function validateMonthlyFile(value:unknown){
   if(!value||typeof value!=="object"||Array.isArray(value))throw Error("CPM_FILE_INVALID");
   const o=value as Record<string,unknown>;
+  if(Object.keys(o).some(k=>!["month","rates"].includes(k)))throw Error("CPM_FILE_FIELDS_INVALID");
   if(typeof o.month!=="string"||!/^\d{4}-(0[1-9]|1[0-2])$/.test(o.month))throw Error("CPM_MONTH_INVALID");
   if(!Array.isArray(o.rates)||o.rates.length<1||o.rates.length>5000)throw Error("CPM_RATES_INVALID");
-  const keys=new Set<string>(),owners=new Map<string,string>();
+  const keys=new Set<string>(),owners=new Map<string,string>(),currencies=new Map<string,string>();
   const rates:Rate[]=o.rates.map((entry:unknown)=>{
     if(!entry||typeof entry!=="object"||Array.isArray(entry))throw Error("CPM_RATE_INVALID");
     const r=entry as Record<string,unknown>;
@@ -35,6 +36,9 @@ export function validateMonthlyFile(value:unknown){
     const owner=owners.get(targetCountry);
     if(owner&&owner!==billingCompany)throw Error("CPM_MARKET_OWNER_CONFLICT");
     owners.set(targetCountry,billingCompany);
+    const currentCurrency=currencies.get(targetCountry);
+    if(currentCurrency&&currentCurrency!==currency)throw Error("CPM_MARKET_CURRENCY_CONFLICT");
+    currencies.set(targetCountry,currency);
     return {billingCompany,targetCountry,countryName,network,currency,cpmLow,cpmHigh} as Rate;
   });
   return {month:o.month,rates};
