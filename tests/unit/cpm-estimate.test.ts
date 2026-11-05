@@ -8,7 +8,7 @@ describe('indicative CPM impression range',()=>{
    expect(calculateCpmImpressions(1,600,700)).toEqual({min:1,max:1});
  });
  it.each([[0,1,2],[100,0,2],[100,2,1],[100,-1,2],[1.5,1,2],[100,NaN,2]])(
-  'rejects invalid estimate inputs',(...args)=>{expect(()=>calculateCpmImpressions(...args as [number,number,number])).toThrow('CPM_INVALID_ESTIMATE_INPUT');});
+  'rejects invalid estimate inputs',(...args)=>{expect(()=>calculateCpmImpressions(...(args as [number,number,number]))).toThrow('CPM_INVALID_ESTIMATE_INPUT');});
  it('rejects overflow rather than returning a false estimate',()=>{
   expect(()=>calculateCpmImpressions(Number.MAX_SAFE_INTEGER,0.01,0.01)).toThrow('CPM_ESTIMATE_OVERFLOW');
  });
