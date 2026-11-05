@@ -8,6 +8,7 @@ import argparse
 import calendar
 import datetime as dt
 import json
+import os
 import sys
 
 SITES = {
@@ -216,8 +217,11 @@ def main():
     parser.add_argument("--site", choices=sorted(SITES), required=True)
     parser.add_argument("--apply", action="store_true", help="Write configuration after audit; otherwise read-only")
     args = parser.parse_args()
+    # Frappe v16 logger resolves ../logs relative to the sites working directory.
+    sites_path = "/home/frappe/frappe-bench/sites"
+    os.chdir(sites_path)
     import frappe
-    frappe.init(site=args.site, sites_path="/home/frappe/frappe-bench/sites")
+    frappe.init(site=args.site, sites_path=".")
     frappe.connect()
     try:
         result = run(frappe, args.site, args.apply)
