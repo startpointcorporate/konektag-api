@@ -3,6 +3,7 @@
  * which is rejected by Konektag's mandatory commercial axis validator.
  */
 import { meetingErpnext, type MeetingCountry } from './meeting-site.ts';
+import { requiredAppointmentEmail } from './meeting-validation.ts';
 
 export type MeetingForm={
   firstName:string;lastName:string;company:string;email:string;whatsapp:string;
@@ -21,15 +22,16 @@ export class LeadSetupError extends Error {
 }
 
 export async function resolveMeetingLead(d:MeetingForm,country:MeetingCountry):Promise<LeadRecord>{
+  const email=requiredAppointmentEmail(d.email);
   const erpnext=meetingErpnext(country);
   const matching:LeadRecord[]=[];
   const byPhone=await erpnext.query('Lead',
     [['mobile_no','=',d.whatsapp]],
     ['name','custom_axis','custom_commercial_stage','custom_activity_summary'],5) as LeadRecord[];
   matching.push(...byPhone);
-  if(d.email){
+  if(email){
     const byEmail=await erpnext.query('Lead',
-      [['email_id','=',d.email]],
+      [['email_id','=',email]],
       ['name','custom_axis','custom_commercial_stage','custom_activity_summary'],5) as LeadRecord[];
     for(const lead of byEmail)if(!matching.some(l=>l.name===lead.name))matching.push(lead);
   }
@@ -45,7 +47,7 @@ export async function resolveMeetingLead(d:MeetingForm,country:MeetingCountry):P
   }
   const created=await erpnext.create('Lead',{
     lead_name:d.firstName+' '+d.lastName,
-    company_name:d.company,email_id:d.email||undefined,
+    company_name:d.company,email_id:email,
     mobile_no:d.whatsapp,lead_owner:owner,custom_axis:axis,
     custom_commercial_stage:'À rechercher',
     custom_next_action:'Traiter la demande de rendez-vous en ligne',
