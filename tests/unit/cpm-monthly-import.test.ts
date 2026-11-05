@@ -22,6 +22,11 @@ describe("monthly company/country/network CPM JSON",()=>{
   expect(()=>validateMonthlyFile({month:"2026-11",rates:[{...row,network:"linkedin"}]})).toThrow("CPM_RATE_INVALID");
   expect(()=>validateMonthlyFile({month:"2026-13",rates:[row]})).toThrow("CPM_MONTH_INVALID");
  });
+ it("rejects unknown document keys and market currency conflicts",()=>{
+  expect(()=>validateMonthlyFile({month:"2026-11",rates:[row],extra:1})).toThrow("CPM_FILE_FIELDS_INVALID");
+  expect(()=>validateMonthlyFile({month:"2026-11",rates:[row,{...row,network:"instagram",currency:"EUR"}]}))
+   .toThrow("CPM_MARKET_CURRENCY_CONFLICT");
+ });
  it("rejects unknown keys to prevent accidental extra charges",()=>{
   expect(()=>validateMonthlyFile({month:"2026-11",rates:[{...row,markupPercent:20}]})).toThrow("CPM_RATE_FIELDS_INVALID");
  });
