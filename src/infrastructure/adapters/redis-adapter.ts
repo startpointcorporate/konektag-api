@@ -242,6 +242,33 @@ export class RedisAdapter {
     return current <= maxRequests;
   }
 
+  // ── Short leases and replay records ──────────────
+
+  /** Sets the key only when absent. Returns true when this caller now owns it. */
+  async setIfAbsent(key: string, value: string, ttlMs: number): Promise<boolean> {
+    await this.ensureConnected();
+    return (await this.client.set(key, value, { NX: true, PX: ttlMs })) === 'OK';
+  }
+
+  /** Deletes the key only when it still holds the caller's value (lease release). */
+  async deleteIfEquals(key: string, value: string): Promise<void> {
+    await this.ensureConnected();
+    await this.client.eval(
+      "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
+      { keys: [key], arguments: [value] },
+    );
+  }
+
+  async getValue(key: string): Promise<string | null> {
+    await this.ensureConnected();
+    return this.client.get(key);
+  }
+
+  async setValue(key: string, value: string, ttlSec: number): Promise<void> {
+    await this.ensureConnected();
+    await this.client.set(key, value, { EX: ttlSec });
+  }
+
   // ── Session cache ────────────────────────────────
 
   async cacheSession(keycloakId: string, data: Record<string, unknown>, ttl = 3600): Promise<void> {

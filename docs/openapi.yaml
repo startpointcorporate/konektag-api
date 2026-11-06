@@ -2759,6 +2759,290 @@ paths:
         - LINK_NOT_AVAILABLE
         - LINK_PAY_RESUME_FAILED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/public/marketplace/merchants/{slug}/hotel/availability:
+    get:
+      operationId: get__api_public_marketplace_merchants_slug_hotel_availability
+      summary: Live room-type availability of a hotel merchant
+      tags:
+        - public
+      description: >-
+        Read-only. The server resolves the merchant's Hospitality site from its published hotel capability; the client
+        never names a site. Availability follows Hospitality's own rule (enabled room, not Out of Order, no Reserved or
+        Checked In stay overlapping [arrival, departure)). Prices are the room type default rate per night. Room numbers
+        are never exposed. Rate limited; fails closed with 503 when rate limiting storage is unavailable.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 160 }
+        - name: arrival
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: departure
+          in: query
+          required: true
+          description: After arrival; at most the hotel's maxNights (default 30). Arrival is not before today in the hotel's time zone.
+          schema: { type: string, format: date }
+        - name: adults
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 10 }
+        - name: children
+          in: query
+          schema: { type: integer, minimum: 0, maximum: 10, default: 0 }
+      responses:
+        "200":
+          description: Availability per room type, cheapest first.
+          content:
+            application/json:
+              schema: &mktAvailability
+                type: object
+                required: [arrival, departure, adults, children, nights, currency, roomTypes]
+                properties:
+                  arrival: { type: string, format: date }
+                  departure: { type: string, format: date }
+                  adults: { type: integer }
+                  children: { type: integer }
+                  nights: { type: integer }
+                  currency: { type: string, example: XAF }
+                  roomTypes:
+                    type: array
+                    items:
+                      type: object
+                      required: [roomType, maxAdults, maxChildren, available, availableRooms, nightlyRate, nights, total, currency]
+                      properties:
+                        roomType: { type: string, description: Hospitality Hotel Room Type name; send it back to book. }
+                        description: { type: [string, 'null'] }
+                        maxAdults: { type: integer }
+                        maxChildren: { type: integer }
+                        available: { type: boolean, description: False when no room is free or the travellers exceed the type's capacity. }
+                        availableRooms: { type: integer }
+                        nightlyRate: { type: number }
+                        nights: { type: integer }
+                        total: { type: number, description: nightlyRate × nights; send it back as expectedTotal. }
+                        currency: { type: string }
+        "400": &mktError
+          description: INVALID_STAY
+          content:
+            application/json:
+              schema: { type: object, required: [error], properties: { error: { type: string } } }
+        "404": { description: CAPABILITY_NOT_AVAILABLE — the merchant does not publish this capability., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "429": { description: TOO_MANY_REQUESTS (Retry-After header)., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: SITE_UNAVAILABLE (Frappe down or in its reset window, Retry-After) or TRANSACTIONS_UNAVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts
+      x-error-codes: [INVALID_STAY, CAPABILITY_NOT_AVAILABLE, TOO_MANY_REQUESTS, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+  /api/public/marketplace/merchants/{slug}/hotel/reservations:
+    post:
+      operationId: post__api_public_marketplace_merchants_slug_hotel_reservations
+      summary: Book a room in Hospitality
+      tags:
+        - public
+      description: >-
+        Creates one Hospitality Hotel Reservation (status Reserved) per Idempotency-Key. Availability, capacity, total
+        and currency are re-checked on the server; Konektag bookings of one room type are serialized, and Hospitality's
+        own validation runs again on insert. A room lost since the search answers 409 ROOM_UNAVAILABLE with fresh
+        availability; a changed total answers 409 PRICE_CHANGED. Reference and status are those stored by Frappe.
+        The same key with the same body returns the recorded reservation (200, replayed true); with another body 422.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+        - &mktIdempotencyKey
+          name: Idempotency-Key
+          in: header
+          required: true
+          description: One random key per visitor submission (UUID recommended), reused unchanged on every retry.
+          schema: { type: string, pattern: '^[A-Za-z0-9_-]{16,100}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [roomType, arrival, departure, adults, children, expectedTotal, currency, guest]
+              properties:
+                roomType: { type: string, maxLength: 140 }
+                arrival: { type: string, format: date }
+                departure: { type: string, format: date }
+                adults: { type: integer, minimum: 1, maximum: 10 }
+                children: { type: integer, minimum: 0, maximum: 10 }
+                expectedTotal: { type: number, minimum: 0, description: Total shown to the visitor (availability total). }
+                currency: { type: string, pattern: '^[A-Z]{3}$' }
+                guest:
+                  type: object
+                  additionalProperties: false
+                  required: [fullName, phone]
+                  properties:
+                    fullName: { type: string, minLength: 2, maxLength: 120 }
+                    phone: { type: string, pattern: '^\+[1-9]\d{6,14}$' }
+                    email: { type: string, format: email }
+                website: { type: string, description: Honeypot; must stay empty. }
+      responses:
+        "201":
+          description: Reservation recorded in Hospitality.
+          content:
+            application/json:
+              schema: &mktReservation
+                type: object
+                required: [reference, status, roomType, arrival, departure, nights, total, currency, replayed]
+                properties:
+                  reference: { type: string, example: HR-2026-00042, description: Hotel Reservation name in Hospitality. }
+                  status: { type: string, example: Reserved, description: Hospitality business status. }
+                  roomType: { type: string }
+                  arrival: { type: string, format: date }
+                  departure: { type: string, format: date }
+                  nights: { type: integer }
+                  total: { type: number }
+                  currency: { type: string }
+                  replayed: { type: boolean }
+        "200": { description: Replay of an already recorded reservation (same key and body)., content: { application/json: { schema: *mktReservation } } }
+        "400": { description: IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, INVALID_STAY, INVALID_JSON., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "404": { description: CAPABILITY_NOT_AVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "409":
+          description: ROOM_UNAVAILABLE or PRICE_CHANGED (with fresh availability), or REQUEST_IN_PROGRESS for a concurrent duplicate (Retry-After).
+          content:
+            application/json:
+              schema: { type: object, required: [error], properties: { error: { type: string }, availability: *mktAvailability } }
+        "413": { description: PAYLOAD_TOO_LARGE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "415": { description: UNSUPPORTED_MEDIA_TYPE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "422": { description: IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, ROOM_TYPE_NOT_FOUND, OCCUPANCY_EXCEEDED., content: { application/json: { schema: { type: object, properties: { error: { type: string }, availability: *mktAvailability } } } } }
+        "429": { description: TOO_MANY_REQUESTS., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "502": { description: RESERVATION_NOT_RECORDED — Frappe answered without a reservation; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts
+      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, CAPABILITY_NOT_AVAILABLE, ROOM_UNAVAILABLE, PRICE_CHANGED, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, ROOM_TYPE_NOT_FOUND, OCCUPANCY_EXCEEDED, INVALID_STAY, TOO_MANY_REQUESTS, RESERVATION_NOT_RECORDED, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+  /api/public/marketplace/merchants/{slug}/restaurant/orders:
+    post:
+      operationId: post__api_public_marketplace_merchants_slug_restaurant_orders
+      summary: Place a restaurant order in Lumen
+      tags:
+        - public
+      description: >-
+        Creates one native Lumen POS Restaurant Order per Idempotency-Key on the merchant's outlet (open_order with
+        app_type = channel and order_id = Idempotency-Key, then save_order). Items, quantities, unit prices and currency
+        are re-validated against the outlet's price list in effect today; nothing is written on a price change or an
+        unavailable item. The key is stored in Lumen, so a replay finds the order even after a cache loss, and an order
+        opened by an interrupted attempt is completed rather than duplicated. Reference, status and lines are read back
+        from Frappe. No payment is taken here; the outlet settles the order at the till.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+        - *mktIdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [currency, lines, customer]
+              properties:
+                currency: { type: string, pattern: '^[A-Z]{3}$' }
+                lines: &mktCartLines
+                  type: array
+                  minItems: 1
+                  maxItems: 40
+                  items:
+                    type: object
+                    additionalProperties: false
+                    required: [itemCode, quantity, unitPrice]
+                    properties:
+                      itemCode: { type: string, description: ERPNext Item code published on the menu. }
+                      quantity: { type: integer, minimum: 1, maximum: 50 }
+                      unitPrice: { type: number, minimum: 0, description: Unit price shown to the visitor. }
+                customer:
+                  type: object
+                  additionalProperties: false
+                  required: [name, phone]
+                  properties:
+                    name: { type: string, minLength: 2, maxLength: 120 }
+                    phone: { type: string, pattern: '^\+[1-9]\d{6,14}$' }
+                    email: { type: string, format: email }
+                note: { type: string, maxLength: 500 }
+                website: { type: string, description: Honeypot; must stay empty. }
+      responses:
+        "201":
+          description: Order recorded in Lumen.
+          content:
+            application/json:
+              schema: &mktOrder
+                type: object
+                required: [reference, status, currency, total, lines, replayed]
+                properties:
+                  reference: { type: string, example: ORD-2026-00017, description: POS Restaurant Order name in Lumen. }
+                  status: { type: string, example: Open }
+                  currency: { type: string }
+                  total: { type: number }
+                  lines: &mktPricedLines
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemCode: { type: string }
+                        itemName: { type: string }
+                        quantity: { type: integer }
+                        unitPrice: { type: number }
+                        amount: { type: number }
+                  replayed: { type: boolean }
+        "200": { description: Replay of an already recorded order (same key and body)., content: { application/json: { schema: *mktOrder } } }
+        "400": { description: IDEMPOTENCY_KEY_REQUIRED, INVALID_ORDER, INVALID_JSON., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "404": { description: CAPABILITY_NOT_AVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "409":
+          description: PRICE_CHANGED or ITEM_UNAVAILABLE (with the fresh quote), or REQUEST_IN_PROGRESS for a concurrent duplicate.
+          content:
+            application/json:
+              schema: { type: object, required: [error], properties: { error: { type: string }, quote: &mktQuote { type: object, required: [currency, lines, total, priceChanges, unavailableItems], properties: { currency: { type: string }, lines: *mktPricedLines, total: { type: number }, priceChanges: { type: array, items: { type: object, properties: { itemCode: { type: string }, expectedUnitPrice: { type: number }, currentUnitPrice: { type: number } } } }, unavailableItems: { type: array, items: { type: string } } } } } }
+        "413": { description: PAYLOAD_TOO_LARGE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "415": { description: UNSUPPORTED_MEDIA_TYPE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "422": { description: IDEMPOTENCY_KEY_REUSED or CURRENCY_MISMATCH., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "429": { description: TOO_MANY_REQUESTS., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "502": { description: ORDER_NOT_RECORDED; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: RESTAURANT_UNAVAILABLE (outlet not in restaurant mode), SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts
+      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_ORDER, CAPABILITY_NOT_AVAILABLE, PRICE_CHANGED, ITEM_UNAVAILABLE, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, TOO_MANY_REQUESTS, ORDER_NOT_RECORDED, RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+  /api/public/marketplace/merchants/{slug}/restaurant/quote:
+    post:
+      operationId: post__api_public_marketplace_merchants_slug_restaurant_quote
+      summary: Re-price a restaurant cart against Lumen
+      tags:
+        - public
+      description: >-
+        Read-only. Returns the cart priced with the outlet's price list in effect today, the lines whose price changed
+        and the items no longer on sale, so the cart can be refreshed before ordering. Writes nothing.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [currency, lines]
+              properties:
+                currency: { type: string, pattern: '^[A-Z]{3}$' }
+                lines: *mktCartLines
+      responses:
+        "200": { description: Current pricing of the cart., content: { application/json: { schema: *mktQuote } } }
+        "400": { description: INVALID_CART, INVALID_JSON., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "404": { description: CAPABILITY_NOT_AVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "422": { description: CURRENCY_MISMATCH., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "429": { description: TOO_MANY_REQUESTS., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts
+      x-error-codes: [INVALID_CART, CAPABILITY_NOT_AVAILABLE, CURRENCY_MISMATCH, TOO_MANY_REQUESTS, RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
   /api/public/users/{id}/analytics:
     post:
       operationId: post__api_public_users_id_analytics
