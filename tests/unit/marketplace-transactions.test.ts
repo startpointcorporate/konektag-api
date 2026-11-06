@@ -664,6 +664,16 @@ describe('transactions require a published capability', () => {
     expect(t.used).toEqual([]);
   });
 
+  it('never calls Lumen when the published profile lacks the restaurant capability, even if configured', async () => {
+    const t = setup();
+    t.projection.rows.set('feane-brazzaville', row('feane-brazzaville', ['hotel']));
+    expect((await t.resto.quote(post(QUOTE_PATH, { currency: 'XAF', lines: [{ itemCode: 'BURGER', quantity: 1, unitPrice: 4500 }] }, null))).status).toBe(404);
+    expect((await t.resto.order(post(ORDER_PATH, order()))).status).toBe(404);
+    expect((await t.catalogue.menu(get('/api/public/marketplace/merchants/feane-brazzaville/restaurant/menu'))).status).toBe(404);
+    expect(t.used).toEqual([]);
+    expect(t.sites.RESTODEMO.calls).toEqual([]);
+  });
+
   it('refuses a booking when the hotel capability is not published, even if configured', async () => {
     const t = setup();
     t.projection.rows.set('hotelier-brazzaville', row('hotelier-brazzaville', ['restaurant']));

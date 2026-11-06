@@ -18,9 +18,11 @@ Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/opena
 
 `MARKETPLACE_TRANSACTION_MERCHANTS` associe un slug public à ses capacités et à une clé de site (`RESTODEMO`, `HOTELDEMO`). Les identifiants de chaque site sont lus dans `MARKETPLACE_FRAPPE_<SITE>_URL`, `_API_KEY` et `_API_SECRET`. Le client ne choisit jamais le site, l'outlet ni la réception. Une capacité absente renvoie `404 CAPABILITY_NOT_AVAILABLE` sans appel à Frappe. Une capacité n'est active que si elle est **aussi publiée** dans la projection Marketplace. Une fiche absente, dépubliée ou sans cette capacité renvoie `404 CAPABILITY_NOT_AVAILABLE`, sans appel Frappe. Si la projection est injoignable, la réponse est `503 PROFILE_SOURCE_UNAVAILABLE` : l'API refuse plutôt que de laisser passer.
 
-## Projection Marketplace (#24) — contrat proposé au writer konektag_360
+## Projection Marketplace (#24) — lecture livrée, écriture en attente
 
-La migration `228_marketplace_published_establishments.sql` est additive. Elle crée `konektag.marketplace_published_establishments`, avec une ligne par établissement, ainsi que la fonction d'écriture `konektag.marketplace_apply_publication(event_key, source_site, establishment_id, version, operation, slug, snapshot, capabilities)`. Le worker de publication appelle cette fonction pour chaque `Merchant Publication Job` :
+**Lecture (livrée, validée sur PostgreSQL isolé).** La migration `228_marketplace_published_establishments.sql`, additive, crée uniquement le schéma lu par l'API : `konektag.marketplace_published_establishments`, une ligne par établissement, avec ses contraintes et l'index unique sur le slug. L'API le lit avec une identité limitée à `SELECT`. `tests/integration/marketplace-projection.pg.test.ts` l'exécute contre une base jetable `konektag_test`. Le test n'est lancé que si `MARKETPLACE_PG_TEST_URL` est défini, sinon il est sauté.
+
+**Écriture (proposition en attente).** Aucun contrat PostgreSQL n'a encore été livré par la session ERPNext. La fonction d'écriture proposée au worker konektag_360 est sortie de la migration et conservée dans `docs/proposals/marketplace-apply-publication.sql`. Elle n'est appliquée nulle part. Dès que le contrat réel sera livré, la lecture API et la migration 228 s'y aligneront avant toute application sur DESIGN. La proposition prévoit, pour chaque `Merchant Publication Job` :
 
 - `event_key`, `source_site`, `establishment_id`, `publication_version`, `operation` : champs du job, tels quels.
 - `snapshot` : le `payload` du job (`konektag_360.domain.snapshot()`), `NULL` pour `Unpublish`.
