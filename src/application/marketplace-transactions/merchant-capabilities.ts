@@ -24,6 +24,9 @@ const hotel = z.object({
   currency: z.string().regex(/^[A-Z]{3}$/),
   timezone: z.string().min(3).max(64).default('Africa/Brazzaville'),
   maxNights: z.number().int().min(1).max(90).default(30),
+  // Unique Hotel Reservation field holding the Idempotency-Key (konektag_360#14).
+  // Absent: an interrupted booking is reported as of unknown outcome, never retried.
+  externalReferenceField: z.string().regex(/^[a-z][a-z0-9_]{1,60}$/).optional(),
 }).strict();
 const merchant = z.object({ restaurant: restaurant.optional(), hotel: hotel.optional() }).strict();
 const registry = z.record(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160), merchant);

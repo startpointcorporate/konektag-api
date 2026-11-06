@@ -1,5 +1,6 @@
 import { FrappeSiteError, type FrappeSite } from './frappe-site.ts';
 import type { HotelCapability } from './merchant-capabilities.ts';
+import type { ReplayContext } from './replay.ts';
 
 /**
  * Hotel availability and bookings through Hospitality Core (hospitality_core).
@@ -31,7 +32,7 @@ export interface Availability extends StayQuery { nights: number; currency: stri
 
 export class HotelError extends Error {
   constructor(
-    readonly code: 'HOTEL_UNAVAILABLE' | 'INVALID_STAY' | 'ROOM_TYPE_NOT_FOUND' | 'OCCUPANCY_EXCEEDED' | 'ROOM_UNAVAILABLE' | 'PRICE_CHANGED' | 'CURRENCY_MISMATCH' | 'RESERVATION_NOT_RECORDED',
+    readonly code: 'HOTEL_UNAVAILABLE' | 'INVALID_STAY' | 'ROOM_TYPE_NOT_FOUND' | 'OCCUPANCY_EXCEEDED' | 'ROOM_UNAVAILABLE' | 'PRICE_CHANGED' | 'CURRENCY_MISMATCH' | 'RESERVATION_NOT_RECORDED' | 'RESERVATION_OUTCOME_UNKNOWN',
     readonly availability?: Availability,
   ) { super(code); }
 }
@@ -151,12 +152,6 @@ async function resolveGuest(site: FrappeSite, guest: BookingInput['guest'], suff
   }
 }
 
-/**
- * Re-checks availability and price, then books the first free room of the
- * type. The caller serializes bookings per (site, room type), so two Konektag
- * visitors never race for the same room; a desk booking made meanwhile is
- * caught by Hospitality's own validation and reported as ROOM_UNAVAILABLE.
- */
 function fromDoc(doc: any, input: BookingInput, nights: number, total: number, currency: string): RecordedReservation {
   return {
     reference: String(doc.name), status: String(doc.status),
@@ -166,17 +161,33 @@ function fromDoc(doc: any, input: BookingInput, nights: number, total: number, c
   };
 }
 
-export async function bookRoom(site: FrappeSite, cap: HotelCapability, input: BookingInput, replayKey: string, now = new Date(), resumed = false): Promise<RecordedReservation> {
+/** The reservation carrying this Idempotency-Key, by Hospitality's unique field only. */
+async function byExternalReference(site: FrappeSite, field: string, key: string) {
+  const rows = await site.list('Hotel Reservation', [[field, '=', key]],
+    ['name', 'status', 'room_type', 'arrival_date', 'departure_date'], 2);
+  return rows[0] ?? null;
+}
+
+/**
+ * Re-checks availability and price, then books the first free room of the
+ * type. The caller serializes bookings per (site, room type), so two Konektag
+ * visitors never race for the same room; a desk booking made meanwhile is
+ * caught by Hospitality's own validation and reported as ROOM_UNAVAILABLE.
+ *
+ * Replays: a reservation is only ever matched by its unique external
+ * reference. Matching by guest, room type and dates could return another
+ * booking, so without that field an interrupted attempt is reported as
+ * RESERVATION_OUTCOME_UNKNOWN and nothing is written again.
+ */
+export async function bookRoom(site: FrappeSite, cap: HotelCapability, input: BookingInput, replayKey: string, now: Date, ctx: ReplayContext): Promise<RecordedReservation> {
   if (input.currency !== cap.currency) throw new HotelError('CURRENCY_MISMATCH');
-  if (resumed) {
-    // Same key, earlier attempt cut off: Frappe may already hold the booking.
-    const guest = await findGuest(site, input.guest);
-    const prior = guest ? await site.list('Hotel Reservation', [
-      ['guest', '=', guest], ['room_type', '=', input.roomType],
-      ['arrival_date', '=', input.arrival], ['departure_date', '=', input.departure],
-      ['status', 'in', ['Reserved', 'Checked In']],
-    ], ['name', 'status', 'room_type', 'arrival_date', 'departure_date'], 1) : [];
-    if (prior[0]) return fromDoc(prior[0], input, stayNights(cap, input, now), input.expectedTotal, cap.currency);
+  const refField = cap.externalReferenceField;
+  if (ctx.inDoubt) {
+    if (!refField) throw new HotelError('RESERVATION_OUTCOME_UNKNOWN');
+    const prior = await byExternalReference(site, refField, replayKey);
+    if (prior) return fromDoc(prior, input, stayNights(cap, input, now), input.expectedTotal, cap.currency);
+    // Not in Hospitality: the earlier attempt never landed. Booking again is
+    // safe because the unique field refuses a late duplicate.
   }
   const { availability, byType } = await assess(site, cap, input, now);
   const offer = availability.roomTypes.find(t => t.roomType === input.roomType);
@@ -191,16 +202,26 @@ export async function bookRoom(site: FrappeSite, cap: HotelCapability, input: Bo
   const guest = await resolveGuest(site, input.guest, replayKey.slice(0, 8));
 
   for (const room of candidates) {
+    await ctx.beginWrite();
     try {
       const doc = await site.insert('Hotel Reservation', {
         naming_series: 'HR-.YYYY.-',
         hotel_reception: reception.get(room),
         guest, room_type: input.roomType, room,
         status: 'Reserved', arrival_date: input.arrival, departure_date: input.departure,
+        ...(refField ? { [refField]: replayKey } : {}),
       });
       if (!doc?.name) throw new HotelError('RESERVATION_NOT_RECORDED');
       return fromDoc(doc, input, offer.nights, offer.total, cap.currency);
     } catch (error) {
+      // A duplicate external reference means the earlier attempt did land.
+      if (refField && error instanceof FrappeSiteError && error.httpStatus === 409) {
+        const prior = await byExternalReference(site, refField, replayKey);
+        if (prior) return fromDoc(prior, input, offer.nights, offer.total, cap.currency);
+      }
+      // A Frappe refusal rolls the insert back: nothing was stored. Any other
+      // failure (timeout, 5xx) leaves the attempt in doubt.
+      if (error instanceof FrappeSiteError && error.code === 'SITE_REJECTED') await ctx.writeRefused();
       if (!isAvailabilityRefusal(error)) throw error;
     }
   }

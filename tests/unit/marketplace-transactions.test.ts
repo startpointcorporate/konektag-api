@@ -39,6 +39,7 @@ class FakeSite implements FrappeSite {
   calls: string[] = [];
   seq = 0;
   failNext: Record<string, Error> = {};
+  uniqueRef?: string;
   constructor(readonly key: string, readonly host = key.toLowerCase() + '.example') {}
   table(doctype: string) { if (!this.docs.has(doctype)) this.docs.set(doctype, []); return this.docs.get(doctype)!; }
   add(doctype: string, doc: any) { this.table(doctype).push(doc); return doc; }
@@ -62,6 +63,9 @@ class FakeSite implements FrappeSite {
       return this.add('Guest', { ...doc, name: doc.full_name });
     }
     if (doctype === 'Hotel Reservation') {
+      // Unique index on the external reference (konektag_360#14), when the site has the field.
+      if (this.uniqueRef && doc[this.uniqueRef] && this.table('Hotel Reservation').some(r => r[this.uniqueRef!] === doc[this.uniqueRef!]))
+        throw new FrappeSiteError('SITE_REJECTED', 409, 'DuplicateEntryError');
       // HotelReservation.validate() → check_availability()
       const clash = this.table('Hotel Reservation').find(r => r.room === doc.room && ['Reserved', 'Checked In'].includes(r.status)
         && doc.arrival_date < r.departure_date && doc.departure_date > r.arrival_date);
@@ -127,11 +131,19 @@ const env = {
 
 const NOW = new Date('2026-11-06T10:00:00Z');
 
-function setup() {
+const REF = 'konektag_reference';
+const envWithRef = {
+  MARKETPLACE_TRANSACTION_MERCHANTS: JSON.stringify({
+    'hotelier-brazzaville': { hotel: { site: 'HOTELDEMO', currency: 'XAF', externalReferenceField: REF } },
+  }),
+} as NodeJS.ProcessEnv;
+
+function setup(withRef = false) {
   const store = new MemoryStore();
   const sites: Record<string, FakeSite> = { RESTODEMO: restaurantSite(), HOTELDEMO: hotelSite() };
+  if (withRef) sites.HOTELDEMO.uniqueRef = REF;
   const used: string[] = [];
-  const deps: TransactionDeps = { store: () => store, site: key => { used.push(key); return sites[key]; }, env, now: () => NOW };
+  const deps: TransactionDeps = { store: () => store, site: key => { used.push(key); return sites[key]; }, env: withRef ? envWithRef : env, now: () => NOW };
   return { store, sites, used, resto: restaurantHandlers(deps), hotel: hotelHandlers(deps) };
 }
 
@@ -433,13 +445,69 @@ describe('hotel reservation', () => {
     expect(t.sites.HOTELDEMO.table('Hotel Reservation')).toHaveLength(1);
   });
 
-  it('finds a reservation Frappe accepted before the connection dropped', async () => {
+  // A booking that matches the same guest, room type and dates but is not ours.
+  const decoy = (site: FakeSite) => {
+    site.add('Guest', { name: 'Jean Ngoma', full_name: 'Jean Ngoma', email_id: 'jean@example.com', mobile_no: '+242069876543' });
+    site.add('Hotel Reservation', { name: 'HR-DESK-0001', guest: 'Jean Ngoma', room_type: 'Standard', room: '102', status: 'Reserved', arrival_date: '2026-11-20', departure_date: '2026-11-22' });
+  };
+
+  it('reports an unknown outcome after an interrupted write instead of returning a look-alike booking', async () => {
     const t = setup();
+    decoy(t.sites.HOTELDEMO);
     t.sites.HOTELDEMO.failNext['after:Hotel Reservation'] = new FrappeSiteError('SITE_UNAVAILABLE');
     expect((await t.hotel.reserve(post(RES_PATH, booking()))).status).toBe(503);
+    expect(t.sites.HOTELDEMO.table('Hotel Reservation')).toHaveLength(2); // decoy + ours, landed before the cut
+    for (let i = 0; i < 2; i++) {
+      const retry = await t.hotel.reserve(post(RES_PATH, booking()));
+      expect(retry.status).toBe(409);
+      const body = await retry.json();
+      expect(body.error).toBe('RESERVATION_OUTCOME_UNKNOWN');
+      expect(JSON.stringify(body)).not.toContain('HR-');
+    }
+    // No second booking, and the desk booking was never claimed as ours.
+    expect(t.sites.HOTELDEMO.table('Hotel Reservation')).toHaveLength(2);
+  });
+
+  it('retries normally after a clean refusal, which wrote nothing', async () => {
+    const t = setup();
+    for (const room of ['101', '102'])
+      t.sites.HOTELDEMO.add('Hotel Reservation', { name: 'DESK-' + room, room, status: 'Reserved', arrival_date: '2026-11-21', departure_date: '2026-11-23' });
+    expect((await t.hotel.reserve(post(RES_PATH, booking()))).status).toBe(409);
+    t.sites.HOTELDEMO.table('Hotel Reservation').find(r => r.name === 'DESK-101')!.status = 'Cancelled';
     const retry = await t.hotel.reserve(post(RES_PATH, booking()));
     expect(retry.status).toBe(201);
-    expect((await retry.json()).reference).toBe('HR-2026-00001');
+  });
+
+  it('resumes by the unique external reference only, ignoring a look-alike booking', async () => {
+    const t = setup(true);
+    decoy(t.sites.HOTELDEMO);
+    t.sites.HOTELDEMO.failNext['after:Hotel Reservation'] = new FrappeSiteError('SITE_UNAVAILABLE');
+    expect((await t.hotel.reserve(post(RES_PATH, booking()))).status).toBe(503);
+    const ours = t.sites.HOTELDEMO.table('Hotel Reservation').find(r => r[REF] === KEY)!;
+    expect(ours.name).not.toBe('HR-DESK-0001');
+    const retry = await t.hotel.reserve(post(RES_PATH, booking()));
+    expect(retry.status).toBe(201);
+    expect((await retry.json()).reference).toBe(ours.name);
+    expect(t.sites.HOTELDEMO.table('Hotel Reservation')).toHaveLength(2);
+  });
+
+  it('books once when the interrupted attempt never reached Hospitality', async () => {
+    const t = setup(true);
+    t.sites.HOTELDEMO.failNext['insert:Hotel Reservation'] = new FrappeSiteError('SITE_UNAVAILABLE');
+    expect((await t.hotel.reserve(post(RES_PATH, booking()))).status).toBe(503);
+    expect(t.sites.HOTELDEMO.table('Hotel Reservation')).toHaveLength(0);
+    const retry = await t.hotel.reserve(post(RES_PATH, booking()));
+    expect(retry.status).toBe(201);
+    expect(t.sites.HOTELDEMO.table('Hotel Reservation').filter(r => r[REF] === KEY)).toHaveLength(1);
+  });
+
+  it('turns a duplicate external reference into the recorded booking', async () => {
+    const t = setup(true);
+    // Our first attempt landed late, after the replay cache was lost.
+    t.sites.HOTELDEMO.add('Hotel Reservation', { name: 'HR-2026-00099', [REF]: KEY, guest: 'Jean Ngoma', room_type: 'Standard', room: '101', status: 'Reserved', arrival_date: '2026-11-20', departure_date: '2026-11-22' });
+    const res = await t.hotel.reserve(post(RES_PATH, booking()));
+    expect(res.status).toBe(201);
+    expect((await res.json()).reference).toBe('HR-2026-00099');
     expect(t.sites.HOTELDEMO.table('Hotel Reservation')).toHaveLength(1);
   });
 

@@ -23,55 +23,68 @@ export const fingerprint = (value: unknown) => createHash('sha256').update(JSON.
 
 const RECORD_TTL_SEC = 7 * 24 * 3600;
 
-export interface ReplayRecord<T> { fingerprint: string; result?: T }
+export interface ReplayRecord<T> { fingerprint: string; writing?: boolean; result?: T }
+
+/**
+ * Given to `work`. `inDoubt` is true when an earlier attempt with this key
+ * started a Frappe write and never learnt its outcome (timeout, crash).
+ * `beginWrite` must be awaited right before a write; `writeRefused` after
+ * Frappe definitely refused it (nothing was stored).
+ */
+export interface ReplayContext {
+  inDoubt: boolean;
+  beginWrite(): Promise<void>;
+  writeRefused(): Promise<void>;
+}
 
 /**
  * Runs `work` once per (scope, key). The same key with another payload is
  * refused; a concurrent duplicate gets REQUEST_IN_PROGRESS rather than a
- * second write. `work` is told when an earlier attempt was interrupted, so it
- * can look for a write Frappe accepted before the connection dropped.
+ * second write.
  */
 export async function onceByKey<T>(
   store: ReplayStore,
   scope: string,
   key: string,
   print: string,
-  work: (resumed: boolean) => Promise<T>,
+  work: (ctx: ReplayContext) => Promise<T>,
 ): Promise<{ result: T; replayed: boolean }> {
   const recordKey = `mkt:replay:${scope}:${key}`;
   const leaseKey = `${recordKey}:lease`;
   const lease = randomUUID();
   let owned = false;
-  let resumed = false;
-  try {
+  let inDoubt = false;
+  const read = async () => {
     const stored = await store.getValue(recordKey);
-    if (stored) {
-      const record = JSON.parse(stored) as ReplayRecord<T>;
-      if (record.fingerprint !== print) throw new ReplayError('IDEMPOTENCY_KEY_REUSED');
-      if (record.result !== undefined) return { result: record.result, replayed: true };
-    }
+    if (!stored) return null;
+    const record = JSON.parse(stored) as ReplayRecord<T>;
+    if (record.fingerprint !== print) throw new ReplayError('IDEMPOTENCY_KEY_REUSED');
+    return record;
+  };
+  try {
+    const first = await read();
+    if (first?.result !== undefined) return { result: first.result, replayed: true };
     owned = await store.setIfAbsent(leaseKey, lease, 45_000);
     if (!owned) throw new ReplayError('REQUEST_IN_PROGRESS');
     // Re-read under the lease: a twin may have finished just before we got it.
-    const again = await store.getValue(recordKey);
-    if (again) {
-      const record = JSON.parse(again) as ReplayRecord<T>;
-      if (record.fingerprint !== print) throw new ReplayError('IDEMPOTENCY_KEY_REUSED');
-      if (record.result !== undefined) return { result: record.result, replayed: true };
-      // An earlier attempt started and never recorded its outcome.
-      resumed = true;
-    } else {
-      await store.setValue(recordKey, JSON.stringify({ fingerprint: print }), RECORD_TTL_SEC);
-    }
+    const again = await read();
+    if (again?.result !== undefined) return { result: again.result, replayed: true };
+    inDoubt = again?.writing === true;
+    if (!again) await store.setValue(recordKey, JSON.stringify({ fingerprint: print }), RECORD_TTL_SEC);
   } catch (error) {
     if (owned) await store.deleteIfEquals(leaseKey, lease).catch(() => undefined);
     if (error instanceof ReplayError) throw error;
     throw new ReplayError('REPLAY_STORE_UNAVAILABLE');
   }
+  const mark = async (writing: boolean) => {
+    // Never write to Frappe without first recording that a write may exist.
+    try { await store.setValue(recordKey, JSON.stringify({ fingerprint: print, ...(writing ? { writing } : {}) }), RECORD_TTL_SEC); }
+    catch { throw new ReplayError('REPLAY_STORE_UNAVAILABLE'); }
+  };
   try {
-    const result = await work(resumed);
-    // The write is already in Frappe; failing to record it only weakens the
-    // fast path, the Frappe-side lookup still finds it on replay.
+    const result = await work({ inDoubt, beginWrite: () => mark(true), writeRefused: () => mark(false) });
+    // The write is already in Frappe; failing to record it here leaves the
+    // record "writing", so a replay reports the doubt instead of rewriting.
     await store.setValue(recordKey, JSON.stringify({ fingerprint: print, result }), RECORD_TTL_SEC).catch(() => undefined);
     return { result, replayed: false };
   } finally {

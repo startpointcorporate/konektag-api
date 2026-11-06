@@ -76,7 +76,7 @@ function failure(scope: string, error: unknown): Response {
     return json({ error: error.code, ...(error.quote ? { quote: error.quote } : {}) }, status);
   }
   if (error instanceof HotelError) {
-    const status = { HOTEL_UNAVAILABLE: 503, INVALID_STAY: 400, ROOM_TYPE_NOT_FOUND: 422, OCCUPANCY_EXCEEDED: 422, ROOM_UNAVAILABLE: 409, PRICE_CHANGED: 409, CURRENCY_MISMATCH: 422, RESERVATION_NOT_RECORDED: 502 }[error.code];
+    const status = { HOTEL_UNAVAILABLE: 503, INVALID_STAY: 400, ROOM_TYPE_NOT_FOUND: 422, OCCUPANCY_EXCEEDED: 422, ROOM_UNAVAILABLE: 409, PRICE_CHANGED: 409, CURRENCY_MISMATCH: 422, RESERVATION_NOT_RECORDED: 502, RESERVATION_OUTCOME_UNKNOWN: 409 }[error.code];
     return json({ error: error.code, ...(error.availability ? { availability: error.availability } : {}) }, status);
   }
   if (error instanceof ReplayError) {
@@ -174,7 +174,7 @@ export function hotelHandlers(deps: TransactionDeps): { availability: RouteHandl
       const store = deps.store();
       const { result, replayed } = await onceByKey(store, `reservation:${cap.site}`, key, fingerprint({ slug, ...input }),
         // One Konektag booking at a time per room type: no double booking between visitors.
-        resumed => withLease(store, `mkt:lease:hotel:${cap.site}:${hash(input.roomType)}`, () => bookRoom(site, cap, input, key, deps.now(), resumed)));
+        ctx => withLease(store, `mkt:lease:hotel:${cap.site}:${hash(input.roomType)}`, () => bookRoom(site, cap, input, key, deps.now(), ctx)));
       return json({ ...result, replayed }, replayed ? 200 : 201);
     } catch (error) { return failure('hotel-reservation', error); }
   };

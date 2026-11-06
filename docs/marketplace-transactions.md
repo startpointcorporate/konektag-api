@@ -19,7 +19,7 @@ Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/opena
 
 - **Prix et devise** : relus à chaque appel dans la liste de prix de l'outlet, avec les seules lignes `Item Price` en vigueur, comme le fait `price_books.get_price_map` dans Lumen. Le plat doit être vendable, actif, sans variantes et appartenir aux sections de l'outlet. Un écart déclenche `409 PRICE_CHANGED` avec le devis à jour. Aucune commande n'est créée dans ce cas.
 - **Rejeu Restaurant** : la clé `Idempotency-Key` est enregistrée par Lumen (`order_id`, avec `app_type` = canal). Un rejeu retrouve la commande même si le cache Redis est perdu. Une commande ouverte par une tentative interrompue est complétée, jamais dupliquée.
-- **Rejeu Hôtel** : la clé est conservée 7 jours dans Valkey. Si une tentative a été coupée après l'écriture, la reprise recherche la réservation du même client pour le même type de chambre et les mêmes dates avant de réserver.
+- **Rejeu Hôtel** : la clé est conservée 7 jours dans Valkey, avec une marque « écriture en cours » posée juste avant l'insertion dans Hospitality. Une réservation n'est jamais retrouvée par client, type de chambre et dates : un tel rapprochement peut renvoyer la réservation d'un autre. Si une tentative a été coupée pendant l'écriture, la reprise interroge le champ unique `externalReferenceField` de *Hotel Reservation*, où la clé est enregistrée. Sans ce champ, l'API renvoie `409 RESERVATION_OUTCOME_UNKNOWN` et ne réserve plus avec cette clé. Un refus net de Frappe (validation, chambre prise) lève la marque : la nouvelle tentative est sûre.
 - **Disponibilité** : recalculée au moment de la réservation. Les réservations Konektag d'un même type de chambre sont sérialisées. Hospitality revalide la chambre à l'insertion (`HotelReservation.validate`). Une chambre perdue entre la recherche et la validation renvoie `409 ROOM_UNAVAILABLE` avec les disponibilités à jour.
 - **Erreurs** : les messages Frappe ne sont jamais transmis, car ils peuvent citer d'autres clients. Sans Valkey, les écritures sont refusées (`503`).
 
@@ -36,7 +36,7 @@ Un utilisateur de service dédié par site, avec une clé API, sans accès Desk.
 - Lecture sur `Hotel Room Type`, `Hotel Room`, `Hotel Reservation` et `Guest`, création sur `Guest` et `Hotel Reservation`. La création d'une réservation ouvre aussi un `Guest Folio` provisoire (`ignore_permissions` côté Hospitality).
 
 **Manques Frappe signalés**
-1. `Hotel Reservation` n'a pas de référence externe unique. Le rejeu repose sur Valkey et sur la recherche client/dates. Attendu : champ `external_reference` unique, renseigné à la création.
+1. `Hotel Reservation` n'a pas de référence externe unique. **Bloquant pour la reprise après coupure** : sans ce champ, une tentative interrompue pendant l'écriture renvoie `RESERVATION_OUTCOME_UNKNOWN`. Attendu : champ Data unique (par exemple `konektag_reference`), accepté à la création par le compte de service. Il faut ensuite déclarer `"externalReferenceField":"konektag_reference"` dans la capacité `hotel`.
 2. `check_availability` lit puis insère sans verrou. Deux créations simultanées hors Konektag (Desk + Web) peuvent passer. Attendu : verrou `SELECT … FOR UPDATE` sur la chambre (`Hotel Room`) dans `validate`, comme `open_order` le fait pour les tables Lumen.
 3. `POS Restaurant Order.order_id` n'est pas unique. Le rejeu est sûr pour Konektag (lecture puis verrou), mais pas garanti en base. Attendu : index unique `(app_type, order_id)`.
 

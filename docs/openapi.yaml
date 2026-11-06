@@ -2845,6 +2845,8 @@ paths:
         own validation runs again on insert. A room lost since the search answers 409 ROOM_UNAVAILABLE with fresh
         availability; a changed total answers 409 PRICE_CHANGED. Reference and status are those stored by Frappe.
         The same key with the same body returns the recorded reservation (200, replayed true); with another body 422.
+        A cut-off attempt is resumed only through the unique external reference stored in Hospitality, never by
+        matching guest, room type and dates.
       parameters:
         - name: slug
           in: path
@@ -2903,7 +2905,11 @@ paths:
         "400": { description: IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, INVALID_STAY, INVALID_JSON., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
         "404": { description: CAPABILITY_NOT_AVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
         "409":
-          description: ROOM_UNAVAILABLE or PRICE_CHANGED (with fresh availability), or REQUEST_IN_PROGRESS for a concurrent duplicate (Retry-After).
+          description: >-
+            ROOM_UNAVAILABLE or PRICE_CHANGED (with fresh availability), REQUEST_IN_PROGRESS for a concurrent duplicate
+            (Retry-After), or RESERVATION_OUTCOME_UNKNOWN when an earlier attempt with this key was cut off during the
+            Hospitality write and the site has no unique external reference to check it. Nothing is written again for
+            that key; the visitor must contact the hotel. Not retryable.
           content:
             application/json:
               schema: { type: object, required: [error], properties: { error: { type: string }, availability: *mktAvailability } }
@@ -2915,7 +2921,7 @@ paths:
         "503": { description: SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts
-      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, CAPABILITY_NOT_AVAILABLE, ROOM_UNAVAILABLE, PRICE_CHANGED, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, ROOM_TYPE_NOT_FOUND, OCCUPANCY_EXCEEDED, INVALID_STAY, TOO_MANY_REQUESTS, RESERVATION_NOT_RECORDED, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, CAPABILITY_NOT_AVAILABLE, ROOM_UNAVAILABLE, RESERVATION_OUTCOME_UNKNOWN, PRICE_CHANGED, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, ROOM_TYPE_NOT_FOUND, OCCUPANCY_EXCEEDED, INVALID_STAY, TOO_MANY_REQUESTS, RESERVATION_NOT_RECORDED, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
   /api/public/marketplace/merchants/{slug}/restaurant/orders:
     post:
       operationId: post__api_public_marketplace_merchants_slug_restaurant_orders
