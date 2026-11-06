@@ -38,44 +38,63 @@ function inEffect(row: any, today: string) {
   return Number(row.price_list_rate) > 0;
 }
 
-export async function quoteCart(site: FrappeSite, cap: RestaurantCapability, lines: CartLineInput[], currency: string, today = new Date().toISOString().slice(0, 10)): Promise<Quote> {
+async function openOutlet(site: FrappeSite, cap: RestaurantCapability) {
   const profile = await site.get('POS Profile', cap.posProfile);
   if (!profile || Number(profile.disabled) || !Number(profile.lumenpos_restaurant_mode) || !profile.selling_price_list)
     throw new RestaurantError('RESTAURANT_UNAVAILABLE');
   const priceList = await site.get('Price List', profile.selling_price_list);
   if (!priceList || Number(priceList.enabled) === 0 || !priceList.currency) throw new RestaurantError('RESTAURANT_UNAVAILABLE');
-  if (priceList.currency !== currency) throw new RestaurantError('CURRENCY_MISMATCH');
-
-  const codes = [...new Set(lines.map(line => line.itemCode))];
-  const [items, prices] = await Promise.all([
-    site.list('Item', [['name', 'in', codes]], ['name', 'item_name', 'item_group', 'stock_uom', 'is_sales_item', 'disabled', 'has_variants'], codes.length),
-    site.list('Item Price', [['price_list', '=', profile.selling_price_list], ['item_code', 'in', codes], ['selling', '=', 1]],
-      ['item_code', 'price_list_rate', 'uom', 'valid_from', 'valid_upto'], 500),
-  ]);
-  const itemByCode = new Map<string, any>(items.map((item: any) => [item.name, item]));
-
-  // Only dishes of the sections the outlet lists (and the groups beneath them).
   const listed: string[] = (profile.item_groups ?? []).map((row: any) => row.item_group).filter(Boolean);
-  let inSection = (_group: string) => true;
-  if (listed.length && !listed.includes('All Item Groups')) {
-    const groups = [...new Set([...listed, ...items.map((item: any) => item.item_group)])];
-    const tree = await site.list('Item Group', [['name', 'in', groups]], ['name', 'lft', 'rgt'], groups.length);
-    const bounds = new Map<string, any>(tree.map((g: any) => [g.name, g]));
-    const roots = listed.map(name => bounds.get(name)).filter(Boolean);
-    inSection = group => {
-      const g = bounds.get(group);
-      return !!g && roots.some(root => Number(g.lft) >= Number(root.lft) && Number(g.rgt) <= Number(root.rgt));
-    };
-  }
+  return { profile, currency: String(priceList.currency), listed: listed.includes('All Item Groups') ? [] : listed };
+}
 
-  // Latest valid_from wins among rows in effect, in the item's stock UOM.
+/** Latest valid_from wins among rows in effect, in the item's stock UOM. */
+async function pricesOf(site: FrappeSite, priceList: string, items: any[], today: string) {
+  const byCode = new Map<string, any>(items.map((item: any) => [item.name, item]));
+  const codes = [...byCode.keys()];
+  const prices = codes.length ? await site.list('Item Price', [['price_list', '=', priceList], ['item_code', 'in', codes], ['selling', '=', 1]],
+    ['item_code', 'price_list_rate', 'uom', 'valid_from', 'valid_upto'], Math.max(500, codes.length * 4)) : [];
   const priceByCode = new Map<string, number>();
   const sorted = [...prices].sort((a: any, b: any) => String(a.valid_from ?? '').localeCompare(String(b.valid_from ?? '')));
   for (const row of sorted) {
-    const item = itemByCode.get(row.item_code);
+    const item = byCode.get(row.item_code);
     if (!item || (row.uom && row.uom !== item.stock_uom) || !inEffect(row, today)) continue;
     priceByCode.set(row.item_code, Number(row.price_list_rate));
   }
+  return priceByCode;
+}
+
+/** {item group: the listed section it falls under}, or null when the outlet lists none. */
+async function sectionsOf(site: FrappeSite, listed: string[], groups: string[]) {
+  if (!listed.length) return null;
+  const names = [...new Set([...listed, ...groups])];
+  const tree = await site.list('Item Group', [['name', 'in', names]], ['name', 'lft', 'rgt'], names.length);
+  const bounds = new Map<string, any>(tree.map((g: any) => [g.name, g]));
+  const roots = listed.map(name => bounds.get(name)).filter(Boolean);
+  const out = new Map<string, string>();
+  for (const group of groups) {
+    const g = bounds.get(group);
+    const root = g && roots.find(r => Number(g.lft) >= Number(r.lft) && Number(g.rgt) <= Number(r.rgt));
+    if (root) out.set(group, root.name);
+  }
+  return out;
+}
+
+const ITEM_FIELDS = ['name', 'item_name', 'item_group', 'stock_uom', 'is_sales_item', 'disabled', 'has_variants', 'description'];
+const orderable = (item: any) => Number(item.is_sales_item) && !Number(item.disabled) && !Number(item.has_variants);
+const plain = (html: unknown) => typeof html === 'string'
+  ? html.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300) || undefined : undefined;
+
+export async function quoteCart(site: FrappeSite, cap: RestaurantCapability, lines: CartLineInput[], currency: string, today = new Date().toISOString().slice(0, 10)): Promise<Quote> {
+  const outlet = await openOutlet(site, cap);
+  if (outlet.currency !== currency) throw new RestaurantError('CURRENCY_MISMATCH');
+  const codes = [...new Set(lines.map(line => line.itemCode))];
+  const items = await site.list('Item', [['name', 'in', codes]], ITEM_FIELDS, codes.length);
+  const itemByCode = new Map<string, any>(items.map((item: any) => [item.name, item]));
+  const [priceByCode, sections] = await Promise.all([
+    pricesOf(site, outlet.profile.selling_price_list, items, today),
+    sectionsOf(site, outlet.listed, [...new Set(items.map((i: any) => i.item_group))] as string[]),
+  ]);
 
   const unavailableItems: string[] = [];
   const priceChanges: PriceChange[] = [];
@@ -83,7 +102,7 @@ export async function quoteCart(site: FrappeSite, cap: RestaurantCapability, lin
   for (const line of lines) {
     const item = itemByCode.get(line.itemCode);
     const price = priceByCode.get(line.itemCode);
-    if (!item || !Number(item.is_sales_item) || Number(item.disabled) || Number(item.has_variants) || !inSection(item.item_group) || price === undefined) {
+    if (!item || !orderable(item) || (sections && !sections.has(item.item_group)) || price === undefined) {
       if (!unavailableItems.includes(line.itemCode)) unavailableItems.push(line.itemCode);
       continue;
     }
@@ -93,6 +112,45 @@ export async function quoteCart(site: FrappeSite, cap: RestaurantCapability, lin
     priced.push({ itemCode: line.itemCode, itemName: String(item.item_name || line.itemCode), quantity: line.quantity, unitPrice, amount: money(unitPrice * line.quantity) });
   }
   return { currency, lines: priced, total: money(priced.reduce((sum, line) => sum + line.amount, 0)), priceChanges, unavailableItems };
+}
+
+export interface Menu { currency: string; sections: { name: string; dishes: { itemCode: string; name: string; description?: string; price: number }[] }[] }
+
+/**
+ * The outlet's orderable dishes with today's prices: what quoteCart accepts,
+ * so a dish on the page is a dish the order validation agrees with.
+ */
+export async function menuOf(site: FrappeSite, cap: RestaurantCapability, today = new Date().toISOString().slice(0, 10)): Promise<Menu> {
+  const outlet = await openOutlet(site, cap);
+  let groups: string[] | null = null;
+  if (outlet.listed.length) {
+    const roots = await site.list('Item Group', [['name', 'in', outlet.listed]], ['name', 'lft', 'rgt'], outlet.listed.length);
+    const below = await Promise.all(roots.map((r: any) =>
+      site.list('Item Group', [['lft', '>=', Number(r.lft)], ['rgt', '<=', Number(r.rgt)]], ['name'], 500)));
+    groups = [...new Set(below.flat().map((g: any) => g.name))];
+    if (!groups.length) return { currency: outlet.currency, sections: [] };
+  }
+  const filters: [string, string, unknown][] = [['is_sales_item', '=', 1], ['disabled', '=', 0], ['has_variants', '=', 0]];
+  if (groups) filters.push(['item_group', 'in', groups]);
+  const items = (await site.list('Item', filters, ITEM_FIELDS, 1000)).filter(orderable);
+  const [priceByCode, sections] = await Promise.all([
+    pricesOf(site, outlet.profile.selling_price_list, items, today),
+    sectionsOf(site, outlet.listed, [...new Set(items.map((i: any) => i.item_group))] as string[]),
+  ]);
+  const bySection = new Map<string, Menu['sections'][number]['dishes']>();
+  for (const item of items) {
+    const price = priceByCode.get(item.name);
+    if (price === undefined) continue; // not sold today: never shown
+    const section = sections ? sections.get(item.item_group) : String(item.item_group);
+    if (!section) continue;
+    if (!bySection.has(section)) bySection.set(section, []);
+    bySection.get(section)!.push({ itemCode: String(item.name), name: String(item.item_name || item.name), description: plain(item.description), price: money(price) });
+  }
+  const order = outlet.listed.length ? outlet.listed : [...bySection.keys()].sort();
+  return {
+    currency: outlet.currency,
+    sections: order.filter(n => bySection.has(n)).map(name => ({ name, dishes: bySection.get(name)!.sort((a, b) => a.name.localeCompare(b.name)) })),
+  };
 }
 
 export interface OrderInput {

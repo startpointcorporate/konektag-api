@@ -4,6 +4,9 @@ Ces opérations complètent la lecture Marketplace de #24. Le navigateur appelle
 
 | Opération | Route | Frappe |
 | --- | --- | --- |
+| Fiche publiée (#24) | `GET /api/public/marketplace/merchants/{slug}` | aucun : projection PostgreSQL |
+| Menu | `GET …/restaurant/menu` | lecture `POS Profile`, `Price List`, `Item`, `Item Price`, `Item Group` |
+| Chambres | `GET …/hotel/rooms` | lecture `Hotel Room Type`, `Hotel Room` |
 | Revalider un panier | `POST /api/public/marketplace/merchants/{slug}/restaurant/quote` | lecture `POS Profile`, `Price List`, `Item`, `Item Price`, `Item Group` |
 | Commander | `POST /api/public/marketplace/merchants/{slug}/restaurant/orders` | `lumen_restaurants.api.restaurant.open_order` puis `save_order` |
 | Disponibilités | `GET /api/public/marketplace/merchants/{slug}/hotel/availability` | lecture `Hotel Room Type`, `Hotel Room`, `Hotel Reservation` |
@@ -13,7 +16,19 @@ Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/opena
 
 ## Résolution du site
 
-`MARKETPLACE_TRANSACTION_MERCHANTS` associe un slug public à ses capacités et à une clé de site (`RESTODEMO`, `HOTELDEMO`). Les identifiants de chaque site sont lus dans `MARKETPLACE_FRAPPE_<SITE>_URL`, `_API_KEY` et `_API_SECRET`. Le client ne choisit jamais le site, l'outlet ni la réception. Une capacité absente renvoie `404 CAPABILITY_NOT_AVAILABLE` sans appel à Frappe. Une fois la projection de #24 livrée, une capacité doit aussi y être publiée pour être active.
+`MARKETPLACE_TRANSACTION_MERCHANTS` associe un slug public à ses capacités et à une clé de site (`RESTODEMO`, `HOTELDEMO`). Les identifiants de chaque site sont lus dans `MARKETPLACE_FRAPPE_<SITE>_URL`, `_API_KEY` et `_API_SECRET`. Le client ne choisit jamais le site, l'outlet ni la réception. Une capacité absente renvoie `404 CAPABILITY_NOT_AVAILABLE` sans appel à Frappe. Une capacité n'est active que si elle est **aussi publiée** dans la projection Marketplace. Une fiche absente, dépubliée ou sans cette capacité renvoie `404 CAPABILITY_NOT_AVAILABLE`, sans appel Frappe. Si la projection est injoignable, la réponse est `503 PROFILE_SOURCE_UNAVAILABLE` : l'API refuse plutôt que de laisser passer.
+
+## Projection Marketplace (#24) — contrat proposé au writer konektag_360
+
+La migration `228_marketplace_published_establishments.sql` est additive. Elle crée `konektag.marketplace_published_establishments`, avec une ligne par établissement, ainsi que la fonction d'écriture `konektag.marketplace_apply_publication(event_key, source_site, establishment_id, version, operation, slug, snapshot, capabilities)`. Le worker de publication appelle cette fonction pour chaque `Merchant Publication Job` :
+
+- `event_key`, `source_site`, `establishment_id`, `publication_version`, `operation` : champs du job, tels quels.
+- `snapshot` : le `payload` du job (`konektag_360.domain.snapshot()`), `NULL` pour `Unpublish`.
+- `capabilities` : `{restaurant}`, `{hotel}` ou les deux. Ces valeurs ne figurent pas encore dans le snapshot Frappe (voir les manques).
+- Retour : `applied`, `duplicate` (même événement, sans effet) ou `stale` (version plus ancienne ignorée). Une même version avec un autre événement est refusée. Le job ne passe en `Synced` qu'après `applied` ou `duplicate`.
+- L'API lit seule cette table, en `SELECT`. Les médias `/files/…` sont servis depuis `https://<source_site>`.
+
+Le menu et les chambres restent lus en direct dans Lumen et Hospitality, avec un cache de 60 s. Ce sont les mêmes règles que celles de la validation de commande : un plat affiché est un plat accepté à son prix. Ce choix est à valider en revue : il évite une seconde projection des catalogues.
 
 ## Garanties
 
@@ -36,6 +51,7 @@ Un utilisateur de service dédié par site, avec une clé API, sans accès Desk.
 - Lecture sur `Hotel Room Type`, `Hotel Room`, `Hotel Reservation` et `Guest`, création sur `Guest` et `Hotel Reservation`. La création d'une réservation ouvre aussi un `Guest Folio` provisoire (`ignore_permissions` côté Hospitality).
 
 **Manques Frappe signalés**
+0. Projection Marketplace : aucun worker n'écrit encore dans PostgreSQL (`konektag_360` : « No PostgreSQL writer is provided »). Le snapshot ne porte pas non plus les capacités transactionnelles. Attendu : un champ public des capacités Restaurant/Hôtel sur *Merchant Establishment* et un worker qui appelle `konektag.marketplace_apply_publication`.
 1. `Hotel Reservation` n'a pas de référence externe unique. **Bloquant pour la reprise après coupure** : sans ce champ, une tentative interrompue pendant l'écriture renvoie `RESERVATION_OUTCOME_UNKNOWN`. Attendu : champ Data unique (par exemple `konektag_reference`), accepté à la création par le compte de service. Il faut ensuite déclarer `"externalReferenceField":"konektag_reference"` dans la capacité `hotel`.
 2. `check_availability` lit puis insère sans verrou. Deux créations simultanées hors Konektag (Desk + Web) peuvent passer. Attendu : verrou `SELECT … FOR UPDATE` sur la chambre (`Hotel Room`) dans `validate`, comme `open_order` le fait pour les tables Lumen.
 3. `POS Restaurant Order.order_id` n'est pas unique. Le rejeu est sûr pour Konektag (lecture puis verrou), mais pas garanti en base. Attendu : index unique `(app_type, order_id)`.

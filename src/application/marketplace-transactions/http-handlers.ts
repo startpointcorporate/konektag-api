@@ -4,12 +4,14 @@ import type { RequestContext, RouteHandler } from '../../api/http.ts';
 import { FrappeSiteError, frappeSite, type FrappeSite } from './frappe-site.ts';
 import { CapabilityConfigError, resolveCapability } from './merchant-capabilities.ts';
 import { ReplayError, fingerprint, onceByKey, readIdempotencyKey, withLease, type ReplayStore } from './replay.ts';
-import { RestaurantError, placeOrder, quoteCart } from './restaurant-orders.ts';
-import { HotelError, bookRoom, searchAvailability } from './hotel-bookings.ts';
+import { RestaurantError, menuOf, placeOrder, quoteCart } from './restaurant-orders.ts';
+import { HotelError, bookRoom, roomCatalogue, searchAvailability } from './hotel-bookings.ts';
+import { ProjectionUnavailable, isPublicSlugValue, publishedCapability, sqlPublishedProfiles, toPublicProfile, type PublishedProfiles } from './published-profiles.ts';
 
 export interface TransactionDeps {
   store: () => ReplayStore;
   site: (key: string) => FrappeSite;
+  profiles: () => PublishedProfiles;
   env: NodeJS.ProcessEnv;
   now: () => Date;
 }
@@ -89,19 +91,29 @@ function failure(scope: string, error: unknown): Response {
     console.error(`[marketplace-${scope}] Frappe ${error.code}`, error.httpStatus, error.excType);
     return json({ error: error.code === 'SITE_UNAVAILABLE' ? 'SITE_UNAVAILABLE' : 'TRANSACTIONS_UNAVAILABLE' }, 503, { 'Retry-After': '30' });
   }
+  if (error instanceof ProjectionUnavailable) {
+    console.error(`[marketplace-${scope}] projection unavailable`);
+    return json({ error: 'PROFILE_SOURCE_UNAVAILABLE' }, 503, { 'Retry-After': '30' });
+  }
   if (error instanceof CapabilityConfigError) console.error(`[marketplace-${scope}] ${error.message}`);
   else console.error(`[marketplace-${scope}] unexpected failure`, error instanceof Error ? error.name : typeof error);
   return json({ error: 'TRANSACTIONS_UNAVAILABLE' }, 503);
 }
 
-function capability(deps: TransactionDeps, slug: string | undefined, kind: 'restaurant' | 'hotel') {
-  return resolveCapability(slug ?? '', kind as any, deps.env) as any;
+/**
+ * A transaction needs both: the capability published for this establishment
+ * in the Marketplace projection, and its server-side routing to a Frappe site.
+ */
+async function capability(deps: TransactionDeps, slug: string | undefined, kind: 'restaurant' | 'hotel'): Promise<any> {
+  const cap = resolveCapability(slug ?? '', kind as any, deps.env);
+  if (!cap) return null;
+  return (await publishedCapability(deps.profiles(), slug!, kind)) ? cap : null;
 }
 
 export function restaurantHandlers(deps: TransactionDeps): { quote: RouteHandler; order: RouteHandler } {
   const quote: RouteHandler = async ctx => {
     try {
-      const cap = capability(deps, ctx.params.slug, 'restaurant');
+      const cap = await capability(deps, ctx.params.slug, 'restaurant');
       if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
       const body = await readJson(ctx.request);
       if (!body.ok) return body.response;
@@ -116,7 +128,7 @@ export function restaurantHandlers(deps: TransactionDeps): { quote: RouteHandler
   const order: RouteHandler = async ctx => {
     try {
       const slug = ctx.params.slug!;
-      const cap = capability(deps, slug, 'restaurant');
+      const cap = await capability(deps, slug, 'restaurant');
       if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
       const key = readIdempotencyKey(ctx.request);
       if (!key) return json({ error: 'IDEMPOTENCY_KEY_REQUIRED' }, 400);
@@ -140,7 +152,7 @@ export function restaurantHandlers(deps: TransactionDeps): { quote: RouteHandler
 export function hotelHandlers(deps: TransactionDeps): { availability: RouteHandler; reserve: RouteHandler } {
   const availability: RouteHandler = async ctx => {
     try {
-      const cap = capability(deps, ctx.params.slug, 'hotel');
+      const cap = await capability(deps, ctx.params.slug, 'hotel');
       if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
       const q = ctx.url.searchParams;
       const parsed = z.object({
@@ -158,7 +170,7 @@ export function hotelHandlers(deps: TransactionDeps): { availability: RouteHandl
   const reserve: RouteHandler = async ctx => {
     try {
       const slug = ctx.params.slug!;
-      const cap = capability(deps, slug, 'hotel');
+      const cap = await capability(deps, slug, 'hotel');
       if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
       const key = readIdempotencyKey(ctx.request);
       if (!key) return json({ error: 'IDEMPOTENCY_KEY_REQUIRED' }, 400);
@@ -181,7 +193,45 @@ export function hotelHandlers(deps: TransactionDeps): { availability: RouteHandl
   return { availability, reserve };
 }
 
+const cached = (body: unknown) => json(body, 200, { 'Cache-Control': 'public, max-age=60, stale-while-revalidate=120' });
+
+/** GET /api/public/marketplace/merchants/{slug}: published profiles only. */
+export function profileHandler(deps: TransactionDeps): RouteHandler {
+  return async ctx => {
+    try {
+      const slug = ctx.params.slug ?? '';
+      if (!isPublicSlugValue(slug)) return json({ error: 'PROFILE_NOT_FOUND' }, 404);
+      const row = await deps.profiles().bySlug(slug);
+      // Absent and unpublished answer alike: a tombstone reveals nothing.
+      if (!row || row.status !== 'Published') return json({ error: 'PROFILE_NOT_FOUND' }, 404);
+      return cached(toPublicProfile(row));
+    } catch (error) { return failure('profile', error); }
+  };
+}
+
+/** Live catalogue reads behind a published capability. */
+export function catalogueHandlers(deps: TransactionDeps): { menu: RouteHandler; rooms: RouteHandler } {
+  return {
+    menu: async ctx => {
+      try {
+        const cap = await capability(deps, ctx.params.slug, 'restaurant');
+        if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
+        return cached(await menuOf(deps.site(cap.site), cap, deps.now().toISOString().slice(0, 10)));
+      } catch (error) { return failure('restaurant-menu', error); }
+    },
+    rooms: async ctx => {
+      try {
+        const cap = await capability(deps, ctx.params.slug, 'hotel');
+        if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
+        return cached(await roomCatalogue(deps.site(cap.site), cap));
+      } catch (error) { return failure('hotel-rooms', error); }
+    },
+  };
+}
+
 export async function defaultDeps(): Promise<TransactionDeps> {
   const { redisAdapter } = await import('../../infrastructure/adapters/redis-adapter.ts');
-  return { store: () => redisAdapter, site: key => frappeSite(key), env: process.env, now: () => new Date() };
+  const { query } = await import('../../infrastructure/database/pool.ts');
+  const profiles = sqlPublishedProfiles(query);
+  return { store: () => redisAdapter, site: key => frappeSite(key), profiles: () => profiles, env: process.env, now: () => new Date() };
 }

@@ -227,3 +227,21 @@ export async function bookRoom(site: FrappeSite, cap: HotelCapability, input: Bo
   }
   throw new HotelError('ROOM_UNAVAILABLE', await searchAvailability(site, cap, input, now));
 }
+
+export interface RoomCatalogue { currency: string; checkIn?: string; checkOut?: string; roomTypes: { roomType: string; description: string | null; maxAdults: number; maxChildren: number; fromNightlyRate: number }[] }
+
+/** Room types offered for public booking (priced, with at least one enabled room). */
+export async function roomCatalogue(site: FrappeSite, cap: HotelCapability): Promise<RoomCatalogue> {
+  const [types, rooms] = await Promise.all([
+    site.list('Hotel Room Type', [], ['name', 'default_rate', 'max_adults', 'max_children', 'description'], 200),
+    site.list('Hotel Room', [['is_enabled', '=', 1], ['status', '!=', 'Out of Order']], ['room_type'], 2000),
+  ]);
+  const offered = new Set(rooms.map((r: any) => r.room_type));
+  return {
+    currency: cap.currency,
+    roomTypes: types.filter((t: any) => Number(t.default_rate) > 0 && offered.has(t.name)).map((t: any) => ({
+      roomType: String(t.name), description: t.description ? String(t.description).slice(0, 500) : null,
+      maxAdults: Number(t.max_adults), maxChildren: Number(t.max_children), fromNightlyRate: money(Number(t.default_rate)),
+    })).sort((a: any, b: any) => a.fromNightlyRate - b.fromNightlyRate),
+  };
+}

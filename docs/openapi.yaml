@@ -2759,6 +2759,61 @@ paths:
         - LINK_NOT_AVAILABLE
         - LINK_PAY_RESUME_FAILED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/public/marketplace/merchants/{slug}:
+    get:
+      operationId: get__api_public_marketplace_merchants_slug
+      summary: Published Marketplace profile of one establishment
+      tags:
+        - public
+      description: >-
+        Read only (API #24). Served from the PostgreSQL projection written by konektag_360
+        (konektag.marketplace_published_establishments, migration 228). Only public fields of the Frappe publication
+        snapshot are returned; media are absolute URLs of public Frappe files of the source site. Absent and
+        unpublished establishments both answer 404 PROFILE_NOT_FOUND. `capabilities` lists the transactional
+        capabilities published for the establishment; the restaurant and hotel operations require them.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 160 }
+      responses:
+        "200":
+          description: Published profile (cacheable 60 s).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [slug, establishmentId, version, name, media, openingHours, activities, socialLinks, capabilities, publishedAt]
+                properties:
+                  slug: { type: string }
+                  establishmentId: { type: string, format: uuid }
+                  version: { type: integer, description: Publication version from Frappe. }
+                  name: { type: string }
+                  merchantName: { type: string }
+                  description: { type: string }
+                  seoTitle: { type: string }
+                  seoDescription: { type: string }
+                  address: { type: string }
+                  city: { type: object, properties: { id: { type: string }, name: { type: string }, slug: { type: string } } }
+                  countryCode: { type: string, pattern: '^[A-Z]{2}$' }
+                  coordinates: { type: object, properties: { lat: { type: number }, lng: { type: number } } }
+                  phone: { type: string }
+                  email: { type: string }
+                  website: { type: string, format: uri }
+                  logo: { type: object, properties: { url: { type: string, format: uri } } }
+                  media: { type: array, items: { type: object, required: [url], properties: { url: { type: string, format: uri }, alt: { type: string }, caption: { type: string } } } }
+                  openingHours:
+                    type: array
+                    items: { type: object, required: [day, closed], properties: { day: { type: integer, minimum: 0, maximum: 6, description: 0 = Sunday }, closed: { type: boolean }, opens: { type: string, example: '11:00' }, closes: { type: string } } }
+                  activities: { type: array, items: { type: object, properties: { code: { type: string }, name: { type: string } } } }
+                  socialLinks: { type: array, items: { type: object, properties: { platform: { type: string }, url: { type: string, format: uri } } } }
+                  capabilities: { type: array, items: { type: string, enum: [restaurant, hotel] } }
+                  publishedAt: { type: string, format: date-time }
+        "404": { description: PROFILE_NOT_FOUND — absent, unpublished or malformed slug., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: PROFILE_SOURCE_UNAVAILABLE — projection unreachable (Retry-After)., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/index.ts
+      x-error-codes: [PROFILE_NOT_FOUND, PROFILE_SOURCE_UNAVAILABLE]
   /api/public/marketplace/merchants/{slug}/hotel/availability:
     get:
       operationId: get__api_public_marketplace_merchants_slug_hotel_availability
@@ -2832,7 +2887,7 @@ paths:
         "503": { description: SITE_UNAVAILABLE (Frappe down or in its reset window, Retry-After) or TRANSACTIONS_UNAVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts
-      x-error-codes: [INVALID_STAY, CAPABILITY_NOT_AVAILABLE, TOO_MANY_REQUESTS, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+      x-error-codes: [INVALID_STAY, CAPABILITY_NOT_AVAILABLE, TOO_MANY_REQUESTS, SITE_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
   /api/public/marketplace/merchants/{slug}/hotel/reservations:
     post:
       operationId: post__api_public_marketplace_merchants_slug_hotel_reservations
@@ -2921,7 +2976,37 @@ paths:
         "503": { description: SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts
-      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, CAPABILITY_NOT_AVAILABLE, ROOM_UNAVAILABLE, RESERVATION_OUTCOME_UNKNOWN, PRICE_CHANGED, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, ROOM_TYPE_NOT_FOUND, OCCUPANCY_EXCEEDED, INVALID_STAY, TOO_MANY_REQUESTS, RESERVATION_NOT_RECORDED, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_RESERVATION, CAPABILITY_NOT_AVAILABLE, ROOM_UNAVAILABLE, RESERVATION_OUTCOME_UNKNOWN, PRICE_CHANGED, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, ROOM_TYPE_NOT_FOUND, OCCUPANCY_EXCEEDED, INVALID_STAY, TOO_MANY_REQUESTS, RESERVATION_NOT_RECORDED, SITE_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+  /api/public/marketplace/merchants/{slug}/hotel/rooms:
+    get:
+      operationId: get__api_public_marketplace_merchants_slug_hotel_rooms
+      summary: Bookable room types of a hotel merchant
+      tags:
+        - public
+      description: >-
+        Read only. Requires the hotel capability published in the Marketplace projection. Room types with a default
+        rate and at least one enabled room that is not Out of Order; room numbers are never exposed. Availability for
+        dates is the availability operation.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Room types, cheapest first (cacheable 60 s).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currency: { type: string }
+                  roomTypes: { type: array, items: { type: object, properties: { roomType: { type: string }, description: { type: [string, 'null'] }, maxAdults: { type: integer }, maxChildren: { type: integer }, fromNightlyRate: { type: number } } } }
+        "404": { description: CAPABILITY_NOT_AVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: PROFILE_SOURCE_UNAVAILABLE, SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts
+      x-error-codes: [CAPABILITY_NOT_AVAILABLE, PROFILE_SOURCE_UNAVAILABLE, SITE_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
   /api/public/marketplace/merchants/{slug}/restaurant/orders:
     post:
       operationId: post__api_public_marketplace_merchants_slug_restaurant_orders
@@ -3013,7 +3098,38 @@ paths:
         "503": { description: RESTAURANT_UNAVAILABLE (outlet not in restaurant mode), SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE; retry with the same key., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts
-      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_ORDER, CAPABILITY_NOT_AVAILABLE, PRICE_CHANGED, ITEM_UNAVAILABLE, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, TOO_MANY_REQUESTS, ORDER_NOT_RECORDED, RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+      x-error-codes: [IDEMPOTENCY_KEY_REQUIRED, INVALID_ORDER, CAPABILITY_NOT_AVAILABLE, PRICE_CHANGED, ITEM_UNAVAILABLE, REQUEST_IN_PROGRESS, IDEMPOTENCY_KEY_REUSED, CURRENCY_MISMATCH, TOO_MANY_REQUESTS, ORDER_NOT_RECORDED, RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+  /api/public/marketplace/merchants/{slug}/restaurant/menu:
+    get:
+      operationId: get__api_public_marketplace_merchants_slug_restaurant_menu
+      summary: Orderable dishes of a restaurant merchant, priced from Lumen
+      tags:
+        - public
+      description: >-
+        Read only. Requires the restaurant capability published in the Marketplace projection. Lists the outlet's
+        sales items (enabled, without variants, in its listed sections) that have a price in effect today in the
+        outlet's price list, exactly the set the order validation accepts. A dish edited in Lumen appears here within
+        the 60 s cache.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Menu by section (cacheable 60 s).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currency: { type: string }
+                  sections: { type: array, items: { type: object, properties: { name: { type: string }, dishes: { type: array, items: { type: object, properties: { itemCode: { type: string }, name: { type: string }, description: { type: string }, price: { type: number } } } } } } }
+        "404": { description: CAPABILITY_NOT_AVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+        "503": { description: RESTAURANT_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts
+      x-error-codes: [CAPABILITY_NOT_AVAILABLE, RESTAURANT_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, SITE_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
   /api/public/marketplace/merchants/{slug}/restaurant/quote:
     post:
       operationId: post__api_public_marketplace_merchants_slug_restaurant_quote
@@ -3048,7 +3164,7 @@ paths:
         "503": { description: RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE or TRANSACTIONS_UNAVAILABLE., content: { application/json: { schema: { type: object, properties: { error: { type: string } } } } } }
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts
-      x-error-codes: [INVALID_CART, CAPABILITY_NOT_AVAILABLE, CURRENCY_MISMATCH, TOO_MANY_REQUESTS, RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
+      x-error-codes: [INVALID_CART, CAPABILITY_NOT_AVAILABLE, CURRENCY_MISMATCH, TOO_MANY_REQUESTS, RESTAURANT_UNAVAILABLE, SITE_UNAVAILABLE, PROFILE_SOURCE_UNAVAILABLE, TRANSACTIONS_UNAVAILABLE]
   /api/public/users/{id}/analytics:
     post:
       operationId: post__api_public_users_id_analytics

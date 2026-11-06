@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createContext } from '../../src/api/http.ts';
 import { FrappeSiteError, frappeSite, type FrappeSite, type Filter } from '../../src/application/marketplace-transactions/frappe-site.ts';
-import { hotelHandlers, restaurantHandlers, type TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
+import { catalogueHandlers, hotelHandlers, profileHandler, restaurantHandlers, type TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
+import { ProjectionUnavailable, sqlPublishedProfiles, toPublicProfile, type ProjectionRow, type PublishedProfiles } from '../../src/application/marketplace-transactions/published-profiles.ts';
 import { resolveCapability } from '../../src/application/marketplace-transactions/merchant-capabilities.ts';
 import type { ReplayStore } from '../../src/application/marketplace-transactions/replay.ts';
 
@@ -29,6 +30,8 @@ function matches(doc: any, [field, op, value]: Filter) {
     case 'in': return (value as unknown[]).includes(v);
     case '<': return v < (value as any);
     case '>': return v > (value as any);
+    case '>=': return v >= (value as any);
+    case '<=': return v <= (value as any);
     default: throw new Error('op ' + op);
   }
 }
@@ -138,13 +141,43 @@ const envWithRef = {
   }),
 } as NodeJS.ProcessEnv;
 
+/** konektag_360.domain.snapshot() shape, as delivered to the projection. */
+function snapshotOf(slug: string, name: string) {
+  return {
+    establishment_id: '9b1d4c7e-0000-4000-8000-000000000001', establishment_name: name, description: 'Cuisine maison',
+    country_code: 'CG', city_id: 'cg-bzv', city_name: 'Brazzaville', city_slug: 'brazzaville', address: 'Avenue Foch',
+    latitude: '-4.2634', longitude: '15.2429', slug,
+    merchant: { merchant_id: 'm-1', merchant_name: 'Groupe Démo', description: null, logo: '/files/logo.png', website: 'https://demo.example',
+      public_email: 'contact@demo.example', public_phone: '+242060000001', seo_title: null, seo_description: null },
+    activities: [{ activity_code: 'restaurant', activity_name: 'Restaurant' }],
+    opening_hours: [{ weekday: 'Monday', closed: 1, opens_at: null, closes_at: null }, { weekday: 'Tuesday', closed: 0, opens_at: '11:00:00', closes_at: '22:30:00' }],
+    media: [{ file: '/files/salle.jpg', alt_text: 'Salle', caption: null }, { file: 'https://evil.example/x.jpg', alt_text: 'x', caption: null }],
+    social_links: [{ platform: 'Instagram', url: 'https://instagram.com/demo' }, { platform: 'Bad', url: 'javascript:alert(1)' }],
+  };
+}
+const row = (slug: string, capabilities: string[], status: 'Published' | 'Unpublished' = 'Published'): ProjectionRow => ({
+  establishment_id: '9b1d4c7e-0000-4000-8000-000000000001', source_site: 'congo.erp.konektag.eu', slug, publication_version: 3,
+  status, snapshot: status === 'Published' ? snapshotOf(slug, 'Feane') : null, capabilities: status === 'Published' ? capabilities : [],
+  delivered_at: '2026-11-06T09:00:00Z',
+});
+class MemoryProjection implements PublishedProfiles {
+  rows = new Map<string, ProjectionRow>([
+    ['feane-brazzaville', row('feane-brazzaville', ['restaurant'])],
+    ['hotelier-brazzaville', row('hotelier-brazzaville', ['hotel'])],
+    ['boutique-standard', row('boutique-standard', [])],
+  ]);
+  down = false;
+  async bySlug(slug: string) { if (this.down) throw new ProjectionUnavailable(); return this.rows.get(slug) ?? null; }
+}
+
 function setup(withRef = false) {
+  const projection = new MemoryProjection();
   const store = new MemoryStore();
   const sites: Record<string, FakeSite> = { RESTODEMO: restaurantSite(), HOTELDEMO: hotelSite() };
   if (withRef) sites.HOTELDEMO.uniqueRef = REF;
   const used: string[] = [];
-  const deps: TransactionDeps = { store: () => store, site: key => { used.push(key); return sites[key]; }, env: withRef ? envWithRef : env, now: () => NOW };
-  return { store, sites, used, resto: restaurantHandlers(deps), hotel: hotelHandlers(deps) };
+  const deps: TransactionDeps = { store: () => store, site: key => { used.push(key); return sites[key]; }, profiles: () => projection, env: withRef ? envWithRef : env, now: () => NOW };
+  return { store, sites, used, projection, resto: restaurantHandlers(deps), hotel: hotelHandlers(deps), profile: profileHandler(deps), catalogue: catalogueHandlers(deps) };
 }
 
 const KEY = 'web-3f6c2a4e-9b1d-4c7e-8f00-1234567890ab';
@@ -562,5 +595,127 @@ describe('hotel reservation', () => {
     expect(guests).toHaveLength(2);
     expect(guests[1].name).toMatch(/^Jean Ngoma \(/);
     expect(t.sites.HOTELDEMO.table('Hotel Reservation')[0].guest).toBe(guests[1].name);
+  });
+});
+
+// ── Marketplace read (API #24) and published-capability gate ─────────────
+
+describe('published profile read', () => {
+  const PROFILE = '/api/public/marketplace/merchants/feane-brazzaville';
+
+  it('serves a published profile with public fields only and absolute public media', async () => {
+    const t = setup();
+    const res = await t.profile(get(PROFILE));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toMatchObject({
+      slug: 'feane-brazzaville', name: 'Feane', merchantName: 'Groupe Démo', countryCode: 'CG', version: 3,
+      city: { id: 'cg-bzv', name: 'Brazzaville', slug: 'brazzaville' }, coordinates: { lat: -4.2634, lng: 15.2429 },
+      logo: { url: 'https://congo.erp.konektag.eu/files/logo.png' }, capabilities: ['restaurant'],
+    });
+    expect(body.media).toEqual([{ url: 'https://congo.erp.konektag.eu/files/salle.jpg', alt: 'Salle' }]);
+    expect(body.socialLinks).toEqual([{ platform: 'Instagram', url: 'https://instagram.com/demo' }]);
+    expect(body.openingHours).toEqual([{ day: 1, closed: true }, { day: 2, closed: false, opens: '11:00', closes: '22:30' }]);
+    expect(JSON.stringify(body)).not.toMatch(/merchant_id|evil|javascript/);
+  });
+
+  it('answers 404 for an absent, unpublished or malformed slug', async () => {
+    const t = setup();
+    t.projection.rows.set('feane-brazzaville', row('feane-brazzaville', [], 'Unpublished'));
+    for (const path of [PROFILE, '/api/public/marketplace/merchants/inconnu', '/api/public/marketplace/merchants/Bad_Slug']) {
+      const res = await t.profile(get(path));
+      expect(res.status).toBe(404);
+      expect(await res.json()).toEqual({ error: 'PROFILE_NOT_FOUND' });
+    }
+  });
+
+  it('reports the projection as unavailable rather than missing', async () => {
+    const t = setup();
+    t.projection.down = true;
+    const res = await t.profile(get(PROFILE));
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).toBe('PROFILE_SOURCE_UNAVAILABLE');
+  });
+
+  it('reads the projection with one parameterised SELECT and hides database errors', async () => {
+    const calls: unknown[][] = [];
+    const reader = sqlPublishedProfiles(async (text, params) => { calls.push([text, params]); return { rows: [] }; });
+    expect(await reader.bySlug("x' OR 1=1 --")).toBeNull();
+    expect(String(calls[0][0])).toMatch(/^SELECT .* FROM konektag\.marketplace_published_establishments WHERE slug = \$1$/s);
+    expect(calls[0][1]).toEqual(["x' OR 1=1 --"]);
+    const broken = sqlPublishedProfiles(async () => { throw new Error('password authentication failed'); });
+    await expect(broken.bySlug('a')).rejects.toBeInstanceOf(ProjectionUnavailable);
+  });
+
+  it('drops coordinates that are absent rather than zero', () => {
+    const r = row('feane-brazzaville', []);
+    r.snapshot.latitude = null; r.snapshot.longitude = null;
+    expect(toPublicProfile(r).coordinates).toBeUndefined();
+  });
+});
+
+describe('transactions require a published capability', () => {
+  it('refuses an order when the profile is unpublished, without calling Frappe', async () => {
+    const t = setup();
+    t.projection.rows.set('feane-brazzaville', row('feane-brazzaville', [], 'Unpublished'));
+    const res = await t.resto.order(post(ORDER_PATH, order()));
+    expect(res.status).toBe(404);
+    expect((await res.json()).error).toBe('CAPABILITY_NOT_AVAILABLE');
+    expect(t.used).toEqual([]);
+  });
+
+  it('refuses a booking when the hotel capability is not published, even if configured', async () => {
+    const t = setup();
+    t.projection.rows.set('hotelier-brazzaville', row('hotelier-brazzaville', ['restaurant']));
+    expect((await t.hotel.reserve(post(RES_PATH, booking()))).status).toBe(404);
+    expect((await t.hotel.availability(get(AV_PATH + '?arrival=2026-11-20&departure=2026-11-22&adults=1'))).status).toBe(404);
+    expect(t.used).toEqual([]);
+  });
+
+  it('refuses a published capability that has no server-side routing', async () => {
+    const t = setup();
+    t.projection.rows.set('boutique-standard', row('boutique-standard', ['restaurant']));
+    expect((await t.resto.order(post('/api/public/marketplace/merchants/boutique-standard/restaurant/orders', order()))).status).toBe(404);
+  });
+
+  it('fails closed when the projection is down', async () => {
+    const t = setup();
+    t.projection.down = true;
+    const res = await t.resto.order(post(ORDER_PATH, order()));
+    expect(res.status).toBe(503);
+    expect(t.sites.RESTODEMO.table('POS Restaurant Order')).toHaveLength(0);
+  });
+});
+
+describe('live catalogues', () => {
+  it('lists orderable dishes of the outlet sections with today\'s prices, as the order validation accepts them', async () => {
+    const t = setup();
+    const res = await t.catalogue.menu(get('/api/public/marketplace/merchants/feane-brazzaville/restaurant/menu'));
+    expect(res.status).toBe(200);
+    const menu = await res.json();
+    expect(menu.currency).toBe('XAF');
+    expect(menu.sections).toEqual([{ name: 'Plats', dishes: [
+      { itemCode: 'BURGER', name: 'Burger maison', price: 4500 },
+      { itemCode: 'FRITES', name: 'Frites', price: 1500 },
+    ] }]);
+    // Every dish on the menu is accepted at its displayed price.
+    const lines = menu.sections.flatMap((s: any) => s.dishes.map((d: any) => ({ itemCode: d.itemCode, quantity: 1, unitPrice: d.price })));
+    const quote = await (await t.resto.quote(post(QUOTE_PATH, { currency: menu.currency, lines }, null))).json();
+    expect(quote.priceChanges).toEqual([]);
+    expect(quote.unavailableItems).toEqual([]);
+  });
+
+  it('lists bookable room types without room numbers', async () => {
+    const t = setup();
+    const res = await t.catalogue.rooms(get('/api/public/marketplace/merchants/hotelier-brazzaville/hotel/rooms'));
+    const body = await res.json();
+    expect(body.roomTypes.map((r: any) => r.roomType)).toEqual(['Standard']); // the only Suite is Out of Order
+    expect(JSON.stringify(body)).not.toContain('101');
+  });
+
+  it('hides catalogues of unpublished capabilities', async () => {
+    const t = setup();
+    expect((await t.catalogue.menu(get('/api/public/marketplace/merchants/hotelier-brazzaville/restaurant/menu'))).status).toBe(404);
+    expect((await t.catalogue.rooms(get('/api/public/marketplace/merchants/feane-brazzaville/hotel/rooms'))).status).toBe(404);
   });
 });
