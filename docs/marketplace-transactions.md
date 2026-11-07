@@ -18,17 +18,18 @@ Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/opena
 
 `MARKETPLACE_TRANSACTION_MERCHANTS` associe un slug public à ses capacités et à une clé de site (`RESTODEMO`, `HOTELDEMO`). Les identifiants de chaque site sont lus dans `MARKETPLACE_FRAPPE_<SITE>_URL`, `_API_KEY` et `_API_SECRET`. Le client ne choisit jamais le site, l'outlet ni la réception. Une capacité absente renvoie `404 CAPABILITY_NOT_AVAILABLE` sans appel à Frappe. Une capacité n'est active que si elle est **aussi publiée** dans la projection Marketplace. Une fiche absente, dépubliée ou sans cette capacité renvoie `404 CAPABILITY_NOT_AVAILABLE`, sans appel Frappe. Si la projection est injoignable, la réponse est `503 PROFILE_SOURCE_UNAVAILABLE` : l'API refuse plutôt que de laisser passer.
 
-## Projection Marketplace (#24) — lecture livrée, écriture en attente
+## Projection Marketplace (#24) — contrat livré
 
-**Lecture (livrée, validée sur PostgreSQL isolé).** La migration `228_marketplace_published_establishments.sql`, additive, crée uniquement le schéma lu par l'API : `konektag.marketplace_published_establishments`, une ligne par établissement, avec ses contraintes et l'index unique sur le slug. L'API le lit avec une identité limitée à `SELECT`. `tests/integration/marketplace-projection.pg.test.ts` l'exécute contre une base jetable `konektag_test`. Le test n'est lancé que si `MARKETPLACE_PG_TEST_URL` est défini, sinon il est sauté.
+**Contrat (livré par konektag_360, branche `feat/13-publication-worker`, PR konektag_360#17).** Le worker de publication écrit directement dans la table de la migration `228_marketplace_published_establishments.sql`, reprise à l'identique comme fixture de ses tests. Sur la base `konektag`, la migration est enregistrée APPLIED avec le checksum `92fb4026…a032ef0`, identique au fichier de cette branche : **ce fichier ne doit plus changer d'un octet**. Toute évolution passera par une nouvelle migration.
 
-**Écriture (proposition en attente).** Aucun contrat PostgreSQL n'a encore été livré par la session ERPNext. La fonction d'écriture proposée au worker konektag_360 est sortie de la migration et conservée dans `docs/proposals/marketplace-apply-publication.sql`. Elle n'est appliquée nulle part. Dès que le contrat réel sera livré, la lecture API et la migration 228 s'y aligneront avant toute application sur DESIGN. La proposition prévoit, pour chaque `Merchant Publication Job` :
+- Écriture : UPSERT paramétré conditionnel, version strictement croissante, même `source_site`, verrou consultatif par établissement. Rejeu identique sans effet, version ancienne ignorée, même version avec un autre contenu refusée. Dépublication : ligne conservée, `snapshot` NULL et capacités vides.
+- `snapshot` : `konektag_360.domain.snapshot()` du job ; il contient aussi `capabilities`. L'API se fie uniquement à la colonne `capabilities`.
+- `capabilities` : fixées côté serveur Frappe par établissement (`konektag_360_publication_capabilities`), sous-ensemble de `{restaurant, hotel}`.
+- Compte d'écriture dédié : SELECT/INSERT/UPDATE sur cette seule table, sans DELETE. L'API lit seule la table, en `SELECT`. Les médias `/files/…` sont servis depuis `https://<source_site>`.
 
-- `event_key`, `source_site`, `establishment_id`, `publication_version`, `operation` : champs du job, tels quels.
-- `snapshot` : le `payload` du job (`konektag_360.domain.snapshot()`), `NULL` pour `Unpublish`.
-- `capabilities` : `{restaurant}`, `{hotel}` ou les deux. Ces valeurs ne figurent pas encore dans le snapshot Frappe (voir les manques).
-- Retour : `applied`, `duplicate` (même événement, sans effet) ou `stale` (version plus ancienne ignorée). Une même version avec un autre événement est refusée. Le job ne passe en `Synced` qu'après `applied` ou `duplicate`.
-- L'API lit seule cette table, en `SELECT`. Les médias `/files/…` sont servis depuis `https://<source_site>`.
+La fonction `docs/proposals/marketplace-apply-publication.sql` **n'a pas été retenue** : elle n'est ni appliquée ni nécessaire. Elle n'est conservée que parce que le commentaire de la migration 228, déjà appliquée, y renvoie.
+
+**Validation.** `tests/integration/marketplace-projection.pg.test.ts` s'exécute contre une base jetable `konektag_test`. Il n'est lancé que si `MARKETPLACE_PG_TEST_URL` est défini, sinon il est sauté. Le 7 novembre 2026, la requête exacte de l'API a été rejouée en transaction lecture seule sur la vraie ligne de Restaurant Démo, puis convertie par `toPublicProfile` : fiche retrouvée par son slug, capacité `restaurant` reconnue, `hotel` non.
 
 Le menu et les chambres restent lus en direct dans Lumen et Hospitality, avec un cache de 60 s. Ce sont les mêmes règles que celles de la validation de commande : un plat affiché est un plat accepté à son prix. Ce choix est à valider en revue : il évite une seconde projection des catalogues.
 
@@ -53,7 +54,7 @@ Un utilisateur de service dédié par site, avec une clé API, sans accès Desk.
 - Lecture sur `Hotel Room Type`, `Hotel Room`, `Hotel Reservation` et `Guest`, création sur `Guest` et `Hotel Reservation`. La création d'une réservation ouvre aussi un `Guest Folio` provisoire (`ignore_permissions` côté Hospitality).
 
 **Manques Frappe signalés**
-0. Projection Marketplace : aucun worker n'écrit encore dans PostgreSQL (`konektag_360` : « No PostgreSQL writer is provided »). Le snapshot ne porte pas non plus les capacités transactionnelles. Attendu : un champ public des capacités Restaurant/Hôtel sur *Merchant Establishment* et un worker qui appelle `konektag.marketplace_apply_publication`.
+0. ~~Projection Marketplace~~ : livrée (worker konektag_360 actif sur restodemo uniquement, capacités publiées). Il reste, pour les commandes : le compte de service API restodemo et la ligne `delivery_apps` « Konektag » dans *LumenPOS Settings*.
 1. `Hotel Reservation` n'a pas de référence externe unique. **Bloquant pour la reprise après coupure** : sans ce champ, une tentative interrompue pendant l'écriture renvoie `RESERVATION_OUTCOME_UNKNOWN`. Attendu : champ Data unique (par exemple `konektag_reference`), accepté à la création par le compte de service. Il faut ensuite déclarer `"externalReferenceField":"konektag_reference"` dans la capacité `hotel`.
 2. `check_availability` lit puis insère sans verrou. Deux créations simultanées hors Konektag (Desk + Web) peuvent passer. Attendu : verrou `SELECT … FOR UPDATE` sur la chambre (`Hotel Room`) dans `validate`, comme `open_order` le fait pour les tables Lumen.
 3. `POS Restaurant Order.order_id` n'est pas unique. Le rejeu est sûr pour Konektag (lecture puis verrou), mais pas garanti en base. Attendu : index unique `(app_type, order_id)`.

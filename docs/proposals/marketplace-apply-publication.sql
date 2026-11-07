@@ -1,9 +1,9 @@
--- PROPOSITION EN ATTENTE — non appliquée, non livrée.
--- Fonction d'écriture proposée au worker de publication konektag_360 (API #24).
--- Elle ne fait partie d'aucune migration. La session ERPNext décide du contrat
--- d'écriture ; une fois ce contrat livré, la lecture API s'y aligne et cette
--- proposition est soit reprise telle quelle dans une migration, soit retirée.
--- Prérequis : migration 228 (table konektag.marketplace_published_establishments).
+-- NON RETENUE — ni appliquée ni nécessaire.
+-- Le worker konektag_360 (PR konektag_360#17) écrit directement dans la table de
+-- la migration 228 avec un UPSERT conditionnel, protégé par un verrou consultatif.
+-- La session ERPNext a relevé que cette fonction (SELECT FOR UPDATE puis UPSERT)
+-- ne protège pas une ligne encore absente. Ce fichier n'est conservé que parce
+-- que le commentaire de la migration 228, déjà appliquée, y renvoie.
 BEGIN;
 -- Idempotent, monotonic apply. The same event again is a no-op; an older
 -- version is ignored; the same version with other content is refused.
