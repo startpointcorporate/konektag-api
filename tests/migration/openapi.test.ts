@@ -11,7 +11,7 @@ it('documents every exported REST operation without inventing routes',()=>{
     const operation=spec.paths[r.path][method.toLowerCase()];expect(operation).toBeDefined();ids.push(operation.operationId);
     for(const key of r.keys)expect(operation.parameters).toContainEqual(expect.objectContaining({name:key,in:'path',required:true}));
   }
-  expect(new Set(ids).size).toBe(402);
+  expect(new Set(ids).size).toBe(404);
 });
 
 it('documents Keycloak OAuth2 authorization code for Swagger without replacing existing schemes',()=>{
@@ -25,4 +25,15 @@ it('documents Keycloak OAuth2 authorization code for Swagger without replacing e
   expect(spec.components.securitySchemes.bearer).toBeDefined();
   expect(spec.paths['/api/auth/me'].get.security).toContainEqual({keycloakOAuth:[]});
   expect(spec.paths['/api/countries'].get.security).toContainEqual({keycloakOAuth:[]});
+});
+
+it('documents the published marketplace listing and facets contract',()=>{
+  const {paths}=parse(readFileSync('docs/openapi.yaml','utf8'));
+  const list=paths['/api/public/marketplace/merchants'].get;
+  expect(list.security).toEqual([]);
+  expect(list.parameters.find((p:any)=>p.name==='sort').schema).toEqual({type:'string',enum:['name','distance'],default:'name'});
+  expect(list.parameters.find((p:any)=>p.name==='limit').schema.maximum).toBe(50);
+  expect(list.responses['200'].content['application/json'].schema.required).toContain('sort');
+  expect(list.responses['503'].content['application/json'].schema.properties.error.const).toBe('PROJECTION_UNAVAILABLE');
+  expect(paths['/api/public/marketplace/facets'].get.responses['200'].content['application/json'].schema.properties.countries.items.properties.cities.items.required).toContain('id');
 });

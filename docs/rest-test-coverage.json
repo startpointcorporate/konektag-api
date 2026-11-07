@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 317,
-    "operations": 402,
+    "paths": 319,
+    "operations": 404,
     "covered": 77,
-    "partial": 324,
+    "partial": 326,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 325,
-    "executedTests": 2739,
-    "passedTests": 2739
+    "businessUncovered": 327,
+    "executedTests": 2744,
+    "passedTests": 2744
   },
   "operations": [
     {
@@ -9532,6 +9532,82 @@
       "candidates": [
         "tests/unit/cpm-public-catalogue.test.ts"
       ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/marketplace/facets",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/facets",
+      "source": "src/api/routes/public/marketplace/facets/index.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/facets] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/facets] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/marketplace/merchants",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/merchants",
+      "source": "src/api/routes/public/marketplace/merchants/index.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/merchants] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]

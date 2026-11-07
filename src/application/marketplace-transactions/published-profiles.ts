@@ -98,7 +98,7 @@ export function toPublicProfile(row: ProjectionRow): PublicProfile {
     return new URL(path, `https://${row.source_site}`).href;
   };
   const lat = Number(s.latitude), lng = Number(s.longitude);
-  const hasCoords = s.latitude !== null && s.latitude !== '' && s.latitude !== undefined && Number.isFinite(lat) && Number.isFinite(lng)
+  const hasCoords = s.longitude !== null && s.longitude !== '' && s.longitude !== undefined && s.latitude !== null && s.latitude !== '' && s.latitude !== undefined && Number.isFinite(lat) && Number.isFinite(lng)
     && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
   const logo = fileUrl(m.logo);
   return {
