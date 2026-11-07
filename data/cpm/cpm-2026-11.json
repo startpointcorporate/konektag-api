@@ -1,0 +1,68 @@
+{
+  "month": "2026-11",
+  "rates": [
+    {
+      "billingCompany": "Konektag Congo",
+      "targetCountry": "CG",
+      "countryName": "Congo",
+      "network": "facebook",
+      "currency": "XAF",
+      "cpmLow": 600,
+      "cpmHigh": 2400
+    },
+    {
+      "billingCompany": "Konektag Congo",
+      "targetCountry": "CG",
+      "countryName": "Congo",
+      "network": "instagram",
+      "currency": "XAF",
+      "cpmLow": 960,
+      "cpmHigh": 3600
+    },
+    {
+      "billingCompany": "Konektag Europe",
+      "targetCountry": "FR",
+      "countryName": "France",
+      "network": "facebook",
+      "currency": "EUR",
+      "cpmLow": 7.5,
+      "cpmHigh": 11.0
+    },
+    {
+      "billingCompany": "Konektag Europe",
+      "targetCountry": "FR",
+      "countryName": "France",
+      "network": "instagram",
+      "currency": "EUR",
+      "cpmLow": 10.0,
+      "cpmHigh": 14.0
+    },
+    {
+      "billingCompany": "Konektag Lebanon",
+      "targetCountry": "LB",
+      "countryName": "Liban",
+      "network": "facebook",
+      "currency": "USD",
+      "cpmLow": 3.6,
+      "cpmHigh": 9.6
+    },
+    {
+      "billingCompany": "Konektag Lebanon",
+      "targetCountry": "LB",
+      "countryName": "Liban",
+      "network": "instagram",
+      "currency": "USD",
+      "cpmLow": 3.6,
+      "cpmHigh": 9.6
+    },
+    {
+      "billingCompany": "Konektag Lebanon",
+      "targetCountry": "LB",
+      "countryName": "Liban",
+      "network": "tiktok",
+      "currency": "USD",
+      "cpmLow": 4.8,
+      "cpmHigh": 10.8
+    }
+  ]
+}
