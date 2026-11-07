@@ -212,10 +212,6 @@ paths:
           in: header
           schema:
             type: string
-        - name: content-length
-          in: header
-          schema:
-            type: string
       responses:
         "200":
           description: Response from the migrated handler
@@ -289,10 +285,10 @@ paths:
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts
       x-error-codes:
-        - CAPABILITY_NOT_AVAILABLE
         - IDEMPOTENCY_KEY_REQUIRED
         - UNSUPPORTED_MEDIA_TYPE
         - PAYLOAD_TOO_LARGE
+        - CAPABILITY_NOT_AVAILABLE
         - INVALID_JSON
         - INVALID_RESERVATION
         - INVALID_RESERVATION
@@ -481,10 +477,6 @@ paths:
           in: header
           schema:
             type: string
-        - name: content-length
-          in: header
-          schema:
-            type: string
       responses:
         "200":
           description: Response from the migrated handler
@@ -555,10 +547,10 @@ paths:
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts
       x-error-codes:
-        - CAPABILITY_NOT_AVAILABLE
         - IDEMPOTENCY_KEY_REQUIRED
         - UNSUPPORTED_MEDIA_TYPE
         - PAYLOAD_TOO_LARGE
+        - CAPABILITY_NOT_AVAILABLE
         - INVALID_JSON
         - INVALID_ORDER
         - INVALID_ORDER
@@ -648,10 +640,6 @@ paths:
           in: header
           schema:
             type: string
-        - name: content-length
-          in: header
-          schema:
-            type: string
       responses:
         "200":
           description: Response from the migrated handler
@@ -706,9 +694,9 @@ paths:
       security: []
       x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts
       x-error-codes:
-        - CAPABILITY_NOT_AVAILABLE
         - UNSUPPORTED_MEDIA_TYPE
         - PAYLOAD_TOO_LARGE
+        - CAPABILITY_NOT_AVAILABLE
         - INVALID_JSON
         - INVALID_CART
         - TRANSACTIONS_UNAVAILABLE

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { RequestContext } from '../../../../../../http';
-import { capability, defaultDeps, IDEMPOTENCY_KEY, json, limited, MAX_BODY, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
+import { boundedRequest, capability, defaultDeps, IDEMPOTENCY_KEY, json, limited, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
 import { ReplayError, fingerprint, onceByKey } from '../../../../../../../application/marketplace-transactions/replay.ts';
 import { RestaurantError, placeOrder } from '../../../../../../../application/marketplace-transactions/restaurant-orders.ts';
 
@@ -27,13 +27,15 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
   try {
     deps ??= await defaultDeps();
     const slug = ctx.params.slug!;
-    const cap = await capability(deps, slug, 'restaurant');
-    if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
     const key = ctx.request.headers.get('idempotency-key') ?? ctx.request.headers.get('x-idempotency-key');
     if (!key || !IDEMPOTENCY_KEY.test(key)) return json({ error: 'IDEMPOTENCY_KEY_REQUIRED' }, 400);
     if (!ctx.request.headers.get('content-type')?.includes('application/json')) return json({ error: 'UNSUPPORTED_MEDIA_TYPE' }, 415);
-    if (Number(ctx.request.headers.get('content-length') || 0) > MAX_BODY) return json({ error: 'PAYLOAD_TOO_LARGE' }, 413);
-    const body: unknown = await ctx.request.json().catch(() => undefined);
+    // Capped on the bytes actually read, before any JSON parsing or Frappe call.
+    const request = await boundedRequest(ctx.request);
+    if (!request) return json({ error: 'PAYLOAD_TOO_LARGE' }, 413);
+    const cap = await capability(deps, slug, 'restaurant');
+    if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
+    const body: unknown = await request.json().catch(() => undefined);
     if (body === undefined) return json({ error: 'INVALID_JSON' }, 400);
     const parsed = orderSchema.safeParse(body);
     if (!parsed.success) return json({ error: 'INVALID_ORDER' }, 400);

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { RequestContext } from '../../../../../../http';
-import { capability, defaultDeps, json, limited, MAX_BODY, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
+import { boundedRequest, capability, defaultDeps, json, limited, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
 import { RestaurantError, quoteCart } from '../../../../../../../application/marketplace-transactions/restaurant-orders.ts';
 
 // Prices a cart against today's Lumen prices. Read only: nothing is recorded.
@@ -17,11 +17,13 @@ const quoteSchema = z.object({
 export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise<Response> => {
   try {
     deps ??= await defaultDeps();
+    if (!ctx.request.headers.get('content-type')?.includes('application/json')) return json({ error: 'UNSUPPORTED_MEDIA_TYPE' }, 415);
+    // Capped on the bytes actually read, before any JSON parsing or Frappe call.
+    const request = await boundedRequest(ctx.request);
+    if (!request) return json({ error: 'PAYLOAD_TOO_LARGE' }, 413);
     const cap = await capability(deps, ctx.params.slug, 'restaurant');
     if (!cap) return json({ error: 'CAPABILITY_NOT_AVAILABLE' }, 404);
-    if (!ctx.request.headers.get('content-type')?.includes('application/json')) return json({ error: 'UNSUPPORTED_MEDIA_TYPE' }, 415);
-    if (Number(ctx.request.headers.get('content-length') || 0) > MAX_BODY) return json({ error: 'PAYLOAD_TOO_LARGE' }, 413);
-    const body: unknown = await ctx.request.json().catch(() => undefined);
+    const body: unknown = await request.json().catch(() => undefined);
     if (body === undefined) return json({ error: 'INVALID_JSON' }, 400);
     const parsed = quoteSchema.safeParse(body);
     if (!parsed.success) return json({ error: 'INVALID_CART' }, 400);

@@ -24,8 +24,37 @@ export const CACHED = { 'Content-Type': 'application/json', 'Cache-Control': 'pu
 export const json = (body: unknown, status: number, extra: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { ...NO_STORE, ...extra } });
 
-/** Largest JSON body a Marketplace write accepts. */
-export const MAX_BODY = 16_000;
+/** Largest JSON body a Marketplace write accepts: 2 MiB. */
+export const MAX_BODY = 2_097_152;
+
+/**
+ * The request with its body read up to `max` bytes, or null past it. Counts the
+ * bytes actually received, with or without Content-Length, and stops reading
+ * at the cap: nothing larger is buffered or parsed.
+ */
+export async function boundedRequest(request: Request, max = MAX_BODY): Promise<Request | null> {
+  const declared = Number(request.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > max) {
+    await request.body?.cancel().catch(() => {});
+    return null;
+  }
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  const reader = request.body?.getReader();
+  if (reader) {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > max) {
+        await reader.cancel().catch(() => {});
+        return null;
+      }
+      chunks.push(value);
+    }
+  }
+  return new Request(request.url, { method: request.method, headers: request.headers, body: Buffer.concat(chunks, bytes) });
+}
 export const IDEMPOTENCY_KEY = /^[A-Za-z0-9_-]{16,100}$/;
 
 export const hash = (value: string) => createHash('sha256').update(value).digest('hex').slice(0, 32);

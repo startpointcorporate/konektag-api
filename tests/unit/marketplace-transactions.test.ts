@@ -744,3 +744,65 @@ describe('live catalogues', () => {
     expect((await t.catalogue.rooms(get('/api/public/marketplace/merchants/feane-brazzaville/hotel/rooms'))).status).toBe(404);
   });
 });
+
+describe('JSON body cap (2 MiB)', () => {
+  const MIB2 = 2_097_152;
+  /** A streamed body with no Content-Length, produced lazily in 64 KiB chunks. */
+  function streamed(path: string, total: number, head = '{"currency":"XAF","note":"', fill = 'a') {
+    let sent = 0;
+    const enc = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      pull(c) {
+        if (sent >= total) { c.close(); return; }
+        const text = sent === 0 ? head + fill.repeat(Math.min(65_536, total) - head.length) : fill.repeat(Math.min(65_536, total - sent));
+        sent += text.length;
+        c.enqueue(enc.encode(text));
+      },
+    });
+    const request = new Request('https://api.test' + path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': KEY }, body, duplex: 'half' } as RequestInit);
+    return { ctx: createContext(request, { slug: path.split('/')[5] }, '10.0.0.5'), pulled: () => sent, request };
+  }
+
+  it('accepts a valid order larger than the former 16 KB limit', async () => {
+    const t = setup();
+    const raw = ' '.repeat(20_000) + JSON.stringify({ ...order(), note: 'Sans oignons. '.repeat(35) });
+    expect(new TextEncoder().encode(raw).byteLength).toBeGreaterThan(16_384);
+    const ctx = createContext(new Request('https://api.test' + ORDER_PATH, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': KEY }, body: raw }), { slug: 'feane-brazzaville' }, '10.0.0.5');
+    const res = await t.resto.order(ctx);
+    expect(res.status).toBe(201);
+    expect(t.sites.RESTODEMO.table('POS Restaurant Order')).toHaveLength(1);
+  });
+
+  it('rejects more than 2 MiB without Content-Length before parsing or any Frappe call', async () => {
+    for (const [path, call] of [[ORDER_PATH, 'order'], [QUOTE_PATH, 'quote'], [RES_PATH, 'reserve']] as const) {
+      const t = setup();
+      const s = streamed(path, 3 * 1024 * 1024);
+      expect(s.request.headers.get('content-length')).toBeNull();
+      const res = call === 'reserve' ? await t.hotel.reserve(s.ctx) : await t.resto[call](s.ctx);
+      expect(res.status).toBe(413);
+      expect(await res.json()).toEqual({ error: 'PAYLOAD_TOO_LARGE' });
+      expect(t.used).toEqual([]); // no Lumen or Hospitality site touched
+      expect(s.pulled()).toBeLessThanOrEqual(MIB2 + 2 * 65_536); // stopped reading at the cap
+    }
+  });
+
+  it('counts the bytes read: exactly 2 MiB passes the cap, one more byte does not', async () => {
+    const t = setup();
+    const valid = JSON.stringify({ currency: 'XAF', lines: [{ itemCode: 'BURGER', quantity: 1, unitPrice: 4500 }] });
+    const at = streamed(QUOTE_PATH, MIB2, ' ', ' ');
+    const padded = ' '.repeat(MIB2 - valid.length) + valid;
+    const exact = createContext(new Request('https://api.test' + QUOTE_PATH, { method: 'POST', headers: { 'content-type': 'application/json' }, body: padded }), { slug: 'feane-brazzaville' }, '10.0.0.5');
+    expect((await t.resto.quote(exact)).status).toBe(200);
+    expect((await t.resto.quote(streamed(QUOTE_PATH, MIB2 + 1, ' ', ' ').ctx)).status).toBe(413);
+    expect((await t.resto.quote(at.ctx)).status).toBe(400); // within the cap, then refused as invalid JSON
+  });
+
+  it('refuses a declared Content-Length above the cap without reading the body', async () => {
+    const t = setup();
+    const s = streamed(ORDER_PATH, 3 * 1024 * 1024);
+    const ctx = createContext(new Request(s.request, { headers: { 'content-type': 'application/json', 'idempotency-key': KEY, 'content-length': String(MIB2 + 1) } }), { slug: 'feane-brazzaville' }, '10.0.0.5');
+    expect((await t.resto.order(ctx)).status).toBe(413);
+    expect(s.pulled()).toBeLessThan(MIB2); // the runtime may prefetch a few chunks; the API reads none
+    expect(t.used).toEqual([]);
+  });
+});
