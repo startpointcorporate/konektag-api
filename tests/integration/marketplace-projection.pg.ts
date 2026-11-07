@@ -1,18 +1,36 @@
 // Marketplace read (API #24) against a real, isolated PostgreSQL.
-// Runs only when MARKETPLACE_PG_TEST_URL points at a throwaway database named
-// konektag_test (owner rights to apply migration 228). Never production.
+// Run with `npm run test:marketplace:pg`, outside the default suite, with
+// MARKETPLACE_PG_TEST_URL pointing at a throwaway database named konektag_test
+// (owner rights to apply migration 228). Never production.
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createContext } from '../../src/api/http.ts';
-import { profileHandler, restaurantHandlers, catalogueHandlers, type TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
+import type { TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
+import * as quoteRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts';
+import * as orderRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts';
+import * as menuRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts';
+import * as availabilityRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts';
+import * as reservationRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts';
+import * as roomsRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts';
+import * as profileRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/index.ts';
+import type { RequestContext } from '../../src/api/http.ts';
+
+// The Marketplace route handlers, with injected dependencies.
+type Ctx = RequestContext;
+const restaurantHandlers = (deps: TransactionDeps) => ({ quote: (c: Ctx) => quoteRoute.POST(c, deps), order: (c: Ctx) => orderRoute.POST(c, deps) });
+const hotelHandlers = (deps: TransactionDeps) => ({ availability: (c: Ctx) => availabilityRoute.GET(c, deps), reserve: (c: Ctx) => reservationRoute.POST(c, deps) });
+const catalogueHandlers = (deps: TransactionDeps) => ({ menu: (c: Ctx) => menuRoute.GET(c, deps), rooms: (c: Ctx) => roomsRoute.GET(c, deps) });
+const profileHandler = (deps: TransactionDeps) => (c: Ctx) => profileRoute.GET(c, deps);
 import { ProjectionUnavailable, sqlPublishedProfiles } from '../../src/application/marketplace-transactions/published-profiles.ts';
 
 const url = process.env.MARKETPLACE_PG_TEST_URL;
 const isolated = !!url && new URL(url).pathname === '/konektag_test';
 const MIGRATION = 'src/lib/infrastructure/database/migrations/228_marketplace_published_establishments.sql';
 
-describe.skipIf(!isolated)('Marketplace projection on PostgreSQL (migration 228)', () => {
+if (!isolated) throw new Error('MARKETPLACE_PG_TEST_URL must point at a throwaway database named konektag_test');
+
+describe('Marketplace projection on PostgreSQL (migration 228)', () => {
   let owner: pg.Pool;
   let reader: pg.Pool;
   const snapshot = (slug: string) => ({

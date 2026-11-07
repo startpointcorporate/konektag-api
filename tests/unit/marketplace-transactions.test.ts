@@ -1,7 +1,22 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createContext } from '../../src/api/http.ts';
 import { FrappeSiteError, frappeSite, type FrappeSite, type Filter } from '../../src/application/marketplace-transactions/frappe-site.ts';
-import { catalogueHandlers, hotelHandlers, profileHandler, restaurantHandlers, type TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
+import type { TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
+import * as quoteRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts';
+import * as orderRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts';
+import * as menuRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts';
+import * as availabilityRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts';
+import * as reservationRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts';
+import * as roomsRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts';
+import * as profileRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/index.ts';
+import type { RequestContext } from '../../src/api/http.ts';
+
+// The Marketplace route handlers, with injected dependencies.
+type Ctx = RequestContext;
+const restaurantHandlers = (deps: TransactionDeps) => ({ quote: (c: Ctx) => quoteRoute.POST(c, deps), order: (c: Ctx) => orderRoute.POST(c, deps) });
+const hotelHandlers = (deps: TransactionDeps) => ({ availability: (c: Ctx) => availabilityRoute.GET(c, deps), reserve: (c: Ctx) => reservationRoute.POST(c, deps) });
+const catalogueHandlers = (deps: TransactionDeps) => ({ menu: (c: Ctx) => menuRoute.GET(c, deps), rooms: (c: Ctx) => roomsRoute.GET(c, deps) });
+const profileHandler = (deps: TransactionDeps) => (c: Ctx) => profileRoute.GET(c, deps);
 import { ProjectionUnavailable, sqlPublishedProfiles, toPublicProfile, type ProjectionRow, type PublishedProfiles } from '../../src/application/marketplace-transactions/published-profiles.ts';
 import { resolveCapability } from '../../src/application/marketplace-transactions/merchant-capabilities.ts';
 import type { ReplayStore } from '../../src/application/marketplace-transactions/replay.ts';

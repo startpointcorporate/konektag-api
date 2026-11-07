@@ -29,7 +29,7 @@ Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/opena
 
 La fonction `docs/proposals/marketplace-apply-publication.sql` **n'a pas été retenue** : elle n'est ni appliquée ni nécessaire. Elle n'est conservée que parce que le commentaire de la migration 228, déjà appliquée, y renvoie.
 
-**Validation.** `tests/integration/marketplace-projection.pg.test.ts` s'exécute contre une base jetable `konektag_test`. Il n'est lancé que si `MARKETPLACE_PG_TEST_URL` est défini, sinon il est sauté. Le 7 novembre 2026, la requête exacte de l'API a été rejouée en transaction lecture seule sur la vraie ligne de Restaurant Démo, puis convertie par `toPublicProfile` : fiche retrouvée par son slug, capacité `restaurant` reconnue, `hotel` non.
+**Validation.** `npm run test:marketplace:pg` exécute `tests/integration/marketplace-projection.pg.ts` contre une base jetable `konektag_test` désignée par `MARKETPLACE_PG_TEST_URL`. Ce test est hors de la suite par défaut, qui doit tourner sans service externe ni test sauté. Le 7 novembre 2026, la requête exacte de l'API a été rejouée en transaction lecture seule sur la vraie ligne de Restaurant Démo, puis convertie par `toPublicProfile` : fiche retrouvée par son slug, capacité `restaurant` reconnue, `hotel` non.
 
 Le menu et les chambres restent lus en direct dans Lumen et Hospitality, avec un cache de 60 s. Ce sont les mêmes règles que celles de la validation de commande : un plat affiché est un plat accepté à son prix. Ce choix est à valider en revue : il évite une seconde projection des catalogues.
 
