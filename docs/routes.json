@@ -24,6 +24,90 @@
     "score": 607
   },
   {
+    "path": "/api/public/marketplace/merchants/{slug}/hotel/availability",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/hotel/availability/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}/hotel/reservations",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/hotel/reservations/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}/hotel/rooms",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/hotel/rooms/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/menu",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/menu/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/orders/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/quote",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/quote/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/reservation-requests/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
     "path": "/api/admin/merchants/{id}/kyb/contract",
     "file": "src/api/routes/admin/merchants/[id]/kyb/contract.ts",
     "methods": [
@@ -490,6 +574,18 @@
       "POST"
     ],
     "pattern": "^/api/pay/payment-links/([^/]+)/resume/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/public/marketplace/merchants/{slug}",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/?$",
     "keys": [
       "slug"
     ],

@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 309,
-    "operations": 394,
+    "paths": 317,
+    "operations": 402,
     "covered": 77,
-    "partial": 316,
+    "partial": 324,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 317,
-    "executedTests": 2655,
-    "passedTests": 2655
+    "businessUncovered": 325,
+    "executedTests": 2739,
+    "passedTests": 2739
   },
   "operations": [
     {
@@ -9537,6 +9537,166 @@
       ]
     },
     {
+      "operation": "GET /api/public/marketplace/merchants/{slug}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/merchants/{slug}",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/index.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants/{slug}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/merchants/{slug}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/marketplace/merchants/{slug}/hotel/availability",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/merchants/{slug}/hotel/availability",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants/{slug}/hotel/availability] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/merchants/{slug}/hotel/availability] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/marketplace/merchants/{slug}/hotel/rooms",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/merchants/{slug}/hotel/rooms",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants/{slug}/hotel/rooms] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/merchants/{slug}/hotel/rooms] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/marketplace/merchants/{slug}/restaurant/menu",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/menu",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants/{slug}/restaurant/menu] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/merchants/{slug}/restaurant/menu] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "GET /api/public/users",
       "domain": "public",
       "method": "GET",
@@ -17939,6 +18099,166 @@
         "tests/unit/digital-audit-a03.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/hotel/reservations",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/hotel/reservations",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/hotel/reservations] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/hotel/reservations] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/orders",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/orders] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/orders] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/quote",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/quote",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/quote] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/quote] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
     },
     {
       "operation": "POST /api/public/users/{id}/analytics",

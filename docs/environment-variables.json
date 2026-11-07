@@ -147,6 +147,18 @@
   "M365_TENANT_ID": [
     "src/mcp/mcp-m365/graph_client.py"
   ],
+  "MARKETPLACE_FRAPPE_<SITE>_API_KEY": [
+    "src/application/marketplace-transactions/frappe-site.ts"
+  ],
+  "MARKETPLACE_FRAPPE_<SITE>_API_SECRET": [
+    "src/application/marketplace-transactions/frappe-site.ts"
+  ],
+  "MARKETPLACE_FRAPPE_<SITE>_URL": [
+    "src/application/marketplace-transactions/frappe-site.ts"
+  ],
+  "MARKETPLACE_TRANSACTION_MERCHANTS": [
+    "src/application/marketplace-transactions/merchant-capabilities.ts"
+  ],
   "MAUTIC_BASE_URL": [
     "src/infrastructure/adapters/mautic-adapter.ts"
   ],
