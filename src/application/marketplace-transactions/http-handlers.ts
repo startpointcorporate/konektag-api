@@ -5,7 +5,7 @@
  */
 import { createHash } from 'node:crypto';
 import type { RequestContext } from '../../api/http.ts';
-import { FrappeSiteError, frappeSite, type FrappeSite } from './frappe-site.ts';
+import { FrappeSiteError, frappePublicSite, frappeSite, type FrappePublicSite, type FrappeSite } from './frappe-site.ts';
 import { CapabilityConfigError, resolveCapability, type HotelCapability, type RestaurantCapability } from './merchant-capabilities.ts';
 import { ReplayError, type ReplayStore } from './replay.ts';
 import { ProjectionUnavailable, publishedCapability, sqlPublishedProfiles, type PublishedProfiles } from './published-profiles.ts';
@@ -13,6 +13,8 @@ import { ProjectionUnavailable, publishedCapability, sqlPublishedProfiles, type 
 export interface TransactionDeps {
   store: () => ReplayStore;
   site: (key: string) => FrappeSite;
+  /** Guest access to whitelisted public methods: no service token. */
+  publicSite: (key: string) => FrappePublicSite;
   profiles: () => PublishedProfiles;
   env: NodeJS.ProcessEnv;
   now: () => Date;
@@ -111,5 +113,5 @@ export async function defaultDeps(): Promise<TransactionDeps> {
   const { redisAdapter } = await import('../../infrastructure/adapters/redis-adapter.ts');
   const { query } = await import('../../infrastructure/database/pool.ts');
   const profiles = sqlPublishedProfiles(query);
-  return { store: () => redisAdapter, site: key => frappeSite(key), profiles: () => profiles, env: process.env, now: () => new Date() };
+  return { store: () => redisAdapter, site: key => frappeSite(key), publicSite: key => frappePublicSite(key), profiles: () => profiles, env: process.env, now: () => new Date() };
 }

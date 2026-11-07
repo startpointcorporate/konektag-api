@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 316,
-    "operations": 401,
+    "paths": 317,
+    "operations": 402,
     "covered": 77,
-    "partial": 323,
+    "partial": 324,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 324,
-    "executedTests": 2724,
-    "passedTests": 2724
+    "businessUncovered": 325,
+    "executedTests": 2739,
+    "passedTests": 2739
   },
   "operations": [
     {
@@ -18204,6 +18204,46 @@
         {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/quote] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests] refuses invalid personal API credentials before loading the handler",
           "level": "contract"
         }
       ],

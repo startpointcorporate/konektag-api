@@ -1,6 +1,8 @@
 import type { RequestContext } from '../../../../../http';
 import { CACHED, defaultDeps, json, unavailable, type TransactionDeps } from '../../../../../../application/marketplace-transactions/http-handlers.ts';
 import { isPublicSlugValue, toPublicProfile } from '../../../../../../application/marketplace-transactions/published-profiles.ts';
+import { resolveCapability } from '../../../../../../application/marketplace-transactions/merchant-capabilities.ts';
+import { reservationRequestsPublished } from '../../../../../../application/marketplace-transactions/restaurant-reservation-requests.ts';
 
 // Published Marketplace profile by slug (API #24). Read only.
 // Absent and unpublished answer alike: a tombstone reveals nothing.
@@ -12,12 +14,16 @@ export const GET = async (ctx: RequestContext, deps?: TransactionDeps): Promise<
     const row = await deps.profiles().bySlug(slug);
     if (!row || row.status !== 'Published') return json({ error: 'PROFILE_NOT_FOUND' }, 404);
     const p = toPublicProfile(row);
+    // Table requests: enabled in Frappe (manual confirmation page) and routed
+    // here to that site. Otherwise the button would lead to a refusal.
+    const requests = reservationRequestsPublished(row) && resolveCapability(slug, 'restaurant', deps.env) !== null;
     return new Response(JSON.stringify({
       slug: p.slug, establishmentId: p.establishmentId, version: p.version, name: p.name, merchantName: p.merchantName,
       description: p.description, seoTitle: p.seoTitle, seoDescription: p.seoDescription, address: p.address, city: p.city,
       countryCode: p.countryCode, coordinates: p.coordinates, phone: p.phone, email: p.email, website: p.website, logo: p.logo,
       media: p.media, openingHours: p.openingHours, activities: p.activities, socialLinks: p.socialLinks,
       capabilities: p.capabilities, publishedAt: p.publishedAt,
+      reservationRequests: { enabled: requests, confirmation: 'manual' },
     }), { status: 200, headers: CACHED });
   } catch (error) {
     const down = unavailable('profile', error);

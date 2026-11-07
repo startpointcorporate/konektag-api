@@ -11,6 +11,7 @@ Ces opérations complètent la lecture Marketplace de #24. Le navigateur appelle
 | Commander | `POST /api/public/marketplace/merchants/{slug}/restaurant/orders` | `lumen_restaurants.api.restaurant.open_order` puis `save_order` |
 | Disponibilités | `GET /api/public/marketplace/merchants/{slug}/hotel/availability` | lecture `Hotel Room Type`, `Hotel Room`, `Hotel Reservation` |
 | Réserver | `POST /api/public/marketplace/merchants/{slug}/hotel/reservations` | insertion `Guest` (si nouveau) et `Hotel Reservation` |
+| Demander une table | `POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests` | `konektag_360.booking.api.submit` en invité → `POS Table Reservation` Lumen (`Online`, `Requested`) |
 
 Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/openapi.yaml`.
 
@@ -41,6 +42,25 @@ Le menu et les chambres restent lus en direct dans Lumen et Hospitality, avec un
 - **Disponibilité** : recalculée au moment de la réservation. Les réservations Konektag d'un même type de chambre sont sérialisées. Hospitality revalide la chambre à l'insertion (`HotelReservation.validate`). Une chambre perdue entre la recherche et la validation renvoie `409 ROOM_UNAVAILABLE` avec les disponibilités à jour.
 - **Taille des corps** : 2 Mio (2 097 152 octets) au plus pour le devis, la commande et la réservation. Le plafond porte sur les octets réellement lus, avec ou sans `Content-Length`. Au-delà, la réponse est `413 PAYLOAD_TOO_LARGE`, avant le parsing JSON et tout appel à Frappe. Les schémas bornent ensuite chaque champ et chaque quantité. Le relais Web (konektag-web#51) limite encore les corps à 16 000 caractères.
 - **Erreurs** : les messages Frappe ne sont jamais transmis, car ils peuvent citer d'autres clients. Sans Valkey, les écritures sont refusées (`503`).
+
+## Demandes de table Restaurant (#50)
+
+Contrat attendu par le formulaire « Demander une réservation » (konektag-web#51, commit `5806932`) et adaptateur Frappe de konektag_360 (`docs/features/RESTAURANT_BOOKING_API.md`).
+
+**Activation sur la fiche.** `GET …/merchants/{slug}` renvoie `reservationRequests: {enabled, confirmation: "manual"}`. `enabled` vaut `true` seulement si quatre conditions sont réunies : la fiche est publiée ; elle porte la capacité `restaurant` ; le snapshot konektag_360 contient `reservation: {enabled: true, mode: "request"}` ; la capacité `restaurant` du slug est routée par `MARKETPLACE_TRANSACTION_MERCHANTS`. L'activation reste celle de Frappe (`configure`, page native avec `auto_confirm=0`). L'API n'a pas de second interrupteur.
+
+**Envoi.** `POST …/restaurant/reservation-requests`, avec un `Idempotency-Key` obligatoire. Corps : `name`, `phone` (E.164), `date` (`YYYY-MM-DD`), `time` (`HH:mm`), `partySize` (1–50), `comment` facultatif (≤ 500), `website` (honeypot, vide). Date et heure s'entendent dans le fuseau du restaurant.
+- Le site vient du routage serveur. L'établissement est résolu par Frappe depuis le slug. Le `source_site` de la projection doit être l'hôte du site routé, sinon l'API répond `503` sans rien envoyer.
+- L'appel est fait en **invité**, sans le jeton de service des commandes, comme le demande konektag_360.
+- `201 {reference, status, replayed:false}` pour une nouvelle demande, `200 {…, replayed:true}` pour un rejeu. `reference` est le nom du document `POS Table Reservation` affiché dans Lumen. `status` est celui que renvoie Frappe.
+- Erreurs : `404 CAPABILITY_NOT_AVAILABLE` (non publiée, désactivée, page native retirée), `409 SLOT_UNAVAILABLE` (créneau complet, passé, hors grille, jour fermé, hors horizon), `422 PARTY_SIZE_NOT_ACCEPTED`, `422 INVALID_REQUEST`, `422 IDEMPOTENCY_KEY_REUSED`, `429 TOO_MANY_REQUESTS`, `502 REQUEST_NOT_RECORDED` (aucune référence renvoyée), `503 RESERVATIONS_UNAVAILABLE` (méthode fermée par le site, par exemple le filtre de démo) ou `SITE_UNAVAILABLE`.
+
+**Rejeu.** L'API dérive de la clé une `request_key` déterministe (SHA-256, 64 caractères hexadécimaux). konektag_360 l'enregistre avec l'empreinte du contenu, dans la même insertion que la ligne native. Même clé et même contenu : même référence, y compris après perte de la réponse ou du cache Valkey. Même clé avec un autre contenu : refus. L'API ne met aucun résultat en cache : un rejeu interroge toujours Lumen.
+
+**Limites connues.**
+- Lumen et konektag_360 limitent par IP : 60 envois par heure et 15 demandes en ligne par jour. Appelés depuis l'API, tous les visiteurs partagent son IP de sortie. L'API ajoute ses propres limites (par pair, par restaurant, et 5 par téléphone et par heure), mais une propagation fiable de l'IP du visiteur reste à convenir avec konektag_360 et Web.
+- Au rejeu, `submit` renvoie toujours `status: "Requested"`, même si le restaurant a confirmé ou annulé la demande depuis.
+- Les refus Lumen sont reconnus par leur message en anglais (`Accept-Language: en`). Un message inconnu donne `422 INVALID_REQUEST`.
 
 ## Prérequis Frappe (suivi dans konektag_360#14)
 

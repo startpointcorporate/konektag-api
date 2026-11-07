@@ -9,6 +9,9 @@ import * as availabilityRoute from '../../src/api/routes/public/marketplace/merc
 import * as reservationRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts';
 import * as roomsRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts';
 import * as profileRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/index.ts';
+import * as requestRoute from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts';
+import { SUBMIT, requestKeyOf } from '../../src/application/marketplace-transactions/restaurant-reservation-requests.ts';
+import { frappePublicSite, type FrappePublicSite } from '../../src/application/marketplace-transactions/frappe-site.ts';
 import type { RequestContext } from '../../src/api/http.ts';
 
 // The Marketplace route handlers, with injected dependencies.
@@ -17,6 +20,7 @@ const restaurantHandlers = (deps: TransactionDeps) => ({ quote: (c: Ctx) => quot
 const hotelHandlers = (deps: TransactionDeps) => ({ availability: (c: Ctx) => availabilityRoute.GET(c, deps), reserve: (c: Ctx) => reservationRoute.POST(c, deps) });
 const catalogueHandlers = (deps: TransactionDeps) => ({ menu: (c: Ctx) => menuRoute.GET(c, deps), rooms: (c: Ctx) => roomsRoute.GET(c, deps) });
 const profileHandler = (deps: TransactionDeps) => (c: Ctx) => profileRoute.GET(c, deps);
+const requestHandler = (deps: TransactionDeps) => (c: Ctx) => requestRoute.POST(c, deps);
 import { ProjectionUnavailable, sqlPublishedProfiles, toPublicProfile, type ProjectionRow, type PublishedProfiles } from '../../src/application/marketplace-transactions/published-profiles.ts';
 import { resolveCapability } from '../../src/application/marketplace-transactions/merchant-capabilities.ts';
 import type { ReplayStore } from '../../src/application/marketplace-transactions/replay.ts';
@@ -129,6 +133,46 @@ function restaurantSite() {
   return site;
 }
 
+/**
+ * konektag_360.booking.api.submit as a guest sees it: slug resolution, the
+ * Lumen page rules we map, and the native row carrying key + fingerprint.
+ */
+class FakeBookingSite implements FrappePublicSite {
+  rows: any[] = [];
+  calls: { method: string; args: any }[] = [];
+  open = true;
+  slotCapacity = 4;
+  failNext?: Error;
+  seq = 0;
+  constructor(readonly key = 'RESTODEMO', readonly host = 'restodemo.example', readonly slug = 'feane-brazzaville') {}
+  private reject(message: string, status = 417) { throw new FrappeSiteError('SITE_REJECTED', status, 'ValidationError', message); }
+  async call(method: string, a: any) {
+    this.calls.push({ method, args: a });
+    if (this.failNext) { const e = this.failNext; this.failNext = undefined; throw e; }
+    if (method !== SUBMIT) throw new Error('call ' + method);
+    if (!/^[A-Za-z0-9_-]{20,100}$/.test(a.request_key)) this.reject('A stable random request key is required');
+    if (a.slug !== this.slug) throw new FrappeSiteError('SITE_REJECTED', 404, 'DoesNotExistError', 'Restaurant booking is unavailable');
+    if (!this.open) this.reject('Restaurant booking is unavailable');
+    const payload = JSON.stringify([a.customer_name, a.phone, a.reservation_date, a.reservation_time, a.guests, a.note ?? '']);
+    const existing = this.rows.find(r => r.key === a.request_key);
+    if (existing) {
+      if (existing.print !== payload) this.reject('Request key already used for another request');
+      return { reference: existing.name, status: 'Requested', reused: true };
+    }
+    if (a.website) return { reference: null, status: 'Requested', reused: false };
+    if (a.reservation_date < '2026-11-06') this.reject('Pick a day within the next 14 days');
+    if (a.reservation_time < '12:00:00' || a.reservation_time > '23:30:00') this.reject('We take bookings between 12:00 and 23:30');
+    if (a.guests > 12) this.reject('For more than 12 guests, call the branch');
+    const load = this.rows.filter(r => r.date === a.reservation_date && r.time === a.reservation_time && r.status !== 'Cancelled')
+      .reduce((n, r) => n + r.guests, 0);
+    if (load + a.guests > this.slotCapacity) this.reject('That time is full, pick another');
+    const name = `TR-2026-${String(++this.seq).padStart(5, '0')}`;
+    this.rows.push({ name, key: a.request_key, print: payload, date: a.reservation_date, time: a.reservation_time, guests: a.guests,
+      source: 'Online', status: 'Requested' });
+    return { reference: name, status: 'Requested', reused: false };
+  }
+}
+
 function hotelSite() {
   const site = new FakeSite('HOTELDEMO');
   site.add('Hotel Room Type', { name: 'Standard', default_rate: 35000, max_adults: 2, max_children: 1, description: 'Chambre double' });
@@ -191,8 +235,11 @@ function setup(withRef = false) {
   const sites: Record<string, FakeSite> = { RESTODEMO: restaurantSite(), HOTELDEMO: hotelSite() };
   if (withRef) sites.HOTELDEMO.uniqueRef = REF;
   const used: string[] = [];
-  const deps: TransactionDeps = { store: () => store, site: key => { used.push(key); return sites[key]; }, profiles: () => projection, env: withRef ? envWithRef : env, now: () => NOW };
-  return { store, sites, used, projection, resto: restaurantHandlers(deps), hotel: hotelHandlers(deps), profile: profileHandler(deps), catalogue: catalogueHandlers(deps) };
+  const booking = new FakeBookingSite();
+  const deps: TransactionDeps = { store: () => store, site: key => { used.push(key); return sites[key]; }, publicSite: key => { used.push('public:' + key); return booking; },
+    profiles: () => projection, env: withRef ? envWithRef : env, now: () => NOW };
+  return { store, sites, used, projection, booking, resto: restaurantHandlers(deps), hotel: hotelHandlers(deps), profile: profileHandler(deps),
+    catalogue: catalogueHandlers(deps), request: requestHandler(deps) };
 }
 
 const KEY = 'web-3f6c2a4e-9b1d-4c7e-8f00-1234567890ab';
@@ -804,5 +851,169 @@ describe('JSON body cap (2 MiB)', () => {
     expect((await t.resto.order(ctx)).status).toBe(413);
     expect(s.pulled()).toBeLessThan(MIB2); // the runtime may prefetch a few chunks; the API reads none
     expect(t.used).toEqual([]);
+  });
+});
+
+describe('restaurant reservation requests', () => {
+  const PATH = '/api/public/marketplace/merchants/feane-brazzaville/restaurant/reservation-requests';
+  const PROFILE = '/api/public/marketplace/merchants/feane-brazzaville';
+  const ask = (over: Record<string, unknown> = {}) => ({ name: 'Awa Mabiala', phone: '+242061234567', date: '2026-11-12', time: '20:00', partySize: 2, website: '', ...over });
+  /** The projection of a restaurant with table requests switched on in Frappe. */
+  function bookable(t: ReturnType<typeof setup>, reservation: unknown = { enabled: true, mode: 'request' }) {
+    const r = row('feane-brazzaville', ['restaurant']);
+    r.source_site = 'restodemo.example';
+    r.snapshot.reservation = reservation;
+    t.projection.rows.set('feane-brazzaville', r);
+    return r;
+  }
+
+  it('exposes the opt-in on the profile only when Frappe enabled it and the API routes the site', async () => {
+    const t = setup();
+    expect((await (await t.profile(get(PROFILE))).json()).reservationRequests).toEqual({ enabled: false, confirmation: 'manual' });
+    bookable(t);
+    expect((await (await t.profile(get(PROFILE))).json()).reservationRequests).toEqual({ enabled: true, confirmation: 'manual' });
+    bookable(t, { enabled: true, mode: 'instant' });
+    expect((await (await t.profile(get(PROFILE))).json()).reservationRequests.enabled).toBe(false);
+    // Enabled in Frappe but not routed by this API: no button.
+    const unrouted = row('boutique-standard', ['restaurant']);
+    unrouted.snapshot.reservation = { enabled: true, mode: 'request' };
+    t.projection.rows.set('boutique-standard', unrouted);
+    expect((await (await t.profile(get('/api/public/marketplace/merchants/boutique-standard'))).json()).reservationRequests.enabled).toBe(false);
+  });
+
+  it('records one native request and answers the Lumen reference and status', async () => {
+    const t = setup();
+    bookable(t);
+    const res = await t.request(post(PATH, ask({ comment: '  Terrasse si possible ' })));
+    expect(res.status).toBe(201);
+    expect(await res.json()).toEqual({ reference: 'TR-2026-00001', status: 'Requested', replayed: false });
+    expect(t.booking.calls).toHaveLength(1);
+    expect(t.booking.calls[0].args).toEqual({
+      slug: 'feane-brazzaville', request_key: requestKeyOf(KEY), customer_name: 'Awa Mabiala', phone: '+242061234567',
+      reservation_date: '2026-11-12', reservation_time: '20:00:00', guests: 2, note: 'Terrasse si possible', website: '',
+    });
+    expect(t.booking.rows).toMatchObject([{ source: 'Online', status: 'Requested' }]);
+    // Never through the service token of the orders.
+    expect(t.used).toEqual(['public:RESTODEMO']);
+  });
+
+  it('replays the same key and content without a second request, after a lost response too', async () => {
+    const t = setup();
+    bookable(t);
+    const first = await (await t.request(post(PATH, ask()))).json();
+    const again = await t.request(post(PATH, ask()));
+    expect(again.status).toBe(200);
+    expect(await again.json()).toEqual({ reference: first.reference, status: 'Requested', replayed: true });
+    // Nothing of ours is needed to find it: the key lives on the Lumen row.
+    t.store.data.clear();
+    expect((await (await t.request(post(PATH, ask()))).json()).reference).toBe(first.reference);
+    expect(t.booking.rows).toHaveLength(1);
+  });
+
+  it('refuses the same key with another content and keeps the first request', async () => {
+    const t = setup();
+    bookable(t);
+    await t.request(post(PATH, ask()));
+    const res = await t.request(post(PATH, ask({ partySize: 3 })));
+    expect(res.status).toBe(422);
+    expect(await res.json()).toEqual({ error: 'IDEMPOTENCY_KEY_REUSED' });
+    expect(t.booking.rows).toHaveLength(1);
+  });
+
+  it('maps Lumen rules to the codes the form handles', async () => {
+    const t = setup();
+    bookable(t);
+    t.booking.slotCapacity = 2;
+    expect((await t.request(post(PATH, ask(), 'web-aaaaaaaaaaaaaaaaaaaaaaaa'))).status).toBe(201);
+    const full = await t.request(post(PATH, ask(), 'web-bbbbbbbbbbbbbbbbbbbbbbbb'));
+    expect([full.status, (await full.json()).error]).toEqual([409, 'SLOT_UNAVAILABLE']);
+    const late = await t.request(post(PATH, ask({ time: '09:00' }), 'web-cccccccccccccccccccccccc'));
+    expect([late.status, (await late.json()).error]).toEqual([409, 'SLOT_UNAVAILABLE']);
+    const party = await t.request(post(PATH, ask({ partySize: 20 }), 'web-dddddddddddddddddddddddd'));
+    expect([party.status, (await party.json()).error]).toEqual([422, 'PARTY_SIZE_NOT_ACCEPTED']);
+    expect(t.booking.rows).toHaveLength(1);
+  });
+
+  it('answers 404 when the restaurant closed requests since the page was shown', async () => {
+    const t = setup();
+    bookable(t);
+    t.booking.open = false;
+    const res = await t.request(post(PATH, ask()));
+    expect([res.status, (await res.json()).error]).toEqual([404, 'CAPABILITY_NOT_AVAILABLE']);
+  });
+
+  it('never calls Frappe when the projection does not publish table requests', async () => {
+    const t = setup();
+    for (const reservation of [null, { enabled: false, mode: 'request' }]) {
+      bookable(t, reservation);
+      expect((await t.request(post(PATH, ask()))).status).toBe(404);
+    }
+    t.projection.rows.set('feane-brazzaville', row('feane-brazzaville', [], 'Unpublished'));
+    expect((await t.request(post(PATH, ask()))).status).toBe(404);
+    expect(t.used).toEqual([]);
+  });
+
+  it('never sends visitor details to a site that does not own the published slug', async () => {
+    const t = setup();
+    bookable(t).source_site = 'other.example';
+    expect((await t.request(post(PATH, ask()))).status).toBe(503);
+    expect(t.booking.calls).toEqual([]);
+  });
+
+  it('validates the form and rejects the honeypot without calling Frappe', async () => {
+    const t = setup();
+    bookable(t);
+    expect((await t.request(post(PATH, ask(), null))).status).toBe(400);
+    for (const bad of [ask({ website: 'http://spam' }), ask({ date: '2026-02-30' }), ask({ time: '8pm' }), ask({ phone: '0612' }), ask({ partySize: 0 }), ask({ extra: 1 })])
+      expect((await t.request(post(PATH, bad))).status).toBe(400);
+    expect(t.booking.calls).toEqual([]);
+  });
+
+  it('never reports a request Lumen did not record', async () => {
+    const t = setup();
+    bookable(t);
+    t.booking.call = async () => ({ reference: null, status: 'Requested', reused: false });
+    const res = await t.request(post(PATH, ask()));
+    expect([res.status, (await res.json()).error]).toEqual([502, 'REQUEST_NOT_RECORDED']);
+  });
+
+  it('reports a method closed by the site, throttling and outages without details', async () => {
+    const t = setup();
+    bookable(t);
+    t.booking.failNext = new FrappeSiteError('SITE_REJECTED', 403, null, 'Opération non disponible dans cette démonstration.');
+    let res = await t.request(post(PATH, ask()));
+    expect([res.status, await res.json()]).toEqual([503, { error: 'RESERVATIONS_UNAVAILABLE' }]);
+    t.booking.failNext = new FrappeSiteError('SITE_UNAVAILABLE', 429, 'TooManyRequestsError');
+    res = await t.request(post(PATH, ask()));
+    expect([res.status, (await res.json()).error]).toEqual([429, 'TOO_MANY_REQUESTS']);
+    t.booking.failNext = new FrappeSiteError('SITE_UNAVAILABLE', 502);
+    res = await t.request(post(PATH, ask()));
+    expect([res.status, (await res.json()).error]).toEqual([503, 'SITE_UNAVAILABLE']);
+    t.booking.failNext = new FrappeSiteError('SITE_REJECTED', 417, 'ValidationError', 'Something new');
+    res = await t.request(post(PATH, ask()));
+    expect([res.status, (await res.json()).error]).toEqual([422, 'INVALID_REQUEST']);
+  });
+
+  it('rate limits one visitor phone', async () => {
+    const t = setup();
+    bookable(t);
+    const codes = [];
+    for (let i = 0; i < 6; i++) codes.push((await t.request(post(PATH, ask({ time: '20:00' }), `web-key-${String(i).padStart(20, '0')}`))).status);
+    expect(codes.at(-1)).toBe(429);
+  });
+
+  it('calls the public method as a guest, in English, on the configured origin only', async () => {
+    const seen: { url: string; headers: Record<string, string> }[] = [];
+    const fetchImpl = (async (url: URL, init: any) => {
+      seen.push({ url: String(url), headers: init.headers });
+      return new Response(JSON.stringify({ message: { reference: 'TR-1', status: 'Requested', reused: false } }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const site = frappePublicSite('RESTODEMO', { MARKETPLACE_FRAPPE_RESTODEMO_URL: 'https://restodemo.example' } as NodeJS.ProcessEnv, fetchImpl);
+    expect(site.host).toBe('restodemo.example');
+    expect(await site.call(SUBMIT, { slug: 'a' })).toEqual({ reference: 'TR-1', status: 'Requested', reused: false });
+    expect(seen[0].url).toBe('https://restodemo.example/api/method/konektag_360.booking.api.submit');
+    expect(seen[0].headers.Authorization).toBeUndefined();
+    expect(seen[0].headers['Accept-Language']).toBe('en');
+    expect(() => frappePublicSite('RESTODEMO', { MARKETPLACE_FRAPPE_RESTODEMO_URL: 'http://restodemo.example' } as NodeJS.ProcessEnv)).toThrow(FrappeSiteError);
   });
 });

@@ -68,6 +68,7 @@ describe('Marketplace projection on PostgreSQL (migration 228)', () => {
   const deps = (): TransactionDeps => ({
     store: () => { throw new Error('no store needed'); },
     site: () => { throw new Error('Lumen must not be called'); },
+    publicSite: () => { throw new Error('Lumen must not be called'); },
     profiles: () => sqlPublishedProfiles((text, params) => reader.query(text, params)),
     env: { MARKETPLACE_TRANSACTION_MERCHANTS: JSON.stringify({
       'boutique-3333': { restaurant: { site: 'RESTODEMO', posProfile: 'X' } },

@@ -96,6 +96,18 @@
     "score": 607
   },
   {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/reservation-requests/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
     "path": "/api/admin/merchants/{id}/kyb/contract",
     "file": "src/api/routes/admin/merchants/[id]/kyb/contract.ts",
     "methods": [

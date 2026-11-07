@@ -3,7 +3,8 @@
  *
  * A site is addressed by an allowlisted key (for example RESTODEMO). Its origin
  * and service token come only from MARKETPLACE_FRAPPE_<KEY>_URL / _API_KEY /
- * _API_SECRET. Nothing here is ever sent to the browser.
+ * _API_SECRET. Public guest methods use the origin only. Nothing here is ever
+ * sent to the browser.
  */
 
 export class FrappeSiteError extends Error {
@@ -46,13 +47,11 @@ function serverMessage(body: any): string | null {
   return text ? text.slice(0, 1000) : null;
 }
 
-export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch): FrappeSite {
+/** The allowlisted origin of a site, from MARKETPLACE_FRAPPE_<KEY>_URL. */
+function siteOrigin(key: string, env: NodeJS.ProcessEnv): URL {
   if (!SITE_KEY.test(key)) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
-  const prefix = `MARKETPLACE_FRAPPE_${key}_`;
-  const origin = env[prefix + 'URL'];
-  const apiKey = env[prefix + 'API_KEY'];
-  const apiSecret = env[prefix + 'API_SECRET'];
-  if (!origin || !apiKey || !apiSecret) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
+  const origin = env[`MARKETPLACE_FRAPPE_${key}_URL`];
+  if (!origin) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
   let base: URL;
   try { base = new URL(origin); } catch { throw new FrappeSiteError('SITE_NOT_CONFIGURED'); }
   if (!['https:', 'http:'].includes(base.protocol) || base.username || base.password || base.search || base.hash || base.pathname !== '/')
@@ -60,16 +59,21 @@ export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fe
   // Plain HTTP only inside the cluster or for local tests.
   if (base.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(base.hostname) && !base.hostname.endsWith('.svc.cluster.local'))
     throw new FrappeSiteError('SITE_NOT_CONFIGURED');
+  return base;
+}
 
-  const run = async (method: 'GET' | 'POST', path: string, body?: unknown): Promise<any> => {
+function transport(base: URL, authorization: string | null, fetchImpl: typeof fetch) {
+  return async (method: 'GET' | 'POST', path: string, body?: unknown): Promise<any> => {
     let res: Response;
     try {
       res = await fetchImpl(new URL(path, base), {
         method,
         headers: {
           Accept: 'application/json',
+          // Lumen messages are matched in English; the visitor never sees them.
+          'Accept-Language': 'en',
           'Content-Type': 'application/json',
-          Authorization: `token ${apiKey}:${apiSecret}`,
+          ...(authorization ? { Authorization: authorization } : {}),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         signal: AbortSignal.timeout(10_000),
@@ -88,6 +92,40 @@ export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fe
     }
     return data?.message ?? data?.data ?? data;
   };
+}
+
+const METHOD = /^[a-z_][a-z0-9_.]+$/;
+
+/**
+ * Guest calls to whitelisted public methods of a site (allow_guest), with no
+ * service token: a token's scope never extends to them by default.
+ */
+export interface FrappePublicSite {
+  readonly key: string;
+  readonly host: string;
+  call(method: string, args: Record<string, unknown>): Promise<any>;
+}
+
+export function frappePublicSite(key: string, env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch): FrappePublicSite {
+  const base = siteOrigin(key, env);
+  const run = transport(base, null, fetchImpl);
+  return {
+    key,
+    host: base.hostname,
+    call: async (method, args) => {
+      if (!METHOD.test(method)) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
+      return run('POST', '/api/method/' + method, args);
+    },
+  };
+}
+
+export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch): FrappeSite {
+  const base = siteOrigin(key, env);
+  const prefix = `MARKETPLACE_FRAPPE_${key}_`;
+  const apiKey = env[prefix + 'API_KEY'];
+  const apiSecret = env[prefix + 'API_SECRET'];
+  if (!apiKey || !apiSecret) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
+  const run = transport(base, `token ${apiKey}:${apiSecret}`, fetchImpl);
   const resource = (doctype: string) => '/api/resource/' + encodeURIComponent(doctype);
   return {
     key,
@@ -99,7 +137,7 @@ export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fe
     get: (doctype, name) => run('GET', resource(doctype) + '/' + encodeURIComponent(name)),
     insert: (doctype, doc) => run('POST', resource(doctype), { doctype, ...doc }),
     call: async (method, args) => {
-      if (!/^[a-z_][a-z0-9_.]+$/.test(method)) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
+      if (!METHOD.test(method)) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
       return run('POST', '/api/method/' + method, args);
     },
   };
