@@ -24,6 +24,10 @@ const catalogueHandlers = (deps: TransactionDeps) => ({ menu: (c: Ctx) => menuRo
 const profileHandler = (deps: TransactionDeps) => (c: Ctx) => profileRoute.GET(c, deps);
 import { ProjectionUnavailable, sqlPublishedProfiles } from '../../src/application/marketplace-transactions/published-profiles.ts';
 
+import { publishedMarketplace } from '../../src/application/services/published-marketplace.ts';
+import { GET as listGET } from '../../src/api/routes/public/marketplace/merchants/index.ts';
+import { GET as facetsGET } from '../../src/api/routes/public/marketplace/facets/index.ts';
+
 const url = process.env.MARKETPLACE_PG_TEST_URL;
 const isolated = !!url && new URL(url).pathname === '/konektag_test';
 const MIGRATION = 'src/lib/infrastructure/database/migrations/228_marketplace_published_establishments.sql';
@@ -136,4 +140,120 @@ describe('Marketplace projection on PostgreSQL (migration 228)', () => {
     expect(res.status).toBe(503);
     await broken.end();
   });
+
+  describe('published listing and facets (Web #52)', () => {
+    const fixtures = Array.from({length:57}, (_,i) => ({
+      slug: `fixture-${String(i).padStart(3,'0')}`,
+      name: ['École', 'eclair', 'Àlpha', 'zèbre'][i%4] + ` ${String(57-i).padStart(3,'0')}`,
+      city: i%2 ? 'fr-saint-pierre-a' : 'fr-saint-pierre-b',
+      lat: i%4 === 0 ? null : 40+i/10,
+      lng: i%4 === 0 ? null : 2,
+      activity: i%3 ? 'cafe' : 'restaurant',
+    }));
+    const readerService = () => publishedMarketplace((sql,params)=>reader.query(sql,params));
+    const request = (q='') => createContext(new Request(`https://api.test/api/public/marketplace/merchants?${q}`));
+    const list = async (q='') => {
+      const response = await listGET(request(q),readerService());
+      expect(response.status).toBe(200);
+      return response.json();
+    };
+    beforeAll(async () => {
+      for (const [i,f] of fixtures.entries()) await insert(
+        `55555555-5555-4555-8555-${String(i).padStart(12,'0')}`, f.slug, 'Published', {
+          ...snapshot(f.slug), establishment_name:f.name, country_code:'FR', city_id:f.city, city_name:'Saint-Pierre',
+          latitude:f.lat, longitude:f.lng, description:'Pâtisserie et spécialités locales',
+          merchant:{...snapshot(f.slug).merchant, seo_description:'Cuisine de saison'},
+          activities:[{activity_code:f.activity,activity_name:f.activity==='cafe'?'Café':'Restaurant'}],
+        }, []);
+      // Missing longitude must not be coerced to zero, in list or public profile.
+      await owner.query(`UPDATE konektag.marketplace_published_establishments SET snapshot=jsonb_set(snapshot,'{longitude}','null') WHERE slug='fixture-001'`);
+      fixtures[1].lng = null;
+      const profile=await (await profileHandler(deps())(get('fixture-001'))).json();
+      expect(profile.coordinates).toBeUndefined();
+    });
+    it('breaks identical name and distance ties by the public slug', async () => {
+      for (const sort of ['name','distance']) {
+        const body=await list(`country=CG&sort=${sort}&lat=-4.2634&lng=15.2429&limit=1`);
+        expect(body.items[0].slug).toBe('boutique-3333');
+        expect((await list(`country=CG&sort=${sort}&lat=-4.2634&lng=15.2429&limit=1&page=2`)).items[0].slug).toBe('feane-brazzaville-1111');
+      }
+    });
+    it('sorts the complete result before paginating three pages, with stable slugs and total on empty pages', async () => {
+      const fold = (s:string)=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const expected = [...fixtures].sort((a,b)=>fold(a.name)<fold(b.name)?-1:fold(a.name)>fold(b.name)?1:a.slug.localeCompare(b.slug));
+      const all = [];
+      for (let page=1;page<=3;page++) {
+        const body = await list(`country=FR&page=${page}`);
+        expect(body).toMatchObject({total:57,page,limit:24,sort:'name'});
+        all.push(...body.items);
+      }
+      expect(all.map(f=>f.slug)).toEqual(expected.map(f=>f.slug));
+      expect(all.every(f=>!('distanceKm' in f))).toBe(true);
+      expect(await list('country=FR&page=99')).toMatchObject({items:[],total:57});
+      const first = all[0];
+      expect((await profileHandler(deps())(get(first.slug))).status).toBe(200);
+    });
+    it('sorts distance globally across pages and keeps every unlocated establishment at the end', async () => {
+      const all = [];
+      for (let page=1;page<=3;page++) {
+        const body = await list(`country=FR&sort=distance&lat=40&lng=2&page=${page}`);
+        expect(body.sort).toBe('distance'); all.push(...body.items);
+      }
+      expect(all).toHaveLength(57);
+      const located = all.filter(f=>f.coordinates);
+      const unlocated = all.filter(f=>!f.coordinates);
+      expect(located.map(f=>f.slug)).toEqual(fixtures.filter(f=>f.lat!==null&&f.lng!==null).map(f=>f.slug));
+      expect(located[0].distanceKm).toBeCloseTo(22.239,2);
+      expect(all.slice(located.length)).toEqual(unlocated);
+      expect(unlocated).toHaveLength(16);
+      expect(unlocated.every(f=>f.distanceKm===null)).toBe(true);
+      const named = await list('country=FR&limit=50&page=1');
+      const named2 = await list('country=FR&limit=50&page=2');
+      expect(unlocated.map(f=>f.slug)).toEqual([...named.items,...named2.items].filter(f=>!f.coordinates).map(f=>f.slug));
+    });
+    it('combines free text, country, city id and activity before pagination; accents and case are ignored', async () => {
+      const body = await list('q=PÂTISSERIE&country=FR&city=fr-saint-pierre-a&activity=cafe&limit=2');
+      const expected = fixtures.filter(f=>f.city==='fr-saint-pierre-a'&&f.activity==='cafe');
+      expect(body.total).toBe(expected.length);
+      expect(body.items).toHaveLength(2);
+      expect(body.items.every((f:any)=>f.city.id==='fr-saint-pierre-a'&&f.activities[0].code==='cafe')).toBe(true);
+      expect((await list('q=ECOLE&country=FR')).total).toBe(15);
+      expect((await list('q=CAFE&country=FR')).total).toBe(38);
+      expect((await list('country=CG&city=fr-saint-pierre-a')).total).toBe(0);
+      expect((await list('q=%27%20OR%201%3D1--')).total).toBe(0);
+    });
+    it('counts published facets and distinguishes homonymous cities by id', async () => {
+      const response = await facetsGET(request(),readerService());
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.countries).toEqual([
+        {code:'CG',count:2,cities:[{id:'cg-bzv',name:'Brazzaville',count:2}]},
+        {code:'FR',count:57,cities:[{id:'fr-saint-pierre-a',name:'Saint-Pierre',count:28},{id:'fr-saint-pierre-b',name:'Saint-Pierre',count:29}]},
+      ]);
+      expect(body.activities).toEqual([{code:'cafe',name:'Café',count:38},{code:'restaurant',name:'Restaurant',count:21}]);
+      const all = await list('limit=50');
+      expect(all.total).toBe(59);
+      expect(all.items.some((f:any)=>f.slug==='ancienne-fiche-2222')).toBe(false);
+    });
+    it('validates bounds and distance coordinates, and reports database errors as 503', async () => {
+      for (const q of ['sort=other','sort=distance','sort=distance&lat=0','lat=91','lng=181','lat=','page=0','page=1.2','limit=51','limit=','country=ZZ','city=','q='+ 'a'.repeat(121)]) {
+        expect((await listGET(request(q),readerService())).status, q).toBe(422);
+      }
+      const broken = publishedMarketplace(async()=>{throw new Error('offline');});
+      for (const handler of [listGET,facetsGET]) {
+        const res = await handler(request(),broken);
+        expect(res.status).toBe(503); expect(await res.json()).toEqual({error:'PROJECTION_UNAVAILABLE'});
+      }
+    });
+    it('immediately removes an unpublished row from listing and facets', async () => {
+      const f=fixtures[0];
+      await owner.query(`UPDATE konektag.marketplace_published_establishments SET status='Unpublished',snapshot=NULL WHERE slug=$1`,[f.slug]);
+      expect((await list('country=FR')).total).toBe(56);
+      const body = await (await facetsGET(request(),readerService())).json();
+      expect(body.countries.find((c:any)=>c.code==='FR').count).toBe(56);
+      expect(body.activities.find((a:any)=>a.code==='restaurant').count).toBe(20);
+      expect((await profileHandler(deps())(get(f.slug))).status).toBe(404);
+    });
+  });
+
 });
