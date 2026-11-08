@@ -216,6 +216,19 @@
     "score": 506
   },
   {
+    "path": "/api/public/team/{tenantId}/members/{memberSlug}",
+    "file": "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/team/([^/]+)/members/([^/]+)/?$",
+    "keys": [
+      "tenantId",
+      "memberSlug"
+    ],
+    "score": 406
+  },
+  {
     "path": "/api/account/transactions/{id}/retry",
     "file": "src/api/routes/account/transactions/[id]/retry.ts",
     "methods": [
@@ -588,6 +601,18 @@
     "pattern": "^/api/public/marketplace/merchants/([^/]+)/?$",
     "keys": [
       "slug"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/public/team/{tenantId}/members",
+    "file": "src/api/routes/public/team/[tenantId]/members/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/team/([^/]+)/members/?$",
+    "keys": [
+      "tenantId"
     ],
     "score": 405
   },

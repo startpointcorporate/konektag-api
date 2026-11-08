@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 319,
-    "operations": 404,
+    "paths": 321,
+    "operations": 406,
     "covered": 77,
-    "partial": 326,
+    "partial": 328,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 327,
-    "executedTests": 2744,
-    "passedTests": 2744
+    "businessUncovered": 329,
+    "executedTests": 2755,
+    "passedTests": 2755
   },
   "operations": [
     {
@@ -9768,6 +9768,82 @@
       "candidates": [
         "tests/unit/marketplace-transactions.test.ts"
       ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/team/{tenantId}/members",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/team/{tenantId}/members",
+      "source": "src/api/routes/public/team/[tenantId]/members/index.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/team/{tenantId}/members] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/team/{tenantId}/members] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/team/{tenantId}/members/{memberSlug}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/team/{tenantId}/members/{memberSlug}",
+      "source": "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/team/{tenantId}/members/{memberSlug}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/team/{tenantId}/members/{memberSlug}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
