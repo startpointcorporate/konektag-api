@@ -51,7 +51,7 @@ export function publicTeam(query: Query) {
           FROM konektag.tenant_members m JOIN konektag.tenant_members_sites s ON s.id=m.tenant_members_site_id AND s.tenant_id=m.tenant_id
           WHERE m.tenant_id=$1 AND m.status='Published' AND s.status='Active'
           AND ($2::integer IS NULL OR (COALESCE((m.snapshot->>'display_order')::integer,0),COALESCE(m.snapshot->>'display_name','') COLLATE "C",m.team_member_id) > ($2,$3 COLLATE "C",$4::uuid))
-          ORDER BY display_order,display_name COLLATE "C",team_member_id LIMIT $5`,[tenantId,cursor?.order??null,cursor?.name??null,cursor?.id??null,input.limit+1]);
+          ORDER BY COALESCE((m.snapshot->>'display_order')::integer,0),COALESCE(m.snapshot->>'display_name','') COLLATE "C",m.team_member_id LIMIT $5`,[tenantId,cursor?.order??null,cursor?.name??null,cursor?.id??null,input.limit+1]);
         const page=rows.slice(0,input.limit);
         const last=page.at(-1);
         return {tenantId,items:page.map(summary),nextCursor:rows.length>input.limit&&last?encodeCursor({order:Number(last.display_order),name:last.display_name,id:last.team_member_id}):null};
