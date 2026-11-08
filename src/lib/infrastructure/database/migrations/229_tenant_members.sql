@@ -37,15 +37,21 @@ CREATE OR REPLACE FUNCTION konektag.apply_tenant_member_publication(
 ) RETURNS TEXT LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,konektag AS $$
 DECLARE v_site konektag.tenant_members_sites%ROWTYPE; v_current konektag.tenant_members%ROWTYPE; v_expected TEXT;
 BEGIN
- IF p_schema_version<>1 OR p_operation NOT IN ('Publish','Unpublish') OR p_publication_version<=0
-    OR p_tenant_id!~'^[a-z0-9]+(-[a-z0-9]+)*$' OR p_source_site!~'^[a-z0-9]+([.-][a-z0-9]+)*$'
-    OR p_public_slug!~'^[a-z0-9]+(-[a-z0-9]+)*$' OR length(p_public_slug)>160
-    OR p_event_key!~'^[0-9a-f]{64}$' OR (p_operation='Publish')<>(p_snapshot IS NOT NULL) THEN RAISE EXCEPTION 'INVALID_ENVELOPE' USING ERRCODE='22023'; END IF;
- IF p_snapshot IS NOT NULL AND EXISTS(SELECT 1 FROM jsonb_object_keys(p_snapshot) k WHERE k<>ALL(ARRAY['first_name','last_name','display_name','job_title','team_label','country_code','city_name','short_description','long_description','photo','public_email','public_phone','public_whatsapp','links','display_order'])) THEN RAISE EXCEPTION 'INVALID_ENVELOPE' USING ERRCODE='22023'; END IF;
+ IF p_schema_version IS DISTINCT FROM 1 OR p_operation IS NULL OR p_operation NOT IN ('Publish','Unpublish')
+    OR p_publication_version IS NULL OR p_publication_version<=0 OR p_team_member_id IS NULL
+    OR p_tenant_id IS NULL OR p_tenant_id!~'^[a-z0-9]+(-[a-z0-9]+)*$'
+    OR p_source_site IS NULL OR p_source_site!~'^[a-z0-9]+([.-][a-z0-9]+)*$'
+    OR p_source_company IS NULL OR length(p_source_company) NOT BETWEEN 1 AND 255
+    OR p_public_slug IS NULL OR p_public_slug!~'^[a-z0-9]+(-[a-z0-9]+)*$' OR length(p_public_slug)>160
+    OR p_event_key IS NULL OR p_event_key!~'^[0-9a-f]{64}$'
+    OR (p_operation='Publish')<>(p_snapshot IS NOT NULL) THEN RAISE EXCEPTION 'INVALID_ENVELOPE' USING ERRCODE='22023'; END IF;
+ IF p_snapshot IS NOT NULL AND (jsonb_typeof(p_snapshot)<>'object' OR EXISTS(SELECT 1 FROM jsonb_object_keys(p_snapshot) k WHERE k<>ALL(ARRAY['first_name','last_name','display_name','job_title','team_label','country_code','city_name','short_description','long_description','photo','public_email','public_phone','public_whatsapp','links','display_order']))) THEN RAISE EXCEPTION 'INVALID_ENVELOPE' USING ERRCODE='22023'; END IF;
  SELECT * INTO v_site FROM konektag.tenant_members_sites WHERE tenant_id=p_tenant_id AND source_site=p_source_site AND source_company=p_source_company AND status='Active' AND db_role=session_user;
  IF NOT FOUND THEN RAISE EXCEPTION 'SOURCE_NOT_AUTHORIZED' USING ERRCODE='42501'; END IF;
  v_expected:=encode(sha256(convert_to('team:'||p_tenant_id||':'||p_source_site||':'||p_source_company||':'||p_team_member_id||':'||p_publication_version,'UTF8')),'hex');
  IF p_event_key<>v_expected THEN RAISE EXCEPTION 'INVALID_ENVELOPE' USING ERRCODE='22023'; END IF;
+ -- A row lock cannot serialize the first publication because no member row exists yet.
+ PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant_id||':'||p_team_member_id::text,0));
  SELECT * INTO v_current FROM konektag.tenant_members WHERE tenant_id=p_tenant_id AND team_member_id=p_team_member_id FOR UPDATE;
  IF FOUND THEN
   IF v_current.tenant_members_site_id<>v_site.id THEN RAISE EXCEPTION 'OWNER_CONFLICT' USING ERRCODE='23505'; END IF;
