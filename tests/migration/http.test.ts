@@ -5,7 +5,7 @@ import { routes } from '../../src/api/registry';
 
 describe('HTTP extraction',()=>{
   it('registers all source route methods with unique paths',()=>{
-    expect(routes).toHaveLength(321);
+    expect(routes).toHaveLength(322);
     expect(routes.reduce((sum,r)=>sum+r.methods.length,0)).toBe(408);
     expect(new Set(routes.map(r=>r.path)).size).toBe(322);
   });
