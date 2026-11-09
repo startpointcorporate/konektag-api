@@ -932,6 +932,17 @@
     "score": 404
   },
   {
+    "path": "/api/integrations/frappe/payment-links",
+    "file": "src/api/routes/integrations/frappe/payment-links.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/integrations/frappe/payment-links/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/internal/erp/account-access",
     "file": "src/api/routes/internal/erp/account-access.ts",
     "methods": [
