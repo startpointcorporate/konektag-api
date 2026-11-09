@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 329,
-    "executedTests": 2755,
-    "passedTests": 2755
+    "executedTests": 2762,
+    "passedTests": 2762
   },
   "operations": [
     {
@@ -8518,6 +8518,11 @@
       "tests": [
         {
           "file": "tests/unit/public-link-projection.test.ts",
+          "name": "is reachable through the HTTP middleware while handler auth still protects merchant operations",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
           "name": "returns only the public projection and never mutates state",
           "level": "unit"
         },
@@ -8598,7 +8603,7 @@
         }
       ],
       "assertions": [
-        "Only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
+        "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
         "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
@@ -17453,6 +17458,11 @@
       "tests": [
         {
           "file": "tests/unit/public-link-projection.test.ts",
+          "name": "is reachable through the HTTP middleware while handler auth still protects merchant operations",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-link-projection.test.ts",
           "name": "returns only the public projection and never mutates state",
           "level": "unit"
         },
@@ -17508,7 +17518,7 @@
         }
       ],
       "assertions": [
-        "Only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
+        "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -17728,6 +17738,21 @@
         },
         {
           "file": "tests/unit/api-payment-recharge-route.test.ts",
+          "name": "wallet recharge checkout route passes XAF as an exact minor-unit integer without decimal conversion",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-recharge-route.test.ts",
+          "name": "wallet recharge checkout route passes EUR as an exact minor-unit integer without decimal conversion",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-recharge-route.test.ts",
+          "name": "wallet recharge checkout route rejects a syntactically valid currency outside the supported minor-unit table",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-recharge-route.test.ts",
           "name": "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
           "level": "unit"
         },
@@ -17748,7 +17773,7 @@
         }
       ],
       "assertions": [
-        "Authenticated recharge target and response envelope; invalid country and anonymous refusal without creation.",
+        "Authenticated recharge target and MINOR response envelope; exact XAF 5000 and EUR 2500 integer forwarding without decimal conversion; unsupported JPY, invalid country and anonymous refusal without creation.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",

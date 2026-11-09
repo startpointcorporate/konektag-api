@@ -187,12 +187,15 @@
       "refusal"
     ],
     "assertions": [
-      "Authenticated recharge target and response envelope; invalid country and anonymous refusal without creation."
+      "Authenticated recharge target and MINOR response envelope; exact XAF 5000 and EUR 2500 integer forwarding without decimal conversion; unsupported JPY, invalid country and anonymous refusal without creation."
     ],
     "constraints": [],
-    "sha256": "3b7b1cb76cd89dde85424da82942a124d898f8dcd003735f66140965606394bb",
+    "sha256": "763bc33e1bfdaaf40f26a3f6cff7433a6286879dd029bb442896d06bc494bec9",
     "tests": [
       "wallet recharge checkout route uses the authenticated user as the recharge target and ignores forged target fields",
+      "wallet recharge checkout route passes XAF as an exact minor-unit integer without decimal conversion",
+      "wallet recharge checkout route passes EUR as an exact minor-unit integer without decimal conversion",
+      "wallet recharge checkout route rejects a syntactically valid currency outside the supported minor-unit table",
       "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
       "wallet recharge checkout route requires an authenticated user"
     ]
@@ -690,11 +693,12 @@
       "refusal"
     ],
     "assertions": [
-      "Only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+      "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors."
     ],
     "constraints": [],
-    "sha256": "964f716327c56a89c36b237b8ccb1f6172a52926200611e7246ddced873dc002",
+    "sha256": "520a412dac0cd2c4d2b4a783f3534393004dbbd12d98d06352fa103141cee841",
     "tests": [
+      "is reachable through the HTTP middleware while handler auth still protects merchant operations",
       "returns only the public projection and never mutates state",
       "returns only a terminal state for CONSUMED",
       "returns only a terminal state for EXPIRED",
@@ -718,11 +722,12 @@
       "refusal"
     ],
     "assertions": [
-      "Only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+      "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors."
     ],
     "constraints": [],
-    "sha256": "964f716327c56a89c36b237b8ccb1f6172a52926200611e7246ddced873dc002",
+    "sha256": "520a412dac0cd2c4d2b4a783f3534393004dbbd12d98d06352fa103141cee841",
     "tests": [
+      "is reachable through the HTTP middleware while handler auth still protects merchant operations",
       "returns only the public projection and never mutates state",
       "returns only a terminal state for CONSUMED",
       "returns only a terminal state for EXPIRED",
