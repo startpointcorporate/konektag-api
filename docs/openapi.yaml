@@ -20928,9 +20928,10 @@ paths:
       summary: POST /api/pay/recharges
       tags:
         - pay
-      description: Crée pour l’utilisateur authentifié une recharge payable. amount est toujours un entier en unité mineure
-        (EUR 2500 = 25,00 EUR; XAF 2500 = 2500 XAF). La recette isolée double la base et les prestataires; aucune
-        confirmation live n’est requise.
+      description: "Crée pour l’utilisateur authentifié une recharge payable. amount est toujours un entier en unité mineure
+        (EUR 2500 = 25,00 EUR; XAF 2500 = 2500 XAF). Le contexte de règlement doit être disponible dans PostgreSQL : ce
+        parcours ne déclenche aucune projection ni synchronisation Frappe/ERPNext. La recette isolée double la base et
+        les prestataires; aucune confirmation live n’est requise."
       parameters:
         - name: Idempotency-Key
           in: header

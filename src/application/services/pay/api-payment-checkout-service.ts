@@ -870,6 +870,13 @@ export const apiPaymentCheckoutService = {
     options: ApiPaymentFundingOptions = {},
   ): Promise<ApiPaymentFunding> {
     const selected = verifyPaymentContextSelection(selection);
+    const { rows: [checkout] } = await pool.query<Pick<ApiPaymentOrderRow, 'order_purpose'>>(
+      `SELECT order_purpose FROM konektag.api_payment_orders
+       WHERE checkout_token_hash = $1 LIMIT 1`,
+      [hashToken(token)],
+    );
+    if (!checkout) throw new ApiPaymentNotFoundError('Checkout not found');
+    const allowFrappeProjection = checkout.order_purpose !== 'wallet_recharge';
     const countryAliases = paymentCountryAliases(selected.country);
     const strictParams = [selected.legalEntityCode, selected.regulatoryProfileCode, selected.rail, selected.corridor,
       selected.regulatedActorCode, selected.provider, selected.currency, countryAliases];
@@ -895,7 +902,7 @@ export const apiPaymentCheckoutService = {
     }>(strictSql, strictParams);
 
     let projected = projectedStrict;
-    if (projected.length !== 1) {
+    if (projected.length !== 1 && allowFrappeProjection) {
       try {
         await frappeMasterDataProjectionService.projectLegalEntity(selected.legalEntityCode);
         if (selected.regulatedActorCode) {
