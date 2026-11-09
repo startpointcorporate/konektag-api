@@ -82,7 +82,7 @@ export const GET: RouteHandler = async ({ locals }) => {
     `SELECT
        plp.id,
        ci.public_id AS slug,
-       COALESCE(mp.business_name, 'Commerçant') AS label,
+       COALESCE(mp.business_name, nl.beneficiary_name, 'Commerçant') AS label,
        ci.currency,
        ci.amount AS "totalAmount",
        ci.quantity_k AS "quantityK",
@@ -92,9 +92,11 @@ export const GET: RouteHandler = async ({ locals }) => {
        'payment_link'::text AS type
      FROM konektag.pending_link_payments plp
      JOIN konektag.checkout_intents ci ON ci.id = plp.checkout_intent_id
-     JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
+     LEFT JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
+     LEFT JOIN konektag.link_pay_network_links nl ON nl.checkout_intent_id = ci.id
      WHERE plp.payer_user_id = $1
        AND ci.source_type = 'payment_link'
+       AND (mp.id IS NOT NULL OR nl.checkout_intent_id IS NOT NULL)
        AND ci.status = 'ISSUED'
        AND (ci.expiration IS NULL OR ci.expiration > now())
      ORDER BY plp.created_at DESC`,

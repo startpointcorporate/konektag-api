@@ -7,6 +7,8 @@ import { consumeLinkAtMerchant } from '../../../application/services/pay/link-k-
 import pool from '../../../infrastructure/database/pool.ts';
 import { checkUserKycVerified } from '../../../application/services/user-kyc-gate-service.ts';
 import {markSocialBoostPaid} from '../../../application/services/merchant-social-boost-service.ts';
+import { networkLinkService } from '../../../application/link-pay/network-link-service.ts';
+import { payNetworkLink } from '../../../application/link-pay/network-payment.ts';
 
 export const POST: RouteHandler = async ({ request, locals }) => {
   try {
@@ -19,6 +21,10 @@ export const POST: RouteHandler = async ({ request, locals }) => {
     const commandHash = principalCommandHash([slug, payer_email || null, transaction_id || null]);
     const previousResponse = await readPrincipalReplay(pool, user.id, 'LINK_PAYMENT', attemptKey, commandHash);
     if (previousResponse) return previousResponse;
+    // Network links (Frappe site collected through its network) never read a merchant profile.
+    const networkLink = await networkLinkService.getBySlug(slug);
+    if (networkLink) return await payNetworkLink({ link: networkLink, slug, user, attemptKey, commandHash,
+      payerIdentity: payer_email || user.email || null, externalTransactionId: transaction_id || null });
     const link = await paymentLinkService.get(slug);
     if (!link || link.status !== 'Active') {
       // A concurrent identical request may have committed between the first replay read and this read.

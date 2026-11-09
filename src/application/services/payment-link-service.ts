@@ -80,9 +80,11 @@ export const paymentLinkService = {
 
   async get(slug: string) {
     const { rows: [row] } = await pool.query(
-      `SELECT ci.*, mp.business_name FROM konektag.checkout_intents ci
-       JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
-       WHERE ci.public_id = $1 AND ci.source_type = 'payment_link'`, [slug]);
+      `SELECT ci.*, COALESCE(mp.business_name, nl.beneficiary_name) AS business_name FROM konektag.checkout_intents ci
+       LEFT JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
+       LEFT JOIN konektag.link_pay_network_links nl ON nl.checkout_intent_id = ci.id
+       WHERE ci.public_id = $1 AND ci.source_type = 'payment_link'
+         AND (mp.id IS NOT NULL OR nl.checkout_intent_id IS NOT NULL)`, [slug]);
     return row ? mapLink(row) : null;
   },
 
@@ -120,20 +122,6 @@ export const paymentLinkService = {
       [params.payerUserId, params.payerIdentity || null, params.externalTransactionId || null,
        params.financialTransactionId || null, slug, params.kOperationId || null]);
     return Boolean(rowCount);
-  },
-
-  /** Links issued by one Frappe site for one of its invoices (origin = site + invoice reference). */
-  async listForFrappeInvoice(site: string, invoice: string, merchantProfileIds: string[]) {
-    if (!merchantProfileIds.length) return [];
-    const { rows } = await pool.query(
-      `SELECT ci.*, mp.business_name FROM konektag.checkout_intents ci
-       JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
-       WHERE ci.source_type = 'payment_link' AND ci.merchant_profile_id = ANY($1::uuid[])
-         AND ci.reference = $2 AND ci.core_transaction_id LIKE $3
-       ORDER BY ci.created_at DESC`,
-      // '_' is a LIKE wildcard and may appear in a site key: match it literally.
-      [merchantProfileIds, invoice, `frappe-site:${site.replace(/_/g, '\\_')}:%`]);
-    return rows.map(row => ({ ...mapLink(row), ...settlement(row), origin: { site, invoice } }));
   },
 
   async listForUser(userId: string) {
