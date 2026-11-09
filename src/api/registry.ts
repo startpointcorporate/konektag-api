@@ -113,6 +113,7 @@ export const routes = [
   { path: "/api/pay/payments/by-reference", pattern: new RegExp("^/api/pay/payments/by-reference/?$"), keys: [], methods: ["GET"], load: () => import("./routes/pay/payments/by-reference") },
   { path: "/api/pay/payments/confirm", pattern: new RegExp("^/api/pay/payments/confirm/?$"), keys: [], methods: ["GET"], load: () => import("./routes/pay/payments/confirm") },
   { path: "/api/pay/points/value", pattern: new RegExp("^/api/pay/points/value/?$"), keys: [], methods: ["GET","POST"], load: () => import("./routes/pay/points/value") },
+  { path: "/api/pay/web/pay-link", pattern: new RegExp("^/api/pay/web/pay-link/?$"), keys: [], methods: ["POST"], load: () => import("./routes/pay/web/pay-link") },
   { path: "/api/public/marketplace/facets", pattern: new RegExp("^/api/public/marketplace/facets/?$"), keys: [], methods: ["GET"], load: () => import("./routes/public/marketplace/facets/index") },
   { path: "/api/public/marketplace/merchants", pattern: new RegExp("^/api/public/marketplace/merchants/?$"), keys: [], methods: ["GET"], load: () => import("./routes/public/marketplace/merchants/index") },
   { path: "/api/recharge/stripe/confirm", pattern: new RegExp("^/api/recharge/stripe/confirm/?$"), keys: [], methods: ["POST"], load: () => import("./routes/recharge/stripe/confirm") },

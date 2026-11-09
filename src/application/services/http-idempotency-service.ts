@@ -41,6 +41,7 @@ export function isFinancialMutation(method: string, path: string): boolean {
     || normalized.startsWith('/api/k/send/')
     || normalized === '/api/pay/payment-links'
     || normalized === '/api/pay/pay-link'
+    || normalized === '/api/pay/web/pay-link'
     || /^\/api\/pay\/payment-links\/[^/]+\/resume$/.test(normalized)
   ) return false;
   return FINANCIAL_MUTATION_PREFIXES.some(p => path.startsWith(p));

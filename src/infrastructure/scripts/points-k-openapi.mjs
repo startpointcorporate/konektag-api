@@ -27,8 +27,18 @@ export function documentPointsKWebContracts(paths) {
   const consume = paths['/api/pay/pay-link']?.post;
   if (consume) {
     consume.description = 'Consomme par slug un Link Pay avec authentification, KYC, contrôle de rôle et rejeu idempotent lié au payeur.';
+    consume.requestBody ??= { required: true, content: json({}) };
     consume.requestBody.content['application/json'].schema = { type: 'object', required: ['slug'], properties: { slug: { type: 'string', minLength: 1 }, payer_email: { type: 'string', format: 'email' }, transaction_id: { type: 'string' } } };
-    consume.responses['201'].content = json({ type: 'object', required: ['success', 'message', 'kOperationId'], properties: { success: { const: true }, message: { const: 'Paiement confirme' }, kOperationId: { type: 'string', format: 'uuid' } } });
+    consume.responses['201'] = { description: 'Link Pay consommé.', content: json({ type: 'object', required: ['success', 'message', 'kOperationId'], properties: { success: { const: true }, message: { const: 'Paiement confirme' }, kOperationId: { type: 'string', format: 'uuid' } } }) };
+  }
+
+  const webConsume = paths['/api/pay/web/pay-link']?.post;
+  if (webConsume) {
+    webConsume.description = 'Endpoint réservé au nouveau Web Astro. La référence est relue côté serveur et tout lien BOOST est rejeté avant claim, transaction ou débit; le circuit Boost historique reste sur /api/pay/pay-link.';
+    webConsume.requestBody ??= { required: true, content: json({}) };
+    webConsume.requestBody.content['application/json'].schema = { type: 'object', required: ['slug'], properties: { slug: { type: 'string', minLength: 1 }, payer_email: { type: 'string', format: 'email' }, transaction_id: { type: 'string' } } };
+    webConsume.responses['201'] = { description: 'Link Pay consommé.', content: json({ type: 'object', required: ['success', 'message', 'kOperationId'], properties: { success: { const: true }, message: { const: 'Paiement confirme' }, kOperationId: { type: 'string', format: 'uuid' } } }) };
+    webConsume.responses['409'] = { description: 'Lien Boost interdit dans le parcours du nouveau Web.', content: json(error(['BOOST_LINK_NOT_ALLOWED'])) };
   }
 
   const recharge = paths['/api/pay/recharges']?.post;

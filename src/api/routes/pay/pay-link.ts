@@ -8,7 +8,9 @@ import pool from '../../../infrastructure/database/pool.ts';
 import { checkUserKycVerified } from '../../../application/services/user-kyc-gate-service.ts';
 import {markSocialBoostPaid} from '../../../application/services/merchant-social-boost-service.ts';
 
-export const POST: RouteHandler = async ({ request, locals }) => {
+type PayLinkOptions = { allowBoost: boolean; routeKey: string };
+
+export const createPayLinkHandler = ({ allowBoost, routeKey }: PayLinkOptions): RouteHandler => async ({ request, locals }) => {
   try {
     const { slug, payer_email, transaction_id } = await request.json();
     if (!slug) return new Response(JSON.stringify({ error: 'slug required' }), { status: 400 });
@@ -17,14 +19,18 @@ export const POST: RouteHandler = async ({ request, locals }) => {
 
     const attemptKey = principalAttemptKey(slug);
     const commandHash = principalCommandHash([slug, payer_email || null, transaction_id || null]);
-    const previousResponse = await readPrincipalReplay(pool, user.id, 'LINK_PAYMENT', attemptKey, commandHash);
+    const previousResponse = await readPrincipalReplay(pool, user.id, routeKey, attemptKey, commandHash);
     if (previousResponse) return previousResponse;
     const link = await paymentLinkService.get(slug);
     if (!link || link.status !== 'Active') {
       // A concurrent identical request may have committed between the first replay read and this read.
-      const committedReplay = await readPrincipalReplay(pool, user.id, 'LINK_PAYMENT', attemptKey, commandHash);
+      const committedReplay = await readPrincipalReplay(pool, user.id, routeKey, attemptKey, commandHash);
       if (committedReplay) return committedReplay;
       return new Response(JSON.stringify({ error: 'Lien introuvable, expire ou deja utilise' }), { status: 404 });
+    }
+    // Server-owned link data gates the Astro flow before claim, transaction or debit.
+    if (!allowBoost && link.reference?.startsWith('BOOST:')) {
+      return new Response(JSON.stringify({ error: 'BOOST_LINK_NOT_ALLOWED' }), { status: 409 });
     }
     const { rows: [merchantOwner] } = await pool.query(
       'SELECT user_id FROM konektag.merchant_profiles WHERE id=$1', [link.merchant]);
@@ -43,7 +49,7 @@ export const POST: RouteHandler = async ({ request, locals }) => {
     let result: Awaited<ReturnType<typeof consumeLinkAtMerchant>>;
     try {
       await client.query('BEGIN');
-      const attempt = await beginPrincipalAttempt(client, user.id, 'LINK_PAYMENT', attemptKey, commandHash);
+      const attempt = await beginPrincipalAttempt(client, user.id, routeKey, attemptKey, commandHash);
       if (attempt.replay) { await client.query('COMMIT'); return attempt.replay; }
 
       if (!await paymentLinkService.claim(slug, client)) {
@@ -84,3 +90,6 @@ export const POST: RouteHandler = async ({ request, locals }) => {
     return new Response(JSON.stringify({ error: err.message }), { status: err instanceof PrincipalReplayConflict ? 409 : 400 });
   }
 };
+
+/** Historical Link Pay entry point, including the established Boost circuit. */
+export const POST = createPayLinkHandler({ allowBoost: true, routeKey: 'LINK_PAYMENT' });

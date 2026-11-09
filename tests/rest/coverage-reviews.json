@@ -1,5 +1,25 @@
 [
   {
+    "file": "tests/unit/api-web-pay-link-boost-guard.test.ts",
+    "operations": [
+      "POST /api/pay/web/pay-link"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Server-resolved BOOST reference is refused before database transaction, payment-link claim, Points K debit, Boost transition or ERP side effect."
+    ],
+    "constraints": [],
+    "sha256": "479ea8cfb86a304e737aec89e087698234a179a06f68d37ba1620efb024e8a6b",
+    "tests": [
+      "new Web Link Pay Boost guard rejects a server-resolved BOOST link before transaction, claim, debit or ERP side effect"
+    ]
+  },
+  {
     "file": "tests/unit/analytics-sec1.test.ts",
     "operations": [
       "GET /api/merchant/analytics/stats"

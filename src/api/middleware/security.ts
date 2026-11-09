@@ -126,7 +126,7 @@ function isPublicRoute(pathname: string): boolean {
 
 export const onRequest = ((async (context, routeNext) => {
   const outgoing = !['GET','HEAD','OPTIONS'].includes(context.request.method)
-    && /^\/api\/(k\/send|qr\/request-confirmation|pay\/pay-link|pay\/checkout\/[^/]+\/(confirm|funding|wallet-authorization)|wallet-authorizations)(\/|$)/.test(context.url.pathname);
+    && /^\/api\/(k\/send|qr\/request-confirmation|pay\/(pay-link|web\/pay-link)|pay\/checkout\/[^/]+\/(confirm|funding|wallet-authorization)|wallet-authorizations)(\/|$)/.test(context.url.pathname);
   const financialReviewResponse = async () => {
     // Financial safety is independent from authentication, KYC and onboarding.
     if (outgoing && context.locals.user) {

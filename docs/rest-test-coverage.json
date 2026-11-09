@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 321,
-    "operations": 406,
-    "covered": 77,
+    "paths": 322,
+    "operations": 407,
+    "covered": 78,
     "partial": 328,
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 329,
-    "executedTests": 2762,
-    "passedTests": 2762
+    "executedTests": 2765,
+    "passedTests": 2765
   },
   "operations": [
     {
@@ -17781,6 +17781,53 @@
       ],
       "candidates": [
         "tests/unit/api-payment-recharge-route.test.ts"
+      ],
+      "constraints": []
+    },
+    {
+      "operation": "POST /api/pay/web/pay-link",
+      "domain": "pay",
+      "method": "POST",
+      "path": "/api/pay/web/pay-link",
+      "source": "src/api/routes/pay/web/pay-link.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/api-web-pay-link-boost-guard.test.ts",
+          "name": "new Web Link Pay Boost guard rejects a server-resolved BOOST link before transaction, claim, debit or ERP side effect",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "pay [REST TRANSPORT POST /api/pay/web/pay-link] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "pay [REST AUTH POST /api/pay/web/pay-link] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Server-resolved BOOST reference is refused before database transaction, payment-link claim, Points K debit, Boost transition or ERP side effect.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/api-web-pay-link-boost-guard.test.ts"
       ],
       "constraints": []
     },

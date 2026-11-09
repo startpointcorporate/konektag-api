@@ -9,7 +9,7 @@ describe('Points K web OpenAPI contracts', () => {
   it('publishes Link Pay, recharge minor units and K_SEND OTP without inventing gift purchase', () => {
     const paths: any = {
       '/api/pay/payment-links': { get: operation() }, '/api/pay/payment-links/{slug}/resume': { post: operation() },
-      '/api/pay/pay-link': { post: operation() }, '/api/pay/recharges': { post: operation() },
+      '/api/pay/pay-link': { post: operation() }, '/api/pay/web/pay-link': { post: operation() }, '/api/pay/recharges': { post: operation() },
       '/api/k/send/quote': { post: operation() }, '/api/k/send': { post: operation() }, '/api/k/send/{id}': { post: operation() },
     };
     documentPointsKWebContracts(paths);
@@ -17,6 +17,8 @@ describe('Points K web OpenAPI contracts', () => {
       .toEqual(['Active', 'Expired', 'Used']);
     expect(paths['/api/pay/recharges'].post.requestBody.content['application/json'].schema.properties.amount.description).toContain('mineure');
     expect(paths['/api/pay/recharges'].post.parameters).toContainEqual(expect.objectContaining({ name: 'Idempotency-Key', required: true }));
+    expect(paths['/api/pay/web/pay-link'].post.responses['409'].content['application/json'].schema.properties.error.enum)
+      .toEqual(['BOOST_LINK_NOT_ALLOWED']);
     expect(paths['/api/k/send/{id}'].post.requestBody.content['application/json'].schema.properties.otp.pattern).toBe('^\\d{6}$');
     expect(paths['/api/k/send'].post.description).toContain('pas un achat-cadeau');
   });

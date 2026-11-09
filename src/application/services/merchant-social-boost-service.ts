@@ -277,7 +277,8 @@ export async function markSocialBoostPaid(reference:string){
     version=version+1,updated_at=now() WHERE payment_reference=$1 AND status='PAYMENT_PENDING' RETURNING *`,[reference]);
   if(!boost)return null;
   await boostEvent(pool,boost.id,null,null,'PAID',{paymentReference:reference,paidAt:boost.paid_at});
-  // Link Pay is a Konektag-only flow. Keep its paid transition and audit event
-  // in PostgreSQL; ERP synchronization remains an explicit admin action.
-  return boost;
+  try{return await recordBoostSale(boost.id);}catch(error){
+    await pool.query(`UPDATE konektag.merchant_social_boosts SET erp_error=$2,updated_at=now() WHERE id=$1`,[boost.id,String((error as Error)?.message||'ERP_SYNC_FAILED').slice(0,500)]);
+    return boost;
+  }
 }

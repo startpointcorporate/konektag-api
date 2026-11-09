@@ -1249,6 +1249,16 @@
     "score": 404
   },
   {
+    "path": "/api/pay/web/pay-link",
+    "file": "src/api/routes/pay/web/pay-link.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/web/pay-link/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/public/marketplace/facets",
     "file": "src/api/routes/public/marketplace/facets/index.ts",
     "methods": [
