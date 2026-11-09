@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 321,
-    "operations": 406,
+    "paths": 322,
+    "operations": 408,
     "covered": 77,
-    "partial": 328,
+    "partial": 330,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 329,
-    "executedTests": 2759,
-    "passedTests": 2759
+    "businessUncovered": 331,
+    "executedTests": 2771,
+    "passedTests": 2771
   },
   "operations": [
     {
@@ -4999,6 +4999,46 @@
         "no database or handler execution"
       ],
       "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/integrations/frappe/payment-links",
+      "domain": "integrations",
+      "method": "GET",
+      "path": "/api/integrations/frappe/payment-links",
+      "source": "src/api/routes/integrations/frappe/payment-links.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT GET /api/integrations/frappe/payment-links] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH GET /api/integrations/frappe/payment-links] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/link-pay-frappe-site-routing.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -14103,6 +14143,46 @@
       ]
     },
     {
+      "operation": "POST /api/integrations/frappe/payment-links",
+      "domain": "integrations",
+      "method": "POST",
+      "path": "/api/integrations/frappe/payment-links",
+      "source": "src/api/routes/integrations/frappe/payment-links.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT POST /api/integrations/frappe/payment-links] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH POST /api/integrations/frappe/payment-links] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/link-pay-frappe-site-routing.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "POST /api/internal/erp/account-access",
       "domain": "internal",
       "method": "POST",
@@ -17429,6 +17509,7 @@
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/link-pay-frappe-site-routing.test.ts",
         "tests/unit/payment-link-amount.test.ts",
         "tests/unit/payment-link-erp-return.test.ts"
       ],

@@ -39,6 +39,8 @@ const PUBLIC_PREFIXES = [
   '/api/pay/payment-country',
   '/api/pay/countries',
   '/api/pay/detected-country',
+  // Frappe sites authenticate as themselves in the handler (site key + token), never as a user.
+  '/api/integrations/frappe/',
 ];
 
 const PUBLIC_EXACT_PATHS = [

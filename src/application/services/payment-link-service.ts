@@ -122,6 +122,20 @@ export const paymentLinkService = {
     return Boolean(rowCount);
   },
 
+  /** Links issued by one Frappe site for one of its invoices (origin = site + invoice reference). */
+  async listForFrappeInvoice(site: string, invoice: string, merchantProfileIds: string[]) {
+    if (!merchantProfileIds.length) return [];
+    const { rows } = await pool.query(
+      `SELECT ci.*, mp.business_name FROM konektag.checkout_intents ci
+       JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
+       WHERE ci.source_type = 'payment_link' AND ci.merchant_profile_id = ANY($1::uuid[])
+         AND ci.reference = $2 AND ci.core_transaction_id LIKE $3
+       ORDER BY ci.created_at DESC`,
+      // '_' is a LIKE wildcard and may appear in a site key: match it literally.
+      [merchantProfileIds, invoice, `frappe-site:${site.replace(/_/g, '\\_')}:%`]);
+    return rows.map(row => ({ ...mapLink(row), ...settlement(row), origin: { site, invoice } }));
+  },
+
   async listForUser(userId: string) {
     const { rows } = await pool.query(
       `SELECT ci.*, mp.business_name FROM konektag.checkout_intents ci
