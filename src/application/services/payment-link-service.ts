@@ -14,6 +14,14 @@ function linkValuation(row: any) {
   return parsed.data;
 }
 
+/** Settlement facts are only for the merchant's own owner/manager listing (ERP reconciliation). */
+function settlement(row: any) {
+  return row.status === 'CONSUMED' ? {
+    operationId: row.k_operation_id || row.operation_id || null,
+    paidAt: row.consumed_at || null,
+  } : { operationId: null, paidAt: null };
+}
+
 function mapLink(row: any) {
   const expired = !row.expiration || !Number.isFinite(new Date(row.expiration).getTime())
     || new Date(row.expiration).getTime() <= Date.now();
@@ -63,6 +71,8 @@ export const paymentLinkService = {
     );
     if(!row && (params.catalog||params.idempotencyKey)) {const existing=await pool.query(`SELECT * FROM konektag.checkout_intents WHERE core_transaction_id=$1 AND merchant_profile_id=$2 AND source_type='payment_link'`,[params.catalog?.transactionId||params.idempotencyKey,params.merchantProfileId]);row=existing.rows[0];}
     if(!row)throw new Error('CHECKOUT_CREATION_FAILED');
+    if(params.idempotencyKey && !params.catalog && (Number(row.amount)!==amountMinor || row.currency!==currency
+      || (row.reference||null)!==(params.reference||null)))throw new Error('IDEMPOTENCY_KEY_REUSED');
     const { rows: [profile] } = await pool.query(
       `SELECT business_name FROM konektag.merchant_profiles WHERE id = $1`, [params.merchantProfileId]);
     return mapLink({ ...row, business_name: profile?.business_name });
@@ -120,7 +130,7 @@ export const paymentLinkService = {
        WHERE mm.user_id = $1 AND mm.status = 'active' AND mm.role IN ('owner', 'manager')
          AND ci.source_type = 'payment_link'
        ORDER BY ci.created_at DESC`, [userId]);
-    return rows.map(mapLink);
+    return rows.map(row => ({ ...mapLink(row), ...settlement(row) }));
   },
 };
 

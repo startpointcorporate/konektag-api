@@ -25,12 +25,19 @@ export const POST: RouteHandler = async ({ request, locals }) => {
     try { await merchantService.requireOwnerOrManager(merchantProfileId, user.id); } catch { return new Response(JSON.stringify({ error: 'MERCHANT_SCOPE_FORBIDDEN' }), { status: 403 }); }
     const activation = await merchantActivationService.requireMerchantApproved(merchantProfileId);
     if (!activation.ok) return new Response(JSON.stringify({ error: 'MERCHANT_NOT_ACTIVATED', reason: activation.error }), { status: 403 });
+    // Optional: an ERP retry after a lost response receives the link already issued for this key.
+    const idempotencyKey = request.headers.get('X-Idempotency-Key');
+    if (idempotencyKey !== null && !/^[a-f0-9]{64}$/.test(idempotencyKey)) {
+      return new Response(JSON.stringify({ error: 'INVALID_IDEMPOTENCY_KEY' }), { status: 400 });
+    }
     const link = await paymentLinkService.create({ merchantProfileId, amountMajor, currency,
-      description, reference, expiration: new Date(Date.now() + (expires_in_days || 7) * 86400000) });
+      description, reference, expiration: new Date(Date.now() + (expires_in_days || 7) * 86400000),
+      ...(idempotencyKey ? { idempotencyKey: `erp-link:${merchantProfileId}:${idempotencyKey}` } : {}) });
 
     return new Response(JSON.stringify({ link, url: `/pay/l/${link.url_slug}` }), { status: 201 });
   } catch (err: any) {
     if (err instanceof PointsKValuationError) return new Response(JSON.stringify({ error: err.code }), { status: 422 });
+    if (err?.message === 'IDEMPOTENCY_KEY_REUSED') return new Response(JSON.stringify({ error: err.message }), { status: 409 });
     return new Response(JSON.stringify({ error: err.message }), { status: 400 });
   }
 };
@@ -61,7 +68,9 @@ export const GET: RouteHandler = async ({ url, locals }) => {
       catch { return Response.json({ error: 'MERCHANT_SCOPE_FORBIDDEN' }, { status: 403 }); }
     }
     const links = await paymentLinkService.listForUser(user.id);
-    const scopedLinks = merchantProfileId ? links.filter((link: any) => link.merchant === merchantProfileId) : links;
+    const reference = url.searchParams.get('reference');
+    const scopedLinks = links.filter((link: any) => (!merchantProfileId || link.merchant === merchantProfileId)
+      && (reference === null || link.reference === reference));
     return new Response(JSON.stringify({ links: scopedLinks }), { status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
