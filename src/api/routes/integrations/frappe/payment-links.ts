@@ -2,11 +2,12 @@ import type { RouteHandler } from '../../../http';
 import { merchantActivationService } from '../../../../application/services/merchant-activation-service.ts';
 import { paymentLinkService } from '../../../../application/services/payment-link-service.ts';
 import { PointsKValuationError } from '../../../../application/services/points-k-valuation-service.ts';
-import { authenticateSite, LinkPaySiteError, originKey, verifyInvoice } from '../../../../application/link-pay/frappe-site-routing.ts';
+import { authenticateSite, collectors, LinkPaySiteError, originKey, verifyInvoice } from '../../../../application/link-pay/frappe-site-routing.ts';
 
 /**
- * Link Pay for invoices of an authenticated Frappe site. The site sends only the invoice name;
- * amount, currency and collector come from the invoice read on that site.
+ * Link Pay for invoices of an authenticated Frappe site. The site sends the invoice name and the
+ * Frappe UUID of the collecting merchant; the API checks the site may use it, reads the invoice on
+ * that site (amount, currency, company) and resolves the API collecting identity.
  */
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 const fail = (error: unknown) => {
@@ -24,7 +25,7 @@ export const POST: RouteHandler = async ({ request }) => {
     const attemptKey = request.headers.get('x-idempotency-key') || '';
     if (!/^[a-f0-9]{64}$/.test(attemptKey)) return json({ error: 'INVALID_IDEMPOTENCY_KEY' }, 400);
     const body = await request.json().catch(() => null);
-    const invoice = await verifyInvoice(site, body?.invoice);
+    const invoice = await verifyInvoice(site, body?.invoice, body?.merchantProfileId);
     const activation = await merchantActivationService.requireMerchantApproved(invoice.beneficiary);
     if (!activation.ok) return json({ error: 'MERCHANT_NOT_ACTIVATED' }, 403);
     const description = typeof body?.description === 'string' && body.description.trim()
@@ -45,7 +46,7 @@ export const GET: RouteHandler = async ({ request, url }) => {
     const site = authenticateSite(request);
     const invoice = url.searchParams.get('invoice');
     if (!invoice) return json({ error: 'INVOICE_REFERENCE_INVALID' }, 400);
-    const links = await paymentLinkService.listForFrappeInvoice(site.key, invoice, Object.values(site.config.companies));
+    const links = await paymentLinkService.listForFrappeInvoice(site.key, invoice, collectors(site));
     return json({ links });
   } catch (error) {
     return fail(error);

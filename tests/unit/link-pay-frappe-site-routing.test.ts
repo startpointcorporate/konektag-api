@@ -15,21 +15,24 @@ vi.mock('../../src/application/marketplace-transactions/frappe-site.ts', async (
 import { GET, POST } from '../../src/api/routes/integrations/frappe/payment-links.ts';
 import { POST as LEGACY_POST } from '../../src/api/routes/pay/payment-links.ts';
 
-const KONEKTAG_CONGO = '11111111-1111-4111-8111-111111111111';
-const RESTAURANT = '22222222-2222-4222-8222-222222222222';
+const FRAPPE_CONGO = 'a39cb898-0a0d-4442-8324-3f53d82e79c5';      // existing Frappe UUID of Konektag Congo
+const KONEKTAG_CONGO = '11111111-1111-4111-8111-111111111111';   // API collecting identity it is attached to
+const RESTAURANT = '22222222-2222-4222-8222-222222222222';         // known by the API under the same id
 const tokens = { CONGO: 'c'.repeat(40), RESTODEMO: 'r'.repeat(40) };
 const sha = (v: string) => crypto.createHash('sha256').update(v).digest('hex');
 process.env.LINK_PAY_FRAPPE_SITES = JSON.stringify({
-  CONGO: { tokenSha256: sha(tokens.CONGO), companies: { 'konektag congo': KONEKTAG_CONGO } },
-  RESTODEMO: { tokenSha256: sha(tokens.RESTODEMO), companies: { 'Le Jardin du Fleuve': RESTAURANT } },
+  CONGO: { tokenSha256: sha(tokens.CONGO), merchants: { [FRAPPE_CONGO]: { collector: KONEKTAG_CONGO, companies: ['konektag congo'] } } },
+  RESTODEMO: { tokenSha256: sha(tokens.RESTODEMO), merchants: { [RESTAURANT]: { collector: RESTAURANT, companies: ['Le Jardin du Fleuve'] } } },
 });
 const invoice = (company: string, outstanding = 6500, extra: Record<string, unknown> = {}) => ({
   name: 'ACC-SINV-2026-00012', company, docstatus: 1, is_return: 0, is_pos: 0, currency: 'XAF',
   party_account_currency: 'XAF', outstanding_amount: outstanding, ...extra });
 let links: any[];
 const key = (n: string) => n.repeat(64).slice(0, 64);
-const request = (site: keyof typeof tokens | 'NONE', body: unknown, attempt = key('a'), token?: string) => POST({
-  request: new Request('http://x/api/integrations/frappe/payment-links', { method: 'POST', body: JSON.stringify(body), headers: {
+const sent = (site: string) => site === 'RESTODEMO' ? RESTAURANT : FRAPPE_CONGO;
+const request = (site: keyof typeof tokens | 'NONE', body: any, attempt = key('a'), token?: string) => POST({
+  request: new Request('http://x/api/integrations/frappe/payment-links', { method: 'POST',
+    body: JSON.stringify({ merchantProfileId: sent(site), ...body }), headers: {
     'X-Konektag-Frappe-Site': site, 'X-Konektag-Frappe-Token': token ?? (tokens as any)[site] ?? 'x'.repeat(40), 'X-Idempotency-Key': attempt } }),
   locals: {},
 } as any);
@@ -75,7 +78,7 @@ describe('Link Pay issued by an authenticated Frappe site', () => {
   });
 
   it('collects a Konektag Congo sale for Konektag Congo, from the invoice read on Congo', async () => {
-    const response = await request('CONGO', { invoice: 'ACC-SINV-2026-00012', merchantProfileId: RESTAURANT, amount: '1' });
+    const response = await request('CONGO', { invoice: 'ACC-SINV-2026-00012', amount: '1' });
     expect(response.status).toBe(201);
     const { link } = await response.json();
     expect(link).toMatchObject({ merchant: KONEKTAG_CONGO, amount: 6500, currency: 'XAF', reference: 'ACC-SINV-2026-00012',
@@ -83,9 +86,15 @@ describe('Link Pay issued by an authenticated Frappe site', () => {
     expect(links[0].core_transaction_id).toBe('frappe-site:CONGO:' + key('a'));
   });
 
-  it('collects a merchant sale for that merchant, from its own site', async () => {
+  it('reuses a UUID the API already knows under the same id', async () => {
     const { link } = await (await request('RESTODEMO', { invoice: 'ACC-SINV-2026-00012' })).json();
     expect(link.merchant).toBe(RESTAURANT);
+  });
+
+  it('refuses a merchant UUID this site is not authorized to use, before reading Frappe', async () => {
+    expect((await request('CONGO', { invoice: 'ACC-SINV-2026-00012', merchantProfileId: RESTAURANT })).status).toBe(403);
+    expect((await request('CONGO', { invoice: 'ACC-SINV-2026-00012', merchantProfileId: undefined })).status).toBe(403);
+    expect(links).toHaveLength(0);
   });
 
   it('keeps two sites with the same invoice number, amount and key isolated', async () => {
