@@ -628,52 +628,6 @@
       "cleanup"
     ]
   },
-  "GET /api/admin/boost-pricing": {
-    "kind": "fixture-bound",
-    "case": "9ce04db0f852",
-    "pathParameters": [],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
-  "GET /api/admin/boost-pricing/prices": {
-    "kind": "fixture-bound",
-    "case": "cef01ce1697d",
-    "pathParameters": [],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
   "GET /api/admin/card-batches": {
     "kind": "fixture-bound",
     "case": "5ef79d6703aa",
@@ -2468,7 +2422,9 @@
     "kind": "authored",
     "actors": [],
     "resources": [],
-    "variables": [],
+    "variables": [
+      "witness.0.categoryId"
+    ],
     "configuration": {
       "postgresql.urlEnv": true,
       "allowFixtureWrites": false,
@@ -3409,29 +3365,6 @@
       "cleanup"
     ]
   },
-  "GET /api/merchant/visibility/campaigns": {
-    "kind": "fixture-bound",
-    "case": "b1d9d0352c80",
-    "pathParameters": [],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
   "GET /api/merchant/visibility/catalog-access": {
     "kind": "fixture-bound",
     "case": "6e161d9f78d6",
@@ -4068,10 +4001,184 @@
       "cleanup"
     ]
   },
-  "GET /api/public/boost-cpm": {
+  "GET /api/public/marketplace/facets": {
     "kind": "fixture-bound",
-    "case": "83926f3a2723",
+    "case": "c2c18dd74caf",
     "pathParameters": [],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/marketplace/merchants": {
+    "kind": "fixture-bound",
+    "case": "ba98bb8f39e7",
+    "pathParameters": [],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/marketplace/merchants/{slug}": {
+    "kind": "fixture-bound",
+    "case": "2858bab7f81b",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/marketplace/merchants/{slug}/hotel/availability": {
+    "kind": "fixture-bound",
+    "case": "379e5877a463",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/marketplace/merchants/{slug}/hotel/rooms": {
+    "kind": "fixture-bound",
+    "case": "ba994db72fb9",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/marketplace/merchants/{slug}/restaurant/menu": {
+    "kind": "fixture-bound",
+    "case": "8e1a2d0d75ad",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/team/{tenantId}/members": {
+    "kind": "fixture-bound",
+    "case": "05bbe9696ac3",
+    "pathParameters": [
+      "tenantId"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "GET /api/public/team/{tenantId}/members/{memberSlug}": {
+    "kind": "fixture-bound",
+    "case": "b9ecb97b3fe7",
+    "pathParameters": [
+      "tenantId",
+      "memberSlug"
+    ],
     "required": [
       "testOnly",
       "owner",
@@ -4606,54 +4713,6 @@
       "id",
       "action"
     ],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body",
-      "oracles"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
-  "POST /api/admin/boost-pricing": {
-    "kind": "fixture-bound",
-    "case": "3c12d90e3c10",
-    "pathParameters": [],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body",
-      "oracles"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
-  "POST /api/admin/boost-pricing/update": {
-    "kind": "fixture-bound",
-    "case": "d6016b875927",
-    "pathParameters": [],
     "required": [
       "testOnly",
       "owner",
@@ -7269,30 +7328,6 @@
       "cleanup"
     ]
   },
-  "POST /api/merchant/visibility/campaigns": {
-    "kind": "fixture-bound",
-    "case": "8d4050968de9",
-    "pathParameters": [],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body",
-      "oracles"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
   "POST /api/merchant/visibility/reviews": {
     "kind": "fixture-bound",
     "case": "86155aef9843",
@@ -7835,10 +7870,138 @@
       "cleanup"
     ]
   },
+  "POST /api/public/commercial-request": {
+    "kind": "fixture-bound",
+    "case": "5cf1a520ade7",
+    "pathParameters": [],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body",
+      "oracles"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
   "POST /api/public/digital-audit": {
     "kind": "fixture-bound",
     "case": "076e8c942ba0",
     "pathParameters": [],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body",
+      "oracles"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "POST /api/public/marketplace/merchants/{slug}/hotel/reservations": {
+    "kind": "fixture-bound",
+    "case": "a7bbddb16998",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body",
+      "oracles"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "POST /api/public/marketplace/merchants/{slug}/restaurant/orders": {
+    "kind": "fixture-bound",
+    "case": "c53974bed50d",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body",
+      "oracles"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "POST /api/public/marketplace/merchants/{slug}/restaurant/quote": {
+    "kind": "fixture-bound",
+    "case": "cda982ae90c2",
+    "pathParameters": [
+      "slug"
+    ],
+    "required": [
+      "testOnly",
+      "owner",
+      "request",
+      "expected.status",
+      "expected.body",
+      "oracles"
+    ],
+    "requestFields": [
+      "params",
+      "query",
+      "body (JSON) or raw (signed webhook) or form",
+      "headerEnv (credential/signature environment names)"
+    ],
+    "optional": [
+      "actor",
+      "preconditions",
+      "cleanup"
+    ]
+  },
+  "POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests": {
+    "kind": "fixture-bound",
+    "case": "8c9ea7a09b84",
+    "pathParameters": [
+      "slug"
+    ],
     "required": [
       "testOnly",
       "owner",
@@ -8723,30 +8886,6 @@
   "PUT /api/merchant/settlement-configuration": {
     "kind": "fixture-bound",
     "case": "5875db393484",
-    "pathParameters": [],
-    "required": [
-      "testOnly",
-      "owner",
-      "request",
-      "expected.status",
-      "expected.body",
-      "oracles"
-    ],
-    "requestFields": [
-      "params",
-      "query",
-      "body (JSON) or raw (signed webhook) or form",
-      "headerEnv (credential/signature environment names)"
-    ],
-    "optional": [
-      "actor",
-      "preconditions",
-      "cleanup"
-    ]
-  },
-  "PUT /api/merchant/visibility/campaigns": {
-    "kind": "fixture-bound",
-    "case": "2b2255e25b9d",
     "pathParameters": [],
     "required": [
       "testOnly",

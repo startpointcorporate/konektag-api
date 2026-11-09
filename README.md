@@ -1,6 +1,6 @@
 # Konektag API
 
-Backend extrait de `startpointcorporate/konetag` au commit `c25c1ac5d42d0e173b9dec28c950617d109d0530` : **305 chemins REST extraits, 2 alias de compatibilité (392 opérations HTTP au total) et 42 outils MCP**. Le dépôt source est en lecture seule. Aucun framework Astro, SSR, page métier, composant navigateur ou CSS n'est nécessaire au backend.
+Backend extrait de `startpointcorporate/konetag` au commit `c25c1ac5d42d0e173b9dec28c950617d109d0530` : **305 chemins REST extraits, 2 alias de compatibilité et 37 outils MCP après retrait du circuit Boost/Posts**. Le dépôt source est en lecture seule. Aucun framework Astro, SSR, page métier, composant navigateur ou CSS n'est nécessaire au backend.
 
 ## Installation et validation
 
@@ -51,15 +51,15 @@ Les trois serveurs gardent leur langage, leurs outils et leurs confirmations hum
 
 `MCP_PUBLIC_URL` est obligatoire pour chaque serveur. Les ports sont configurables via `MCP_PORT` pour ERPNext/M365, et `UNIPILE_MCP_PORT` pour Unipile. Utiliser des ports distincts en local. `OAUTH_STORE_DIR` désigne un répertoire persistant distinct par serveur (défaut `/app/data/oauth`). Les URLs OAuth et JWKS, audience, client et secret doivent être ceux de l'application Keycloak correspondante. L'identifiant public d'un MCP ne doit pas être réutilisé pour les autres.
 
-M365 exige aussi `M365_CLIENT_ID`, `M365_TENANT_ID`, `M365_MAILBOX` et le certificat fourni via `M365_PFX_PATH` et, si nécessaire, `M365_PFX_PASSWORD`. Unipile conserve ses comptes et sa clé API existants. Le MCP ERPNext utilise `FRAPPE_URL`, `FRAPPE_API_KEY`, `FRAPPE_API_SECRET`, et les configurations Postiz/Konektag pour les outils concernés.
+M365 exige aussi `M365_CLIENT_ID`, `M365_TENANT_ID`, `M365_MAILBOX` et le certificat fourni via `M365_PFX_PATH` et, si nécessaire, `M365_PFX_PASSWORD`. Unipile conserve ses comptes et sa clé API existants. Le MCP ERPNext utilise `FRAPPE_URL`, `FRAPPE_API_KEY`, `FRAPPE_API_SECRET` et la configuration Postiz pour les outils génériques concernés.
 
 ## Mutualisation et provenance
 
-Les routes REST importent une seule copie des services `src/application`, modèles `src/domain`, repositories et adaptateurs `src/infrastructure`. Le MCP CPM conserve `CPMClient → KonektagClient → /api/admin/boost-pricing*` : les règles de prix, autorisations et écritures restent dans les services REST. Les outils ERPNext et Postiz autonomes gardent leurs connecteurs Python existants ; aucune réécriture TypeScript n'a été ajoutée.
+Les routes REST importent une seule copie des services `src/application`, modèles `src/domain`, repositories et adaptateurs `src/infrastructure`. Les outils ERPNext et Postiz autonomes gardent leurs connecteurs Python existants ; aucune réécriture TypeScript n'a été ajoutée. L'ancien circuit Boost/Posts et ses outils CPM ont été retirés.
 
 - [docs/source-manifest.json](docs/source-manifest.json) : correspondance source/destination et empreintes du source.
 - [docs/routes.json](docs/routes.json) : routes et méthodes réellement exportées.
-- [docs/mcp-tools.json](docs/mcp-tools.json) : noms, signatures et empreintes AST des 42 outils.
+- [docs/mcp-tools.json](docs/mcp-tools.json) : noms, signatures et empreintes AST des 37 outils.
 - [docs/migration.md](docs/migration.md) : adaptations et limites de validation.
 - [docs/validation.md](docs/validation.md) : commandes exécutées et résultats observés.
 

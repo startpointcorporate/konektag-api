@@ -5,9 +5,9 @@ import { routes } from '../../src/api/registry';
 
 describe('HTTP extraction',()=>{
   it('registers all source route methods with unique paths',()=>{
-    expect(routes).toHaveLength(321);
-    expect(routes.reduce((sum,r)=>sum+r.methods.length,0)).toBe(406);
-    expect(new Set(routes.map(r=>r.path)).size).toBe(321);
+    expect(routes).toHaveLength(315);
+    expect(routes.reduce((sum,r)=>sum+r.methods.length,0)).toBe(397);
+    expect(new Set(routes.map(r=>r.path)).size).toBe(315);
   });
   it('extracts decoded dynamic parameters before authorization',async()=>{
     const middleware=vi.fn(async ctx=>Response.json(ctx.params));
@@ -28,6 +28,18 @@ describe('HTTP extraction',()=>{
   });
   it('returns 404 without executing middleware for unknown paths',async()=>{
     const middleware=vi.fn();expect((await dispatch(new Request('https://api.invalid/not-a-route'),'',middleware)).status).toBe(404);expect(middleware).not.toHaveBeenCalled();
+  });
+  it.each([
+    '/api/admin/boost-pricing',
+    '/api/admin/boost-pricing/prices',
+    '/api/admin/boost-pricing/update',
+    '/api/merchant/visibility/campaigns',
+    '/api/public/boost-cpm',
+    '/api/public/boost-estimate',
+  ])('does not register the retired Boost/Posts route %s',async path=>{
+    const middleware=vi.fn();
+    expect((await dispatch(new Request(`https://api.invalid${path}`),'',middleware)).status).toBe(404);
+    expect(middleware).not.toHaveBeenCalled();
   });
   it('rejects malformed percent encoding',async()=>{
     expect((await dispatch(new Request('https://api.invalid/api/k/send/recipient/%FF/qr'),'',vi.fn())).status).toBe(400);

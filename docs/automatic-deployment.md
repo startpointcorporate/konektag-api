@@ -23,14 +23,11 @@ Conserver les protections applicables (règles de branche `main`, validations d'
 
 Les migrations SQL restent **séparées et contrôlées**. Le workflow ne les exécute pas et ne crée aucune base ni aucun secret.
 
-Avant la première activation du code CPM, appliquer et vérifier la migration additive `226_social_cpm_observations.sql` après sauvegarde PostgreSQL. La CI de code ne remplace pas cette vérification en base réelle. Sans migration, les endpoints CPM peuvent renvoyer 503.
-
 ## Validation
 
 1. Ouvrir la PR de cette modification et vérifier la CI.
 2. Définir `K3S_DEPLOY_ENVIRONMENT` dans les variables du dépôt, en réutilisant l'environnement existant.
-3. Appliquer la migration 226 si nécessaire, avant la fusion qui déclenchera le premier déploiement automatique.
-4. Fusionner la PR dans `main` ; vérifier le workflow CI (push), puis le workflow CD (workflow_run) et son SHA.
-5. Vérifier `/livez`, `/api/internal/health` et `/api/public/boost-cpm`. Un catalogue vide reste possible avant le premier import JSON.
+3. Fusionner la PR dans `main` ; vérifier le workflow CI (push), puis le workflow CD (workflow_run) et son SHA.
+4. Vérifier `/livez` et `/api/internal/health`.
 
 En cas d'échec CI, **aucun déploiement ne démarre**. En cas de SHA remplacé par un nouveau commit sur `main`, l'ancien déploiement est refusé.

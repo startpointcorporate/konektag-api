@@ -161,41 +161,6 @@
     "ast_sha256": "d733ed341e0524d9ab02ffd03c56e173c129d4a2ff8a725debce262ed1a5524c"
   },
   {
-    "service": "mcp",
-    "name": "boost_cpm_list",
-    "signature": "channel: str | None=None, target_country: str | None=None, billing_company: str | None=None",
-    "description": "Liste les mappings CPM Konektag par canal, pays cible et société, en lecture seule.",
-    "ast_sha256": "a05349438e0fe4acb942458828c2aea34a3227799b2a7f4a23abcc31db5d0db0"
-  },
-  {
-    "service": "mcp",
-    "name": "boost_cpm_get",
-    "signature": "channel: str, target_country: str, billing_company: str",
-    "description": "Lit le mapping exact, sans prétendre avoir vérifié le tarif ERPNext.",
-    "ast_sha256": "2e4cb586b0f738a0606b8583f1fa58bcad973c9190a95237a4efcefc1b7698a1"
-  },
-  {
-    "service": "mcp",
-    "name": "boost_cpm_prices",
-    "signature": "channel: str, target_country: str, billing_company: str | None=None",
-    "description": "Liste les CPM réels ERPNext par pays cible et canal, pour une ou toutes les sociétés.\n\nLecture par le résolveur métier Konektag ; indique la devise, le prix\net un statut explicite lorsque le tarif n'est pas vérifiable.",
-    "ast_sha256": "3d6dabe53512053fa20512aa57de9745849fe46ebbfde861d06cbf6629faaa73"
-  },
-  {
-    "service": "mcp",
-    "name": "boost_cpm_update",
-    "signature": "channel: str, target_country: str, billing_company: str, expected_cpm: str, new_cpm: str, confirm: bool=False",
-    "description": "Modifie le CPM ERPNext après confirmation explicite de l'ancien et du nouveau prix.\n\nToujours appeler boost_cpm_prices et présenter les montants à l'utilisateur\navant d'envoyer confirm=true. La devise est déterminée par le backend.",
-    "ast_sha256": "519df2a0a0df59752d1aedef9abaeadca929f3bc5d6435da2338bb423fe9afb6"
-  },
-  {
-    "service": "mcp",
-    "name": "boost_cpm_audit",
-    "signature": "",
-    "description": "Audite les clés de mapping et indique explicitement les vérifications indisponibles.",
-    "ast_sha256": "7149e5672da9a39a85016464e3c3c0b94edce6cdc59b5995f3014b75a2c36987"
-  },
-  {
     "service": "mcp-m365",
     "name": "email_received",
     "signature": "top: int=20",

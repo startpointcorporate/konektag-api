@@ -443,26 +443,6 @@
       "source_sha256": "177f103b5d0db403b4b841d6cf26fe5e13c8e58c3727048e64bcdd6c6a1bc00b"
     },
     {
-      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-boost-price-resolver.ts",
-      "destination": "src/application/services/merchant-social-boost-price-resolver.ts",
-      "source_sha256": "caf3b9f8dea515cdc2da038540b22f3a99d85c3961a7b0da91bf0b5065cf36ea"
-    },
-    {
-      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-boost-pricing-service.ts",
-      "destination": "src/application/services/merchant-social-boost-pricing-service.ts",
-      "source_sha256": "3dc2b2046c602c71a38de442a88bb677e2821ef2b49331ce9ee1b2ed9e1ed869"
-    },
-    {
-      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-boost-service.ts",
-      "destination": "src/application/services/merchant-social-boost-service.ts",
-      "source_sha256": "ccaa04ac8f99851a8de752196e2a55e85e9ad45b265d43d0d135d8bc90955b06"
-    },
-    {
-      "source": "www/frontend-konektag/src/lib/application/services/merchant-social-service.ts",
-      "destination": "src/application/services/merchant-social-service.ts",
-      "source_sha256": "c7658d831248a16e5f2cc0334494d3bcd09549220c463df6bf338171df77dfac"
-    },
-    {
       "source": "www/frontend-konektag/src/lib/application/services/merchant-upgrade-advice.ts",
       "destination": "src/application/services/merchant-upgrade-advice.ts",
       "source_sha256": "9c36e4e3a5c8ddd340e5a8cbbde763f9b8fc4154b75093de79df6e5f3effdf36"
@@ -596,16 +576,6 @@
       "source": "www/frontend-konektag/src/lib/application/services/points-k-valuation-service.ts",
       "destination": "src/application/services/points-k-valuation-service.ts",
       "source_sha256": "e9cb7ec8d0b0d72db9f5c441618ed683c8c37d10b12ec586f106f70b9ffb559d"
-    },
-    {
-      "source": "www/frontend-konektag/src/lib/application/services/postiz-connections.ts",
-      "destination": "src/application/services/postiz-connections.ts",
-      "source_sha256": "b645a19e04cdba2d97fa06f586d67b8f7932773f64b6da8b8c7d734bc3ceccc1"
-    },
-    {
-      "source": "www/frontend-konektag/src/lib/application/services/postiz-transport.ts",
-      "destination": "src/application/services/postiz-transport.ts",
-      "source_sha256": "7abd8ceefa6ea73366d03316ff0cd65d6f4875b1fcc476dff771f84b93fc55af"
     },
     {
       "source": "www/frontend-konektag/src/lib/application/services/preferences-service.ts",
@@ -1221,21 +1191,6 @@
       "source": "www/frontend-konektag/src/pages/api/admin/activation-campaigns/index.ts",
       "destination": "src/api/routes/admin/activation-campaigns/index.ts",
       "source_sha256": "e17a4fcacb93cce10601041db44622d67d1b06b940cde98cd955cf503add5911"
-    },
-    {
-      "source": "www/frontend-konektag/src/pages/api/admin/boost-pricing.ts",
-      "destination": "src/api/routes/admin/boost-pricing.ts",
-      "source_sha256": "49bd8843a41a253e94546982395b7e854e70ae7adbec85b55ff09c293069446d"
-    },
-    {
-      "source": "www/frontend-konektag/src/pages/api/admin/boost-pricing/prices.ts",
-      "destination": "src/api/routes/admin/boost-pricing/prices.ts",
-      "source_sha256": "fe70a21b5894740bd1332256fab9046fd684047b26d6a1558da06afc87147b0d"
-    },
-    {
-      "source": "www/frontend-konektag/src/pages/api/admin/boost-pricing/update.ts",
-      "destination": "src/api/routes/admin/boost-pricing/update.ts",
-      "source_sha256": "b452c38856a7ae369ddca937922f33571c10c7da2cbccf56a21fd0f1e4fde419"
     },
     {
       "source": "www/frontend-konektag/src/pages/api/admin/card-batches.ts",
@@ -2238,11 +2193,6 @@
       "source_sha256": "a7c481a0097a737c3775f5d06d630c59d64c1028b00247054099302f142288a0"
     },
     {
-      "source": "www/frontend-konektag/src/pages/api/merchant/visibility/campaigns.ts",
-      "destination": "src/api/routes/merchant/visibility/campaigns.ts",
-      "source_sha256": "e4a0a95654f6190304e0305475d2f029a7c05819748ae7af64381f1662b148fe"
-    },
-    {
       "source": "www/frontend-konektag/src/pages/api/merchant/visibility/catalog-access.ts",
       "destination": "src/api/routes/merchant/visibility/catalog-access.ts",
       "source_sha256": "6faf63db6effb06d74e0ca068e8bd508c3ae1785a89cae90c98cec498bc0b07f"
@@ -2498,11 +2448,6 @@
       "source_sha256": "7153fc4d49accee4d19fac13c4f41f30863de66108aa464021ad33c03c6ec44c"
     },
     {
-      "source": "www/frontend-konektag/src/pages/api/public/boost-cpm.ts",
-      "destination": "src/api/routes/public/boost-cpm.ts",
-      "source_sha256": "d86a063645ef89c79bfb2b64d476c08e8a4612eefe72312aac9029aaf18c7c79"
-    },
-    {
       "source": "www/frontend-konektag/src/pages/api/public/digital-audit.ts",
       "destination": "src/api/routes/public/digital-audit.ts",
       "source_sha256": "1b9752556c39e8c65ef913d27470804f04c0c3cf2365eef936e8d263da526f3e"
@@ -2676,11 +2621,6 @@
       "source": "www/frontend-konektag/scripts/wallet-integrity-worker.ts",
       "destination": "src/infrastructure/scripts/jobs/wallet-integrity-worker.ts",
       "source_sha256": "9384cc1d610e273c9ec143d79538b7f545d3049aff1dd877f17576871ced7439"
-    },
-    {
-      "source": "www/frontend-konektag/scripts/postiz-sync-worker.ts",
-      "destination": "src/infrastructure/scripts/jobs/postiz-sync-worker.ts",
-      "source_sha256": "007ceb60105d97e533a28a0270ecf35243414e2f51501a3f5dc6a11f90944101"
     },
     {
       "source": "www/frontend-konektag/scripts/purge-expired-data.ts",

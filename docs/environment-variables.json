@@ -106,18 +106,6 @@
     "src/infrastructure/adapters/keycloak-adapter.ts",
     "src/infrastructure/bootstrap.ts"
   ],
-  "KONEKTAG_API_KEY": [
-    "src/mcp/mcp/konektag_client.py"
-  ],
-  "KONEKTAG_API_SECRET": [
-    "src/mcp/mcp/konektag_client.py"
-  ],
-  "KONEKTAG_BOOST_ERP_CUSTOMERS": [
-    "src/application/services/merchant-social-boost-service.ts"
-  ],
-  "KONEKTAG_BOOST_PAYMENT_PROFILES": [
-    "src/application/services/merchant-social-boost-service.ts"
-  ],
   "KONEKTAG_INTEGRATION_SECRET": [
     "src/application/services/merchant-accounting-projection-service.ts",
     "src/application/services/pay/payment-context-resolver.ts",
@@ -315,19 +303,11 @@
   "PORT": [
     "src/api/server.ts"
   ],
-  "POSTIZ_ALLOWED_ORIGINS": [
-    "src/application/services/postiz-transport.ts"
-  ],
   "POSTIZ_API_KEY": [
     "src/mcp/mcp/postiz_client.py"
   ],
   "POSTIZ_API_URL": [
-    "src/application/services/postiz-connections.ts",
-    "src/application/services/postiz-transport.ts",
     "src/mcp/mcp/postiz_client.py"
-  ],
-  "POSTIZ_MERCHANT_CHANNELS": [
-    "src/application/services/postiz-connections.ts"
   ],
   "PUBLIC_APP_URL": [
     "src/application/services/pay/api-payment-checkout-service.ts"
@@ -338,9 +318,6 @@
   ],
   "PUBLIC_DIRECTUS_URL": [
     "src/api/routes/countries.ts"
-  ],
-  "PUBLIC_MEDIA_ORIGINS": [
-    "src/application/services/merchant-social-service.ts"
   ],
   "PUBLIC_SITE_URL": [
     "src/api/routes/admin/merchants/[id]/pro-activation.ts",
