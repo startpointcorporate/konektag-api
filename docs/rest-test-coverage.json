@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 315,
-    "operations": 397,
+    "paths": 321,
+    "operations": 406,
     "covered": 77,
-    "partial": 319,
+    "partial": 328,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 320,
-    "executedTests": 2590,
-    "passedTests": 2590
+    "businessUncovered": 329,
+    "executedTests": 2755,
+    "passedTests": 2755
   },
   "operations": [
     {
@@ -1706,6 +1706,82 @@
         {
           "file": "tests/rest/operations.test.ts",
           "name": "admin [REST AUTH GET /api/admin/activation-campaigns/{id}/statistics] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/admin/boost-pricing",
+      "domain": "admin",
+      "method": "GET",
+      "path": "/api/admin/boost-pricing",
+      "source": "src/api/routes/admin/boost-pricing.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST TRANSPORT GET /api/admin/boost-pricing] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST AUTH GET /api/admin/boost-pricing] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/admin/boost-pricing/prices",
+      "domain": "admin",
+      "method": "GET",
+      "path": "/api/admin/boost-pricing/prices",
+      "source": "src/api/routes/admin/boost-pricing/prices.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST TRANSPORT GET /api/admin/boost-pricing/prices] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST AUTH GET /api/admin/boost-pricing/prices] refuses invalid personal API credentials before loading the handler",
           "level": "contract"
         }
       ],
@@ -7574,6 +7650,44 @@
       ]
     },
     {
+      "operation": "GET /api/merchant/visibility/campaigns",
+      "domain": "merchant",
+      "method": "GET",
+      "path": "/api/merchant/visibility/campaigns",
+      "source": "src/api/routes/merchant/visibility/campaigns.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "merchant [REST TRANSPORT GET /api/merchant/visibility/campaigns] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "merchant [REST AUTH GET /api/merchant/visibility/campaigns] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "GET /api/merchant/visibility/catalog-access",
       "domain": "merchant",
       "method": "GET",
@@ -9383,6 +9497,46 @@
       "constraints": []
     },
     {
+      "operation": "GET /api/public/boost-cpm",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/boost-cpm",
+      "source": "src/api/routes/public/boost-cpm.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/boost-cpm] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/boost-cpm] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/cpm-public-catalogue.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "GET /api/public/marketplace/facets",
       "domain": "public",
       "method": "GET",
@@ -10935,6 +11089,82 @@
         {
           "file": "tests/rest/operations.test.ts",
           "name": "admin [REST AUTH POST /api/admin/activation-campaigns/{id}/{action}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/admin/boost-pricing",
+      "domain": "admin",
+      "method": "POST",
+      "path": "/api/admin/boost-pricing",
+      "source": "src/api/routes/admin/boost-pricing.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST TRANSPORT POST /api/admin/boost-pricing] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST AUTH POST /api/admin/boost-pricing] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/admin/boost-pricing/update",
+      "domain": "admin",
+      "method": "POST",
+      "path": "/api/admin/boost-pricing/update",
+      "source": "src/api/routes/admin/boost-pricing/update.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST TRANSPORT POST /api/admin/boost-pricing/update] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "admin [REST AUTH POST /api/admin/boost-pricing/update] refuses invalid personal API credentials before loading the handler",
           "level": "contract"
         }
       ],
@@ -16025,6 +16255,44 @@
       ]
     },
     {
+      "operation": "POST /api/merchant/visibility/campaigns",
+      "domain": "merchant",
+      "method": "POST",
+      "path": "/api/merchant/visibility/campaigns",
+      "source": "src/api/routes/merchant/visibility/campaigns.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "merchant [REST TRANSPORT POST /api/merchant/visibility/campaigns] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "merchant [REST AUTH POST /api/merchant/visibility/campaigns] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "POST /api/merchant/visibility/reviews",
       "domain": "merchant",
       "method": "POST",
@@ -17032,9 +17300,7 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [
-        "tests/unit/retired-boost-payment-link.test.ts"
-      ],
+      "candidates": [],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -17795,6 +18061,46 @@
         "tests/unit/pro-inquiry-route.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "POST /api/public/boost-estimate",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/boost-estimate",
+      "source": "src/api/routes/public/boost-estimate.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/boost-estimate] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/boost-estimate] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/cpm-public-estimate.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
     },
     {
       "operation": "POST /api/public/commercial-request",
@@ -19978,6 +20284,44 @@
         {
           "file": "tests/rest/operations.test.ts",
           "name": "merchant [REST AUTH PUT /api/merchant/settlement-configuration] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "PUT /api/merchant/visibility/campaigns",
+      "domain": "merchant",
+      "method": "PUT",
+      "path": "/api/merchant/visibility/campaigns",
+      "source": "src/api/routes/merchant/visibility/campaigns.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "merchant [REST TRANSPORT PUT /api/merchant/visibility/campaigns] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "merchant [REST AUTH PUT /api/merchant/visibility/campaigns] refuses invalid personal API credentials before loading the handler",
           "level": "contract"
         }
       ],

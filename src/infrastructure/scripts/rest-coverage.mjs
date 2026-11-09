@@ -16,19 +16,6 @@ const relative = file => path.relative(process.cwd(), file).replaceAll('\\', '/'
 const suites = new Map(results.testResults.map(s => [relative(s.name), s]));
 const reviews = JSON.parse(await readFile('tests/rest/coverage-reviews.json', 'utf8'));
 const methods = new Set(['get','post','put','patch','delete','head','options','trace']);
-// Explicit business retirement approved in KON-54. Keeping this allow-list in
-// the coverage gate makes any unrelated route disappearance remain a failure.
-const retiredOperations = new Set([
-  'GET /api/admin/boost-pricing',
-  'POST /api/admin/boost-pricing',
-  'GET /api/admin/boost-pricing/prices',
-  'POST /api/admin/boost-pricing/update',
-  'GET /api/merchant/visibility/campaigns',
-  'POST /api/merchant/visibility/campaigns',
-  'PUT /api/merchant/visibility/campaigns',
-  'GET /api/public/boost-cpm',
-  'POST /api/public/boost-estimate',
-]);
 const operations = Object.entries(spec.paths).flatMap(([url,item]) => Object.entries(item).filter(([method]) => methods.has(method)).map(([method,op]) => ({
   operation: `${method.toUpperCase()} ${url}`, domain: op.tags?.[0] || 'legacy', method: method.toUpperCase(), path: url, source: op['x-source'],
   status: 'uncovered', businessStatus: 'uncovered', facets: [], levels: [], tests: [], assertions: [], candidates: [], constraints: [],
@@ -111,7 +98,7 @@ if (!args.includes('--audit-before')) {
     if (listing) baseline = JSON.parse(execFileSync('git',['show',`${ref}:docs/rest-test-coverage.json`],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
   }
   baseline ??= JSON.parse(await readFile('docs/rest-test-baseline.json','utf8'));
-  const errors = regressions(baseline.operations.filter(row => !retiredOperations.has(row.operation)), operations); if (errors.length) throw new Error(errors.join('\n'));
+  const errors = regressions(baseline.operations, operations); if (errors.length) throw new Error(errors.join('\n'));
 }
 for (const [file, text] of [[jsonPath,JSON.stringify(report,null,2)+'\n'],[markdownPath,markdown]]) {
   if (check) { if (await readFile(file,'utf8') !== text) throw new Error(`Stale coverage report: ${file}; run npm run test:rest:coverage`); }

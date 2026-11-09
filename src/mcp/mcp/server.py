@@ -13,6 +13,7 @@ from fastmcp.server.auth.providers.jwt import JWTVerifier
 
 from erpnext_client import ERPClient
 from postiz_client import PostizClient
+from cpm_client import CPMClient
 
 REQUIRED = [
     "FRAPPE_URL", "FRAPPE_API_KEY", "FRAPPE_API_SECRET",
@@ -325,6 +326,50 @@ async def crm_create_lead(
         custom_next_action_date=custom_next_action_date,
         custom_activity_summary=custom_activity_summary,
     )
+
+
+@mcp.tool()
+async def boost_cpm_list(channel: str | None = None, target_country: str | None = None,
+                         billing_company: str | None = None) -> dict:
+    """Liste les mappings CPM Konektag par canal, pays cible et société, en lecture seule."""
+    return await CPMClient().list(channel, target_country, billing_company)
+
+
+@mcp.tool()
+async def boost_cpm_get(channel: str, target_country: str, billing_company: str) -> dict:
+    """Lit le mapping exact, sans prétendre avoir vérifié le tarif ERPNext."""
+    return await CPMClient().get(channel, target_country, billing_company)
+
+
+@mcp.tool()
+async def boost_cpm_prices(channel: str, target_country: str,
+                           billing_company: str | None = None) -> dict:
+    """Liste les CPM réels ERPNext par pays cible et canal, pour une ou toutes les sociétés.
+
+    Lecture par le résolveur métier Konektag ; indique la devise, le prix
+    et un statut explicite lorsque le tarif n'est pas vérifiable.
+    """
+    return await CPMClient().prices(channel, target_country, billing_company)
+
+
+@mcp.tool()
+async def boost_cpm_update(channel: str, target_country: str, billing_company: str,
+                           expected_cpm: str, new_cpm: str, confirm: bool = False) -> dict:
+    """Modifie le CPM ERPNext après confirmation explicite de l'ancien et du nouveau prix.
+
+    Toujours appeler boost_cpm_prices et présenter les montants à l'utilisateur
+    avant d'envoyer confirm=true. La devise est déterminée par le backend.
+    """
+    if confirm is not True:
+        raise PermissionError("Validation explicite requise : confirm=true")
+    return await CPMClient().update(channel, target_country, billing_company,
+                                    expected_cpm, new_cpm, confirm)
+
+
+@mcp.tool()
+async def boost_cpm_audit() -> dict:
+    """Audite les clés de mapping et indique explicitement les vérifications indisponibles."""
+    return await CPMClient().audit()
 
 
 if __name__ == "__main__":

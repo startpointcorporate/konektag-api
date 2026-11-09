@@ -630,6 +630,26 @@
     "score": 405
   },
   {
+    "path": "/api/admin/boost-pricing/prices",
+    "file": "src/api/routes/admin/boost-pricing/prices.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/admin/boost-pricing/prices/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/admin/boost-pricing/update",
+    "file": "src/api/routes/admin/boost-pricing/update.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/admin/boost-pricing/update/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/admin/cards/lifecycle",
     "file": "src/api/routes/admin/cards/lifecycle.ts",
     "methods": [
@@ -1111,6 +1131,18 @@
       "POST"
     ],
     "pattern": "^/api/merchant/operations/transactions/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/merchant/visibility/campaigns",
+    "file": "src/api/routes/merchant/visibility/campaigns.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT"
+    ],
+    "pattern": "^/api/merchant/visibility/campaigns/?$",
     "keys": [],
     "score": 404
   },
@@ -1776,6 +1808,17 @@
       "POST"
     ],
     "pattern": "^/api/admin/activation-campaigns/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/admin/boost-pricing",
+    "file": "src/api/routes/admin/boost-pricing.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/admin/boost-pricing/?$",
     "keys": [],
     "score": 303
   },
@@ -2949,6 +2992,26 @@
       "PUT"
     ],
     "pattern": "^/api/profile/public/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/boost-cpm",
+    "file": "src/api/routes/public/boost-cpm.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/boost-cpm/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/boost-estimate",
+    "file": "src/api/routes/public/boost-estimate.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/boost-estimate/?$",
     "keys": [],
     "score": 303
   },

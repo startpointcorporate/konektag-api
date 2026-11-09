@@ -64,6 +64,7 @@ jobs:
   inject-sanctions-batch: {enabled: false, schedule: "0 6 * * *"}
   re-screen-users: {enabled: false, schedule: "0 3 * * 0"}
   purge-expired-data: {enabled: false, schedule: "0 4 * * *"}
+  postiz-sync-worker: {enabled: false, schedule: "*/5 * * * *"}
   wallet-integrity-worker: {enabled: false, schedule: "*/5 * * * *"}
   reconcile-pawapay-deposits: {enabled: false, schedule: ""} # Configure existing cadence before enabling.
 

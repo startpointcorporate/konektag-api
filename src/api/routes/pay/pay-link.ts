@@ -6,6 +6,7 @@ import { paymentLinkService } from '../../../application/services/payment-link-s
 import { consumeLinkAtMerchant } from '../../../application/services/pay/link-k-consumption-service.ts';
 import pool from '../../../infrastructure/database/pool.ts';
 import { checkUserKycVerified } from '../../../application/services/user-kyc-gate-service.ts';
+import {markSocialBoostPaid} from '../../../application/services/merchant-social-boost-service.ts';
 
 export const POST: RouteHandler = async ({ request, locals }) => {
   try {
@@ -24,11 +25,6 @@ export const POST: RouteHandler = async ({ request, locals }) => {
       const committedReplay = await readPrincipalReplay(pool, user.id, 'LINK_PAYMENT', attemptKey, commandHash);
       if (committedReplay) return committedReplay;
       return new Response(JSON.stringify({ error: 'Lien introuvable, expire ou deja utilise' }), { status: 404 });
-    }
-    // Historical Boost links are permanently retired. Reject them before the
-    // payment link is claimed and before any wallet, receipt or ERP side effect.
-    if (link.reference?.startsWith('BOOST:')) {
-      return new Response(JSON.stringify({ error: 'BOOST_PAYMENT_RETIRED' }), { status: 410 });
     }
     const { rows: [merchantOwner] } = await pool.query(
       'SELECT user_id FROM konektag.merchant_profiles WHERE id=$1', [link.merchant]);
@@ -77,6 +73,7 @@ export const POST: RouteHandler = async ({ request, locals }) => {
 
     const payment = { merchantName: link.etablissement || 'Commerçant', amount: link.amount,
       currency: link.currency, quantityK: link.quantityK, reference: link.reference || `LINK-${slug}` };
+    if(link.reference?.startsWith('BOOST:')) await markSocialBoostPaid(link.url_slug);
     const receiptSent = await sendLinkPaymentReceipt({ email: payer_email, slug, userId: user.id,
       firstName: user.firstName, locale: user.locale, payment,
       origin: process.env.PUBLIC_SITE_URL || new URL(request.url).origin });

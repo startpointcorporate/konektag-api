@@ -1104,7 +1104,7 @@
     "operation": "GET /api/account/balance",
     "domain": "account",
     "source": "src/api/routes/account/balance.ts",
-    "sourceSha256": "9f60b2835447c52d15312e14d649764bae5bc9e00bcbe9253089241f960a6d24",
+    "sourceSha256": "e7d301937ae437e020d0117a08b9b23e894d0dcc7608e45a7f75fd64a74fb6a5",
     "rule": "Available points equal the persisted wallet accounting balance and reservations.",
     "scenarios": [
       {
@@ -1654,6 +1654,116 @@
     "sourceFiles": [
       "src/api/http.ts",
       "src/api/routes/admin/activation-campaigns/[id]/statistics.ts",
+      "src/infrastructure/database/pool.ts"
+    ]
+  },
+  {
+    "operation": "GET /api/admin/boost-pricing",
+    "domain": "admin",
+    "source": "src/api/routes/admin/boost-pricing.ts",
+    "sourceSha256": "79b8935f9a29de272074b10b4ba4c637efd47ccdc1aa7bd4ef3ecac01fb3c150",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "GET /api/admin/boost-pricing: real fixture business projection or persisted command",
+        "fixtureCase": "9ce04db0f852",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/api/admin/boost-pricing",
+            "status": "${cases.9ce04db0f852.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.9ce04db0f852.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "GET",
+    "path": "/api/admin/boost-pricing",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL",
+      "Postiz"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/admin/boost-pricing.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-pricing-service.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
+      "src/infrastructure/database/pool.ts"
+    ]
+  },
+  {
+    "operation": "GET /api/admin/boost-pricing/prices",
+    "domain": "admin",
+    "source": "src/api/routes/admin/boost-pricing/prices.ts",
+    "sourceSha256": "b2c11d737977a17172e8cf550d81055133950e112af8bfd16e1c3f02fe895b54",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "GET /api/admin/boost-pricing/prices: real fixture business projection or persisted command",
+        "fixtureCase": "cef01ce1697d",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/api/admin/boost-pricing/prices",
+            "status": "${cases.cef01ce1697d.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.cef01ce1697d.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "GET",
+    "path": "/api/admin/boost-pricing/prices",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/admin/boost-pricing/prices.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/database/pool.ts"
     ]
   },
@@ -2702,7 +2812,7 @@
     "operation": "GET /api/admin/merchant-visibility",
     "domain": "admin",
     "source": "src/api/routes/admin/merchant-visibility/index.ts",
-    "sourceSha256": "d447d98fff876f18cdb99e7a21c36e550f9a299450d97504e4cceb37ec0c6331",
+    "sourceSha256": "a3dec9e4c936493287e5c7443114844172ce3c6abfbc4551fd3192a3254a40d7",
     "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
     "scenarios": [
       {
@@ -2730,15 +2840,26 @@
     "method": "GET",
     "path": "/api/admin/merchant-visibility",
     "dependencies": [
+      "ERPNext/Frappe",
       "IndexNow",
       "PostgreSQL",
+      "Postiz",
       "Public site (IndexNow key file)"
     ],
     "sourceFiles": [
       "src/api/http.ts",
       "src/api/routes/admin/merchant-visibility/index.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
       "src/application/services/merchant-discovery-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-service.ts",
+      "src/application/services/merchant-social-service.ts",
       "src/application/services/pay/money-unit.ts",
+      "src/application/services/payment-link-service.ts",
+      "src/application/services/points-k-valuation-service.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
       "src/application/services/review-community-service.ts",
       "src/application/services/visibility-shared.ts",
       "src/application/shared/indexnow.ts",
@@ -2749,7 +2870,9 @@
       "src/domain/MerchantErrors.ts",
       "src/domain/MerchantProfile.ts",
       "src/domain/core-business.ts",
+      "src/domain/points-k-valuation.ts",
       "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/database/pool.ts"
     ]
   },
@@ -5753,7 +5876,7 @@
     "operation": "GET /api/meeting-slots",
     "domain": "meeting-slots",
     "source": "src/api/routes/meeting-slots.ts",
-    "sourceSha256": "da2bb887669c506737206d55495b3ba918ab5c4cc1c23a1c2fa396a244401640",
+    "sourceSha256": "180a3635c001a28ecbc328328adec3f96e2c9105295b34795092074b42182073",
     "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
     "scenarios": [
       {
@@ -5787,8 +5910,7 @@
       "src/api/http.ts",
       "src/api/routes/meeting-slots.ts",
       "src/application/shared/meeting-native.ts",
-      "src/application/shared/meeting-site.ts",
-      "src/application/shared/meeting-validation.ts"
+      "src/infrastructure/adapters/erpnext-adapter.ts"
     ]
   },
   {
@@ -8247,6 +8369,67 @@
     ]
   },
   {
+    "operation": "GET /api/merchant/visibility/campaigns",
+    "domain": "merchant",
+    "source": "src/api/routes/merchant/visibility/campaigns.ts",
+    "sourceSha256": "23242a1ae93ded77717867a0a69527b1a0377b98bd448dbb82713fdecdf27946",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "GET /api/merchant/visibility/campaigns: real fixture business projection or persisted command",
+        "fixtureCase": "b1d9d0352c80",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "GET",
+            "path": "/api/merchant/visibility/campaigns",
+            "status": "${cases.b1d9d0352c80.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.b1d9d0352c80.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "GET",
+    "path": "/api/merchant/visibility/campaigns",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL",
+      "Postiz"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/merchant/visibility/campaigns.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-service.ts",
+      "src/application/services/merchant-social-service.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/payment-link-service.ts",
+      "src/application/services/points-k-valuation-service.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/points-k-valuation.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
+      "src/infrastructure/database/pool.ts"
+    ]
+  },
+  {
     "operation": "GET /api/merchant/visibility/catalog-access",
     "domain": "merchant",
     "source": "src/api/routes/merchant/visibility/catalog-access.ts",
@@ -9984,25 +10167,25 @@
     ]
   },
   {
-    "operation": "GET /api/public/marketplace/facets",
+    "operation": "GET /api/public/boost-cpm",
     "domain": "public",
-    "source": "src/api/routes/public/marketplace/facets/index.ts",
-    "sourceSha256": "dddf7c0457b7424b21d6e8acac8929631d06203d84a5cf3a0d6ac437c8b72ebf",
+    "source": "src/api/routes/public/boost-cpm.ts",
+    "sourceSha256": "00eb99a239739a404c739afe23d11364dc26956b39d06d62261f6cd884f4a8e8",
     "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
     "scenarios": [
       {
-        "name": "GET /api/public/marketplace/facets: real fixture business projection or persisted command",
-        "fixtureCase": "c2c18dd74caf",
+        "name": "GET /api/public/boost-cpm: real fixture business projection or persisted command",
+        "fixtureCase": "83926f3a2723",
         "dependencies": [],
         "steps": [
           {
             "method": "GET",
-            "path": "/api/public/marketplace/facets",
-            "status": "${cases.c2c18dd74caf.expected.status}",
+            "path": "/api/public/boost-cpm",
+            "status": "${cases.83926f3a2723.expected.status}",
             "assertions": [
               {
                 "path": "",
-                "subset": "${cases.c2c18dd74caf.expected.body}"
+                "subset": "${cases.83926f3a2723.expected.body}"
               }
             ]
           }
@@ -10013,355 +10196,26 @@
       "Other inputs, roles and state transitions are outside this single representative scenario."
     ],
     "method": "GET",
-    "path": "/api/public/marketplace/facets",
+    "path": "/api/public/boost-cpm",
     "dependencies": [
       "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/facets/index.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/services/published-marketplace.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/marketplace/merchants",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/index.ts",
-    "sourceSha256": "1d61080ab85d3cd24ed0965ddfcf50d04c797405b0620f9b62e58f5350c56444",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/marketplace/merchants: real fixture business projection or persisted command",
-        "fixtureCase": "ba98bb8f39e7",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/marketplace/merchants",
-            "status": "${cases.ba98bb8f39e7.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.ba98bb8f39e7.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/marketplace/merchants",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/index.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/services/published-marketplace.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/marketplace/merchants/{slug}",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/index.ts",
-    "sourceSha256": "a97a190c67025f4469374058867ed33d208014c38a84cdabe6839be1c69d5347",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/marketplace/merchants/{slug}: real fixture business projection or persisted command",
-        "fixtureCase": "2858bab7f81b",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/marketplace/merchants/{slug}",
-            "status": "${cases.2858bab7f81b.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.2858bab7f81b.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/marketplace/merchants/{slug}",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/index.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/marketplace-transactions/restaurant-reservation-requests.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/marketplace/merchants/{slug}/hotel/availability",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts",
-    "sourceSha256": "af1bc64701ad0f37d93ed3895bce17f3445dfd899eaa6e4352714ea3a4a09a6e",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/marketplace/merchants/{slug}/hotel/availability: real fixture business projection or persisted command",
-        "fixtureCase": "379e5877a463",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/marketplace/merchants/{slug}/hotel/availability",
-            "status": "${cases.379e5877a463.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.379e5877a463.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/marketplace/merchants/{slug}/hotel/availability",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/hotel/availability.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/hotel-bookings.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/marketplace/merchants/{slug}/hotel/rooms",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts",
-    "sourceSha256": "46df442b30cc02a5d25bc05b439a9288c86c5e44477d2f5aa36205cfc15edef9",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/marketplace/merchants/{slug}/hotel/rooms: real fixture business projection or persisted command",
-        "fixtureCase": "ba994db72fb9",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/marketplace/merchants/{slug}/hotel/rooms",
-            "status": "${cases.ba994db72fb9.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.ba994db72fb9.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/marketplace/merchants/{slug}/hotel/rooms",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/hotel/rooms.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/hotel-bookings.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/marketplace/merchants/{slug}/restaurant/menu",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts",
-    "sourceSha256": "31bd31e817408e4357b535f5a08ea57c5ad0e56d09a13ae309d2ded7fcf285b2",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/marketplace/merchants/{slug}/restaurant/menu: real fixture business projection or persisted command",
-        "fixtureCase": "8e1a2d0d75ad",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/marketplace/merchants/{slug}/restaurant/menu",
-            "status": "${cases.8e1a2d0d75ad.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.8e1a2d0d75ad.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/marketplace/merchants/{slug}/restaurant/menu",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/marketplace-transactions/restaurant-orders.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/team/{tenantId}/members",
-    "domain": "public",
-    "source": "src/api/routes/public/team/[tenantId]/members/index.ts",
-    "sourceSha256": "d5d5a41b2dc9e27d0db60270a0e27d9294cf1ca22c5aba0a793745f687211bdf",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/team/{tenantId}/members: real fixture business projection or persisted command",
-        "fixtureCase": "05bbe9696ac3",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/team/{tenantId}/members",
-            "status": "${cases.05bbe9696ac3.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.05bbe9696ac3.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/team/{tenantId}/members",
-    "dependencies": [
       "PostgreSQL"
     ],
     "sourceFiles": [
       "src/api/http.ts",
-      "src/api/routes/public/team/[tenantId]/members/index.ts",
-      "src/application/services/public-team.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "GET /api/public/team/{tenantId}/members/{memberSlug}",
-    "domain": "public",
-    "source": "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
-    "sourceSha256": "313662d96ac60d2913bfcffd2fd67cb2032aff2561fb027f080f93f106369827",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "GET /api/public/team/{tenantId}/members/{memberSlug}: real fixture business projection or persisted command",
-        "fixtureCase": "b9ecb97b3fe7",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "GET",
-            "path": "/api/public/team/{tenantId}/members/{memberSlug}",
-            "status": "${cases.b9ecb97b3fe7.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.b9ecb97b3fe7.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "GET",
-    "path": "/api/public/team/{tenantId}/members/{memberSlug}",
-    "dependencies": [
-      "PostgreSQL"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
-      "src/application/services/public-team.ts",
+      "src/api/routes/public/boost-cpm.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/database/pool.ts"
     ]
   },
@@ -11844,6 +11698,116 @@
     ]
   },
   {
+    "operation": "POST /api/admin/boost-pricing",
+    "domain": "admin",
+    "source": "src/api/routes/admin/boost-pricing.ts",
+    "sourceSha256": "79b8935f9a29de272074b10b4ba4c637efd47ccdc1aa7bd4ef3ecac01fb3c150",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "POST /api/admin/boost-pricing: real fixture business projection or persisted command",
+        "fixtureCase": "3c12d90e3c10",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "POST",
+            "path": "/api/admin/boost-pricing",
+            "status": "${cases.3c12d90e3c10.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.3c12d90e3c10.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "POST",
+    "path": "/api/admin/boost-pricing",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL",
+      "Postiz"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/admin/boost-pricing.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-pricing-service.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
+      "src/infrastructure/database/pool.ts"
+    ]
+  },
+  {
+    "operation": "POST /api/admin/boost-pricing/update",
+    "domain": "admin",
+    "source": "src/api/routes/admin/boost-pricing/update.ts",
+    "sourceSha256": "527dd1fce029979042016447abc63ca16afaf99ed2f1fc19f5c1a73464f8ab0b",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "POST /api/admin/boost-pricing/update: real fixture business projection or persisted command",
+        "fixtureCase": "d6016b875927",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "POST",
+            "path": "/api/admin/boost-pricing/update",
+            "status": "${cases.d6016b875927.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.d6016b875927.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "POST",
+    "path": "/api/admin/boost-pricing/update",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/admin/boost-pricing/update.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
+      "src/infrastructure/database/pool.ts"
+    ]
+  },
+  {
     "operation": "POST /api/admin/card-batches",
     "domain": "admin",
     "source": "src/api/routes/admin/card-batches.ts",
@@ -12553,7 +12517,7 @@
     "operation": "POST /api/admin/merchant-visibility",
     "domain": "admin",
     "source": "src/api/routes/admin/merchant-visibility/index.ts",
-    "sourceSha256": "d447d98fff876f18cdb99e7a21c36e550f9a299450d97504e4cceb37ec0c6331",
+    "sourceSha256": "a3dec9e4c936493287e5c7443114844172ce3c6abfbc4551fd3192a3254a40d7",
     "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
     "scenarios": [
       {
@@ -12581,15 +12545,26 @@
     "method": "POST",
     "path": "/api/admin/merchant-visibility",
     "dependencies": [
+      "ERPNext/Frappe",
       "IndexNow",
       "PostgreSQL",
+      "Postiz",
       "Public site (IndexNow key file)"
     ],
     "sourceFiles": [
       "src/api/http.ts",
       "src/api/routes/admin/merchant-visibility/index.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
       "src/application/services/merchant-discovery-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-service.ts",
+      "src/application/services/merchant-social-service.ts",
       "src/application/services/pay/money-unit.ts",
+      "src/application/services/payment-link-service.ts",
+      "src/application/services/points-k-valuation-service.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
       "src/application/services/review-community-service.ts",
       "src/application/services/visibility-shared.ts",
       "src/application/shared/indexnow.ts",
@@ -12600,7 +12575,9 @@
       "src/domain/MerchantErrors.ts",
       "src/domain/MerchantProfile.ts",
       "src/domain/core-business.ts",
+      "src/domain/points-k-valuation.ts",
       "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/database/pool.ts"
     ]
   },
@@ -15666,7 +15643,7 @@
     "operation": "POST /api/meeting-request",
     "domain": "meeting-request",
     "source": "src/api/routes/meeting-request.ts",
-    "sourceSha256": "42a3aa75f3810d684ddb97af46595e409f0588a52bfff638eac1d0699ecba036",
+    "sourceSha256": "1e08c327582e85279e3e31b3a76efa014e66c0e8c0b28da6a22a48502853248d",
     "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
     "scenarios": [
       {
@@ -15706,9 +15683,8 @@
       "src/application/shared/meeting-ics.ts",
       "src/application/shared/meeting-native.ts",
       "src/application/shared/meeting-receipt.ts",
-      "src/application/shared/meeting-site.ts",
-      "src/application/shared/meeting-validation.ts",
       "src/domain/DomainErrors.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/adapters/redis-adapter.ts"
     ]
   },
@@ -18423,6 +18399,67 @@
     ]
   },
   {
+    "operation": "POST /api/merchant/visibility/campaigns",
+    "domain": "merchant",
+    "source": "src/api/routes/merchant/visibility/campaigns.ts",
+    "sourceSha256": "23242a1ae93ded77717867a0a69527b1a0377b98bd448dbb82713fdecdf27946",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "POST /api/merchant/visibility/campaigns: real fixture business projection or persisted command",
+        "fixtureCase": "8d4050968de9",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "POST",
+            "path": "/api/merchant/visibility/campaigns",
+            "status": "${cases.8d4050968de9.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.8d4050968de9.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "POST",
+    "path": "/api/merchant/visibility/campaigns",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL",
+      "Postiz"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/merchant/visibility/campaigns.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-service.ts",
+      "src/application/services/merchant-social-service.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/payment-link-service.ts",
+      "src/application/services/points-k-valuation-service.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/points-k-valuation.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
+      "src/infrastructure/database/pool.ts"
+    ]
+  },
+  {
     "operation": "POST /api/merchant/visibility/reviews",
     "domain": "merchant",
     "source": "src/api/routes/merchant/visibility/reviews.ts",
@@ -19631,7 +19668,7 @@
     "operation": "POST /api/pay/pay-link",
     "domain": "pay",
     "source": "src/api/routes/pay/pay-link.ts",
-    "sourceSha256": "5efd88ae1ede9cf5c2464339d29e89ebe9b2278b6aea7a5f530e25f0cf03bd29",
+    "sourceSha256": "c115fccaf1c6d55f93f2732f10ff495ae5f8df9fe1c264d5c87f55c1abbe8930",
     "rule": "Payment-link slug is required before claim, wallet debit or receipt.",
     "scenarios": [
       {
@@ -19670,16 +19707,21 @@
     "method": "POST",
     "path": "/api/pay/pay-link",
     "dependencies": [
+      "ERPNext/Frappe",
       "PostgreSQL",
+      "Postiz",
       "Resend"
     ],
     "sourceFiles": [
       "src/api/http.ts",
       "src/api/routes/pay/pay-link.ts",
       "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
       "src/application/services/link-payment-receipt-service.ts",
       "src/application/services/merchant-activation-service.ts",
       "src/application/services/merchant-kyb-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-service.ts",
       "src/application/services/pay/checkout-expiration.ts",
       "src/application/services/pay/link-k-consumption-facts.ts",
       "src/application/services/pay/link-k-consumption-service.ts",
@@ -19689,12 +19731,22 @@
       "src/application/services/pay/points-wallet-service.ts",
       "src/application/services/payment-link-service.ts",
       "src/application/services/points-k-valuation-service.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
       "src/application/services/principal-idempotency-service.ts",
       "src/application/services/resend-service.ts",
       "src/application/services/user-kyc-gate-service.ts",
+      "src/application/services/visibility-shared.ts",
       "src/application/services/wallet-integrity-rules.ts",
       "src/application/services/wallet-integrity-service.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
       "src/domain/points-k-valuation.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/database/pool.ts",
       "src/infrastructure/repositories/http-idempotency-repository.ts"
     ]
@@ -20238,51 +20290,6 @@
     ]
   },
   {
-    "operation": "POST /api/public/commercial-request",
-    "domain": "public",
-    "source": "src/api/routes/public/commercial-request.ts",
-    "sourceSha256": "06fe7a2910e480b3c9c7d48df9d29c23d35da480b3dae1a35aee63d7b7577a10",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "POST /api/public/commercial-request: real fixture business projection or persisted command",
-        "fixtureCase": "5cf1a520ade7",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "POST",
-            "path": "/api/public/commercial-request",
-            "status": "${cases.5cf1a520ade7.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.5cf1a520ade7.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "POST",
-    "path": "/api/public/commercial-request",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "Resend",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/commercial-request.ts",
-      "src/application/services/resend-service.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/erpnext-adapter.ts",
-      "src/infrastructure/adapters/redis-adapter.ts"
-    ]
-  },
-  {
     "operation": "POST /api/public/digital-audit",
     "domain": "public",
     "source": "src/api/routes/public/digital-audit.ts",
@@ -20323,206 +20330,6 @@
       "src/api/routes/public/digital-audit.ts",
       "src/infrastructure/adapters/erpnext-adapter.ts",
       "src/infrastructure/adapters/mautic-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "POST /api/public/marketplace/merchants/{slug}/hotel/reservations",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts",
-    "sourceSha256": "606bc460b601fbf32432b8a0f1776acb5d7bc8dc488e9849d54cca359f9283ad",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "POST /api/public/marketplace/merchants/{slug}/hotel/reservations: real fixture business projection or persisted command",
-        "fixtureCase": "a7bbddb16998",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "POST",
-            "path": "/api/public/marketplace/merchants/{slug}/hotel/reservations",
-            "status": "${cases.a7bbddb16998.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.a7bbddb16998.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "POST",
-    "path": "/api/public/marketplace/merchants/{slug}/hotel/reservations",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/hotel/reservations.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/hotel-bookings.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/orders",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
-    "sourceSha256": "94237c575f4d5bb50fddb0665de7b2effa49b95ba00985712b6dd04922d9c2a3",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "POST /api/public/marketplace/merchants/{slug}/restaurant/orders: real fixture business projection or persisted command",
-        "fixtureCase": "c53974bed50d",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "POST",
-            "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
-            "status": "${cases.c53974bed50d.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.c53974bed50d.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "POST",
-    "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/marketplace-transactions/restaurant-orders.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/quote",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts",
-    "sourceSha256": "31eb60410fae92b86a1ac6d4573dc92a7c9ee86445b24c650d54f7ec92342369",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "POST /api/public/marketplace/merchants/{slug}/restaurant/quote: real fixture business projection or persisted command",
-        "fixtureCase": "cda982ae90c2",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "POST",
-            "path": "/api/public/marketplace/merchants/{slug}/restaurant/quote",
-            "status": "${cases.cda982ae90c2.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.cda982ae90c2.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "POST",
-    "path": "/api/public/marketplace/merchants/{slug}/restaurant/quote",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/restaurant/quote.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/marketplace-transactions/restaurant-orders.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
-      "src/infrastructure/database/pool.ts"
-    ]
-  },
-  {
-    "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
-    "domain": "public",
-    "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
-    "sourceSha256": "aae9aab0e639818911efeb3218441079f28c9b393f2fd047b3f4fbebb95ffad7",
-    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
-    "scenarios": [
-      {
-        "name": "POST /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests: real fixture business projection or persisted command",
-        "fixtureCase": "8c9ea7a09b84",
-        "dependencies": [],
-        "steps": [
-          {
-            "method": "POST",
-            "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
-            "status": "${cases.8c9ea7a09b84.expected.status}",
-            "assertions": [
-              {
-                "path": "",
-                "subset": "${cases.8c9ea7a09b84.expected.body}"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "unexercised": [
-      "Other inputs, roles and state transitions are outside this single representative scenario."
-    ],
-    "method": "POST",
-    "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
-    "dependencies": [
-      "ERPNext/Frappe",
-      "PostgreSQL",
-      "Valkey"
-    ],
-    "sourceFiles": [
-      "src/api/http.ts",
-      "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
-      "src/application/marketplace-transactions/frappe-site.ts",
-      "src/application/marketplace-transactions/http-handlers.ts",
-      "src/application/marketplace-transactions/merchant-capabilities.ts",
-      "src/application/marketplace-transactions/published-profiles.ts",
-      "src/application/marketplace-transactions/replay.ts",
-      "src/application/marketplace-transactions/restaurant-reservation-requests.ts",
-      "src/domain/DomainErrors.ts",
-      "src/infrastructure/adapters/redis-adapter.ts",
       "src/infrastructure/database/pool.ts"
     ]
   },
@@ -22856,6 +22663,67 @@
       "src/infrastructure/repositories/preferences-repository.ts",
       "src/infrastructure/repositories/user-repository.ts",
       "src/infrastructure/unit-of-work.ts"
+    ]
+  },
+  {
+    "operation": "PUT /api/merchant/visibility/campaigns",
+    "domain": "merchant",
+    "source": "src/api/routes/merchant/visibility/campaigns.ts",
+    "sourceSha256": "23242a1ae93ded77717867a0a69527b1a0377b98bd448dbb82713fdecdf27946",
+    "rule": "Execute the real operation on a designated existing test fixture; compare business content and, for a command, its persisted effect.",
+    "scenarios": [
+      {
+        "name": "PUT /api/merchant/visibility/campaigns: real fixture business projection or persisted command",
+        "fixtureCase": "2b2255e25b9d",
+        "dependencies": [],
+        "steps": [
+          {
+            "method": "PUT",
+            "path": "/api/merchant/visibility/campaigns",
+            "status": "${cases.2b2255e25b9d.expected.status}",
+            "assertions": [
+              {
+                "path": "",
+                "subset": "${cases.2b2255e25b9d.expected.body}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "unexercised": [
+      "Other inputs, roles and state transitions are outside this single representative scenario."
+    ],
+    "method": "PUT",
+    "path": "/api/merchant/visibility/campaigns",
+    "dependencies": [
+      "ERPNext/Frappe",
+      "PostgreSQL",
+      "Postiz"
+    ],
+    "sourceFiles": [
+      "src/api/http.ts",
+      "src/api/routes/merchant/visibility/campaigns.ts",
+      "src/application/services/country-currency-service.ts",
+      "src/application/services/exchange-rate-service.ts",
+      "src/application/services/merchant-social-boost-price-resolver.ts",
+      "src/application/services/merchant-social-boost-service.ts",
+      "src/application/services/merchant-social-service.ts",
+      "src/application/services/pay/money-unit.ts",
+      "src/application/services/payment-link-service.ts",
+      "src/application/services/points-k-valuation-service.ts",
+      "src/application/services/postiz-connections.ts",
+      "src/application/services/postiz-transport.ts",
+      "src/application/services/visibility-shared.ts",
+      "src/application/shared/marketplace/slug.ts",
+      "src/domain/DomainErrors.ts",
+      "src/domain/MerchantErrors.ts",
+      "src/domain/MerchantProfile.ts",
+      "src/domain/core-business.ts",
+      "src/domain/points-k-valuation.ts",
+      "src/domain/public-catalog.ts",
+      "src/infrastructure/adapters/erpnext-adapter.ts",
+      "src/infrastructure/database/pool.ts"
     ]
   },
   {

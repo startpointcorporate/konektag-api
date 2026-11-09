@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "operations": 397,
+  "operations": 392,
   "files": [
     "tests/rest/live-draft/scenarios.json"
   ],
