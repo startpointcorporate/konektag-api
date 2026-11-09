@@ -58,7 +58,8 @@ beforeEach(() => {
     if (sql.includes('WHERE core_transaction_id=$1 AND merchant_profile_id=$2'))
       return { rows: links.filter(l => l.core_transaction_id === params[0] && l.merchant_profile_id === params[1]) };
     if (sql.includes('ci.core_transaction_id LIKE $3')) {
-      const prefix = String(params[2]).slice(0, -1);
+      expect(String(params[2])).not.toMatch(/[^\\]_/);  // site keys are matched literally
+      const prefix = String(params[2]).slice(0, -1).replace(/\\_/g, '_');
       return { rows: links.filter(l => params[0].includes(l.merchant_profile_id) && l.reference === params[1] && String(l.core_transaction_id).startsWith(prefix)) };
     }
     if (sql.includes('SELECT business_name')) return { rows: [{ business_name: 'M' }] };

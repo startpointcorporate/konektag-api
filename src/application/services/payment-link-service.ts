@@ -131,7 +131,8 @@ export const paymentLinkService = {
        WHERE ci.source_type = 'payment_link' AND ci.merchant_profile_id = ANY($1::uuid[])
          AND ci.reference = $2 AND ci.core_transaction_id LIKE $3
        ORDER BY ci.created_at DESC`,
-      [merchantProfileIds, invoice, `frappe-site:${site}:%`]);
+      // '_' is a LIKE wildcard and may appear in a site key: match it literally.
+      [merchantProfileIds, invoice, `frappe-site:${site.replace(/_/g, '\\_')}:%`]);
     return rows.map(row => ({ ...mapLink(row), ...settlement(row), origin: { site, invoice } }));
   },
 
