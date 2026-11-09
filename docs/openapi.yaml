@@ -20586,7 +20586,11 @@ paths:
         - pay
       description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
         responses and business rules. Session/API authentication and account restrictions run before the handler.
-      parameters: []
+      parameters:
+        - name: X-Idempotency-Key
+          in: header
+          schema:
+            type: string
       responses:
         "201":
           description: Response from the migrated handler
@@ -20627,6 +20631,11 @@ paths:
                       reason: {}
                   - type: object
                     properties:
+                      error:
+                        type: string
+                        const: INVALID_IDEMPOTENCY_KEY
+                  - type: object
+                    properties:
                       link: {}
                       url: {}
                   - type: object
@@ -20652,6 +20661,11 @@ paths:
           content:
             application/json:
               schema: *a296
+        "409":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a296
         "422":
           description: Error or redirect from the migrated handler
           content:
@@ -20673,6 +20687,7 @@ paths:
         - MERCHANT_NOT_FOUND
         - MERCHANT_SCOPE_FORBIDDEN
         - MERCHANT_NOT_ACTIVATED
+        - INVALID_IDEMPOTENCY_KEY
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
@@ -20692,6 +20707,10 @@ paths:
           schema:
             type: string
         - name: merchantProfileId
+          in: query
+          schema:
+            type: string
+        - name: reference
           in: query
           schema:
             type: string
