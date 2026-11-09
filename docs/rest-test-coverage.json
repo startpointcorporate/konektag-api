@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 329,
-    "executedTests": 2755,
-    "passedTests": 2755
+    "executedTests": 2759,
+    "passedTests": 2759
   },
   "operations": [
     {
@@ -8607,6 +8607,7 @@
       ],
       "candidates": [
         "tests/unit/merchant-establishment-routes.test.ts",
+        "tests/unit/payment-link-erp-return.test.ts",
         "tests/unit/public-link-projection.test.ts"
       ],
       "constraints": []
@@ -17428,7 +17429,8 @@
         "no database or handler execution"
       ],
       "candidates": [
-        "tests/unit/payment-link-amount.test.ts"
+        "tests/unit/payment-link-amount.test.ts",
+        "tests/unit/payment-link-erp-return.test.ts"
       ],
       "constraints": []
     },
