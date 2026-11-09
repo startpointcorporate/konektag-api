@@ -4,11 +4,16 @@ vi.mock('../../src/infrastructure/database/pool.ts', () => ({ default: { query: 
 vi.mock('../../src/application/services/payment-link-service.ts', () => ({ paymentLinkService: { get: mocks.get, listForUser: mocks.list } }));
 import { GET } from '../../src/api/routes/pay/payment-links.ts';
 import { POST as resume } from '../../src/api/routes/pay/payment-links/[slug]/resume.ts';
+import { readFileSync } from 'node:fs';
 const expiration = new Date(Date.now() + 86400000).toISOString();
 const row = { business_name: 'Marchand public', amount: '6560', currency: 'XAF', quantity_k: '10', service_description: 'Commande', reference: 'REF-42', expiration, status: 'ISSUED',
   payer_identity: 'SECRET_EMAIL', merchant_profile_id: 'SECRET_UUID', token_hash: 'SECRET_TOKEN', quote_valuation: { private: true } };
 const get = (user?: any, slug = 'abc123') => GET({ url: new URL(`https://test.local/api/pay/payment-links?slug=${slug}`), locals: { user } } as any);
 beforeEach(() => { vi.clearAllMocks(); mocks.query.mockResolvedValue({ rows: [row] }); });
+it('is reachable through the HTTP middleware while handler auth still protects merchant operations', () => {
+  const security = readFileSync(new URL('../../src/api/middleware/security.ts', import.meta.url), 'utf8');
+  expect(security).toContain("'/api/pay/payment-links'");
+});
 it('returns only the public projection and never mutates state', async () => {
   const response = await get();
   expect(response.status).toBe(200);

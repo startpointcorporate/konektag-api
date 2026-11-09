@@ -43,6 +43,9 @@ const PUBLIC_PREFIXES = [
 
 const PUBLIC_EXACT_PATHS = [
   '/api/pay/payments',
+  // GET ?slug exposes a deliberately reduced Link Pay projection. Mutating
+  // and merchant-list handlers on the same path still enforce locals.user.
+  '/api/pay/payment-links',
   '/api/webhooks/stripe',
 ];
 

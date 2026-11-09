@@ -28,7 +28,26 @@ describe('wallet recharge checkout route', () => {
     expect(mocks.createWalletRechargeOrder).toHaveBeenCalledWith({ targetUserId: 'user-1', amount: 2500, currency: 'EUR', paymentCountry: 'FR' });
     expect(await response.json()).toEqual({
       id: 'order-1', status: 'pending', checkoutUrl: 'https://app.example.test/fr/pay/checkout/?token=checkout-token',
+      amountMinor: 2500, amountUnit: 'MINOR', currency: 'EUR', paymentCountry: 'FR',
     });
+  });
+
+  it.each([['XAF', 5_000, 'CM'], ['EUR', 2_500, 'FR']])(
+    'passes %s as an exact minor-unit integer without decimal conversion', async (currency, amount, paymentCountry) => {
+      const response = await POST({ request: new Request('https://app.example.test/api/pay/recharges', {
+        method: 'POST', body: JSON.stringify({ amount, currency, paymentCountry }),
+      }), locals: { user: { id: 'user-1' } } } as any);
+      expect(response.status).toBe(201);
+      expect(mocks.createWalletRechargeOrder).toHaveBeenCalledWith({ targetUserId: 'user-1', amount, currency, paymentCountry });
+    });
+
+  it('rejects a syntactically valid currency outside the supported minor-unit table', async () => {
+    const response = await POST({ request: new Request('https://app.example.test/api/pay/recharges', {
+      method: 'POST', body: JSON.stringify({ amount: 100, currency: 'JPY', paymentCountry: 'JP' }),
+    }), locals: { user: { id: 'user-1' } } } as any);
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: 'currency is not supported for minor-unit wallet recharge' });
+    expect(mocks.createWalletRechargeOrder).not.toHaveBeenCalled();
   });
 
   it('rejects a recharge without a payment country before creating an order', async () => {
