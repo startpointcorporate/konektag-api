@@ -2,7 +2,7 @@
  * Do not assume custom_axis/custom_commercial_stage exist: some ERPNext
  * installations expose only standard Lead fields, as audited on Congo.
  */
-import { meetingErpnext, type MeetingCountry } from './meeting-site.ts';
+import type { MeetingSite } from './meeting-site.ts';
 import { requiredAppointmentEmail } from './meeting-validation.ts';
 
 export type MeetingForm={
@@ -16,12 +16,12 @@ export class LeadSetupError extends Error {
   constructor(message:string){super(message);this.name='LeadSetupError';}
 }
 
-/** Reuse an unambiguous Lead or create one in the explicitly selected site.
+/** Reuse an unambiguous Lead or create one on the routed site.
  * Native Appointment links to this Lead. No custom CRM fields are written.
  */
-export async function resolveMeetingLead(d:MeetingForm,country:MeetingCountry):Promise<LeadRecord>{
+export async function resolveMeetingLead(d:MeetingForm,site:MeetingSite):Promise<LeadRecord>{
   const email=requiredAppointmentEmail(d.email);
-  const erpnext=meetingErpnext(country);
+  const erpnext=site.erpnext;
   const matching:LeadRecord[]=[];
   const byPhone=await erpnext.query('Lead',
     [['mobile_no','=',d.whatsapp]],['name'],5) as LeadRecord[];
@@ -33,7 +33,7 @@ export async function resolveMeetingLead(d:MeetingForm,country:MeetingCountry):P
     throw new LeadSetupError('Ambiguous Lead match: manual reconciliation required');
   if(matching.length===1)return matching[0];
 
-  const owner=process.env['KONEKTAG_MEETING_'+country+'_LEAD_OWNER'];
+  const owner=process.env['KONEKTAG_MEETING_'+site.route.paymentCountry+'_LEAD_OWNER'];
   if(!owner)throw new LeadSetupError('Missing country-specific Lead owner');
 
   const created=await erpnext.create('Lead',{

@@ -2,7 +2,7 @@ import type { RouteHandler } from "../../http";
 import { z } from "zod";
 import { createHash } from "node:crypto";
 import { redisAdapter } from "../../../infrastructure/adapters/redis-adapter.ts";
-import { erpnext } from "../../../infrastructure/adapters/erpnext-adapter.ts";
+import { countryCodeFromInput, KonektagSiteError, konektagFrappeSite, konektagSiteErrorStatus, routeKonektagFlow, type KonektagSiteRoute } from "../../../application/shared/konektag-site.ts";
 import { emailService } from "../../../application/services/resend-service.ts";
 
 const schema=z.object({
@@ -65,7 +65,21 @@ export const POST:RouteHandler=async ({request,clientAddress})=>{
   if(!parsed.success||!validateMeeting(parsed.data))return reply({ok:false,error:"BAD_FIELDS"},400);
   const v=parsed.data;
   if(v.website)return reply({ok:false,error:"SPAM_REJECTED"},400);
-  if(!process.env.RESEND_API_KEY||!process.env.KONEKTAG_MEETING_LEAD_OWNER||!process.env.KONEKTAG_MEETING_DEFAULT_AXIS )
+  // `country` is the residence country, as an ISO code or a French/English name.
+  // It is routed to the Konektag entity whose Frappe site receives the Lead.
+  const residenceCountry=countryCodeFromInput(v.country);
+  if(!residenceCountry)return reply({ok:false,error:"RESIDENCE_COUNTRY_INVALID"},422);
+  let route:KonektagSiteRoute;
+  try{route=await routeKonektagFlow("commercial-request",residenceCountry);}
+  catch(error){
+    if(!(error instanceof KonektagSiteError))return reply({ok:false,error:"SERVICE_UNAVAILABLE"},503);
+    console.error("[commercial-request] Frappe routing failed",{code:error.code,...error.detail});
+    return reply({ok:false,error:error.code},konektagSiteErrorStatus(error));
+  }
+  // Lead owner and axis are users/values of the routed site, configured per entity.
+  const leadOwner=process.env["KONEKTAG_MEETING_"+route.paymentCountry+"_LEAD_OWNER"];
+  const axis=process.env["KONEKTAG_MEETING_"+route.paymentCountry+"_DEFAULT_AXIS"];
+  if(!process.env.RESEND_API_KEY||!leadOwner)
     return reply({ok:false,error:"SERVICE_UNAVAILABLE"},503);
   try{
     // Independent shared rate limits: distributed via Redis across API pods.
@@ -84,7 +98,8 @@ export const POST:RouteHandler=async ({request,clientAddress})=>{
   }
   let leadId:string;
   try{
-    const matches=await erpnext.query("Lead",[["email_id","=",v.email]],["name","custom_activity_summary"],3) as Array<{name:string;custom_activity_summary?:string}>;
+    const erpnext=konektagFrappeSite(route);
+    const matches=await erpnext.list("Lead",[["email_id","=",v.email]],["name","custom_activity_summary"],3) as Array<{name:string;custom_activity_summary?:string}>;
     if(matches.length>1)return reply({ok:false,error:"CRM_AMBIGUOUS"},409);
     const summary=(v.kind==="meeting"?"Demande de rendez-vous":"Demande de contact")+" — "+v.country+
       ". "+v.message+(v.kind==="meeting"?"\nCréneau souhaité : "+v.requestedDate+" "+v.requestedTime+" ("+v.timezone+") — non confirmé.":"");
@@ -96,10 +111,10 @@ export const POST:RouteHandler=async ({request,clientAddress})=>{
         custom_next_action_date:v.kind==="meeting"?v.requestedDate:standardDate(),
       });
     }else{
-      const created=await erpnext.create("Lead",{
+      const created=await erpnext.insert("Lead",{
         lead_name:v.name,company_name:v.company,email_id:v.email,mobile_no:v.phone||undefined,
-        lead_owner:process.env.KONEKTAG_MEETING_LEAD_OWNER,
-        custom_axis:process.env.KONEKTAG_MEETING_DEFAULT_AXIS,
+        lead_owner:leadOwner,
+        ...(axis?{custom_axis:axis}:{}),
         custom_commercial_stage:"À rechercher",
         custom_next_action:v.kind==="meeting"?"Confirmer la demande de rendez-vous":"Répondre à la demande de contact",
         custom_next_action_date:v.kind==="meeting"?v.requestedDate:standardDate(),
@@ -109,6 +124,7 @@ export const POST:RouteHandler=async ({request,clientAddress})=>{
       leadId=created.name;
     }
   }catch(error){
+    if(error instanceof KonektagSiteError)return reply({ok:false,error:error.code},konektagSiteErrorStatus(error));
     console.error("[commercial-request] CRM operation failed",error instanceof Error?error.name:"Error");
     return reply({ok:false,error:"CRM_UNAVAILABLE"},503);
   }
@@ -116,5 +132,5 @@ export const POST:RouteHandler=async ({request,clientAddress})=>{
   const receiptKey=createHash("sha256").update(v.kind+"|"+v.email+"|"+v.message+"|"+v.requestedDate+"|"+v.requestedTime).digest("hex");
   const emailSent=await emailService.send({to:v.email,subject:mail.subject,html:mail.html,idempotencyKey:"commercial-request/"+receiptKey});
   if(!emailSent)console.error("[commercial-request] CRM recorded but receipt unavailable",leadId);
-  return reply({ok:true,reference:leadId,emailSent},201);
+  return reply({ok:true,reference:leadId,emailSent,konektagSite:route.slug},201);
 };

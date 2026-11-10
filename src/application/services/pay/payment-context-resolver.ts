@@ -1,10 +1,13 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { assertProviderConfigurationKey, ProviderConfigurationError } from '../../../infrastructure/adapters/provider-configuration.ts';
+import { countryCodeFromInput, KonektagSiteError, konektagFrappeSite, resolveKonektagSite, type KonektagSiteRoute } from '../../shared/konektag-site.ts';
 
 export type PaymentMethod = 'card' | 'mobile_money';
 
 export type PaymentContext = {
   country: string;
+  /** Konektag entity slug whose Frappe site supplied this context (konektag-fr…). */
+  konektagSite?: string;
   legalEntity: { id: string; code: string; legalName: string };
   currency: string;
   providers: Array<{
@@ -20,6 +23,7 @@ export type PaymentContext = {
 
 export type PaymentContextSelection = {
   country: string;
+  konektagSite?: string | null;
   legalEntityCode: string;
   currency: string;
   regulatoryProfileCode: string;
@@ -107,7 +111,8 @@ function countryCode(country: string): string {
   if (normalized === 'CAMEROON' || normalized === 'CAMEROUN') return 'CM';
   if (normalized === 'CONGO' || normalized === 'CONGO-BRAZZAVILLE' || normalized === 'REPUBLIC OF THE CONGO') return 'CG';
   if (normalized === 'GABON') return 'GA';
-  return normalized;
+  // Any other Frappe country name (Lebanon, Liban…) as ISO alpha-2.
+  return countryCodeFromInput(country) ?? normalized;
 }
 
 function isCurrent(profile: any): boolean {
@@ -126,25 +131,51 @@ function fees(profile: any): { percentageBps: number; fixedAmount: number } {
   return { percentageBps, fixedAmount };
 }
 
-async function defaultFrappeClient(): Promise<FrappeClient> {
-  return (await import('../../../infrastructure/adapters/erpnext-adapter.ts')).erpnext;
+/** Reads the routed Konektag site, with the dictionary filters this resolver uses. */
+export function routedFrappeClient(route: KonektagSiteRoute): FrappeClient {
+  const site = konektagFrappeSite(route);
+  return {
+    get: (doctype, name) => site.get(doctype, name),
+    list: (doctype, filters = {}, fields = ['name'], limit = 50) =>
+      site.list(doctype, Object.entries(filters).map(([key, value]) => [key, '=', value]), fields, limit),
+  };
 }
 
+/** Without an injected client, the payment country is routed to its Konektag site (FR -> konektag-fr). */
 export class PaymentContextResolver {
-  constructor(private readonly client: FrappeClient | (() => Promise<FrappeClient>) = defaultFrappeClient) {}
-
-  private async frappe(): Promise<FrappeClient> {
-    return typeof this.client === 'function' ? this.client() : this.client;
-  }
+  constructor(private readonly client?: FrappeClient | (() => Promise<FrappeClient>)) {}
 
   async resolve(countryInput: string, runtimeOperation = 'link_payment'): Promise<PaymentContext> {
+    if (this.client) {
+      const frappe = typeof this.client === 'function' ? await this.client() : this.client;
+      return this.resolveWith(frappe, countryInput, runtimeOperation);
+    }
+    let route: KonektagSiteRoute;
+    try { route = await resolveKonektagSite(normalizeCountry(countryInput)); }
+    catch (error) {
+      if (error instanceof KonektagSiteError) throw new PaymentContextResolutionError('PAYMENT_CONTEXT_' + error.code);
+      throw error;
+    }
+    return this.resolveForRoute(route, runtimeOperation);
+  }
+
+  /** Payment context read on the routed site, for its payment country. */
+  async resolveForRoute(route: KonektagSiteRoute, runtimeOperation = 'link_payment'): Promise<PaymentContext> {
+    let frappe: FrappeClient;
+    try { frappe = this.client ? (typeof this.client === 'function' ? await this.client() : this.client) : routedFrappeClient(route); }
+    catch (error) {
+      if (error instanceof KonektagSiteError) throw new PaymentContextResolutionError('PAYMENT_CONTEXT_' + error.code);
+      throw error;
+    }
+    return { ...await this.resolveWith(frappe, route.paymentCountry, runtimeOperation), konektagSite: route.slug };
+  }
+
+  private async resolveWith(frappe: FrappeClient, countryInput: string, runtimeOperation: string): Promise<PaymentContext> {
     const country = normalizeCountry(countryInput);
     if (!/^[a-z][a-z0-9_]{1,63}$/.test(runtimeOperation)) {
       throw new PaymentContextResolutionError('PAYMENT_CONTEXT_OPERATION_INVALID');
     }
-    let frappe: FrappeClient;
     try {
-      frappe = await this.frappe();
       const entities = (await frappe.list(
         'Konektag Legal Entity',
         { status: 'Approved' },
@@ -227,3 +258,37 @@ export class PaymentContextResolver {
 }
 
 export const paymentContextResolver = new PaymentContextResolver();
+
+/** Context as shown to the payer: each provider carries its signed selection, fees included. */
+export function publicPaymentContext(context: PaymentContext) {
+  return {
+    ...context,
+    providers: context.providers.map(provider => ({
+      ...provider,
+      selectionToken: createPaymentContextSelection({
+        country: context.country,
+        konektagSite: context.konektagSite ?? null,
+        legalEntityCode: context.legalEntity.code,
+        currency: context.currency,
+        regulatoryProfileCode: provider.regulatoryProfile.code,
+        rail: provider.regulatoryProfile.rail,
+        corridor: provider.corridor,
+        regulatedActorCode: provider.regulatedActor?.code ?? null,
+        provider: provider.provider,
+        providerConfigurationKey: provider.providerConfigurationKey,
+        paymentMethod: provider.paymentMethod,
+        fees: provider.fees,
+      }),
+    })),
+  };
+}
+
+/** HTTP status of a payment context failure. */
+export function paymentContextErrorStatus(code: string): 404 | 422 | 503 {
+  if (code === 'PAYMENT_CONTEXT_LEGAL_ENTITY_NOT_FOUND') return 404;
+  if (code === 'PAYMENT_CONTEXT_RESIDENCE_COUNTRY_INVALID' || code === 'PAYMENT_CONTEXT_COUNTRY_RULE_NOT_FOUND'
+    || code === 'PAYMENT_CONTEXT_COUNTRY_INVALID') return 422;
+  if (code.startsWith('PAYMENT_CONTEXT_COUNTRY_RULE_') || code === 'PAYMENT_CONTEXT_KONEKTAG_SITE_NOT_CONFIGURED'
+    || code === 'PAYMENT_CONTEXT_FRAPPE_UNAVAILABLE') return 503;
+  return 422;
+}

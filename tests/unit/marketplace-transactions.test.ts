@@ -77,6 +77,12 @@ class FakeSite implements FrappeSite {
     if (!doc) throw new FrappeSiteError('SITE_REJECTED', 404, 'DoesNotExistError');
     return structuredClone(doc);
   }
+  async update(doctype: string, name: string, doc: any) {
+    this.calls.push('update:' + doctype);
+    const current = this.table(doctype).find(d => d.name === name);
+    if (!current) throw new FrappeSiteError('SITE_REJECTED', 404, 'DoesNotExistError');
+    return Object.assign(current, doc);
+  }
   async insert(doctype: string, doc: any) {
     this.calls.push('insert:' + doctype);
     this.maybeFail('insert:' + doctype);

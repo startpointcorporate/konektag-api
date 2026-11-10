@@ -1,18 +1,14 @@
 # Commercial meetings: three legal entities (staging)
 
-The public API requires the explicit legal-entity country **CG**, **FR** or **LB** for both `GET /api/meeting-slots?date=YYYY-MM-DD&country=CG` and `POST /api/meeting-request` (`country` in JSON). No default fallback is permitted.
+The visitor's residence country (`country`, ISO 3166-1 alpha-2) is routed server-side to the Konektag entity and its Frappe site: see [frappe-site-routing.md](frappe-site-routing.md). The slots, the Lead and the Appointment of one request always come from that single site.
 
-## Existing ERPNext sites
+| Entity | Slug | Site | Calendar timezone |
+| --- | --- | --- | --- |
+| CG | `konektag-cg` | `CONGO` | Africa/Brazzaville |
+| FR | `konektag-fr` | `EUROPE` | Europe/Paris |
+| LB | `konektag-lb` | `LIBAN` | Asia/Beirut |
 
-Supply actual Frappe **site-specific** HTTPS origins and a scoped API token for each legal entity through the existing Kubernetes Secret, never through public environment variables or client JavaScript:
-
-| Country | Origin | Key | Secret | Calendar timezone |
-| --- | --- | --- | --- | --- |
-| CG | `ERPNEXT_CG_URL` | `ERPNEXT_CG_API_KEY` | `ERPNEXT_CG_API_SECRET` | Africa/Brazzaville |
-| FR | `ERPNEXT_FR_URL` | `ERPNEXT_FR_API_KEY` | `ERPNEXT_FR_API_SECRET` | Europe/Paris |
-| LB | `ERPNEXT_LB_URL` | `ERPNEXT_LB_API_KEY` | `ERPNEXT_LB_API_SECRET` | Asia/Beirut |
-
-Also configure per-site CRM rules: `KONEKTAG_MEETING_CG_DEFAULT_AXIS`, `KONEKTAG_MEETING_CG_LEAD_OWNER` and equivalent `FR`/`LB` variables. Do not assume all three sites have the same CRM settings.
+Site credentials are `MARKETPLACE_FRAPPE_<SITE>_URL` / `_API_KEY` / `_API_SECRET`, in Kubernetes Secrets. The former `ERPNEXT_<COUNTRY>_*` variables are no longer read. Keep the per-entity CRM rules `KONEKTAG_MEETING_<COUNTRY>_LEAD_OWNER` (and `_DEFAULT_AXIS` where the site requires it).
 
 Each site must have its own `Appointment Booking Settings`: enable scheduling; duration 30 min; one assigned agent; configured advance booking days; real weekly windows; holiday list. No fake slots are generated.
 
@@ -23,4 +19,4 @@ Each site must have its own `Appointment Booking Settings`: enable scheduling; d
 3. Run `npm run typecheck && npm test && npm run build` for API, plus `npm run check && npm test && npm run build` under `astro-site` for web.
 4. Deploy API to staging before web; confirm all three sites through the web BFF. Production is explicitly out of scope.
 
-If a country is not configured, return unavailable rather than silently routing to Congo.
+A country without rule or site returns an explicit error rather than silently routing to Congo.

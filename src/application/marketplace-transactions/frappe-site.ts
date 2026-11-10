@@ -26,6 +26,7 @@ export interface FrappeSite {
   list(doctype: string, filters: Filter[], fields: string[], limit?: number): Promise<any[]>;
   get(doctype: string, name: string): Promise<any>;
   insert(doctype: string, doc: Record<string, unknown>): Promise<any>;
+  update(doctype: string, name: string, doc: Record<string, unknown>): Promise<any>;
   call(method: string, args: Record<string, unknown>): Promise<any>;
 }
 
@@ -63,7 +64,7 @@ function siteOrigin(key: string, env: NodeJS.ProcessEnv): URL {
 }
 
 function transport(base: URL, authorization: string | null, fetchImpl: typeof fetch) {
-  return async (method: 'GET' | 'POST', path: string, body?: unknown): Promise<any> => {
+  return async (method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown): Promise<any> => {
     let res: Response;
     try {
       res = await fetchImpl(new URL(path, base), {
@@ -136,6 +137,7 @@ export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fe
     },
     get: (doctype, name) => run('GET', resource(doctype) + '/' + encodeURIComponent(name)),
     insert: (doctype, doc) => run('POST', resource(doctype), { doctype, ...doc }),
+    update: (doctype, name, doc) => run('PUT', resource(doctype) + '/' + encodeURIComponent(name), doc),
     call: async (method, args) => {
       if (!METHOD.test(method)) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
       return run('POST', '/api/method/' + method, args);

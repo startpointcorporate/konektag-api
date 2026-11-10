@@ -3,13 +3,13 @@
   "summary": {
     "paths": 323,
     "operations": 410,
-    "covered": 77,
-    "partial": 332,
+    "covered": 79,
+    "partial": 330,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 333,
-    "executedTests": 2758,
-    "passedTests": 2758
+    "businessUncovered": 331,
+    "executedTests": 2777,
+    "passedTests": 2777
   },
   "operations": [
     {
@@ -5725,16 +5725,59 @@
       "method": "GET",
       "path": "/api/meeting-slots",
       "source": "src/api/routes/meeting-slots.ts",
-      "status": "partial",
-      "businessStatus": "uncovered",
+      "status": "covered",
+      "businessStatus": "covered",
       "facets": [
         "auth",
+        "business",
+        "refusal",
         "transport"
       ],
       "levels": [
-        "contract"
+        "contract",
+        "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
+          "level": "unit"
+        },
         {
           "file": "tests/rest/operations.test.ts",
           "name": "meeting-slots [REST TRANSPORT GET /api/meeting-slots] preserves routing, parameters, query, cookies and raw body",
@@ -5747,14 +5790,17 @@
         }
       ],
       "assertions": [
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/konektag-site-routing.test.ts"
+      ],
       "constraints": [
-        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
       ]
     },
     {
@@ -8488,6 +8534,46 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "pay [REST TRANSPORT GET /api/pay/payment-context] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -8500,15 +8586,19 @@
       ],
       "assertions": [
         "Resolved country/payment context response and exact resolver country; missing mapping error body.",
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/konektag-site-routing.test.ts",
         "tests/unit/payment-context-route.test.ts"
       ],
-      "constraints": []
+      "constraints": [
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+      ]
     },
     {
       "operation": "GET /api/pay/payment-country",
@@ -14701,16 +14791,59 @@
       "method": "POST",
       "path": "/api/meeting-request",
       "source": "src/api/routes/meeting-request.ts",
-      "status": "partial",
-      "businessStatus": "uncovered",
+      "status": "covered",
+      "businessStatus": "covered",
       "facets": [
         "auth",
+        "business",
+        "refusal",
         "transport"
       ],
       "levels": [
-        "contract"
+        "contract",
+        "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
+          "level": "unit"
+        },
         {
           "file": "tests/rest/operations.test.ts",
           "name": "meeting-request [REST TRANSPORT POST /api/meeting-request] preserves routing, parameters, query, cookies and raw body",
@@ -14723,14 +14856,17 @@
         }
       ],
       "assertions": [
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/konektag-site-routing.test.ts"
+      ],
       "constraints": [
-        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
       ]
     },
     {
@@ -17805,12 +17941,52 @@
         },
         {
           "file": "tests/unit/api-payment-recharge-route.test.ts",
-          "name": "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+          "name": "wallet recharge checkout route rejects an invalid amount before routing or creating an order",
           "level": "unit"
         },
         {
           "file": "tests/unit/api-payment-recharge-route.test.ts",
           "name": "wallet recharge checkout route requires an authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
           "level": "unit"
         },
         {
@@ -17825,16 +18001,20 @@
         }
       ],
       "assertions": [
-        "Authenticated recharge target and response envelope; invalid country and anonymous refusal without creation.",
+        "Authenticated recharge target; payment country and Konektag site come from the server routing, never from the body; invalid amount and anonymous refusal without routing or creation.",
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
-        "tests/unit/api-payment-recharge-route.test.ts"
+        "tests/unit/api-payment-recharge-route.test.ts",
+        "tests/unit/konektag-site-routing.test.ts"
       ],
-      "constraints": []
+      "constraints": [
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+      ]
     },
     {
       "operation": "POST /api/preferences/complete",
@@ -18212,7 +18392,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/konektag-site-routing.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]

@@ -187,13 +187,13 @@
       "refusal"
     ],
     "assertions": [
-      "Authenticated recharge target and response envelope; invalid country and anonymous refusal without creation."
+      "Authenticated recharge target; payment country and Konektag site come from the server routing, never from the body; invalid amount and anonymous refusal without routing or creation."
     ],
     "constraints": [],
-    "sha256": "3b7b1cb76cd89dde85424da82942a124d898f8dcd003735f66140965606394bb",
+    "sha256": "2b9d5932b33a8ff571d9ad4e0ee85517f010dc9a1286b2038c174ac88fe1eacd",
     "tests": [
       "wallet recharge checkout route uses the authenticated user as the recharge target and ignores forged target fields",
-      "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+      "wallet recharge checkout route rejects an invalid amount before routing or creating an order",
       "wallet recharge checkout route requires an authenticated user"
     ]
   },
@@ -567,7 +567,7 @@
       "Resolved country/payment context response and exact resolver country; missing mapping error body."
     ],
     "constraints": [],
-    "sha256": "3e3968f031b3a7b1c6228c5dd72dc5cf5529bfd0b91d15c3532d75c1e64fca45",
+    "sha256": "829e5e4bdf7344377e25e5b04cb175538b50f01f283603f928d4d5f6fff30ac4",
     "tests": [
       "GET /api/pay/payment-context returns the resolved France payment context without creating a payment",
       "GET /api/pay/payment-context supports market and reports resolution errors"
@@ -2029,6 +2029,38 @@
       "adds a published user favorite with replay=true",
       "refuses self-favorite before inserting",
       "refuses an unpublished or missing target before inserting"
+    ]
+  },
+  {
+    "file": "tests/unit/konektag-site-routing.test.ts",
+    "operations": [
+      "GET /api/meeting-slots",
+      "POST /api/meeting-request",
+      "POST /api/pay/recharges",
+      "GET /api/pay/payment-context"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused."
+    ],
+    "constraints": [
+      "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+    ],
+    "sha256": "2800da2d100bd5f7ae62e99317bb5c47cc85afdbfacb24cd2b3df950a21109d3",
+    "tests": [
+      "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+      "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+      "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+      "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+      "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+      "Achat de Points K shows the same fees on the checkout page as at purchase",
+      "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+      "Achat de Points K refuses at funding a selection read on another Konektag site"
     ]
   }
 ]

@@ -5,8 +5,9 @@ const mockPool = { query: vi.fn(), connect: vi.fn() };
 vi.mock('../../src/infrastructure/database/pool.ts', () => ({ default: mockPool }));
 
 const mockErpProject = vi.fn();
+const mockProjectRegistration = vi.fn();
 vi.mock('../../src/application/services/erpnext-contact-service.ts', () => ({
-  erpnextContactService: { project: mockErpProject, ensure: vi.fn(), projectConsent: vi.fn() },
+  erpnextContactService: { project: mockErpProject, ensure: vi.fn(), projectConsent: vi.fn(), projectRegistration: mockProjectRegistration },
 }));
 
 const mockKeycloakUpdate = vi.fn();
@@ -228,6 +229,32 @@ describe('Outbox dispatcher — Frappe modular projections', () => {
 
     expect(globalThis.fetch).not.toHaveBeenCalled();
     expect(mockKeycloakUpdate).toHaveBeenCalledWith(KC_ID, { onboarding_state: 'COMPLETED' });
+  });
+});
+
+describe('Outbox dispatcher — UserRegistered', () => {
+  it('projects the Contact with the residence country recorded at registration', async () => {
+    existingUsers[USER_ID] = { id: USER_ID, keycloak_id: KC_ID };
+    pendingEvents = [userEvent('UserRegistered', { payload: { userId: USER_ID, keycloakId: KC_ID, legalCountry: 'BE' } })];
+    await processPending();
+    expect(mockProjectRegistration).toHaveBeenCalledWith(USER_ID, 'BE');
+  });
+
+  it('keeps the event retryable when Frappe is down, then projects the Contact on the next run', async () => {
+    existingUsers[USER_ID] = { id: USER_ID, keycloak_id: KC_ID };
+    mockProjectRegistration.mockRejectedValueOnce(Object.assign(new Error('SITE_UNAVAILABLE'), { code: 'SITE_UNAVAILABLE' }));
+    pendingEvents = [userEvent('UserRegistered', { payload: { userId: USER_ID, keycloakId: KC_ID, legalCountry: 'BE' } })];
+    await processPending();
+    const sql = mockPool.query.mock.calls.map(([q]) => String(q));
+    expect(sql.some(q => /SET processed_at = now\(\)/.test(q))).toBe(false);
+    expect(sql.some(q => /next_attempt_at|attempts = /.test(q))).toBe(true);
+
+    mockPool.query.mockClear();
+    mockProjectRegistration.mockResolvedValueOnce({ contactId: 'CONTACT-1' });
+    pendingEvents = [userEvent('UserRegistered', { attempts: 1, payload: { userId: USER_ID, keycloakId: KC_ID, legalCountry: 'BE' } })];
+    await processPending();
+    expect(mockProjectRegistration).toHaveBeenCalledTimes(2);
+    expect(mockPool.query.mock.calls.some(([q]) => /SET processed_at = now\(\)/.test(String(q)))).toBe(true);
   });
 });
 

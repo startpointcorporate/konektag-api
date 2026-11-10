@@ -6,6 +6,9 @@ import { z } from 'zod';
  * never choose a site, outlet or reception.
  *
  * Source: MARKETPLACE_TRANSACTION_MERCHANTS (JSON, deployment configuration).
+ * A Konektag entity (konektag-fr, konektag-cg, konektag-lb) is an entry whose
+ * `site` sits at slug level: it names the Frappe site of that legal entity.
+ * Its credentials stay in MARKETPLACE_FRAPPE_<SITE>_URL / _API_KEY / _API_SECRET.
  * When the Marketplace projection of API #24 is delivered, the published
  * capabilities of the projection gate this map: a capability absent from the
  * projection stays unavailable even if it is configured here.
@@ -28,7 +31,7 @@ const hotel = z.object({
   // Absent: an interrupted booking is reported as of unknown outcome, never retried.
   externalReferenceField: z.string().regex(/^[a-z][a-z0-9_]{1,60}$/).optional(),
 }).strict();
-const merchant = z.object({ restaurant: restaurant.optional(), hotel: hotel.optional() }).strict();
+const merchant = z.object({ site: siteKey.optional(), restaurant: restaurant.optional(), hotel: hotel.optional() }).strict();
 const registry = z.record(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160), merchant);
 
 export type RestaurantCapability = z.infer<typeof restaurant>;
@@ -45,6 +48,13 @@ export function loadCapabilities(env: NodeJS.ProcessEnv = process.env): Record<s
   const result = registry.safeParse(parsed);
   if (!result.success) throw new CapabilityConfigError('MARKETPLACE_TRANSACTION_MERCHANTS is invalid');
   return result.data;
+}
+
+/** Frappe site key configured at slug level (Konektag entities), or null. */
+export function resolveSlugSite(slug: string, env: NodeJS.ProcessEnv = process.env): string | null {
+  if (!isPublicSlug(slug)) return null;
+  const merchants = loadCapabilities(env);
+  return Object.hasOwn(merchants, slug) ? merchants[slug].site ?? null : null;
 }
 
 export const isPublicSlug = (value: unknown): value is string =>
