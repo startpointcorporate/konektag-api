@@ -60,6 +60,8 @@ export const POST: RouteHandler = async ({ params, locals }) => {
       paymentIntent,
       metadata: order.providerConfigurationKey ? { providerConfigurationKey: order.providerConfigurationKey } : undefined,
     });
+    // Stripe created the PaymentIntent: pending on the Network site (Points K recharges).
+    await paymentProviderAttemptService.recordRechargeAccepted('stripe', paymentIntent.id);
     return json({
       clientSecret: paymentIntent.client_secret,
       publishableKey: configuration.publishableKey,

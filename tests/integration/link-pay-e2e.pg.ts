@@ -49,6 +49,8 @@ const bench = async (site: Site, fn: string, kwargs: Record<string, unknown>) =>
 };
 
 let pool: any, routes: any, pay: any, siteWebhookService: any, apiServer: http.Server, apiUrl = '';
+let pawaPay: http.Server;
+const pawaPayDeposits: Record<string, unknown> = {};
 const waitFor = async (check: () => Promise<boolean>, ms = 15000) => {
   for (const end = Date.now() + ms; Date.now() < end; await new Promise(r => setTimeout(r, 200))) if (await check()) return;
   const rows = (await pool.query(`SELECT target_site, status, attempts, last_error, left(response_body, 300) body
@@ -92,6 +94,20 @@ beforeAll(async () => {
     sites[site] = { tokenSha256: sha(env[`E2E_${site}_TOKEN`]!), webhookSecret: env[`E2E_${site}_SECRET`], ...(site === 'CONGO' ? { network: true } : {}) };
   }
   env.LINK_PAY_FRAPPE_SITES = JSON.stringify(sites);
+  // Points K recharges of CG residents are followed on the Congo site (routed slug konektag-cg).
+  env.MARKETPLACE_TRANSACTION_MERCHANTS = JSON.stringify({ 'konektag-cg': { site: 'CONGO' } });
+  // PawaPay replaced by a local server answering the reconciliation polls.
+  pawaPay = http.createServer((req, res) => {
+    const id = decodeURIComponent((req.url || '').split('/').pop() || '');
+    const deposit = pawaPayDeposits[id];
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(deposit ? { status: 'FOUND', data: deposit } : { status: 'NOT_FOUND' }));
+  });
+  await new Promise<void>(r => pawaPay.listen(0, '127.0.0.1', () => r()));
+  env.PAWAPAY_API_URL = `http://127.0.0.1:${(pawaPay.address() as AddressInfo).port}`;
+  env.PAWAPAY_API_TOKEN = 'e2e-only';
+  // The real outbox worker loads the encryption service: a throwaway key for this database only.
+  env.DATA_ENCRYPTION_KEY ??= crypto.randomBytes(32).toString('base64');
   pool = (await import('../../src/infrastructure/database/pool.ts')).default;
   // Link Pay must work without konektag.merchant_profiles: remove it from this throwaway database.
   await pool.query('DROP TABLE IF EXISTS konektag.merchant_profiles CASCADE');
@@ -118,7 +134,7 @@ beforeAll(async () => {
   await new Promise<void>(r => apiServer.listen(0, '0.0.0.0', () => r()));
   apiUrl = `http://${env.E2E_GATEWAY}:${(apiServer.address() as AddressInfo).port}/api/integrations/frappe/payment-links`;
 }, 60000);
-afterAll(async () => { apiServer?.close(); Object.values(relays).forEach(r => r.server.close()); await pool?.end(); });
+afterAll(async () => { apiServer?.close(); pawaPay?.close(); Object.values(relays).forEach(r => r.server.close()); await pool?.end(); });
 
 describe('Link Pay end to end, real API and real Frappe sites', () => {
   it('merchant invoice: Congo records the split first, the merchant invoice is settled once, a payout clears the balance', async () => {
@@ -185,4 +201,122 @@ describe('Link Pay end to end, real API and real Frappe sites', () => {
     expect((await bench('RESTODEMO', 'state', { invoice }))).toMatchObject({ request_state: 'Paid', invoice_status: 'Paid' });
     expect((await bench('CONGO', 'state', {})).balances.find((b: any) => b.beneficiary === 'RESTODEMO')).toMatchObject({ remaining: 975 });
   }, 120000);
+});
+
+// Network follow-up (Konektag Network Operation on Congo), driven by the real outbox worker pass.
+const operations = async () => (await bench('CONGO', 'operations', {})) as any[];
+const operation = async (key: string) => (await operations()).filter(o => o.name === key);
+const worker = async () => (await import('../../src/application/outbox-dispatcher.ts')).processPending();
+const networkEvents = async (ref: string) => Number((await pool.query(
+  `SELECT count(*) n FROM konektag.outbox_events WHERE event_type='NetworkOperationChanged' AND aggregate_ref LIKE $1`, [ref + '%'])).rows[0].n);
+
+describe('Network follow-up from issuance, real API, outbox and Congo site', () => {
+  it('distinct sites: the issued link is pending on Congo, the payment updates the same row, then the merchant is settled', async () => {
+    const before = (await bench('CONGO', 'state', {})).balances.find((b: any) => b.beneficiary === 'RESTODEMO');
+    const invoice = (await bench('RESTODEMO', 'new_invoice', { like: prepared.RESTODEMO.invoice, amount: 1500 })).invoice;
+    const issued = (await bench('RESTODEMO', 'generate', { invoice, user: prepared.RESTODEMO.user, api_url: apiUrl }));
+    await worker();
+    const key = `link-pay:${issued.slug}`;
+    expect(await operation(key)).toMatchObject([{ operation_type: 'Link Pay', status: 'En attente de paiement', reference: issued.slug,
+      amount: 1500, currency: 'XAF', transaction: null }]);
+    // Pending: nothing owed to the merchant yet.
+    expect((await bench('CONGO', 'state', {})).balances.find((b: any) => b.beneficiary === 'RESTODEMO')).toEqual(before);
+    expect((await payLink(issued.slug)).status).toBe(201);
+    await waitFor(async () => JSON.stringify(await deliveries(invoice, 'RESTODEMO')) === JSON.stringify({ CONGO: 'delivered', RESTODEMO: 'delivered' }));
+    const [paid] = await operation(key);
+    expect(paid).toMatchObject({ status: 'Payé', amount: 1500 });
+    expect(paid.transaction).toBeTruthy();
+    expect((await bench('RESTODEMO', 'state', { invoice }))).toMatchObject({ request_state: 'Paid', invoice_status: 'Paid' });
+    // Replayed issuance event (outbox retry): no second row, no write, never back to pending.
+    await pool.query(`UPDATE konektag.outbox_events SET processed_at=NULL WHERE aggregate_ref=$1`, [`${key}:issued`]);
+    await worker();
+    expect(await operation(key)).toEqual([paid]);
+    expect(await networkEvents(key)).toBe(1);
+  }, 180000);
+
+  it('same site (360°): one delivery updates the operation and settles the Congo invoice', async () => {
+    const invoice = (await bench('CONGO', 'new_invoice', { like: prepared.CONGO.invoice, amount: 2500 })).invoice;
+    const issued = (await bench('CONGO', 'generate', { invoice, user: prepared.CONGO.user, api_url: apiUrl }));
+    await worker();
+    expect(await operation(`link-pay:${issued.slug}`)).toMatchObject([{ status: 'En attente de paiement' }]);
+    expect((await payLink(issued.slug)).status).toBe(201);
+    await waitFor(async () => JSON.stringify(await deliveries(invoice, 'CONGO')) === JSON.stringify({ CONGO: 'delivered' }));
+    expect(await operation(`link-pay:${issued.slug}`)).toMatchObject([{ status: 'Payé' }]);
+    expect((await bench('CONGO', 'state', { invoice }))).toMatchObject({ request_state: 'Paid', invoice_status: 'Paid' });
+  }, 180000);
+
+  it('payment received before the issuance notification: the row is created paid and the late issuance never reverts it', async () => {
+    const invoice = (await bench('RESTODEMO', 'new_invoice', { like: prepared.RESTODEMO.invoice, amount: 1200 })).invoice;
+    const issued = (await bench('RESTODEMO', 'generate', { invoice, user: prepared.RESTODEMO.user, api_url: apiUrl }));
+    expect((await payLink(issued.slug)).status).toBe(201);
+    await waitFor(async () => (await deliveries(invoice, 'RESTODEMO')).CONGO === 'delivered');
+    expect(await operation(`link-pay:${issued.slug}`)).toMatchObject([{ status: 'Payé' }]);
+    await worker();  // the issuance event arrives now
+    expect(await operation(`link-pay:${issued.slug}`)).toMatchObject([{ status: 'Payé', amount: 1200 }]);
+  }, 180000);
+
+  async function rechargeOrder(amount: number) {
+    const buyer = await payer();
+    // The routed site is frozen on the order at purchase (konektag-cg for a CG resident).
+    const { apiPaymentCheckoutService } = await import('../../src/application/services/pay/api-payment-checkout-service.ts');
+    const { order } = await apiPaymentCheckoutService.createWalletRechargeOrder({ targetUserId: buyer.id, amount, currency: 'XAF',
+      paymentCountry: 'CG', konektagSite: { slug: 'konektag-cg' } });
+    return order;
+  }
+  const attemptId = async (reference: string) => (await pool.query(
+    `SELECT id FROM konektag.payment_provider_attempts WHERE provider_reference=$1`, [reference])).rows[0].id as string;
+
+  it('PawaPay recharge: pending once accepted, the verified webhook updates the same row, a replay writes nothing', async () => {
+    const { paymentProviderAttemptService } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts');
+    const order = await rechargeOrder(5000);
+    const depositId = await paymentProviderAttemptService.createOrGetPawaPayApiCheckoutAttempt({ orderId: order.id, amount: 5000,
+      currency: 'XAF', providerConfigurationKey: null });
+    await paymentProviderAttemptService.recordRechargeAccepted('pawapay', depositId);
+    await worker();
+    const key = `recharge:${await attemptId(depositId)}`;
+    expect(await operation(key)).toMatchObject([{ operation_type: 'Recharge Points K', status: 'En attente de paiement',
+      provider: 'pawapay', provider_reference: depositId, amount: 5000 }]);
+    const deposit = { depositId, status: 'COMPLETED', amount: '5000', currency: 'XAF' };
+    expect(await paymentProviderAttemptService.consumePawaPayDeposit(deposit as any, sha('webhook-1')))
+      .toMatchObject({ outcome: 'ready_to_settle' });
+    await worker();
+    const [paid] = await operation(key);
+    expect(paid).toMatchObject({ status: 'Payé', provider_reference: depositId });
+    // Webhook replayed (settlement still to retry, or already done): no new event, no Frappe write.
+    expect(['ready_to_settle', 'deduplicated']).toContain((await paymentProviderAttemptService.consumePawaPayDeposit(deposit as any, sha('webhook-1'))).outcome);
+    await worker();
+    expect(await operation(key)).toEqual([paid]);
+    expect(await networkEvents(key)).toBe(2);
+  }, 180000);
+
+  it('PawaPay recharge without webhook: the existing reconciliation produces the same update (failed)', async () => {
+    const { paymentProviderAttemptService } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts');
+    const order = await rechargeOrder(3000);
+    const depositId = await paymentProviderAttemptService.createOrGetPawaPayApiCheckoutAttempt({ orderId: order.id, amount: 3000,
+      currency: 'XAF', providerConfigurationKey: null });
+    await paymentProviderAttemptService.recordRechargeAccepted('pawapay', depositId);
+    await worker();
+    const key = `recharge:${await attemptId(depositId)}`;
+    expect(await operation(key)).toMatchObject([{ status: 'En attente de paiement' }]);
+    pawaPayDeposits[depositId] = { depositId, status: 'FAILED', amount: '3000', currency: 'XAF', failureReason: 'INSUFFICIENT_BALANCE' };
+    await worker();  // reconciliation polls PawaPay, then the outbox delivers
+    await worker();
+    expect(await operation(key)).toMatchObject([{ status: 'Échoué', failure_reason: 'INSUFFICIENT_BALANCE' }]);
+  }, 180000);
+
+  it('Stripe recharge: pending once the PaymentIntent exists, then failed from the verified event', async () => {
+    const { paymentProviderAttemptService } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts');
+    const order = await rechargeOrder(4000);
+    const intent = { id: `pi_e2e_${crypto.randomUUID().slice(0, 8)}`, amount: 4000, currency: 'xaf', status: 'requires_payment_method',
+      metadata: { konektag_source_type: 'api_payment', konektag_source_id: order.id, konektag_operation_id: order.id } };
+    await paymentProviderAttemptService.createOrUpdateStripeApiCheckoutAttempt({ orderId: order.id, paymentIntent: intent as any });
+    await paymentProviderAttemptService.recordRechargeAccepted('stripe', intent.id);
+    await worker();
+    const key = `recharge:${await attemptId(intent.id)}`;
+    expect(await operation(key)).toMatchObject([{ status: 'En attente de paiement', provider: 'stripe', provider_reference: intent.id }]);
+    expect(await paymentProviderAttemptService.consumeStripeEvent({ id: `evt_${intent.id}`, type: 'payment_intent.payment_failed',
+      payloadHash: sha(intent.id), paymentIntent: intent as any })).toMatchObject({ outcome: 'failed' });
+    await worker();
+    expect(await operation(key)).toMatchObject([{ status: 'Échoué', failure_reason: 'PAYMENT_FAILED' }]);
+  }, 180000);
 });

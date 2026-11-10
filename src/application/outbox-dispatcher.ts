@@ -430,6 +430,13 @@ async function dispatch(event: any): Promise<void> {
       await mauticAdapter.markAuditRequestedByEmail(email);
       break;
     }
+    case 'NetworkOperationChanged': {
+      // Network follow-up on the Frappe site of the Network team; failures are retried here.
+      const { deliverNetworkOperation } = await import('./network-operations/network-operations.ts');
+      await deliverNetworkOperation(event.payload);
+      break;
+    }
+
     case 'MerchantCashReceiptRequested':
       if (typeof event.payload?.receiptId !== 'string') throw new Error('CASH_RECEIPT_EVENT_INVALID');
       await deliverCashReceipt(event.payload.receiptId);
