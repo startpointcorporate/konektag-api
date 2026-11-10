@@ -597,7 +597,7 @@
     ]
   },
   {
-    "file": "tests/unit/payment-link-amount.test.ts",
+    "file": "tests/unit/link-pay-merchant-profile-retired.test.ts",
     "operations": [
       "POST /api/pay/payment-links"
     ],
@@ -608,28 +608,12 @@
       "refusal"
     ],
     "assertions": [
-      "Official server valuation and hash, exact minor amounts persisted and response; forged quantity ignored and unapproved rate refusal."
+      "Issuing a link for a merchant profile is retired: 410 LINK_PAY_MERCHANT_PROFILE_RETIRED for any body, with no database query (a query to merchant_profiles fails the test)."
     ],
     "constraints": [],
-    "sha256": "1db4d5f516d9d543fb68da7d2cccbb835b0a168dd97fc23df45bfe14e629313d",
+    "sha256": "c11ebeb1cfe185eaf623e4e2c6c90ddaec31cb3a9f41f3f32aefae269803aca9",
     "tests": [
-      "payment link amount validation rejects invalid amount -1 before side effects",
-      "payment link amount validation rejects invalid amount 0 before side effects",
-      "payment link amount validation rejects invalid amount bad before side effects",
-      "payment link amount validation creates a link for a positive integer amount",
-      "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-      "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-      "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
-      "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-      "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-      "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
-      "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
-      "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
-      "payment link amount validation issues an official server valuation without merchant-local evidence",
-      "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
-      "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
-      "payment link amount validation rejects a requested currency different from the merchant country currency",
-      "payment link amount validation rejects issuance when no approved server valuation rate is available"
+      "refuses to issue a link for a merchant profile (ERP user key, any body)"
     ]
   },
   {
@@ -690,10 +674,10 @@
       "refusal"
     ],
     "assertions": [
-      "Only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+      "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410)."
     ],
     "constraints": [],
-    "sha256": "964f716327c56a89c36b237b8ccb1f6172a52926200611e7246ddced873dc002",
+    "sha256": "3791098ba44bfc8e51396b2127da4ec7c259f22f0dcb062939dac84eaca160bd",
     "tests": [
       "returns only the public projection and never mutates state",
       "returns only a terminal state for CONSUMED",
@@ -702,7 +686,7 @@
       "does not expose an ERP identity when the business name is absent",
       "does not expose internal DB errors",
       "retains the authenticated single-Link contract",
-      "retains the merchant list contract",
+      "retires the merchant list",
       "refuses anonymous resume without writing a pending payment"
     ]
   },
@@ -718,10 +702,10 @@
       "refusal"
     ],
     "assertions": [
-      "Only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+      "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410)."
     ],
     "constraints": [],
-    "sha256": "964f716327c56a89c36b237b8ccb1f6172a52926200611e7246ddced873dc002",
+    "sha256": "3791098ba44bfc8e51396b2127da4ec7c259f22f0dcb062939dac84eaca160bd",
     "tests": [
       "returns only the public projection and never mutates state",
       "returns only a terminal state for CONSUMED",
@@ -730,7 +714,7 @@
       "does not expose an ERP identity when the business name is absent",
       "does not expose internal DB errors",
       "retains the authenticated single-Link contract",
-      "retains the merchant list contract",
+      "retires the merchant list",
       "refuses anonymous resume without writing a pending payment"
     ]
   },
@@ -1213,16 +1197,16 @@
       "reviewed-partial"
     ],
     "assertions": [
-      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+      "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified."
     ],
     "constraints": [],
-    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "sha256": "c6e57e9606a048ef7d4d3e2fe4293f4a95edf4c2414e3bb1861237e0b762bb51",
     "tests": [
       "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
       "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
       "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
-      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+      "merchant establishment route resolution retires the merchant-profile listing of payment links without any query"
     ]
   },
   {
@@ -1236,16 +1220,16 @@
       "reviewed-partial"
     ],
     "assertions": [
-      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+      "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified."
     ],
     "constraints": [],
-    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "sha256": "c6e57e9606a048ef7d4d3e2fe4293f4a95edf4c2414e3bb1861237e0b762bb51",
     "tests": [
       "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
       "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
       "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
-      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+      "merchant establishment route resolution retires the merchant-profile listing of payment links without any query"
     ]
   },
   {
@@ -1259,16 +1243,16 @@
       "reviewed-partial"
     ],
     "assertions": [
-      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+      "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified."
     ],
     "constraints": [],
-    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "sha256": "c6e57e9606a048ef7d4d3e2fe4293f4a95edf4c2414e3bb1861237e0b762bb51",
     "tests": [
       "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
       "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
       "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
-      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+      "merchant establishment route resolution retires the merchant-profile listing of payment links without any query"
     ]
   },
   {

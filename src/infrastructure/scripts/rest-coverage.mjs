@@ -3,7 +3,7 @@ import { readFile, writeFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { parse } from 'yaml';
 import { execFileSync } from 'node:child_process';
-import { validateReview, regressions } from './rest-coverage-model.mjs';
+import { validateReview, validateRetirements, regressions } from './rest-coverage-model.mjs';
 const args = process.argv.slice(2);
 const option = (name, fallback) => args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
 const reportPath = option('--results', 'work/rest-results.json');
@@ -98,7 +98,9 @@ if (!args.includes('--audit-before')) {
     if (listing) baseline = JSON.parse(execFileSync('git',['show',`${ref}:docs/rest-test-coverage.json`],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
   }
   baseline ??= JSON.parse(await readFile('docs/rest-test-baseline.json','utf8'));
-  const errors = regressions(baseline.operations, operations); if (errors.length) throw new Error(errors.join('\n'));
+  const retirements = JSON.parse(await readFile('tests/rest/coverage-retirements.json', 'utf8').catch(() => '[]'));
+  validateRetirements(retirements, new Set([...suites].flatMap(([file, suite]) => suite.assertionResults.map(t => `${file}::${t.fullName}`))));
+  const errors = regressions(baseline.operations, operations, retirements); if (errors.length) throw new Error(errors.join('\n'));
 }
 for (const [file, text] of [[jsonPath,JSON.stringify(report,null,2)+'\n'],[markdownPath,markdown]]) {
   if (check) { if (await readFile(file,'utf8') !== text) throw new Error(`Stale coverage report: ${file}; run npm run test:rest:coverage`); }

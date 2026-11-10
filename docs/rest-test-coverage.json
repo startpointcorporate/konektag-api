@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 333,
-    "executedTests": 2773,
-    "passedTests": 2773
+    "executedTests": 2758,
+    "passedTests": 2758
   },
   "operations": [
     {
@@ -7606,11 +7606,6 @@
         },
         {
           "file": "tests/unit/merchant-establishment-routes.test.ts",
-          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/merchant-establishment-routes.test.ts",
           "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
           "level": "unit"
         },
@@ -7625,6 +7620,11 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution retires the merchant-profile listing of payment links without any query",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "merchant [REST TRANSPORT GET /api/merchant/settlements] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -7636,7 +7636,7 @@
         }
       ],
       "assertions": [
-        "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
+        "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -8629,7 +8629,7 @@
         },
         {
           "file": "tests/unit/public-link-projection.test.ts",
-          "name": "retains the merchant list contract",
+          "name": "retires the merchant list",
           "level": "unit"
         },
         {
@@ -8640,11 +8640,6 @@
         {
           "file": "tests/unit/merchant-establishment-routes.test.ts",
           "name": "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/merchant-establishment-routes.test.ts",
-          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
           "level": "unit"
         },
         {
@@ -8663,6 +8658,11 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution retires the merchant-profile listing of payment links without any query",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "pay [REST TRANSPORT GET /api/pay/payment-links] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -8674,16 +8674,16 @@
         }
       ],
       "assertions": [
-        "Only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
-        "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
+        "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410).",
+        "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/link-pay-merchant-profile-retired.test.ts",
         "tests/unit/merchant-establishment-routes.test.ts",
-        "tests/unit/payment-link-erp-return.test.ts",
         "tests/unit/public-link-projection.test.ts"
       ],
       "constraints": []
@@ -8918,11 +8918,6 @@
         },
         {
           "file": "tests/unit/merchant-establishment-routes.test.ts",
-          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/merchant-establishment-routes.test.ts",
           "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
           "level": "unit"
         },
@@ -8937,6 +8932,11 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution retires the merchant-profile listing of payment links without any query",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "pay [REST TRANSPORT GET /api/pay/settlements] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -8948,7 +8948,7 @@
         }
       ],
       "assertions": [
-        "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
+        "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -13284,7 +13284,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/link-pay-merchant-profile-retired.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -17453,7 +17455,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/link-pay-merchant-profile-retired.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -17478,88 +17482,8 @@
       ],
       "tests": [
         {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects invalid amount -1 before side effects",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects invalid amount 0 before side effects",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects invalid amount bad before side effects",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation creates a link for a positive integer amount",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation issues an official server valuation without merchant-local evidence",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects a requested currency different from the merchant country currency",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects issuance when no approved server valuation rate is available",
+          "file": "tests/unit/link-pay-merchant-profile-retired.test.ts",
+          "name": "refuses to issue a link for a merchant profile (ERP user key, any body)",
           "level": "unit"
         },
         {
@@ -17574,15 +17498,14 @@
         }
       ],
       "assertions": [
-        "Official server valuation and hash, exact minor amounts persisted and response; forged quantity ignored and unapproved rate refusal.",
+        "Issuing a link for a merchant profile is retired: 410 LINK_PAY_MERCHANT_PROFILE_RETIRED for any body, with no database query (a query to merchant_profiles fails the test).",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
-        "tests/unit/payment-link-amount.test.ts",
-        "tests/unit/payment-link-erp-return.test.ts"
+        "tests/unit/link-pay-merchant-profile-retired.test.ts"
       ],
       "constraints": []
     },
@@ -17642,7 +17565,7 @@
         },
         {
           "file": "tests/unit/public-link-projection.test.ts",
-          "name": "retains the merchant list contract",
+          "name": "retires the merchant list",
           "level": "unit"
         },
         {
@@ -17662,7 +17585,7 @@
         }
       ],
       "assertions": [
-        "Only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
+        "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410).",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
