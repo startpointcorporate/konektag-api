@@ -1,0 +1,156 @@
+[
+  {
+    "operation": "GET /api/merchant/settlements",
+    "file": "tests/unit/merchant-establishment-routes.test.ts",
+    "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+    "reason": "Shared parametrised test: its payment-link case is retired with the merchant-profile listing (konektag-api#43). Merchant settlements keep their own case \"scopes merchant settlements to the authenticated user mapping\".",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "GET /api/pay/payment-links",
+    "file": "tests/unit/public-link-projection.test.ts",
+    "name": "retains the merchant list contract",
+    "reason": "The merchant-profile listing of payment links is retired (konektag-api#43): GET /api/pay/payment-links without slug returns 410 with no query (public-link-projection \"retires the merchant list\", merchant-establishment-routes \"retires the merchant-profile listing of payment links without any query\").",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "GET /api/pay/payment-links",
+    "file": "tests/unit/merchant-establishment-routes.test.ts",
+    "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+    "reason": "The merchant-profile listing of payment links is retired (konektag-api#43): GET /api/pay/payment-links without slug returns 410 with no query (public-link-projection \"retires the merchant list\", merchant-establishment-routes \"retires the merchant-profile listing of payment links without any query\").",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "GET /api/pay/settlements",
+    "file": "tests/unit/merchant-establishment-routes.test.ts",
+    "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
+    "reason": "The merchant-profile listing of payment links is retired (konektag-api#43): GET /api/pay/payment-links without slug returns 410 with no query (public-link-projection \"retires the merchant list\", merchant-establishment-routes \"retires the merchant-profile listing of payment links without any query\").",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects invalid amount -1 before side effects",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects invalid amount 0 before side effects",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects invalid amount bad before side effects",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation creates a link for a positive integer amount",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation issues an official server valuation without merchant-local evidence",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects a requested currency different from the merchant country currency",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links",
+    "file": "tests/unit/payment-link-amount.test.ts",
+    "name": "payment link amount validation rejects issuance when no approved server valuation rate is available",
+    "reason": "Issuing a Link Pay link for a merchant profile is retired (konektag-api#43): POST /api/pay/payment-links now returns 410 LINK_PAY_MERCHANT_PROFILE_RETIRED (tests/unit/link-pay-merchant-profile-retired.test.ts). Server valuation and minor units of network links are proven on PostgreSQL by tests/integration/link-pay-network.pg.ts.",
+    "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/payment-links/{slug}/resume",
+    "file": "tests/unit/public-link-projection.test.ts",
+    "name": "retains the merchant list contract",
+    "reason": "The merchant-profile listing of payment links is retired (konektag-api#43): GET /api/pay/payment-links without slug returns 410 with no query (public-link-projection \"retires the merchant list\", merchant-establishment-routes \"retires the merchant-profile listing of payment links without any query\").",
+    "retiredBy": "konektag-api#43"
+  }
+]

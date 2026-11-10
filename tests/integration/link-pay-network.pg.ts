@@ -102,6 +102,9 @@ async function user(name: string, funded: number) {
 beforeAll(async () => {
   await frappeDouble('CONGO'); await frappeDouble('RESTODEMO');
   pool = (await import('../../src/infrastructure/database/pool.ts')).default;
+  // Link Pay must work without konektag.merchant_profiles: remove it from this throwaway database.
+  await pool.query('DROP TABLE IF EXISTS konektag.merchant_profiles CASCADE');
+  expect((await pool.query(`SELECT to_regclass('konektag.merchant_profiles') AS t`)).rows[0].t).toBeNull();
   ({ POST: issue, GET: list } = await import('../../src/api/routes/integrations/frappe/payment-links.ts'));
   ({ POST: pay } = await import('../../src/api/routes/pay/pay-link.ts'));
   deliveries = await import('../../src/api/routes/integrations/frappe/link-pay/deliveries.ts');
@@ -238,6 +241,26 @@ describe('Link Pay network collection on PostgreSQL', () => {
     expect(await rejected('frappe_network', owner.id)).toBe('checkout_intents_owner_check');
     // Reference: a historical link with exactly one owner is still accepted.
     expect(await rejected(null, owner.id)).toBeNull();
+  });
+
+  it('consultation without merchant profiles: public page, payer read, resume and pending list', async () => {
+    const { GET: read } = await import('../../src/api/routes/pay/payment-links.ts');
+    const { POST: resume } = await import('../../src/api/routes/pay/payment-links/[slug]/resume.ts');
+    const { GET: pending } = await import('../../src/api/routes/account/pending-transactions.ts');
+    const name = 'ACC-SINV-' + key().slice(0, 8);
+    sites.CONGO.invoices[name] = invoice(name, 4000);
+    const { link } = await (await create('CONGO', name, key())).json();
+    const at = (user?: any) => read({ url: new URL('http://x/api/pay/payment-links?slug=' + link.name), locals: { user } } as any);
+    expect((await (await at()).json()).links[0]).toMatchObject({ status: 'Active', etablissement: 'Konektag Congo', amount: 4000, currency: 'XAF', reference: name });
+    const payer = await user('c-' + key().slice(0, 6), 100000);
+    const mine = (await (await at({ id: payer.id })).json()).links[0];
+    expect(mine).toMatchObject({ name: link.name, beneficiary: { site: 'CONGO', name: 'Konektag Congo' }, network: { site: 'CONGO' } });
+    expect(mine.checkoutIntentId).toBeUndefined();
+    expect((await resume({ locals: { user: payer }, params: { slug: link.name } } as any)).status).toBe(200);
+    const listed = await (await pending({ locals: { user: payer }, url: new URL('http://x/api/account/pending-transactions') } as any)).json();
+    expect(listed.transactions).toEqual(expect.arrayContaining([expect.objectContaining({ slug: link.name, label: 'Konektag Congo', type: 'payment_link' })]));
+    expect((await payAs(payer, link.name)).status).toBe(201);
+    expect((await (await at()).json()).links[0]).toEqual({ status: 'Used' });
   });
 
   it('approval revoked after issuance: the client is not debited', async () => {

@@ -9,6 +9,22 @@ Les liens déjà émis (profil marchand, BOOST, catalogue) gardent leur parcours
 | Commerçant | `RESTODEMO` | `CONGO` | `CONGO`, puis `RESTODEMO` après l'accusé de Congo | net − versements confirmés |
 | 360° | `CONGO` | `CONGO` | un seul, rôles `network` + `beneficiary` | 0 (la facture de Congo est soldée) |
 
+## Sans `konektag.merchant_profiles`
+
+Link Pay ne lit plus cette table, ni à l'émission, ni à la consultation, ni à la confirmation. L'identité du
+bénéficiaire vient du site Frappe et de sa fiche sur le Réseau ; le lien, la transaction et les webhooks sont
+dans `link_pay_network_links`, `link_pay_network_transactions` et `link_pay_site_webhooks`.
+
+Branches historiques retirées (`410 LINK_PAY_MERCHANT_PROFILE_RETIRED`) : émission et liste par profil
+marchand (`/api/pay/payment-links`, canal ERP par clé utilisateur), paiement d'un panier catalogue par lien,
+paiement d'un BOOST par lien. Un lien qui n'est pas un lien Réseau est introuvable (404) à la confirmation et
+absent à la consultation. Au retrait (2026-11-10), la production ne contenait aucun lien de paiement, aucune
+`Payment Request` Link Pay sur les cinq sites Frappe et aucun BOOST : rien n'était à reprendre. La colonne
+`checkout_intents.replay_key` (migration 230) reste, sans usage.
+
+Hors Link Pay et inchangés : QR Pay (qui réutilise le rail `payment_link` de `consumeLinkAtMerchant`), les
+versements marchands historiques (`settlement-service`) et le module growth.
+
 ## Contrat
 
 `POST /api/integrations/frappe/payment-links`. Le site est authentifié par `X-Konektag-Frappe-Site` et
@@ -86,11 +102,10 @@ bénéficiaires sur le Réseau.
 ## Validation
 
 - `tests/unit/link-pay-network-routing.test.ts` : authentification, routage, frais, accusé, charge utile.
-- `tests/integration/payment-link-replay.pg.ts` (PostgreSQL réel) : ERP et BOOST créent un lien, un rejeu
-  rend le même lien, la même clé avec d'autres données est refusée, clé limitée à son marchand, catalogue
-  inchangé en `core_transaction_id`.
-- `tests/integration/link-pay-network.pg.ts` (PostgreSQL réel, doubles HTTP Frappe) : rejeu de clé, débit
+- `tests/unit/link-pay-merchant-profile-retired.test.ts` : toute requête vers `merchant_profiles` fait échouer
+  le test ; émission, liste et catalogue répondent 410, un lien non Réseau est introuvable.
+- `tests/integration/link-pay-network.pg.ts` (PostgreSQL réel **sans `merchant_profiles`**, doubles HTTP Frappe) : consultation publique et payeur, reprise et liste des paiements en attente, rejeu de clé, débit
   unique, ordre Réseau → bénéficiaire, cas 360°, Réseau indisponible puis reprise, relivraison, conditions
   manquantes, approbation retirée.
-- `konektag_360/scripts/validate-link-pay-e2e.sh <ce dépôt>` : API réelle + PostgreSQL + deux sites Frappe
+- `konektag_360/scripts/validate-link-pay-e2e.sh <ce dépôt>` : API réelle + PostgreSQL sans `merchant_profiles` + deux sites Frappe
   réels (`congo.test`, `resto.test`) ; commerçant, 360°, webhooks rejoués, Réseau indisponible, versement.
