@@ -139,6 +139,8 @@ export interface CreateWalletRechargeOrderInput {
   currency: string;
   amount: number;
   paymentCountry: string;
+  /** Konektag site resolved server-side for a Points K purchase; checked again at funding. */
+  konektagSite?: { slug: string };
 }
 
 export class ApiPaymentValidationError extends Error {}
@@ -194,6 +196,8 @@ interface ApiPaymentSettlementSelection extends ApiPaymentExternalFundingContext
   rail: string;
   provider: string;
   providerConfigurationKey: string | null;
+  /** Konektag site the signed selection was read on (konektag-fr…). */
+  konektagSite?: string | null;
 }
 
 interface ApiPaymentSettlementContext {
@@ -474,6 +478,15 @@ function toFunding(order: ApiPaymentOrderRow): ApiPaymentFunding {
     externalAmount: Number(order.external_amount),
     allowedPaymentMethods,
   };
+}
+
+/** Routed Konektag site of a signed selection; refuses a selection whose site no longer matches its country. */
+async function selectionMasterDataSource(selected: { country: string; konektagSite?: string | null }) {
+  const { resolveKonektagSite } = await import('../../shared/konektag-site.ts');
+  const { routedFrappeClient } = await import('./payment-context-resolver.ts');
+  const route = await resolveKonektagSite(selected.country);
+  if (selected.konektagSite && selected.konektagSite !== route.slug) throw new Error('SELECTION_SITE_CHANGED');
+  return routedFrappeClient(route);
 }
 
 function calculatePaymentFee(amount: number, fees: Pick<ApiPaymentExternalFundingContext, 'percentageBps' | 'fixedAmount'>): number {
@@ -795,11 +808,12 @@ export const apiPaymentCheckoutService = {
          beneficiary_type, beneficiary_party_id, payment_country
        ) VALUES (
          NULL, 'wallet_recharge', 'wallet_recharge', $1, 'live', $2, NULL, 'Wallet recharge', $3,
-         '[]'::jsonb, NULL, NULL, NULL, '{}'::jsonb, $4, $5, 0, 0, 0,
+         '[]'::jsonb, NULL, NULL, NULL, $8::jsonb, $4, $5, 0, 0, 0,
          $5, 0, 0, $5, $6, 'NETWORK', NULL, $7
        ) RETURNING *`,
       [input.targetUserId, `WALLET-RECHARGE-${randomUUID()}`, `user:${input.targetUserId}`,
-        input.currency, input.amount, hashToken(checkoutToken), paymentCountry],
+        input.currency, input.amount, hashToken(checkoutToken), paymentCountry,
+        JSON.stringify(input.konektagSite ? { konektagSite: input.konektagSite } : {})],
     );
     if (!rows[0]) throw new Error('Unable to create wallet recharge order');
     return { order: toPublicOrder(rows[0]), checkoutToken };
@@ -870,13 +884,6 @@ export const apiPaymentCheckoutService = {
     options: ApiPaymentFundingOptions = {},
   ): Promise<ApiPaymentFunding> {
     const selected = verifyPaymentContextSelection(selection);
-    const { rows: [checkout] } = await pool.query<Pick<ApiPaymentOrderRow, 'order_purpose'>>(
-      `SELECT order_purpose FROM konektag.api_payment_orders
-       WHERE checkout_token_hash = $1 LIMIT 1`,
-      [hashToken(token)],
-    );
-    if (!checkout) throw new ApiPaymentNotFoundError('Checkout not found');
-    const allowFrappeProjection = checkout.order_purpose !== 'wallet_recharge';
     const countryAliases = paymentCountryAliases(selected.country);
     const strictParams = [selected.legalEntityCode, selected.regulatoryProfileCode, selected.rail, selected.corridor,
       selected.regulatedActorCode, selected.provider, selected.currency, countryAliases];
@@ -902,13 +909,15 @@ export const apiPaymentCheckoutService = {
     }>(strictSql, strictParams);
 
     let projected = projectedStrict;
-    if (projected.length !== 1 && allowFrappeProjection) {
+    if (projected.length !== 1) {
       try {
-        await frappeMasterDataProjectionService.projectLegalEntity(selected.legalEntityCode);
+        // Project from the Konektag site the selection was read on (FR -> konektag-fr).
+        const source = await selectionMasterDataSource(selected);
+        await frappeMasterDataProjectionService.projectLegalEntity(selected.legalEntityCode, source);
         if (selected.regulatedActorCode) {
-          await frappeMasterDataProjectionService.projectRegulatedActor(selected.regulatedActorCode);
+          await frappeMasterDataProjectionService.projectRegulatedActor(selected.regulatedActorCode, source);
         }
-        await frappeMasterDataProjectionService.projectRegulatoryProfile(selected.regulatoryProfileCode);
+        await frappeMasterDataProjectionService.projectRegulatoryProfile(selected.regulatoryProfileCode, source);
         const { rows: projectedAfterSync } = await pool.query<{
           legal_entity_id: string; regulatory_profile_id: string; corridor_id: string; regulated_actor_id: string | null; rail: string;
         }>(strictSql, strictParams);
@@ -957,6 +966,7 @@ export const apiPaymentCheckoutService = {
        rail: settlement.rail,
         provider: selected.provider,
         providerConfigurationKey: selected.providerConfigurationKey,
+        konektagSite: selected.konektagSite ?? null,
     } satisfies ApiPaymentSettlementSelection, options).then(toFunding);
   },
 
@@ -1056,6 +1066,12 @@ export const apiPaymentCheckoutService = {
         if (order.business_purpose === 'pro_subscription_renewal' && settlementContext
           && order.order_metadata?.paymentCountry !== settlementContext.paymentCountry) {
           throw new ApiPaymentConflictError('Pro renewal quote belongs to another payment country');
+        }
+        // A checkout routed to a Konektag site (Points K purchase) only accepts a context
+        // read on that site, so the fees shown to the payer are those of the checkout.
+        const routedSite = (order.order_metadata?.konektagSite as { slug?: string } | undefined)?.slug;
+        if (routedSite && settlementContext?.regulatoryProfileId && settlementContext.konektagSite !== routedSite) {
+          throw new ApiPaymentConflictError('Selected Payment Context comes from another Konektag site');
         }
       if (order.funding_state === 'prepared' && !settlementContext?.regulatoryProfileId) {
         await this.assertPayerMatchesFunding(client, order, payer);

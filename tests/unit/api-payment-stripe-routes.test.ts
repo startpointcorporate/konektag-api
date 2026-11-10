@@ -15,6 +15,7 @@ const providerAttemptMocks = vi.hoisted(() => ({
   createOrUpdateStripeApiCheckoutAttempt: vi.fn(),
   expireStaleApiPaymentAttempts: vi.fn(),
   hasActiveApiPaymentAttempt: vi.fn(),
+  recordRechargeAccepted: vi.fn(),
 }));
 
 vi.mock('node:crypto', async importOriginal => ({

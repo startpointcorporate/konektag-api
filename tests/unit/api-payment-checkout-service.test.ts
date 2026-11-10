@@ -31,12 +31,6 @@ const paymentContextMocks = vi.hoisted(() => ({
   verifyPaymentContextSelection: vi.fn(),
 }));
 
-const frappeProjectionMocks = vi.hoisted(() => ({
-  projectLegalEntity: vi.fn(),
-  projectRegulatedActor: vi.fn(),
-  projectRegulatoryProfile: vi.fn(),
-}));
-
 vi.mock('../../src/infrastructure/database/pool', () => ({
   default: { query: mocks.poolQuery, connect: mocks.connect },
 }));
@@ -68,9 +62,6 @@ vi.mock('../../src/application/services/pay/points-wallet-service', () => ({
 }));
 vi.mock('../../src/application/services/pay/payment-context-resolver', () => ({
   verifyPaymentContextSelection: paymentContextMocks.verifyPaymentContextSelection,
-}));
-vi.mock('../../src/application/services/frappe-master-data-projection-service', () => ({
-  frappeMasterDataProjectionService: frappeProjectionMocks,
 }));
 
 import {
@@ -126,9 +117,6 @@ describe('apiPaymentCheckoutService', () => {
     accountingMocks.postTransaction.mockResolvedValue({ success: true, financialTransactionId: 'financial-1', created: true });
     redisMocks.publishPaymentStatus.mockResolvedValue(undefined);
     paymentContextMocks.verifyPaymentContextSelection.mockReset();
-    frappeProjectionMocks.projectLegalEntity.mockReset();
-    frappeProjectionMocks.projectRegulatedActor.mockReset();
-    frappeProjectionMocks.projectRegulatoryProfile.mockReset();
   });
 
   it('creates an order without a fee until a Payment Context resolves one', async () => {
@@ -272,9 +260,7 @@ describe('apiPaymentCheckoutService', () => {
       corridor: 'KTG-FR-KTG-FR', regulatedActorCode: 'STRIPE-FR', provider: 'stripe', providerConfigurationKey: 'KTG_FR_STRIPE_TEST',
       paymentMethod: 'card', fees: { percentageBps: 300, fixedAmount: 0 }, expiresAt: '2099-01-01T00:00:00.000Z',
     });
-    mocks.poolQuery
-      .mockResolvedValueOnce({ rows: [{ order_purpose: 'wallet_recharge' }] })
-      .mockResolvedValueOnce({ rows: [{ legal_entity_id: 'legal-entity-1', regulatory_profile_id: 'profile-1', corridor_id: 'KTG-FR-KTG-FR', regulated_actor_id: 'actor-1', rail: 'stripe' }] });
+    mocks.poolQuery.mockResolvedValueOnce({ rows: [{ legal_entity_id: 'legal-entity-1', regulatory_profile_id: 'profile-1', corridor_id: 'KTG-FR-KTG-FR', regulated_actor_id: 'actor-1', rail: 'stripe' }] });
     mocks.clientQuery
       .mockResolvedValueOnce(undefined)
       .mockResolvedValueOnce({ rows: [rechargeOrder] })
@@ -285,7 +271,6 @@ describe('apiPaymentCheckoutService', () => {
     await apiPaymentCheckoutService.prepareSelectedFunding('raw-token', undefined, 'signed-selection');
 
     expect(paymentContextMocks.verifyPaymentContextSelection).toHaveBeenCalledWith('signed-selection');
-    expect(frappeProjectionMocks.projectLegalEntity).not.toHaveBeenCalled();
     const update = mocks.clientQuery.mock.calls.find((call: unknown[]) => String(call[0]).includes('settlement_legal_entity_id'))!;
     expect(update[0]).toContain('WHERE id = $18 AND version = $19');
     expect(update[1]).toEqual([0, 0, 103, 3, 103, null, 'legal-entity-1', 'profile-1', 'KTG-FR-KTG-FR', 'actor-1', 'stripe', 'stripe', 'KTG_FR_STRIPE_TEST', 'FR', 'NETWORK', null, 10300, 'order-1', 1, 0, 0]);
@@ -355,33 +340,13 @@ describe('apiPaymentCheckoutService', () => {
       fees: { percentageBps: 300, fixedAmount: 0 },
       expiresAt: '2099-01-01T00:00:00.000Z',
     });
-    mocks.poolQuery
-      .mockResolvedValueOnce({ rows: [{ order_purpose: 'merchant_payment' }] })
-      .mockResolvedValueOnce({ rows: [{ legal_entity_id: 'legal-entity-cg', regulatory_profile_id: 'profile-cg', corridor_id: 'KTG-CG-KTG-CG', regulated_actor_id: 'actor-cg', rail: 'stripe' }] });
+    mocks.poolQuery.mockResolvedValueOnce({ rows: [{ legal_entity_id: 'legal-entity-cg', regulatory_profile_id: 'profile-cg', corridor_id: 'KTG-CG-KTG-CG', regulated_actor_id: 'actor-cg', rail: 'stripe' }] });
     mocks.clientQuery.mockResolvedValue(undefined);
     mocks.clientQuery.mockRejectedValueOnce(new Error('stop-after-country-normalization'));
 
     await expect(apiPaymentCheckoutService.prepareSelectedFunding('raw-token', undefined, 'signed-selection'))
       .rejects.toThrow('stop-after-country-normalization');
-    expect(mocks.poolQuery.mock.calls[1][1][7]).toEqual(['CG']);
-  });
-
-  it('keeps wallet-recharge Payment Context resolution inside PostgreSQL when local data is missing', async () => {
-    paymentContextMocks.verifyPaymentContextSelection.mockReturnValue({
-      country: 'FR', legalEntityCode: 'KTG-FR', currency: 'EUR', regulatoryProfileCode: 'LINK-FR-STRIPE', rail: 'stripe',
-      corridor: 'KTG-FR-KTG-FR', regulatedActorCode: 'STRIPE-FR', provider: 'stripe', providerConfigurationKey: 'KTG_FR_STRIPE_TEST',
-      paymentMethod: 'card', fees: { percentageBps: 300, fixedAmount: 0 }, expiresAt: '2099-01-01T00:00:00.000Z',
-    });
-    mocks.poolQuery
-      .mockResolvedValueOnce({ rows: [{ order_purpose: 'wallet_recharge' }] })
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] });
-
-    await expect(apiPaymentCheckoutService.prepareSelectedFunding('raw-token', undefined, 'signed-selection'))
-      .rejects.toThrow('Selected Payment Context is not available for settlement');
-    expect(frappeProjectionMocks.projectLegalEntity).not.toHaveBeenCalled();
-    expect(frappeProjectionMocks.projectRegulatedActor).not.toHaveBeenCalled();
-    expect(frappeProjectionMocks.projectRegulatoryProfile).not.toHaveBeenCalled();
+    expect(mocks.poolQuery.mock.calls[0][1][7]).toEqual(['CG']);
   });
 
   it('charges no external fee when Points K fully cover the basket', async () => {

@@ -25,7 +25,6 @@ export function resolveFinancialRouteKey(pathname: string): FinancialRouteKey | 
     || normalized.startsWith('/api/k/send/')
     || normalized === '/api/pay/payment-links'
     || normalized === '/api/pay/pay-link'
-    || normalized === '/api/pay/web/pay-link'
     || /^\/api\/pay\/payment-links\/[^/]+\/resume$/.test(normalized)
   ) return null;
   const match = Object.entries(FINANCIAL_ROUTE_KEYS).find(([prefix]) => pathname === prefix || pathname.startsWith(prefix));
@@ -41,7 +40,6 @@ export function requiresLegalEntityScope(pathname: string): boolean {
     || normalized === '/api/k/send'
     || normalized.startsWith('/api/k/send/')
     || normalized === '/api/pay/pay-link'
-    || normalized === '/api/pay/web/pay-link'
     || /^\/api\/pay\/payment-links\/[^/]+\/resume$/.test(normalized)
   ) return false;
   return normalized !== '/api/pay/recharges';

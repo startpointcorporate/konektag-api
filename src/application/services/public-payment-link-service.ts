@@ -1,12 +1,12 @@
 import pool from '../../infrastructure/database/pool.ts';
 
-/** Consultation projection only. Never expose the checkout row or a merchant ERP identity. */
+/** Consultation projection of a network link: the beneficiary is a Frappe site, named by its network. */
 export async function getPublicPaymentLink(slug: string) {
   const { rows: [row] } = await pool.query(
-    `SELECT mp.business_name, ci.amount, ci.currency, ci.quantity_k,
+    `SELECT nl.beneficiary_name AS business_name, ci.amount, ci.currency, ci.quantity_k,
             ci.service_description, ci.reference, ci.expiration, ci.status
        FROM konektag.checkout_intents ci
-       JOIN konektag.merchant_profiles mp ON mp.id = ci.merchant_profile_id
+       JOIN konektag.link_pay_network_links nl ON nl.checkout_intent_id = ci.id
       WHERE ci.public_id = $1 AND ci.source_type = 'payment_link'`, [slug]);
   if (!row) return null;
   if (row.status === 'CONSUMED') return { status: 'Used' as const };

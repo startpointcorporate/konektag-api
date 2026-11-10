@@ -130,6 +130,12 @@ function assertStripeIntent(paymentIntent: { id: string; amount: number; currenc
   }
 }
 
+/** Network follow-up of the Points K recharge an attempt belongs to (no-op for other attempts). */
+async function enqueueRechargeOperation(db: Pick<import('pg').PoolClient, 'query'>, input: Parameters<typeof import('../../network-operations/network-operations.ts').enqueueRechargeOperation>[1]) {
+  const operations = await import('../../network-operations/network-operations.ts');
+  return operations.enqueueRechargeOperation(db, input);
+}
+
 export const paymentProviderAttemptService = {
   async expireStaleApiPaymentAttempts(orderId?: string): Promise<number> {
     const result = await pool.query(
@@ -209,9 +215,18 @@ export const paymentProviderAttemptService = {
           `UPDATE konektag.payment_provider_events
            SET failed_at=NULL,error_code=NULL WHERE id=$1`, [event.id]);
         event.failed_at = null;
-      } } const attempts = await client.query<ProviderAttemptRow & { state: string }>(`SELECT id,source_type,source_id,operation_id,provider,provider_reference,expected_amount,expected_currency,state FROM konektag.payment_provider_attempts WHERE provider='pawapay' AND provider_reference=$1 FOR UPDATE`, [deposit.depositId]); const attempt = attempts.rows[0]; if (!attempt || attempt.source_type !== 'api_payment' || Number(attempt.expected_amount) !== amount || attempt.expected_currency !== deposit.currency.toUpperCase()) { await client.query(`UPDATE konektag.payment_provider_events SET attempt_id=$2,failed_at=now(),error_code='attempt_mismatch' WHERE id=$1`, [event.id, attempt?.id ?? null]); await client.query('COMMIT'); return { outcome: 'rejected' }; } await client.query(`UPDATE konektag.payment_provider_events SET attempt_id=$2 WHERE id=$1`, [event.id, attempt.id]); if (deposit.status === 'FAILED' && attempt.state === 'succeeded') { await client.query(`UPDATE konektag.payment_provider_events SET failed_at=now(),error_code='invalid_state_regression' WHERE id=$1`, [event.id]); await client.query('COMMIT'); return { outcome: 'rejected' }; } const state = deposit.status === 'COMPLETED' ? 'succeeded' : deposit.status === 'FAILED' ? 'failed' : 'processing'; await client.query(`UPDATE konektag.payment_provider_attempts SET state=$2,updated_at=now(),version=version+1 WHERE id=$1`, [attempt.id, state]); if (deposit.status !== 'COMPLETED') await client.query(`UPDATE konektag.payment_provider_events SET processed_at=now() WHERE id=$1`, [event.id]); await client.query('COMMIT'); return deposit.status === 'COMPLETED'
+      } } const attempts = await client.query<ProviderAttemptRow & { state: string }>(`SELECT id,source_type,source_id,operation_id,provider,provider_reference,expected_amount,expected_currency,state FROM konektag.payment_provider_attempts WHERE provider='pawapay' AND provider_reference=$1 FOR UPDATE`, [deposit.depositId]); const attempt = attempts.rows[0]; if (!attempt || attempt.source_type !== 'api_payment' || Number(attempt.expected_amount) !== amount || attempt.expected_currency !== deposit.currency.toUpperCase()) { await client.query(`UPDATE konektag.payment_provider_events SET attempt_id=$2,failed_at=now(),error_code='attempt_mismatch' WHERE id=$1`, [event.id, attempt?.id ?? null]); await client.query('COMMIT'); return { outcome: 'rejected' }; } await client.query(`UPDATE konektag.payment_provider_events SET attempt_id=$2 WHERE id=$1`, [event.id, attempt.id]); if (deposit.status === 'FAILED' && attempt.state === 'succeeded') { await client.query(`UPDATE konektag.payment_provider_events SET failed_at=now(),error_code='invalid_state_regression' WHERE id=$1`, [event.id]); await client.query('COMMIT'); return { outcome: 'rejected' }; } const state = deposit.status === 'COMPLETED' ? 'succeeded' : deposit.status === 'FAILED' ? 'failed' : 'processing'; await client.query(`UPDATE konektag.payment_provider_attempts SET state=$2,updated_at=now(),version=version+1 WHERE id=$1`, [attempt.id, state]);
+      // Same transaction: the Network operation follows the attempt (webhook and reconciliation alike).
+      await enqueueRechargeOperation(client, { provider: 'pawapay', providerReference: deposit.depositId,
+        status: state === 'succeeded' ? 'paid' : state === 'failed' ? 'failed' : 'pending',
+        failureReason: typeof deposit.failureReason === 'string' ? deposit.failureReason : (deposit.failureReason as any)?.failureCode ?? null }); if (deposit.status !== 'COMPLETED') await client.query(`UPDATE konektag.payment_provider_events SET processed_at=now() WHERE id=$1`, [event.id]); await client.query('COMMIT'); return deposit.status === 'COMPLETED'
         ? { outcome: 'ready_to_settle', eventId: event.id, sourceId: attempt.source_id }
         : { outcome: deposit.status === 'FAILED' ? 'failed' : 'processing', sourceId: attempt.source_id }; } catch (error) { await client.query('ROLLBACK').catch(() => undefined); throw error; } finally { client.release(); }
+  },
+  /** The provider accepted the request and gave its reference: the Network sees the recharge, pending. */
+  async recordRechargeAccepted(provider: 'stripe' | 'pawapay', providerReference: string): Promise<void> {
+    try { await enqueueRechargeOperation(pool, { provider, providerReference, status: 'pending' }); }
+    catch (error) { console.error('[network-operations] pending recharge not queued', { provider, providerReference, error: (error as Error).message }); }
   },
   async markPawaPayEventProcessed(eventId: string): Promise<void> { await pool.query(`UPDATE konektag.payment_provider_events SET processed_at=now(),error_code=NULL WHERE id=$1 AND processed_at IS NULL`, [eventId]); },
   async createOrUpdateStripeApiCheckoutAttempt(input: StripeApiCheckoutAttemptInput): Promise<void> {
@@ -326,7 +341,7 @@ export const paymentProviderAttemptService = {
             `SELECT id,source_type,source_id,operation_id,provider,provider_reference,expected_amount,expected_currency
              FROM konektag.payment_provider_attempts WHERE provider='stripe' AND provider_reference=$1 FOR UPDATE`, [intent.id]);
           const failedAttempt=failedAttempts[0];
-          if(failedAttempt){await client.query(`UPDATE konektag.payment_provider_attempts SET state=$2,updated_at=now(),version=version+1 WHERE id=$1 AND state<>'succeeded'`,[failedAttempt.id,input.type==='payment_intent.canceled'?'cancelled':'failed']);await client.query(`UPDATE konektag.payment_provider_events SET attempt_id=$2,processed_at=now() WHERE id=$1`,[event.id,failedAttempt.id]);await client.query('COMMIT');return {outcome:'failed',sourceType:failedAttempt.source_type,sourceId:failedAttempt.source_id,providerReference:intent.id} as any;}
+          if(failedAttempt){const failedUpdate=await client.query(`UPDATE konektag.payment_provider_attempts SET state=$2,updated_at=now(),version=version+1 WHERE id=$1 AND state<>'succeeded'`,[failedAttempt.id,input.type==='payment_intent.canceled'?'cancelled':'failed']);if(failedUpdate.rowCount)await enqueueRechargeOperation(client,{provider:'stripe',providerReference:intent.id,status:'failed',failureReason:input.type==='payment_intent.canceled'?'CANCELED':'PAYMENT_FAILED'});await client.query(`UPDATE konektag.payment_provider_events SET attempt_id=$2,processed_at=now() WHERE id=$1`,[event.id,failedAttempt.id]);await client.query('COMMIT');return {outcome:'failed',sourceType:failedAttempt.source_type,sourceId:failedAttempt.source_id,providerReference:intent.id} as any;}
         }
       }
       if (input.type !== 'payment_intent.succeeded') {
@@ -394,6 +409,7 @@ export const paymentProviderAttemptService = {
         `UPDATE konektag.payment_provider_events SET attempt_id = $2 WHERE id = $1`,
         [event.id, attempt.id],
       );
+      await enqueueRechargeOperation(client, { provider: 'stripe', providerReference: intent.id, status: 'paid' });
       await client.query('COMMIT');
       return { outcome: 'ready_to_settle', eventId: event.id, sourceType: attempt.source_type, sourceId: attempt.source_id };
     } catch (error) {

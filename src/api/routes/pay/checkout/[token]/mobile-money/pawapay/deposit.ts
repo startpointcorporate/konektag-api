@@ -43,6 +43,8 @@ export const POST: RouteHandler = async ({ request, params, locals }) => {
       metadata: [{ paymentOrderId: order.id }],
       providerConfigurationKey: order.providerConfigurationKey,
     });
+    // PawaPay accepted the payment page for this depositId: pending on the Network site (Points K recharges).
+    await paymentProviderAttemptService.recordRechargeAccepted('pawapay', depositId);
     return Response.json({ redirectUrl, state: result.order.state }, { status: 201 });
   } catch (error) { const status = error instanceof ApiPaymentNotFoundError ? 404 : error instanceof ApiPaymentValidationError ? 400 : error instanceof ApiPaymentConflictError ? 409 : error instanceof PawaPayError ? 502 : 500; return Response.json({ error: error instanceof Error ? error.message : 'Unable to start PawaPay deposit' }, { status }); }
 };

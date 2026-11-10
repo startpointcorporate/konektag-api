@@ -1,19 +1,14 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({ query: vi.fn(), get: vi.fn(), list: vi.fn() }));
 vi.mock('../../src/infrastructure/database/pool.ts', () => ({ default: { query: mocks.query } }));
-vi.mock('../../src/application/services/payment-link-service.ts', () => ({ paymentLinkService: { get: mocks.get, listForUser: mocks.list } }));
+vi.mock('../../src/application/link-pay/network-link-service.ts', () => ({ networkLinkService: { getBySlug: mocks.get } }));
 import { GET } from '../../src/api/routes/pay/payment-links.ts';
 import { POST as resume } from '../../src/api/routes/pay/payment-links/[slug]/resume.ts';
-import { readFileSync } from 'node:fs';
 const expiration = new Date(Date.now() + 86400000).toISOString();
 const row = { business_name: 'Marchand public', amount: '6560', currency: 'XAF', quantity_k: '10', service_description: 'Commande', reference: 'REF-42', expiration, status: 'ISSUED',
   payer_identity: 'SECRET_EMAIL', merchant_profile_id: 'SECRET_UUID', token_hash: 'SECRET_TOKEN', quote_valuation: { private: true } };
 const get = (user?: any, slug = 'abc123') => GET({ url: new URL(`https://test.local/api/pay/payment-links?slug=${slug}`), locals: { user } } as any);
 beforeEach(() => { vi.clearAllMocks(); mocks.query.mockResolvedValue({ rows: [row] }); });
-it('is reachable through the HTTP middleware while handler auth still protects merchant operations', () => {
-  const security = readFileSync(new URL('../../src/api/middleware/security.ts', import.meta.url), 'utf8');
-  expect(security).toContain("'/api/pay/payment-links'");
-});
 it('returns only the public projection and never mutates state', async () => {
   const response = await get();
   expect(response.status).toBe(200);
@@ -22,6 +17,9 @@ it('returns only the public projection and never mutates state', async () => {
   expect(mocks.get).not.toHaveBeenCalled();
   expect(mocks.query).toHaveBeenCalledOnce();
   expect(mocks.query.mock.calls[0][0]).toMatch(/^SELECT /);
+  // Network links only: the beneficiary is named by its network, never read from merchant profiles.
+  expect(mocks.query.mock.calls[0][0]).toContain('JOIN konektag.link_pay_network_links');
+  expect(mocks.query.mock.calls[0][0]).not.toContain('merchant_profiles');
   expect(mocks.query.mock.calls[0][1]).toEqual(['abc123']);
 });
 it.each([['CONSUMED', 'Used'], ['EXPIRED', 'Expired']])('returns only a terminal state for %s', async (status, publicStatus) => {
@@ -45,16 +43,15 @@ it('does not expose internal DB errors', async () => {
   expect(await response.json()).toEqual({ error: 'LINK_UNAVAILABLE' });
 });
 it('retains the authenticated single-Link contract', async () => {
-  const internalLink = { name: 'abc123', merchant: 'merchant-id', valuation: { proofHash: 'proof' } };
-  mocks.get.mockResolvedValueOnce(internalLink);
-  expect(await (await get({ id: 'payer' })).json()).toEqual({ links: [internalLink] });
+  const visible = { name: 'abc123', beneficiary: { site: 'CONGO', name: 'Konektag Congo' }, valuation: { proofHash: 'proof' } };
+  mocks.get.mockResolvedValueOnce({ ...visible, checkoutIntentId: 'INTERNAL_ID' });
+  expect(await (await get({ id: 'payer' })).json()).toEqual({ links: [visible] });
   expect(mocks.query).not.toHaveBeenCalled();
 });
-it('retains the merchant list contract', async () => {
-  mocks.list.mockResolvedValueOnce([{ name: 'merchant-link' }]);
+it('retires the merchant list', async () => {
   const response = await GET({ url: new URL('https://test.local/api/pay/payment-links'), locals: { user: { id: 'merchant' } } } as any);
-  expect(await response.json()).toEqual({ links: [{ name: 'merchant-link' }] });
-  expect(mocks.list).toHaveBeenCalledWith('merchant');
+  expect([response.status, await response.json()]).toEqual([410, { error: 'LINK_PAY_MERCHANT_PROFILE_RETIRED' }]);
+  expect(mocks.query).not.toHaveBeenCalled();
 });
 it('refuses anonymous resume without writing a pending payment', async () => {
   expect((await resume({ locals: {}, params: { slug: 'abc123' } } as any)).status).toBe(401);

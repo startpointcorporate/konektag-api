@@ -1,5 +1,5 @@
 /** Native ERPNext Appointment inventory via existing REST token. No Frappe app deployment. */
-import { meetingErpnext, meetingTimezones, type MeetingCountry } from './meeting-site.ts';
+import type { MeetingClient, MeetingSite } from './meeting-site.ts';
 import { requiredAppointmentEmail } from './meeting-validation.ts';
 
 type Slot = {time: string};
@@ -37,7 +37,8 @@ export class BookingError extends Error{
 }
 export function nativeError(error:unknown):BookingError{
   if(error instanceof BookingError)return error;
-  const str=String(error);
+  // Frappe's own message (FrappeSiteError.serverMessage) carries the slot or holiday reason.
+  const str=String(error)+' '+String((error as {serverMessage?:unknown})?.serverMessage??'');
   if(/Time slot is not available|overlap|already booked|appointment.*occupied|SLOT_UNAVAILABLE/i.test(str))
     return new BookingError('SLOT_UNAVAILABLE');
   if(/Holiday|holiday|DAY_UNAVAILABLE/i.test(str))return new BookingError('DAY_UNAVAILABLE');
@@ -45,14 +46,14 @@ export function nativeError(error:unknown):BookingError{
     return new BookingError('DATE_UNAVAILABLE');
   return new BookingError('BOOKING_UNAVAILABLE');
 }
-const getSettings=async(erpnext:ReturnType<typeof meetingErpnext>):Promise<BookingSettings>=>{
+const getSettings=async(erpnext:MeetingClient):Promise<BookingSettings>=>{
   const s=await erpnext.get('Appointment Booking Settings','Appointment Booking Settings') as BookingSettings;
   if(!s||Number(s.enable_scheduling)!==1||Number(s.appointment_duration)!==30||
     ![1,2].includes(Number(s.number_of_agents))||!Array.isArray(s.agent_list)||s.agent_list.length<Number(s.number_of_agents)||!Array.isArray(s.availability_of_slots))
     throw new BookingError('BOOKING_UNAVAILABLE');
   return s;
 };
-async function getAppointments(day:string,erpnext:ReturnType<typeof meetingErpnext>):Promise<Appointment[]>{
+async function getAppointments(day:string,erpnext:MeetingClient):Promise<Appointment[]>{
   const list=await erpnext.query('Appointment',[
     ['scheduled_time','between',[day+' 00:00:00',day+' 23:59:59']],
     ['status','!=','Closed'],
@@ -60,7 +61,7 @@ async function getAppointments(day:string,erpnext:ReturnType<typeof meetingErpne
   if(!Array.isArray(list)||list.length>500)throw new BookingError('BOOKING_UNAVAILABLE');
   return list;
 }
-async function getEvents(day:string,erpnext:ReturnType<typeof meetingErpnext>):Promise<EventRecord[]>{
+async function getEvents(day:string,erpnext:MeetingClient):Promise<EventRecord[]>{
   // Includes one-off blocking events created from Frappe's normal calendar.
   const events=await erpnext.query('Event',[
     ['starts_on','<',day+' 23:59:59'],
@@ -70,7 +71,7 @@ async function getEvents(day:string,erpnext:ReturnType<typeof meetingErpnext>):P
   if(!Array.isArray(events)||events.length>500)throw new BookingError('BOOKING_UNAVAILABLE');
   return events;
 }
-async function isHoliday(day:string,listName:string|null|undefined,erpnext:ReturnType<typeof meetingErpnext>):Promise<boolean>{
+async function isHoliday(day:string,listName:string|null|undefined,erpnext:MeetingClient):Promise<boolean>{
   if(!listName)throw new BookingError('BOOKING_UNAVAILABLE');
   const holidayList=await erpnext.get('Holiday List',listName) as {holidays?:Array<{holiday_date:string}>};
   if(!Array.isArray(holidayList.holidays))throw new BookingError('BOOKING_UNAVAILABLE');
@@ -78,10 +79,10 @@ async function isHoliday(day:string,listName:string|null|undefined,erpnext:Retur
 }
 function intersects(a:number,b:number,x:number,y:number){return a<y&&b>x;}
 
-export async function availableSlots(dateString:string,country:MeetingCountry):Promise<{date:string; timezone:string; duration_minutes:30; slots:Slot[]}>{
+export async function availableSlots(dateString:string,site:MeetingSite):Promise<{date:string; timezone:string; duration_minutes:30; slots:Slot[]}>{
   const day=calendarDay(dateString);
-  const erpnext=meetingErpnext(country);
-  const timezone=meetingTimezones[country];
+  const erpnext=site.erpnext;
+  const timezone=site.route.timezone;
   const settings=await getSettings(erpnext);
   // ERPNext advance_booking_days is a MAXIMUM advance window, not a minimum.
   const todayParts=new Intl.DateTimeFormat('en-US',{
@@ -121,11 +122,11 @@ export async function availableSlots(dateString:string,country:MeetingCountry):P
 export async function saveAppointment(data:{
   date:string;time:string;firstName:string;lastName:string;email:string;whatsapp:string;
   company:string;reason:string;details:string;platform:string;
-}, leadName:string,country:MeetingCountry):Promise<{name:string;scheduled_time:string}>{
+}, leadName:string,site:MeetingSite):Promise<{name:string;scheduled_time:string}>{
   // Refresh inventory before the native insert: native Appointment validates it again.
   const email=requiredAppointmentEmail(data.email);
-  const erpnext=meetingErpnext(country);
-  const availability=await availableSlots(data.date,country);
+  const erpnext=site.erpnext;
+  const availability=await availableSlots(data.date,site);
   if(!availability.slots.some(s=>s.time===data.time))throw new BookingError('SLOT_UNAVAILABLE');
   const description=[
     'Demande de rendez-vous Konektag — en attente de confirmation',

@@ -6,20 +6,17 @@ import { documentPointsKWebContracts } from '../../src/infrastructure/scripts/po
 const operation = () => ({ parameters: [], responses: { '200': { content: {} }, '201': { content: {} } }, requestBody: { content: { 'application/json': { schema: {} } } } });
 
 describe('Points K web OpenAPI contracts', () => {
-  it('publishes Link Pay, recharge minor units and K_SEND OTP without inventing gift purchase', () => {
+  it('documents server-routed recharge and K_SEND without changing Link Pay', () => {
     const paths: any = {
-      '/api/pay/payment-links': { get: operation() }, '/api/pay/payment-links/{slug}/resume': { post: operation() },
-      '/api/pay/pay-link': { post: operation() }, '/api/pay/web/pay-link': { post: operation() }, '/api/pay/recharges': { post: operation() },
-      '/api/k/send/quote': { post: operation() }, '/api/k/send': { post: operation() }, '/api/k/send/{id}': { post: operation() },
+      '/api/pay/recharges': { post: operation() }, '/api/k/send/quote': { post: operation() },
+      '/api/k/send': { post: operation() }, '/api/k/send/{id}': { post: operation() }, '/api/k/send/recipient': { post: operation() },
     };
     documentPointsKWebContracts(paths);
-    expect(paths['/api/pay/payment-links'].get.responses['200'].content['application/json'].schema.properties.links.items.properties.status.enum)
-      .toEqual(['Active', 'Expired', 'Used']);
     expect(paths['/api/pay/recharges'].post.requestBody.content['application/json'].schema.properties.amount.description).toContain('mineure');
-    expect(paths['/api/pay/recharges'].post.parameters).toContainEqual(expect.objectContaining({ name: 'Idempotency-Key', required: true }));
-    expect(paths['/api/pay/web/pay-link'].post.responses['409'].content['application/json'].schema.properties.error.enum)
-      .toEqual(['BOOST_LINK_NOT_ALLOWED']);
+    expect(paths['/api/pay/recharges'].post.requestBody.content['application/json'].schema.required).toEqual(['amount', 'currency']);
+    expect(paths['/api/pay/recharges'].post.description).toContain('résolus côté serveur');
     expect(paths['/api/k/send/{id}'].post.requestBody.content['application/json'].schema.properties.otp.pattern).toBe('^\\d{6}$');
     expect(paths['/api/k/send'].post.description).toContain('pas un achat-cadeau');
+    expect(paths['/api/k/send/recipient'].post.requestBody.content['application/json'].schema.required).toEqual(['recipientUserId', 'fullName']);
   });
 });

@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 322,
-    "operations": 407,
-    "covered": 78,
-    "partial": 328,
+    "paths": 324,
+    "operations": 411,
+    "covered": 79,
+    "partial": 331,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 329,
-    "executedTests": 2765,
-    "passedTests": 2765
+    "businessUncovered": 332,
+    "executedTests": 2789,
+    "passedTests": 2789
   },
   "operations": [
     {
@@ -5004,6 +5004,82 @@
       ]
     },
     {
+      "operation": "GET /api/integrations/frappe/link-pay/deliveries",
+      "domain": "integrations",
+      "method": "GET",
+      "path": "/api/integrations/frappe/link-pay/deliveries",
+      "source": "src/api/routes/integrations/frappe/link-pay/deliveries.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT GET /api/integrations/frappe/link-pay/deliveries] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH GET /api/integrations/frappe/link-pay/deliveries] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/integrations/frappe/payment-links",
+      "domain": "integrations",
+      "method": "GET",
+      "path": "/api/integrations/frappe/payment-links",
+      "source": "src/api/routes/integrations/frappe/payment-links.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT GET /api/integrations/frappe/payment-links] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH GET /api/integrations/frappe/payment-links] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "GET /api/internal/dify-health",
       "domain": "internal",
       "method": "GET",
@@ -5649,16 +5725,59 @@
       "method": "GET",
       "path": "/api/meeting-slots",
       "source": "src/api/routes/meeting-slots.ts",
-      "status": "partial",
-      "businessStatus": "uncovered",
+      "status": "covered",
+      "businessStatus": "covered",
       "facets": [
         "auth",
+        "business",
+        "refusal",
         "transport"
       ],
       "levels": [
-        "contract"
+        "contract",
+        "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
+          "level": "unit"
+        },
         {
           "file": "tests/rest/operations.test.ts",
           "name": "meeting-slots [REST TRANSPORT GET /api/meeting-slots] preserves routing, parameters, query, cookies and raw body",
@@ -5671,14 +5790,17 @@
         }
       ],
       "assertions": [
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/konektag-site-routing.test.ts"
+      ],
       "constraints": [
-        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
       ]
     },
     {
@@ -7530,11 +7652,6 @@
         },
         {
           "file": "tests/unit/merchant-establishment-routes.test.ts",
-          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/merchant-establishment-routes.test.ts",
           "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
           "level": "unit"
         },
@@ -7549,6 +7666,11 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution retires the merchant-profile listing of payment links without any query",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "merchant [REST TRANSPORT GET /api/merchant/settlements] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -7560,7 +7682,7 @@
         }
       ],
       "assertions": [
-        "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
+        "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -8412,6 +8534,46 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "pay [REST TRANSPORT GET /api/pay/payment-context] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -8424,15 +8586,19 @@
       ],
       "assertions": [
         "Resolved country/payment context response and exact resolver country; missing mapping error body.",
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/konektag-site-routing.test.ts",
         "tests/unit/payment-context-route.test.ts"
       ],
-      "constraints": []
+      "constraints": [
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+      ]
     },
     {
       "operation": "GET /api/pay/payment-country",
@@ -8518,11 +8684,6 @@
       "tests": [
         {
           "file": "tests/unit/public-link-projection.test.ts",
-          "name": "is reachable through the HTTP middleware while handler auth still protects merchant operations",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/public-link-projection.test.ts",
           "name": "returns only the public projection and never mutates state",
           "level": "unit"
         },
@@ -8558,7 +8719,7 @@
         },
         {
           "file": "tests/unit/public-link-projection.test.ts",
-          "name": "retains the merchant list contract",
+          "name": "retires the merchant list",
           "level": "unit"
         },
         {
@@ -8569,11 +8730,6 @@
         {
           "file": "tests/unit/merchant-establishment-routes.test.ts",
           "name": "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/merchant-establishment-routes.test.ts",
-          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
           "level": "unit"
         },
         {
@@ -8592,6 +8748,11 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution retires the merchant-profile listing of payment links without any query",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "pay [REST TRANSPORT GET /api/pay/payment-links] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -8603,14 +8764,15 @@
         }
       ],
       "assertions": [
-        "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
-        "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
+        "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410).",
+        "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/link-pay-merchant-profile-retired.test.ts",
         "tests/unit/merchant-establishment-routes.test.ts",
         "tests/unit/public-link-projection.test.ts"
       ],
@@ -8846,11 +9008,6 @@
         },
         {
           "file": "tests/unit/merchant-establishment-routes.test.ts",
-          "name": "merchant establishment route resolution scopes payment links to the authenticated user mapping",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/merchant-establishment-routes.test.ts",
           "name": "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
           "level": "unit"
         },
@@ -8865,6 +9022,11 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/merchant-establishment-routes.test.ts",
+          "name": "merchant establishment route resolution retires the merchant-profile listing of payment links without any query",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "pay [REST TRANSPORT GET /api/pay/settlements] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -8876,7 +9038,7 @@
         }
       ],
       "assertions": [
-        "Scoped empty settlement/list contracts; nonempty data lifecycle unverified.",
+        "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -13212,7 +13374,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/link-pay-merchant-profile-retired.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -14107,6 +14271,120 @@
       ]
     },
     {
+      "operation": "POST /api/integrations/frappe/link-pay/deliveries",
+      "domain": "integrations",
+      "method": "POST",
+      "path": "/api/integrations/frappe/link-pay/deliveries",
+      "source": "src/api/routes/integrations/frappe/link-pay/deliveries.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT POST /api/integrations/frappe/link-pay/deliveries] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH POST /api/integrations/frappe/link-pay/deliveries] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/integrations/frappe/network-operations",
+      "domain": "integrations",
+      "method": "POST",
+      "path": "/api/integrations/frappe/network-operations",
+      "source": "src/api/routes/integrations/frappe/network-operations.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT POST /api/integrations/frappe/network-operations] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH POST /api/integrations/frappe/network-operations] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/integrations/frappe/payment-links",
+      "domain": "integrations",
+      "method": "POST",
+      "path": "/api/integrations/frappe/payment-links",
+      "source": "src/api/routes/integrations/frappe/payment-links.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT POST /api/integrations/frappe/payment-links] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH POST /api/integrations/frappe/payment-links] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "POST /api/internal/erp/account-access",
       "domain": "internal",
       "method": "POST",
@@ -14551,16 +14829,59 @@
       "method": "POST",
       "path": "/api/meeting-request",
       "source": "src/api/routes/meeting-request.ts",
-      "status": "partial",
-      "businessStatus": "uncovered",
+      "status": "covered",
+      "businessStatus": "covered",
       "facets": [
         "auth",
+        "business",
+        "refusal",
         "transport"
       ],
       "levels": [
-        "contract"
+        "contract",
+        "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
+          "level": "unit"
+        },
         {
           "file": "tests/rest/operations.test.ts",
           "name": "meeting-request [REST TRANSPORT POST /api/meeting-request] preserves routing, parameters, query, cookies and raw body",
@@ -14573,14 +14894,17 @@
         }
       ],
       "assertions": [
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/konektag-site-routing.test.ts"
+      ],
       "constraints": [
-        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
       ]
     },
     {
@@ -17305,7 +17629,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/link-pay-merchant-profile-retired.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -17330,88 +17656,8 @@
       ],
       "tests": [
         {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects invalid amount -1 before side effects",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects invalid amount 0 before side effects",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects invalid amount bad before side effects",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation creates a link for a positive integer amount",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation issues an official server valuation without merchant-local evidence",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects a requested currency different from the merchant country currency",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/payment-link-amount.test.ts",
-          "name": "payment link amount validation rejects issuance when no approved server valuation rate is available",
+          "file": "tests/unit/link-pay-merchant-profile-retired.test.ts",
+          "name": "refuses to issue a link for a merchant profile (ERP user key, any body)",
           "level": "unit"
         },
         {
@@ -17426,14 +17672,14 @@
         }
       ],
       "assertions": [
-        "Official server valuation and hash, exact minor amounts persisted and response; forged quantity ignored and unapproved rate refusal.",
+        "Issuing a link for a merchant profile is retired: 410 LINK_PAY_MERCHANT_PROFILE_RETIRED for any body, with no database query (a query to merchant_profiles fails the test).",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
-        "tests/unit/payment-link-amount.test.ts"
+        "tests/unit/link-pay-merchant-profile-retired.test.ts"
       ],
       "constraints": []
     },
@@ -17456,11 +17702,6 @@
         "unit"
       ],
       "tests": [
-        {
-          "file": "tests/unit/public-link-projection.test.ts",
-          "name": "is reachable through the HTTP middleware while handler auth still protects merchant operations",
-          "level": "unit"
-        },
         {
           "file": "tests/unit/public-link-projection.test.ts",
           "name": "returns only the public projection and never mutates state",
@@ -17498,7 +17739,7 @@
         },
         {
           "file": "tests/unit/public-link-projection.test.ts",
-          "name": "retains the merchant list contract",
+          "name": "retires the merchant list",
           "level": "unit"
         },
         {
@@ -17518,7 +17759,7 @@
         }
       ],
       "assertions": [
-        "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors.",
+        "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410).",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -17738,27 +17979,52 @@
         },
         {
           "file": "tests/unit/api-payment-recharge-route.test.ts",
-          "name": "wallet recharge checkout route passes XAF as an exact minor-unit integer without decimal conversion",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/api-payment-recharge-route.test.ts",
-          "name": "wallet recharge checkout route passes EUR as an exact minor-unit integer without decimal conversion",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/api-payment-recharge-route.test.ts",
-          "name": "wallet recharge checkout route rejects a syntactically valid currency outside the supported minor-unit table",
-          "level": "unit"
-        },
-        {
-          "file": "tests/unit/api-payment-recharge-route.test.ts",
-          "name": "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+          "name": "wallet recharge checkout route rejects an invalid amount before routing or creating an order",
           "level": "unit"
         },
         {
           "file": "tests/unit/api-payment-recharge-route.test.ts",
           "name": "wallet recharge checkout route requires an authenticated user",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K shows the same fees on the checkout page as at purchase",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/konektag-site-routing.test.ts",
+          "name": "Achat de Points K refuses at funding a selection read on another Konektag site",
           "level": "unit"
         },
         {
@@ -17773,63 +18039,20 @@
         }
       ],
       "assertions": [
-        "Authenticated recharge target and MINOR response envelope; exact XAF 5000 and EUR 2500 integer forwarding without decimal conversion; unsupported JPY, invalid country and anonymous refusal without creation.",
+        "Authenticated recharge target; payment country and Konektag site come from the server routing, never from the body; invalid amount and anonymous refusal without routing or creation.",
+        "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
-        "tests/unit/api-payment-recharge-route.test.ts"
+        "tests/unit/api-payment-recharge-route.test.ts",
+        "tests/unit/konektag-site-routing.test.ts"
       ],
-      "constraints": []
-    },
-    {
-      "operation": "POST /api/pay/web/pay-link",
-      "domain": "pay",
-      "method": "POST",
-      "path": "/api/pay/web/pay-link",
-      "source": "src/api/routes/pay/web/pay-link.ts",
-      "status": "covered",
-      "businessStatus": "covered",
-      "facets": [
-        "auth",
-        "business",
-        "refusal",
-        "transport"
-      ],
-      "levels": [
-        "contract",
-        "unit"
-      ],
-      "tests": [
-        {
-          "file": "tests/unit/api-web-pay-link-boost-guard.test.ts",
-          "name": "new Web Link Pay Boost guard rejects a server-resolved BOOST link before transaction, claim, debit or ERP side effect",
-          "level": "unit"
-        },
-        {
-          "file": "tests/rest/operations.test.ts",
-          "name": "pay [REST TRANSPORT POST /api/pay/web/pay-link] preserves routing, parameters, query, cookies and raw body",
-          "level": "contract"
-        },
-        {
-          "file": "tests/rest/operations.test.ts",
-          "name": "pay [REST AUTH POST /api/pay/web/pay-link] refuses invalid personal API credentials before loading the handler",
-          "level": "contract"
-        }
-      ],
-      "assertions": [
-        "Server-resolved BOOST reference is refused before database transaction, payment-link claim, Points K debit, Boost transition or ERP side effect.",
-        "routing and dynamic parameters",
-        "raw body, query and cookie preservation",
-        "credential refusal",
-        "no database or handler execution"
-      ],
-      "candidates": [
-        "tests/unit/api-web-pay-link-boost-guard.test.ts"
-      ],
-      "constraints": []
+      "constraints": [
+        "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+      ]
     },
     {
       "operation": "POST /api/preferences/complete",
@@ -18207,7 +18430,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/konektag-site-routing.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]

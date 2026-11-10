@@ -8,6 +8,7 @@ const checkoutMocks = vi.hoisted(() => ({
 const attemptMocks = vi.hoisted(() => ({
   createOrGetPawaPayApiCheckoutAttempt: vi.fn(),
   getPawaPayConfigurationKey: vi.fn(),
+  recordRechargeAccepted: vi.fn(),
 }));
 
 const pawaPayClientMocks = vi.hoisted(() => ({

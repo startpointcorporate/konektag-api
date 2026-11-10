@@ -105,6 +105,22 @@ export async function processPending(): Promise<void> {
     console.error('[Outbox] API payment webhook retry processing failed');
   }
 
+  // Link Pay webhooks to Frappe sites (network first, then beneficiary), same retry schedule.
+  try {
+    const { siteWebhookService } = await import('./link-pay/site-webhook-service.ts');
+    await siteWebhookService.processDue();
+  } catch (error) {
+    console.error('[Outbox] Link Pay site webhook processing failed');
+  }
+
+  // Unpaid network links past their deadline: Expiré on their Network site.
+  try {
+    const { expireDueLinks } = await import('./network-operations/regularization.ts');
+    await expireDueLinks();
+  } catch (error) {
+    console.error('[network-operations] link expiry pass failed', (error as Error).message);
+  }
+
   // Reconcile non-terminal PawaPay deposits against the provider on every worker pass.
   // A missing webhook therefore does not leave a Mobile Money payment indefinitely stale.
   try {
@@ -422,18 +438,23 @@ async function dispatch(event: any): Promise<void> {
       await mauticAdapter.markAuditRequestedByEmail(email);
       break;
     }
+    case 'NetworkOperationChanged': {
+      // Network follow-up on the Frappe site of the Network team; failures are retried here.
+      const { deliverNetworkOperation } = await import('./network-operations/network-operations.ts');
+      await deliverNetworkOperation(event.payload);
+      break;
+    }
+
     case 'MerchantCashReceiptRequested':
       if (typeof event.payload?.receiptId !== 'string') throw new Error('CASH_RECEIPT_EVENT_INVALID');
       await deliverCashReceipt(event.payload.receiptId);
       break;
 
-    case 'UserRegistered':
-      try {
-        const { erpnextContactService } = await import('./services/erpnext-contact-service.ts');
-        await erpnextContactService.projectConsent(event.payload.userId);
-      } catch (syncError) {
-        console.error(`[Outbox] ERPNext contact sync failed for user ${event.payload.userId}:`, (syncError as Error).message);
-      }
+    case 'UserRegistered': {
+      // Mautic stays best-effort. The Frappe Contact is the registration record:
+      // a failure (site down, missing rule or site) is rethrown so the outbox
+      // retries it with backoff, then dead-letters it. The Contact is found by
+      // konektag_user_id before any insert, so a retry never creates a duplicate.
       try {
         await mauticContactSyncService.syncUser(
           event.payload.userId,
@@ -442,7 +463,17 @@ async function dispatch(event: any): Promise<void> {
       } catch (syncError) {
         console.error(`[Outbox] Mautic sync failed for user ${event.payload.userId}:`, (syncError as Error).message);
       }
+      // Residence country recorded at registration routes the Contact to its Konektag site.
+      const { erpnextContactService } = await import('./services/erpnext-contact-service.ts');
+      try {
+        await erpnextContactService.projectRegistration(event.payload.userId, event.payload.legalCountry);
+      } catch (syncError) {
+        const code = (syncError as { code?: string }).code ?? (syncError as Error).message;
+        console.error(`[Outbox] ERPNext contact sync failed for user ${event.payload.userId}:`, code);
+        throw new Error(`REGISTRATION_CONTACT_SYNC_FAILED:${code}`);
+      }
       break;
+    }
 
     case 'KycSubmitted':
       processKycOrder(event.payload.kycOrderId).catch(err =>

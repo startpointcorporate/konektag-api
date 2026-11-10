@@ -113,6 +113,7 @@ describe('paymentProviderAttemptService card minimization', () => {
       .mockResolvedValueOnce({ rows: [{ id: 'attempt-1', source_type: 'api_payment', source_id: 'order-1', operation_id: 'order-1', provider: 'stripe', provider_reference: 'pi_123', expected_amount: 1_000, expected_currency: 'EUR' }] })
       .mockResolvedValueOnce(undefined)
       .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [] }) // not a Points K recharge: no Network operation
       .mockResolvedValueOnce(undefined);
 
     await expect(paymentProviderAttemptService.consumeStripeEvent({
@@ -129,6 +130,7 @@ describe('paymentProviderAttemptService card minimization', () => {
       .mockResolvedValueOnce({ rows: [{ id: 'attempt-1', source_type: 'api_payment', source_id: 'order-1', operation_id: 'order-1', provider: 'stripe', provider_reference: 'pi_123', expected_amount: '1000', expected_currency: 'EUR' }] })
       .mockResolvedValueOnce(undefined)
       .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [] }) // not a Points K recharge: no Network operation
       .mockResolvedValueOnce(undefined);
 
     await expect(paymentProviderAttemptService.consumeStripeEvent({

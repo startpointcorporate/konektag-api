@@ -24,7 +24,6 @@ describe('merchant establishment route resolution', () => {
 
   it.each([
     ['pay settlements', getPaySettlements, 50, 'settlements'],
-    ['payment links', getPaymentLinks, null, 'links'],
     ['merchant settlements', getMerchantSettlements, 30, 'data'],
   ])('scopes %s to the authenticated user mapping', async (_name, handler, limit, responseKey) => {
     const response = await handler({
@@ -44,6 +43,12 @@ describe('merchant establishment route resolution', () => {
       expect(mocks.query).toHaveBeenCalledWith(expect.stringContaining('COALESCE(SUM(net_amount)'), [merchantProfileId]);
     }
     expect(await response.json()).toEqual(_name === 'pay settlements' ? emptyPayResponse : { [responseKey]: [] });
+  });
+
+  it('retires the merchant-profile listing of payment links without any query', async () => {
+    const response = await getPaymentLinks({ locals: { user: { id: 'user-1' } }, url: new URL('http://localhost/api/pay/payment-links') } as any);
+    expect([response.status, await response.json()]).toEqual([410, { error: 'LINK_PAY_MERCHANT_PROFILE_RETIRED' }]);
+    expect(mocks.query).not.toHaveBeenCalled();
   });
 
   it('rejects a settlement scope not owned or managed by the authenticated user', async () => {

@@ -216,6 +216,17 @@
     "score": 506
   },
   {
+    "path": "/api/integrations/frappe/link-pay/deliveries",
+    "file": "src/api/routes/integrations/frappe/link-pay/deliveries.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/integrations/frappe/link-pay/deliveries/?$",
+    "keys": [],
+    "score": 505
+  },
+  {
     "path": "/api/public/team/{tenantId}/members/{memberSlug}",
     "file": "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
     "methods": [
@@ -932,6 +943,27 @@
     "score": 404
   },
   {
+    "path": "/api/integrations/frappe/network-operations",
+    "file": "src/api/routes/integrations/frappe/network-operations.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/integrations/frappe/network-operations/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/integrations/frappe/payment-links",
+    "file": "src/api/routes/integrations/frappe/payment-links.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "pattern": "^/api/integrations/frappe/payment-links/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/internal/erp/account-access",
     "file": "src/api/routes/internal/erp/account-access.ts",
     "methods": [
@@ -1245,16 +1277,6 @@
       "POST"
     ],
     "pattern": "^/api/pay/points/value/?$",
-    "keys": [],
-    "score": 404
-  },
-  {
-    "path": "/api/pay/web/pay-link",
-    "file": "src/api/routes/pay/web/pay-link.ts",
-    "methods": [
-      "POST"
-    ],
-    "pattern": "^/api/pay/web/pay-link/?$",
     "keys": [],
     "score": 404
   },

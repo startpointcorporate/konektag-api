@@ -39,13 +39,12 @@ const PUBLIC_PREFIXES = [
   '/api/pay/payment-country',
   '/api/pay/countries',
   '/api/pay/detected-country',
+  // Frappe sites authenticate as themselves in the handler (site key + token), never as a user.
+  '/api/integrations/frappe/',
 ];
 
 const PUBLIC_EXACT_PATHS = [
   '/api/pay/payments',
-  // GET ?slug exposes a deliberately reduced Link Pay projection. Mutating
-  // and merchant-list handlers on the same path still enforce locals.user.
-  '/api/pay/payment-links',
   '/api/webhooks/stripe',
 ];
 
@@ -126,7 +125,7 @@ function isPublicRoute(pathname: string): boolean {
 
 export const onRequest = ((async (context, routeNext) => {
   const outgoing = !['GET','HEAD','OPTIONS'].includes(context.request.method)
-    && /^\/api\/(k\/send|qr\/request-confirmation|pay\/(pay-link|web\/pay-link)|pay\/checkout\/[^/]+\/(confirm|funding|wallet-authorization)|wallet-authorizations)(\/|$)/.test(context.url.pathname);
+    && /^\/api\/(k\/send|qr\/request-confirmation|pay\/pay-link|pay\/checkout\/[^/]+\/(confirm|funding|wallet-authorization)|wallet-authorizations)(\/|$)/.test(context.url.pathname);
   const financialReviewResponse = async () => {
     // Financial safety is independent from authentication, KYC and onboarding.
     if (outgoing && context.locals.user) {

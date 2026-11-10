@@ -1,25 +1,5 @@
 [
   {
-    "file": "tests/unit/api-web-pay-link-boost-guard.test.ts",
-    "operations": [
-      "POST /api/pay/web/pay-link"
-    ],
-    "level": "unit",
-    "status": "covered",
-    "facets": [
-      "business",
-      "refusal"
-    ],
-    "assertions": [
-      "Server-resolved BOOST reference is refused before database transaction, payment-link claim, Points K debit, Boost transition or ERP side effect."
-    ],
-    "constraints": [],
-    "sha256": "479ea8cfb86a304e737aec89e087698234a179a06f68d37ba1620efb024e8a6b",
-    "tests": [
-      "new Web Link Pay Boost guard rejects a server-resolved BOOST link before transaction, claim, debit or ERP side effect"
-    ]
-  },
-  {
     "file": "tests/unit/analytics-sec1.test.ts",
     "operations": [
       "GET /api/merchant/analytics/stats"
@@ -207,16 +187,13 @@
       "refusal"
     ],
     "assertions": [
-      "Authenticated recharge target and MINOR response envelope; exact XAF 5000 and EUR 2500 integer forwarding without decimal conversion; unsupported JPY, invalid country and anonymous refusal without creation."
+      "Authenticated recharge target; payment country and Konektag site come from the server routing, never from the body; invalid amount and anonymous refusal without routing or creation."
     ],
     "constraints": [],
-    "sha256": "763bc33e1bfdaaf40f26a3f6cff7433a6286879dd029bb442896d06bc494bec9",
+    "sha256": "2b9d5932b33a8ff571d9ad4e0ee85517f010dc9a1286b2038c174ac88fe1eacd",
     "tests": [
       "wallet recharge checkout route uses the authenticated user as the recharge target and ignores forged target fields",
-      "wallet recharge checkout route passes XAF as an exact minor-unit integer without decimal conversion",
-      "wallet recharge checkout route passes EUR as an exact minor-unit integer without decimal conversion",
-      "wallet recharge checkout route rejects a syntactically valid currency outside the supported minor-unit table",
-      "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+      "wallet recharge checkout route rejects an invalid amount before routing or creating an order",
       "wallet recharge checkout route requires an authenticated user"
     ]
   },
@@ -280,7 +257,7 @@
       "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
     ],
     "constraints": [],
-    "sha256": "f330cf3e968f0283dd51280812e98ad234ec067e225f151f28cd1310948fdf05",
+    "sha256": "5e40379fcb80a5629a585757e6f0919219a371354f1d7c68a55b821d277df1c6",
     "tests": [
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
@@ -304,7 +281,7 @@
       "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
     ],
     "constraints": [],
-    "sha256": "f330cf3e968f0283dd51280812e98ad234ec067e225f151f28cd1310948fdf05",
+    "sha256": "5e40379fcb80a5629a585757e6f0919219a371354f1d7c68a55b821d277df1c6",
     "tests": [
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
@@ -590,7 +567,7 @@
       "Resolved country/payment context response and exact resolver country; missing mapping error body."
     ],
     "constraints": [],
-    "sha256": "3e3968f031b3a7b1c6228c5dd72dc5cf5529bfd0b91d15c3532d75c1e64fca45",
+    "sha256": "829e5e4bdf7344377e25e5b04cb175538b50f01f283603f928d4d5f6fff30ac4",
     "tests": [
       "GET /api/pay/payment-context returns the resolved France payment context without creating a payment",
       "GET /api/pay/payment-context supports market and reports resolution errors"
@@ -620,7 +597,7 @@
     ]
   },
   {
-    "file": "tests/unit/payment-link-amount.test.ts",
+    "file": "tests/unit/link-pay-merchant-profile-retired.test.ts",
     "operations": [
       "POST /api/pay/payment-links"
     ],
@@ -631,28 +608,12 @@
       "refusal"
     ],
     "assertions": [
-      "Official server valuation and hash, exact minor amounts persisted and response; forged quantity ignored and unapproved rate refusal."
+      "Issuing a link for a merchant profile is retired: 410 LINK_PAY_MERCHANT_PROFILE_RETIRED for any body, with no database query (a query to merchant_profiles fails the test)."
     ],
     "constraints": [],
-    "sha256": "1db4d5f516d9d543fb68da7d2cccbb835b0a168dd97fc23df45bfe14e629313d",
+    "sha256": "c11ebeb1cfe185eaf623e4e2c6c90ddaec31cb3a9f41f3f32aefae269803aca9",
     "tests": [
-      "payment link amount validation rejects invalid amount -1 before side effects",
-      "payment link amount validation rejects invalid amount 0 before side effects",
-      "payment link amount validation rejects invalid amount bad before side effects",
-      "payment link amount validation creates a link for a positive integer amount",
-      "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-      "payment link amount validation stores 10 EUR entered in major units as 1000 minor units",
-      "payment link amount validation stores 10.5 EUR entered in major units as 1050 minor units",
-      "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-      "payment link amount validation stores 1000 XAF entered in major units as 1000 minor units",
-      "payment link amount validation converts 0.01 EUR to 1 minor unit but rejects a link below the official K minimum",
-      "payment link amount validation rejects 10.001 EUR beyond the currency minor precision without creating a link",
-      "payment link amount validation rejects 10.5 XAF beyond the currency minor precision without creating a link",
-      "payment link amount validation issues an official server valuation without merchant-local evidence",
-      "payment link amount validation ignores a forged merchant quantity and freezes the official server quantity",
-      "payment link amount validation ignores an unapproved client reference and freezes the approved server authority",
-      "payment link amount validation rejects a requested currency different from the merchant country currency",
-      "payment link amount validation rejects issuance when no approved server valuation rate is available"
+      "refuses to issue a link for a merchant profile (ERP user key, any body)"
     ]
   },
   {
@@ -713,12 +674,11 @@
       "refusal"
     ],
     "assertions": [
-      "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+      "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410)."
     ],
     "constraints": [],
-    "sha256": "520a412dac0cd2c4d2b4a783f3534393004dbbd12d98d06352fa103141cee841",
+    "sha256": "3791098ba44bfc8e51396b2127da4ec7c259f22f0dcb062939dac84eaca160bd",
     "tests": [
-      "is reachable through the HTTP middleware while handler auth still protects merchant operations",
       "returns only the public projection and never mutates state",
       "returns only a terminal state for CONSUMED",
       "returns only a terminal state for EXPIRED",
@@ -726,7 +686,7 @@
       "does not expose an ERP identity when the business name is absent",
       "does not expose internal DB errors",
       "retains the authenticated single-Link contract",
-      "retains the merchant list contract",
+      "retires the merchant list",
       "refuses anonymous resume without writing a pending payment"
     ]
   },
@@ -742,12 +702,11 @@
       "refusal"
     ],
     "assertions": [
-      "Public Link route is admitted by HTTP middleware while merchant handlers retain authentication; only safe Link fields, SELECT-only public read, terminal states and no internal errors."
+      "Only safe Link fields from a network link (SELECT joining link_pay_network_links, never merchant_profiles), terminal states, no internal errors; payer read hides the internal id; merchant list retired (410)."
     ],
     "constraints": [],
-    "sha256": "520a412dac0cd2c4d2b4a783f3534393004dbbd12d98d06352fa103141cee841",
+    "sha256": "3791098ba44bfc8e51396b2127da4ec7c259f22f0dcb062939dac84eaca160bd",
     "tests": [
-      "is reachable through the HTTP middleware while handler auth still protects merchant operations",
       "returns only the public projection and never mutates state",
       "returns only a terminal state for CONSUMED",
       "returns only a terminal state for EXPIRED",
@@ -755,7 +714,7 @@
       "does not expose an ERP identity when the business name is absent",
       "does not expose internal DB errors",
       "retains the authenticated single-Link contract",
-      "retains the merchant list contract",
+      "retires the merchant list",
       "refuses anonymous resume without writing a pending payment"
     ]
   },
@@ -1151,7 +1110,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "54328f72597061a60f0ec45873cbff1376ed61404d01a1bc02771ac41c18c482",
+    "sha256": "37b31b370639e38d5e87e5026d52b3fe90556c4e37d1c29bacaad483ef684b79",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
@@ -1174,7 +1133,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "54328f72597061a60f0ec45873cbff1376ed61404d01a1bc02771ac41c18c482",
+    "sha256": "37b31b370639e38d5e87e5026d52b3fe90556c4e37d1c29bacaad483ef684b79",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
@@ -1238,16 +1197,16 @@
       "reviewed-partial"
     ],
     "assertions": [
-      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+      "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified."
     ],
     "constraints": [],
-    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "sha256": "c6e57e9606a048ef7d4d3e2fe4293f4a95edf4c2414e3bb1861237e0b762bb51",
     "tests": [
       "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
       "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
       "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
-      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+      "merchant establishment route resolution retires the merchant-profile listing of payment links without any query"
     ]
   },
   {
@@ -1261,16 +1220,16 @@
       "reviewed-partial"
     ],
     "assertions": [
-      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+      "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified."
     ],
     "constraints": [],
-    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "sha256": "c6e57e9606a048ef7d4d3e2fe4293f4a95edf4c2414e3bb1861237e0b762bb51",
     "tests": [
       "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
       "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
       "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
-      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+      "merchant establishment route resolution retires the merchant-profile listing of payment links without any query"
     ]
   },
   {
@@ -1284,16 +1243,16 @@
       "reviewed-partial"
     ],
     "assertions": [
-      "Scoped empty settlement/list contracts; nonempty data lifecycle unverified."
+      "Scoped empty settlement/list contracts; merchant-profile payment link listing retired (410, no query); nonempty data lifecycle unverified."
     ],
     "constraints": [],
-    "sha256": "92ae95e1a76a8bff185319f330e830ec168db6ccbdb0e3aa03cec0168b5b65da",
+    "sha256": "c6e57e9606a048ef7d4d3e2fe4293f4a95edf4c2414e3bb1861237e0b762bb51",
     "tests": [
       "merchant establishment route resolution scopes pay settlements to the authenticated user mapping",
-      "merchant establishment route resolution scopes payment links to the authenticated user mapping",
       "merchant establishment route resolution scopes merchant settlements to the authenticated user mapping",
       "merchant establishment route resolution rejects a settlement scope not owned or managed by the authenticated user",
-      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist"
+      "merchant establishment route resolution returns the existing empty settlement contracts when no scoped records exist",
+      "merchant establishment route resolution retires the merchant-profile listing of payment links without any query"
     ]
   },
   {
@@ -2070,6 +2029,38 @@
       "adds a published user favorite with replay=true",
       "refuses self-favorite before inserting",
       "refuses an unpublished or missing target before inserting"
+    ]
+  },
+  {
+    "file": "tests/unit/konektag-site-routing.test.ts",
+    "operations": [
+      "GET /api/meeting-slots",
+      "POST /api/meeting-request",
+      "POST /api/pay/recharges",
+      "GET /api/pay/payment-context"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Residence country routed through payment_country_mappings to konektag-<country> and its Frappe site; per-host fake Frappe proves slots, Lead and Appointment come from the same site, and Points K fees shown equal the signed checkout fees; missing rule, missing credentials, wrong timezone, wrong currency and cross-site selection are refused."
+    ],
+    "constraints": [
+      "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+    ],
+    "sha256": "2800da2d100bd5f7ae62e99317bb5c47cc85afdbfacb24cd2b3df950a21109d3",
+    "tests": [
+      "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
+      "Demander un rendez-vous routes CG and LB residents to their own site and timezone",
+      "Demander un rendez-vous never reads ERPNEXT_<COUNTRY>_URL and fails explicitly when the site has no credentials",
+      "Demander un rendez-vous rejects a timezone that is not the routed entity one",
+      "Achat de Points K reads the payment context and fees on the buyer site before creating the checkout",
+      "Achat de Points K shows the same fees on the checkout page as at purchase",
+      "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
+      "Achat de Points K refuses at funding a selection read on another Konektag site"
     ]
   }
 ]

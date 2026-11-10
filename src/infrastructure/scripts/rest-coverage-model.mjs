@@ -13,7 +13,17 @@ export function validateReview(review, source, suite) {
   }
   if (suite.assertionResults.some(t => t.status !== 'passed')) throw new Error(`Skipped/failed tests in reviewed suite: ${review.file}`);
 }
-export function regressions(before, after) {
+// A reviewed test may only disappear through an explicit, reviewable retirement of the behaviour it
+// proved (tests/rest/coverage-retirements.json): operation, file, exact test name and reason.
+export function validateRetirements(retirements, executedTestNames) {
+  for (const r of retirements) {
+    if (!r.operation || !r.file || !r.name || !(typeof r.reason === 'string' && r.reason.trim().length >= 20))
+      throw new Error(`Invalid coverage retirement: ${JSON.stringify(r)}`);
+    if (executedTestNames.has(`${r.file}::${r.name}`)) throw new Error(`Retired test still runs: ${r.file}: ${r.name}`);
+  }
+}
+export function regressions(before, after, retirements = []) {
+  const retired = new Set(retirements.map(r => `${r.operation}::${r.file}::${r.name}`));
   const byKey = new Map(after.map(row => [row.operation, row]));
   return before.flatMap(old => {
     const row = byKey.get(old.operation);
@@ -23,6 +33,7 @@ export function regressions(before, after) {
     if (old.businessStatus === 'covered' && row.businessStatus !== 'covered') errors.push(`Business coverage regressed: ${old.operation}`);
     for (const facet of old.facets || []) if (!row.facets.includes(facet)) errors.push(`Coverage facet removed: ${old.operation}: ${facet}`);
     for (const test of old.tests || []) {
+      if (retired.has(`${old.operation}::${test.file}::${test.name}`)) continue;
       if (!row.tests.some(t => t.file === test.file && t.name === test.name && t.level === test.level)) errors.push(`Reviewed test removed: ${old.operation}: ${test.file}: ${test.name}`);
     }
     return errors;

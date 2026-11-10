@@ -1,5 +1,9 @@
 import crypto from 'crypto';
 import pool from '../../infrastructure/database/pool.ts';
+import { countryCodeFromInput } from '../shared/konektag-site.ts';
+
+/** Frappe site the master data is read from; the routed Konektag site for a checkout. */
+export type MasterDataSource = { get: (doctype: string, name: string) => Promise<any> };
 
 type FrappeLegalEntity = {
   entity_code: string;
@@ -63,8 +67,8 @@ const regulatedActorStatuses = {
   Draft: 'NOT_CONFIGURED', 'Pending Approval': 'PENDING_APPROVAL', Approved: 'APPROVED', Rejected: 'REVOKED', Suspended: 'SUSPENDED',
 } as const;
 
-async function erpnextClient() {
-  return (await import('../../infrastructure/adapters/erpnext-adapter.ts')).erpnext;
+async function erpnextClient(source?: MasterDataSource): Promise<MasterDataSource> {
+  return source ?? (await import('../../infrastructure/adapters/erpnext-adapter.ts')).erpnext;
 }
 
 function hash(value: unknown): string {
@@ -76,8 +80,11 @@ function countryCode(country: string): string {
   if (normalized === 'FRANCE') return 'FR';
   if (normalized === 'CONGO' || normalized === 'REPUBLIC OF THE CONGO') return 'CG';
   if (normalized === 'IRELAND') return 'IE';
-  if (!/^[A-Z]{2}$/.test(normalized)) throw new Error('FRAPPE_LEGAL_ENTITY_COUNTRY_INVALID');
-  return normalized;
+  if (/^[A-Z]{2}$/.test(normalized)) return normalized;
+  // Any other Frappe Country name (Lebanon, Liban…).
+  const code = countryCodeFromInput(country);
+  if (!code) throw new Error('FRAPPE_LEGAL_ENTITY_COUNTRY_INVALID');
+  return code;
 }
 
 function evidence(value?: string): string[] {
@@ -104,8 +111,8 @@ async function record(client: any, sourceType: string, sourceCode: string, paylo
 
 /** Explicit runtime pull from Frappe Foundation. It never writes regulatory master data back to Frappe. */
 export const frappeMasterDataProjectionService = {
-  async projectRegulatedActor(code: string): Promise<{ code: string; status: string; changed: boolean }> {
-    const actor = await (await erpnextClient()).get('Konektag Regulated Actor', code) as FrappeRegulatedActor;
+  async projectRegulatedActor(code: string, source?: MasterDataSource): Promise<{ code: string; status: string; changed: boolean }> {
+    const actor = await (await erpnextClient(source)).get('Konektag Regulated Actor', code) as FrappeRegulatedActor;
     const status = regulatedActorStatuses[actor.status];
     const payload = {
       code, name: actor.actor_name?.trim(), type: actor.actor_type, jurisdiction: countryCode(actor.jurisdiction),
@@ -157,8 +164,8 @@ export const frappeMasterDataProjectionService = {
     }
   },
 
-  async projectLegalEntity(code: string): Promise<{ code: string; status: string; changed: boolean }> {
-    const entity = await (await erpnextClient()).get('Konektag Legal Entity', code) as FrappeLegalEntity;
+  async projectLegalEntity(code: string, source?: MasterDataSource): Promise<{ code: string; status: string; changed: boolean }> {
+    const entity = await (await erpnextClient(source)).get('Konektag Legal Entity', code) as FrappeLegalEntity;
     const status = legalEntityStatuses[entity.status];
     const payload = {
       code, legalName: entity.entity_name?.trim(), countryCode: countryCode(entity.country), currency: entity.currency?.trim(),
@@ -202,8 +209,8 @@ export const frappeMasterDataProjectionService = {
     }
   },
 
-  async projectRegulatoryProfile(code: string): Promise<{ code: string; status: string; changed: boolean }> {
-    const profile = await (await erpnextClient()).get('Konektag Regulatory Profile', code) as FrappeRegulatoryProfile;
+  async projectRegulatoryProfile(code: string, source?: MasterDataSource): Promise<{ code: string; status: string; changed: boolean }> {
+    const profile = await (await erpnextClient(source)).get('Konektag Regulatory Profile', code) as FrappeRegulatoryProfile;
     const status = profileStatuses[profile.status];
     const payload = {
       code, legalEntity: profile.legal_entity, corridor: profile.corridor, operation: profile.runtime_operation,
@@ -279,8 +286,8 @@ export const frappeMasterDataProjectionService = {
       client.release();
     }
   },
-  async projectKCashbackRule(name: string): Promise<{ name: string; status: string; changed: boolean }> {
-    const rule = await (await erpnextClient()).get('Konektag K Cashback Rule', name) as FrappeKCashbackRule;
+  async projectKCashbackRule(name: string, source?: MasterDataSource): Promise<{ name: string; status: string; changed: boolean }> {
+    const rule = await (await erpnextClient(source)).get('Konektag K Cashback Rule', name) as FrappeKCashbackRule;
     const paymentCountry = countryCode(rule.payment_country);
     const rateBps = Number(rule.rate_bps);
     const status = rule.status === 'Approved' ? 'APPROVED' : rule.status === 'Suspended' ? 'SUSPENDED' : 'EXPIRED';
