@@ -223,6 +223,23 @@ describe('Link Pay network collection on PostgreSQL', () => {
     expect(await count(`SELECT count(*) n FROM konektag.checkout_intents WHERE reference=$1`, [name])).toBe(0);
   });
 
+  it('owner constraint: a historical link has exactly one owner, a network link none', async () => {
+    const owner = await user('o-' + key().slice(0, 6), 1);
+    const insert = (route: string | null, ownerId: string | null) => pool.query(
+      `INSERT INTO konektag.checkout_intents (token_hash, amount, currency, expiration, source_type, public_id,
+         owner_user_id, collection_route)
+       VALUES ($1, 100, 'XAF', now() + interval '1 day', 'payment_link', $2, $3, $4)`,
+      [key(), key().slice(0, 16), ownerId, route]);
+    const rejected = (route: string | null, ownerId: string | null) =>
+      insert(route, ownerId).then(() => null, (e: any) => e.constraint);
+    // Historical link (collection_route NULL) with neither merchant nor owner: rejected.
+    expect(await rejected(null, null)).toBe('checkout_intents_owner_check');
+    // Network link carrying an owner: rejected.
+    expect(await rejected('frappe_network', owner.id)).toBe('checkout_intents_owner_check');
+    // Reference: a historical link with exactly one owner is still accepted.
+    expect(await rejected(null, owner.id)).toBeNull();
+  });
+
   it('approval revoked after issuance: the client is not debited', async () => {
     const name = 'ACC-SINV-' + key().slice(0, 8);
     sites.RESTODEMO.invoices[name] = invoice(name, 1000);

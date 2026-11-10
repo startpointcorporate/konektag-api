@@ -14,6 +14,12 @@ SELECT count(*) AS routed FROM konektag.checkout_intents WHERE collection_route 
 -- 4. Constraints validated on every existing row.       expected: both convalidated = true
 SELECT conname, convalidated FROM pg_constraint
  WHERE conname IN ('checkout_intents_owner_check', 'checkout_intents_collection_route_check');
+-- 4b. Owner constraint has two explicit branches (CASE).  expected: true
+SELECT pg_get_constraintdef(oid) LIKE '%CASE%WHEN (collection_route IS NULL)%' FROM pg_constraint
+ WHERE conname = 'checkout_intents_owner_check';
+-- 4c. No historical link without exactly one owner.       expected: 0
+SELECT count(*) FROM konektag.checkout_intents
+ WHERE collection_route IS NULL AND (merchant_profile_id IS NOT NULL) = (owner_user_id IS NOT NULL);
 -- 5. Proof trigger: merchant branch kept, network branch added.  expected: true, true
 SELECT position('points_merchant_consumptions' IN pg_get_functiondef('konektag.check_link_k_completion'::regproc)) > 0,
        position('link_pay_network_transactions' IN pg_get_functiondef('konektag.check_link_k_completion'::regproc)) > 0;

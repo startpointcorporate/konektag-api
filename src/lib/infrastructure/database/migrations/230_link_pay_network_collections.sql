@@ -16,10 +16,14 @@ ALTER TABLE konektag.checkout_intents
 
 ALTER TABLE konektag.checkout_intents
   DROP CONSTRAINT IF EXISTS checkout_intents_owner_check;
+-- Two explicit branches: with OR, a NULL collection_route would make the second branch NULL and let
+-- a historical link with no owner pass. A historical link has exactly one owner; a network link none.
 ALTER TABLE konektag.checkout_intents
   ADD CONSTRAINT checkout_intents_owner_check
-    CHECK (((merchant_profile_id IS NOT NULL) <> (owner_user_id IS NOT NULL))
-        OR (collection_route = 'frappe_network' AND merchant_profile_id IS NULL AND owner_user_id IS NULL));
+    CHECK (CASE WHEN collection_route IS NULL
+                THEN (merchant_profile_id IS NOT NULL) <> (owner_user_id IS NOT NULL)
+                ELSE collection_route = 'frappe_network' AND merchant_profile_id IS NULL AND owner_user_id IS NULL
+           END);
 
 -- 2. Origin and frozen collection terms of each network link.
 CREATE TABLE IF NOT EXISTS konektag.link_pay_network_links (
