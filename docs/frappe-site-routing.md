@@ -88,6 +88,16 @@ a été lue, plus depuis `ERPNEXT_URL`. `POST /api/admin/regulatory-projections/
 le site de ce pays. Elles sont livrées par `konektag_360` (DocTypes `Konektag Legal Entity`, `Corridor`, `Regulated Actor`,
 `Regulatory Profile`) ; frais d'achat de départ : 4 % (`fee_percentage_bps = 400`) sur chaque site.
 
+Configurations à fournir plus tard (variables d'environnement, aucune valeur dans le code) :
+
+| Où | Variables |
+|---|---|
+| API, Secret `konektag-api-env` | Stripe : `<clé>_SECRET_KEY`, `<clé>_PUBLISHABLE_KEY`, `<clé>_WEBHOOK_SECRET` pour `KTG_FR_STRIPE_TEST` et `KTG_LB_STRIPE_TEST` (ou leurs variantes `_LIVE`) ; pawaPay : `<clé>_API_URL`, `<clé>_API_TOKEN` pour `KTG_CG_PAWAPAY_SANDBOX` (ou `_LIVE`) |
+| Frappe, conteneur ou `site_config.json` | nom de clé par profil : `KONEKTAG_PROVIDER_KEY_LINK_FR_STRIPE`, `KONEKTAG_PROVIDER_KEY_LINK_CG_PAWAPAY`, `KONEKTAG_PROVIDER_KEY_LINK_LB_STRIPE` ; agréments : `KONEKTAG_LICENSE_<ACTEUR>_REF` et `_VALID_FROM` pour `STRIPE_FR`, `PAWAPAY_CG`, `STRIPE_LB` |
+
+Le nom de clé choisi côté Frappe doit correspondre au préfixe des secrets côté API. Sans agrément, le profil reste en
+revue et `payment-context` répond une erreur explicite ; sans secrets, le checkout est créé mais le paiement est refusé.
+
 ## Prérequis Frappe relevés le 2026-11-10 (lecture seule)
 
 - `Konektag Legal Entity`, `Konektag Regulatory Profile`, `Konektag Corridor` et `Konektag Regulated Actor`
