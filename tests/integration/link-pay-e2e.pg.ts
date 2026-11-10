@@ -95,7 +95,8 @@ beforeAll(async () => {
   }
   env.LINK_PAY_FRAPPE_SITES = JSON.stringify(sites);
   // Points K recharges of CG residents are followed on the Congo site (routed slug konektag-cg).
-  env.MARKETPLACE_TRANSACTION_MERCHANTS = JSON.stringify({ 'konektag-cg': { site: 'CONGO' } });
+  // The single disposable Network site also plays Europe for the card recharge (EUR; XAF is not a card currency).
+  env.MARKETPLACE_TRANSACTION_MERCHANTS = JSON.stringify({ 'konektag-cg': { site: 'CONGO' }, 'konektag-fr': { site: 'CONGO' } });
   // PawaPay replaced by a local server answering the reconciliation polls.
   pawaPay = http.createServer((req, res) => {
     const id = decodeURIComponent((req.url || '').split('/').pop() || '');
@@ -302,6 +303,102 @@ describe('Network follow-up from issuance, real API, outbox and Congo site', () 
     await worker();  // reconciliation polls PawaPay, then the outbox delivers
     await worker();
     expect(await operation(key)).toMatchObject([{ status: 'Échoué', failure_reason: 'INSUFFICIENT_BALANCE' }]);
+  }, 180000);
+
+  it('Network operator of Congo: reads every Congo operation, pending included; the other site has none', async () => {
+    const invoice = (await bench('RESTODEMO', 'new_invoice', { like: prepared.RESTODEMO.invoice, amount: 900 })).invoice;
+    const issued = (await bench('RESTODEMO', 'generate', { invoice, user: prepared.RESTODEMO.user, api_url: apiUrl }));
+    await worker();
+    const read = async (site: Site, keys: { api_key: string; api_secret: string }) => {
+      const url = `http://localhost:${relays[site].port}/api/resource/Konektag%20Network%20Operation?fields=${encodeURIComponent('["name","status"]')}&limit_page_length=500`;
+      const response = await fetch(url, { headers: { Authorization: `token ${keys.api_key}:${keys.api_secret}`, Accept: 'application/json' } });
+      return { status: response.status, rows: response.ok ? (await response.json()).data as any[] : [] };
+    };
+    // A Network team member (Link Pay Manager, desk user, no API role) on the Congo site.
+    const congoOperator = await bench('CONGO', 'operator', { email: 'reseau-congo@example.test', roles: ['Link Pay Manager'] });
+    const congo = await read('CONGO', congoOperator);
+    expect(congo.status).toBe(200);
+    expect(congo.rows).toEqual(expect.arrayContaining([{ name: `link-pay:${issued.slug}`, status: 'En attente de paiement' }]));
+    expect(congo.rows.some(r => r.status === 'Payé')).toBe(true);
+    expect(congo.rows.length).toBe((await operations()).length);
+    // The same rights on another Frappe site show none of Congo's operations (one database per site).
+    const restoOperator = await bench('RESTODEMO', 'operator', { email: 'reseau-congo@example.test', roles: ['Link Pay Manager'] });
+    expect(await read('RESTODEMO', restoOperator)).toEqual({ status: 200, rows: [] });
+    // A user without a Network role reads nothing, and an operator cannot write.
+    const other = await bench('CONGO', 'operator', { email: 'vendeur-congo@example.test', roles: ['Sales User'] });
+    expect((await read('CONGO', other)).status).toBe(403);
+    const write = await fetch(`http://localhost:${relays.CONGO.port}/api/method/konektag_360.network_operations.record`, {
+      method: 'POST', headers: { Authorization: `token ${congoOperator.api_key}:${congoOperator.api_secret}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ operation: { key: `link-pay:${issued.slug}`, type: 'link_pay', status: 'paid', eventKey: 'forged', reference: issued.slug } }) });
+    expect(write.status).toBe(403);
+    expect(await operation(`link-pay:${issued.slug}`)).toMatchObject([{ status: 'En attente de paiement' }]);
+  }, 180000);
+
+  it('Stripe recharge (France resident, EUR): displayed fee = checkout fee, paid on the same row, a replayed webhook credits once', async () => {
+    expect(await bench('CONGO', 'stripe_payment_context', {})).toMatchObject({ 'LINK-FR-STRIPE': 'Approved', 'STRIPE-FR': 'Approved' });
+    env.KTG_FR_STRIPE_TEST_SECRET_KEY = 'sk_test_e2e_only';
+    env.KONEKTAG_INTEGRATION_SECRET ??= crypto.randomBytes(32).toString('hex');
+    env.KTG_FR_STRIPE_TEST_PUBLISHABLE_KEY = 'pk_test_e2e_only';
+    env.KTG_FR_STRIPE_TEST_WEBHOOK_SECRET = 'whsec_e2e_only_0123456789';
+    // France resident, recorded at registration.
+    const buyer = crypto.randomUUID();
+    await pool.query(`INSERT INTO konektag.users (id, keycloak_id, username, email_hash, encrypted_data, state, legal_country)
+      VALUES ($1, $2, $3, $4, '\\x00', 'KYC_VALIDATED', 'FR')`, [buyer, crypto.randomUUID(), 'fr' + buyer.slice(0, 8), sha(buyer)]);
+    const payerIdentity = { userId: buyer, keycloakId: null, username: 'fr' + buyer.slice(0, 8), email: buyer + '@example.test' } as any;
+    // Purchase: routed server-side to konektag-cg, context and fees read on Congo.
+    const { POST: buy } = await import('../../src/api/routes/pay/recharges.ts');
+    const purchase = await buy({ request: new Request('http://x/api/pay/recharges', { method: 'POST',
+      body: JSON.stringify({ amount: 2500, currency: 'EUR' }) }), locals: { user: { id: buyer } } } as any);
+    const body = await purchase.json();
+    expect(purchase.status, JSON.stringify(body)).toBe(201);
+    expect(body).toMatchObject({ konektagSite: 'konektag-fr', paymentContext: { country: 'FR', currency: 'EUR' } });
+    const card = body.paymentContext.providers.find((p: any) => p.paymentMethod === 'card');
+    expect(card.fees).toEqual({ percentageBps: 400, fixedAmount: 0 });
+    const token = new URL(body.checkoutUrl).searchParams.get('token')!;
+    const { apiPaymentCheckoutService } = await import('../../src/application/services/pay/api-payment-checkout-service.ts');
+    const { paymentProviderAttemptService } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts');
+    // Funding with the signed selection: the fee applied is the displayed rate on the taxed amount (existing rules).
+    const funding = await apiPaymentCheckoutService.prepareSelectedFunding(token, payerIdentity, card.selectionToken);
+    const order = (await pool.query(`SELECT * FROM konektag.api_payment_orders WHERE id=$1`, [body.id])).rows[0];
+    const taxed = Number(order.subtotal_amount) + Number(order.tax_amount);
+    const expectedFee = Math.round(taxed * card.fees.percentageBps / 10_000) + card.fees.fixedAmount;
+    expect([Number(order.fee_amount), Number(order.external_amount)]).toEqual([expectedFee, taxed + expectedFee]);
+    expect(Number(order.fee_amount)).toBeGreaterThan(0);
+    expect(funding).toBeTruthy();
+    // The create-intent route, without the call to Stripe: PaymentIntent stored, attempt recorded, pending.
+    const stripeOrder = await apiPaymentCheckoutService.getStripeOrder(token, payerIdentity);
+    const intent = { id: `pi_e2e_ok_${crypto.randomUUID().slice(0, 8)}`, object: 'payment_intent', amount: stripeOrder.providerExpectedAmount,
+      currency: 'eur', status: 'requires_payment_method',
+      metadata: { konektag_source_type: 'api_payment', konektag_source_id: body.id, konektag_operation_id: body.id } };
+    await apiPaymentCheckoutService.attachStripePaymentIntent(token, intent.id);
+    await paymentProviderAttemptService.createOrUpdateStripeApiCheckoutAttempt({ orderId: body.id, paymentIntent: intent as any,
+      metadata: { providerConfigurationKey: 'KTG_FR_STRIPE_TEST' } });
+    await paymentProviderAttemptService.recordRechargeAccepted('stripe', intent.id);
+    await worker();
+    const key = `recharge:${await attemptId(intent.id)}`;
+    expect(await operation(key)).toMatchObject([{ status: 'En attente de paiement', provider_reference: intent.id, amount: Number(order.external_amount) }]);  // order in currency units, attempt in cents
+    // Verified Stripe webhook (real route and signature check), then the same event delivered again.
+    const Stripe = (await import('stripe')).default;
+    const { POST: webhook } = await import('../../src/api/routes/webhooks/stripe/[configurationKey].ts');
+    const payload = JSON.stringify({ id: `evt_${intent.id}`, object: 'event', type: 'payment_intent.succeeded', api_version: '2024-06-20',
+      created: Math.floor(Date.now() / 1000), data: { object: { ...intent, status: 'succeeded' } } });
+    const deliver = () => webhook({ params: { configurationKey: 'KTG_FR_STRIPE_TEST' }, request: new Request('http://x/webhook', {
+      method: 'POST', body: payload, headers: { 'Stripe-Signature': Stripe.webhooks.generateTestHeaderString({ payload,
+        secret: env.KTG_FR_STRIPE_TEST_WEBHOOK_SECRET! }) } }) } as any);
+    const credits = async () => (await pool.query(`SELECT count(*)::int n, coalesce(sum(quantity),0)::int k FROM konektag.points_acquisitions
+      WHERE order_id=$1 AND status='completed'`, [body.id])).rows[0];
+    const first = await deliver();
+    expect(first.status, await first.clone().text()).toBe(200);
+    const credited = await credits();
+    expect(credited.n).toBe(1);
+    await worker();
+    const [paid] = await operation(key);
+    expect(paid).toMatchObject({ status: 'Payé', provider: 'stripe', provider_reference: intent.id });
+    expect((await deliver()).status).toBe(200);
+    await worker();
+    expect(await credits()).toEqual(credited);
+    expect(await operation(key)).toEqual([paid]);
+    expect(await networkEvents(key)).toBe(2);
   }, 180000);
 
   it('Stripe recharge: pending once the PaymentIntent exists, then failed from the verified event', async () => {
