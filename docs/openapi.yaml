@@ -20784,6 +20784,16 @@ paths:
           content:
             application/json:
               schema: *a302
+        "404":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a302
+        "409":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a302
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -20795,6 +20805,7 @@ paths:
       x-source: src/api/routes/pay/recharges.ts
       x-error-codes:
         - Unauthorized
+        - PAYMENT_CURRENCY_MISMATCH
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
@@ -21521,6 +21532,8 @@ paths:
         - BAD_JSON
         - BAD_FIELDS
         - SPAM_REJECTED
+        - RESIDENCE_COUNTRY_INVALID
+        - SERVICE_UNAVAILABLE
         - SERVICE_UNAVAILABLE
         - RATE_LIMITED
         - SERVICE_UNAVAILABLE
@@ -23557,6 +23570,7 @@ paths:
         - Payload too large
         - Invalid JSON
         - Invalid fields
+        - BOOKING_UNAVAILABLE
         - INVALID_TIMEZONE
         - Invalid date
         - Date in the past

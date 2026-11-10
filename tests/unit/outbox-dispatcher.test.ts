@@ -5,8 +5,9 @@ const mockPool = { query: vi.fn(), connect: vi.fn() };
 vi.mock('../../src/infrastructure/database/pool.ts', () => ({ default: mockPool }));
 
 const mockErpProject = vi.fn();
+const mockProjectRegistration = vi.fn();
 vi.mock('../../src/application/services/erpnext-contact-service.ts', () => ({
-  erpnextContactService: { project: mockErpProject, ensure: vi.fn(), projectConsent: vi.fn() },
+  erpnextContactService: { project: mockErpProject, ensure: vi.fn(), projectConsent: vi.fn(), projectRegistration: mockProjectRegistration },
 }));
 
 const mockKeycloakUpdate = vi.fn();
@@ -228,6 +229,15 @@ describe('Outbox dispatcher — Frappe modular projections', () => {
 
     expect(globalThis.fetch).not.toHaveBeenCalled();
     expect(mockKeycloakUpdate).toHaveBeenCalledWith(KC_ID, { onboarding_state: 'COMPLETED' });
+  });
+});
+
+describe('Outbox dispatcher — UserRegistered', () => {
+  it('projects the Contact with the residence country recorded at registration', async () => {
+    existingUsers[USER_ID] = { id: USER_ID, keycloak_id: KC_ID };
+    pendingEvents = [userEvent('UserRegistered', { payload: { userId: USER_ID, keycloakId: KC_ID, legalCountry: 'BE' } })];
+    await processPending();
+    expect(mockProjectRegistration).toHaveBeenCalledWith(USER_ID, 'BE');
   });
 });
 

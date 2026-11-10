@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({ resolve: vi.fn(), createSelection: vi.fn() }));
-vi.mock('../../src/application/services/pay/payment-context-resolver.ts', () => ({
-  PaymentContextResolutionError: class extends Error { constructor(public code: string) { super(code); } },
-  paymentContextResolver: { resolve: mocks.resolve },
-  createPaymentContextSelection: mocks.createSelection,
-}));
+vi.mock('../../src/application/services/pay/payment-context-resolver.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/application/services/pay/payment-context-resolver.ts')>();
+  return {
+    PaymentContextResolutionError: class extends Error { constructor(public code: string) { super(code); } },
+    paymentContextResolver: { resolve: mocks.resolve },
+    paymentContextErrorStatus: actual.paymentContextErrorStatus,
+    publicPaymentContext: (context: any) => ({ ...context, providers: context.providers.map((p: any) => ({ ...p, selectionToken: mocks.createSelection(p) })) }),
+  };
+});
 
 import { GET } from '../../src/api/routes/pay/payment-context.ts';
 

@@ -139,6 +139,8 @@ export interface CreateWalletRechargeOrderInput {
   currency: string;
   amount: number;
   paymentCountry: string;
+  /** Konektag site resolved server-side for a Points K purchase; checked again at funding. */
+  konektagSite?: { slug: string };
 }
 
 export class ApiPaymentValidationError extends Error {}
@@ -194,6 +196,8 @@ interface ApiPaymentSettlementSelection extends ApiPaymentExternalFundingContext
   rail: string;
   provider: string;
   providerConfigurationKey: string | null;
+  /** Konektag site the signed selection was read on (konektag-fr…). */
+  konektagSite?: string | null;
 }
 
 interface ApiPaymentSettlementContext {
@@ -795,11 +799,12 @@ export const apiPaymentCheckoutService = {
          beneficiary_type, beneficiary_party_id, payment_country
        ) VALUES (
          NULL, 'wallet_recharge', 'wallet_recharge', $1, 'live', $2, NULL, 'Wallet recharge', $3,
-         '[]'::jsonb, NULL, NULL, NULL, '{}'::jsonb, $4, $5, 0, 0, 0,
+         '[]'::jsonb, NULL, NULL, NULL, $8::jsonb, $4, $5, 0, 0, 0,
          $5, 0, 0, $5, $6, 'NETWORK', NULL, $7
        ) RETURNING *`,
       [input.targetUserId, `WALLET-RECHARGE-${randomUUID()}`, `user:${input.targetUserId}`,
-        input.currency, input.amount, hashToken(checkoutToken), paymentCountry],
+        input.currency, input.amount, hashToken(checkoutToken), paymentCountry,
+        JSON.stringify(input.konektagSite ? { konektagSite: input.konektagSite } : {})],
     );
     if (!rows[0]) throw new Error('Unable to create wallet recharge order');
     return { order: toPublicOrder(rows[0]), checkoutToken };
@@ -950,6 +955,7 @@ export const apiPaymentCheckoutService = {
        rail: settlement.rail,
         provider: selected.provider,
         providerConfigurationKey: selected.providerConfigurationKey,
+        konektagSite: selected.konektagSite ?? null,
     } satisfies ApiPaymentSettlementSelection, options).then(toFunding);
   },
 
@@ -1049,6 +1055,12 @@ export const apiPaymentCheckoutService = {
         if (order.business_purpose === 'pro_subscription_renewal' && settlementContext
           && order.order_metadata?.paymentCountry !== settlementContext.paymentCountry) {
           throw new ApiPaymentConflictError('Pro renewal quote belongs to another payment country');
+        }
+        // A checkout routed to a Konektag site (Points K purchase) only accepts a context
+        // read on that site, so the fees shown to the payer are those of the checkout.
+        const routedSite = (order.order_metadata?.konektagSite as { slug?: string } | undefined)?.slug;
+        if (routedSite && settlementContext?.regulatoryProfileId && settlementContext.konektagSite !== routedSite) {
+          throw new ApiPaymentConflictError('Selected Payment Context comes from another Konektag site');
         }
       if (order.funding_state === 'prepared' && !settlementContext?.regulatoryProfileId) {
         await this.assertPayerMatchesFunding(client, order, payer);

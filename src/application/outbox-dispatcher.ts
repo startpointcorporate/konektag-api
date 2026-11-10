@@ -437,10 +437,12 @@ async function dispatch(event: any): Promise<void> {
 
     case 'UserRegistered':
       try {
+        // Residence country recorded at registration routes the Contact to its Konektag site.
         const { erpnextContactService } = await import('./services/erpnext-contact-service.ts');
-        await erpnextContactService.projectConsent(event.payload.userId);
+        await erpnextContactService.projectRegistration(event.payload.userId, event.payload.legalCountry);
       } catch (syncError) {
-        console.error(`[Outbox] ERPNext contact sync failed for user ${event.payload.userId}:`, (syncError as Error).message);
+        const code = (syncError as { code?: string }).code ?? (syncError as Error).message;
+        console.error(`[Outbox] ERPNext contact sync failed for user ${event.payload.userId}:`, code);
       }
       try {
         await mauticContactSyncService.syncUser(

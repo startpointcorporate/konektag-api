@@ -17,7 +17,7 @@ Les contrats complets (corps, réponses, erreurs) sont décrits dans `docs/opena
 
 ## Résolution du site
 
-`MARKETPLACE_TRANSACTION_MERCHANTS` associe un slug public à ses capacités et à une clé de site (`RESTODEMO`, `HOTELDEMO`). Les identifiants de chaque site sont lus dans `MARKETPLACE_FRAPPE_<SITE>_URL`, `_API_KEY` et `_API_SECRET`. Le client ne choisit jamais le site, l'outlet ni la réception. Une capacité absente renvoie `404 CAPABILITY_NOT_AVAILABLE` sans appel à Frappe. Une capacité n'est active que si elle est **aussi publiée** dans la projection Marketplace. Une fiche absente, dépubliée ou sans cette capacité renvoie `404 CAPABILITY_NOT_AVAILABLE`, sans appel Frappe. Si la projection est injoignable, la réponse est `503 PROFILE_SOURCE_UNAVAILABLE` : l'API refuse plutôt que de laisser passer.
+`MARKETPLACE_TRANSACTION_MERCHANTS` associe un slug public à ses capacités et à une clé de site (`RESTODEMO`, `HOTELDEMO`). Les entités Konektag (`konektag-fr`, `konektag-cg`, `konektag-lb`) y portent un `site` au niveau du slug : voir [frappe-site-routing.md](frappe-site-routing.md). Les identifiants de chaque site sont lus dans `MARKETPLACE_FRAPPE_<SITE>_URL`, `_API_KEY` et `_API_SECRET`. Le client ne choisit jamais le site, l'outlet ni la réception. Une capacité absente renvoie `404 CAPABILITY_NOT_AVAILABLE` sans appel à Frappe. Une capacité n'est active que si elle est **aussi publiée** dans la projection Marketplace. Une fiche absente, dépubliée ou sans cette capacité renvoie `404 CAPABILITY_NOT_AVAILABLE`, sans appel Frappe. Si la projection est injoignable, la réponse est `503 PROFILE_SOURCE_UNAVAILABLE` : l'API refuse plutôt que de laisser passer.
 
 ## Projection Marketplace (#24) — contrat livré
 
