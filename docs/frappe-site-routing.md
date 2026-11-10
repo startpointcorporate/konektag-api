@@ -81,6 +81,13 @@ L'identifiant du Contact est propre à chaque site : `users.erpnext_contact_id` 
 effectivement appelé : BE → konektag-fr, CG → konektag-cg, LB → konektag-lb ; créneau affiché et `Appointment` du même
 site ; frais affichés égaux à ceux signés pour le checkout.
 
+## Données de paiement
+
+Au financement, les données de la sélection signée (entité, acteur, profil) sont projetées depuis le site Konektag où elle
+a été lue, plus depuis `ERPNEXT_URL`. `POST /api/admin/regulatory-projections/{type}/{code}?country=FR` projette depuis
+le site de ce pays. Elles sont livrées par `konektag_360` (DocTypes `Konektag Legal Entity`, `Corridor`, `Regulated Actor`,
+`Regulatory Profile`) ; frais d'achat de départ : 4 % (`fee_percentage_bps = 400`) sur chaque site.
+
 ## Prérequis Frappe relevés le 2026-11-10 (lecture seule)
 
 - `Konektag Legal Entity`, `Konektag Regulatory Profile`, `Konektag Corridor` et `Konektag Regulated Actor`

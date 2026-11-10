@@ -8265,6 +8265,10 @@ paths:
           required: true
           schema:
             type: string
+        - name: country
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: Response from the migrated handler

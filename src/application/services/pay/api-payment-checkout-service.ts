@@ -480,6 +480,15 @@ function toFunding(order: ApiPaymentOrderRow): ApiPaymentFunding {
   };
 }
 
+/** Routed Konektag site of a signed selection; refuses a selection whose site no longer matches its country. */
+async function selectionMasterDataSource(selected: { country: string; konektagSite?: string | null }) {
+  const { resolveKonektagSite } = await import('../../shared/konektag-site.ts');
+  const { routedFrappeClient } = await import('./payment-context-resolver.ts');
+  const route = await resolveKonektagSite(selected.country);
+  if (selected.konektagSite && selected.konektagSite !== route.slug) throw new Error('SELECTION_SITE_CHANGED');
+  return routedFrappeClient(route);
+}
+
 function calculatePaymentFee(amount: number, fees: Pick<ApiPaymentExternalFundingContext, 'percentageBps' | 'fixedAmount'>): number {
   if (!Number.isSafeInteger(fees.percentageBps) || fees.percentageBps < 0
     || !Number.isSafeInteger(fees.fixedAmount) || fees.fixedAmount < 0) {
@@ -902,11 +911,13 @@ export const apiPaymentCheckoutService = {
     let projected = projectedStrict;
     if (projected.length !== 1) {
       try {
-        await frappeMasterDataProjectionService.projectLegalEntity(selected.legalEntityCode);
+        // Project from the Konektag site the selection was read on (FR -> konektag-fr).
+        const source = await selectionMasterDataSource(selected);
+        await frappeMasterDataProjectionService.projectLegalEntity(selected.legalEntityCode, source);
         if (selected.regulatedActorCode) {
-          await frappeMasterDataProjectionService.projectRegulatedActor(selected.regulatedActorCode);
+          await frappeMasterDataProjectionService.projectRegulatedActor(selected.regulatedActorCode, source);
         }
-        await frappeMasterDataProjectionService.projectRegulatoryProfile(selected.regulatoryProfileCode);
+        await frappeMasterDataProjectionService.projectRegulatoryProfile(selected.regulatoryProfileCode, source);
         const { rows: projectedAfterSync } = await pool.query<{
           legal_entity_id: string; regulatory_profile_id: string; corridor_id: string; regulated_actor_id: string | null; rail: string;
         }>(strictSql, strictParams);
