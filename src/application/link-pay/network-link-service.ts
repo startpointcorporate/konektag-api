@@ -9,6 +9,7 @@ import { consumeReservedLinkPoints } from '../services/pay/link-k-consumption-se
 import { checkUserKycVerified } from '../services/user-kyc-gate-service.ts';
 import { splitAmount, type BeneficiaryTerms, type VerifiedInvoice } from './frappe-site-routing.ts';
 import { enqueueSiteWebhooks } from './site-webhook-service.ts';
+import { enqueueNetworkOperation } from '../network-operations/network-operations.ts';
 
 /**
  * Network links: Link Pay for an invoice of a Frappe site, collected through its network site.
@@ -73,6 +74,17 @@ export const networkLinkService = {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
         [intent.id, params.originKey, params.site, terms.beneficiarySite, terms.networkSite, invoice.name, invoice.company,
          terms.name, terms.country, terms.currency, terms.feeMode, terms.feeRateBps, terms.approvedBy, terms.approvedAt, terms.termsHash]);
+      // The Network team sees the link from its issuance, payment pending.
+      await enqueueNetworkOperation(client, {
+        site: terms.networkSite, aggregateId: intent.id,
+        operation: {
+          key: `link-pay:${slug}`, type: 'link_pay', status: 'pending', eventKey: `link-pay:${slug}:issued`,
+          reference: slug, issuedAt: new Date().toISOString(), expiresAt: params.expiration.toISOString(),
+          currency: terms.currency, amount: amountMinor,
+          quantityK: valuation.quantityK, provider: 'points_k', beneficiarySite: terms.beneficiarySite,
+          beneficiaryName: terms.name, issuerSite: params.site, invoice: invoice.name,
+        },
+      });
       const { rows: [row] } = await client.query(`${LINK_SELECT} WHERE ci.id = $1`, [intent.id]);
       await client.query('COMMIT');
       return mapNetworkLink(row);

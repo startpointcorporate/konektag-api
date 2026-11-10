@@ -257,7 +257,7 @@
       "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
     ],
     "constraints": [],
-    "sha256": "f330cf3e968f0283dd51280812e98ad234ec067e225f151f28cd1310948fdf05",
+    "sha256": "5e40379fcb80a5629a585757e6f0919219a371354f1d7c68a55b821d277df1c6",
     "tests": [
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
@@ -281,7 +281,7 @@
       "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
     ],
     "constraints": [],
-    "sha256": "f330cf3e968f0283dd51280812e98ad234ec067e225f151f28cd1310948fdf05",
+    "sha256": "5e40379fcb80a5629a585757e6f0919219a371354f1d7c68a55b821d277df1c6",
     "tests": [
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
@@ -1110,7 +1110,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "54328f72597061a60f0ec45873cbff1376ed61404d01a1bc02771ac41c18c482",
+    "sha256": "37b31b370639e38d5e87e5026d52b3fe90556c4e37d1c29bacaad483ef684b79",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
@@ -1133,7 +1133,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "54328f72597061a60f0ec45873cbff1376ed61404d01a1bc02771ac41c18c482",
+    "sha256": "37b31b370639e38d5e87e5026d52b3fe90556c4e37d1c29bacaad483ef684b79",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",

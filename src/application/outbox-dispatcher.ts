@@ -113,6 +113,14 @@ export async function processPending(): Promise<void> {
     console.error('[Outbox] Link Pay site webhook processing failed');
   }
 
+  // Unpaid network links past their deadline: Expiré on their Network site.
+  try {
+    const { expireDueLinks } = await import('./network-operations/regularization.ts');
+    await expireDueLinks();
+  } catch (error) {
+    console.error('[network-operations] link expiry pass failed', (error as Error).message);
+  }
+
   // Reconcile non-terminal PawaPay deposits against the provider on every worker pass.
   // A missing webhook therefore does not leave a Mobile Money payment indefinitely stale.
   try {
@@ -430,6 +438,13 @@ async function dispatch(event: any): Promise<void> {
       await mauticAdapter.markAuditRequestedByEmail(email);
       break;
     }
+    case 'NetworkOperationChanged': {
+      // Network follow-up on the Frappe site of the Network team; failures are retried here.
+      const { deliverNetworkOperation } = await import('./network-operations/network-operations.ts');
+      await deliverNetworkOperation(event.payload);
+      break;
+    }
+
     case 'MerchantCashReceiptRequested':
       if (typeof event.payload?.receiptId !== 'string') throw new Error('CASH_RECEIPT_EVENT_INVALID');
       await deliverCashReceipt(event.payload.receiptId);

@@ -83,6 +83,7 @@ export const routes = [
   { path: "/api/earn/representative/my-missions", pattern: new RegExp("^/api/earn/representative/my-missions/?$"), keys: [], methods: ["GET"], load: () => import("./routes/earn/representative/my-missions") },
   { path: "/api/earn/representative/register", pattern: new RegExp("^/api/earn/representative/register/?$"), keys: [], methods: ["POST"], load: () => import("./routes/earn/representative/register") },
   { path: "/api/growth/events/stats", pattern: new RegExp("^/api/growth/events/stats/?$"), keys: [], methods: ["GET"], load: () => import("./routes/growth/events/stats") },
+  { path: "/api/integrations/frappe/network-operations", pattern: new RegExp("^/api/integrations/frappe/network-operations/?$"), keys: [], methods: ["POST"], load: () => import("./routes/integrations/frappe/network-operations") },
   { path: "/api/integrations/frappe/payment-links", pattern: new RegExp("^/api/integrations/frappe/payment-links/?$"), keys: [], methods: ["POST","GET"], load: () => import("./routes/integrations/frappe/payment-links") },
   { path: "/api/internal/erp/account-access", pattern: new RegExp("^/api/internal/erp/account-access/?$"), keys: [], methods: ["POST"], load: () => import("./routes/internal/erp/account-access") },
   { path: "/api/k/send/balance", pattern: new RegExp("^/api/k/send/balance/?$"), keys: [], methods: ["GET"], load: () => import("./routes/k/send/balance") },
