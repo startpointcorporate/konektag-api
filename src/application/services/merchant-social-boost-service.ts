@@ -182,16 +182,9 @@ export async function administerSocialBoost(actor:string,boostId:string,input:Re
         JOIN konektag.merchant_social_campaigns c ON c.id=t.campaign_id
         WHERE t.boost_id=$1`,[id]);
       if(!targetReadiness?.all_prepaid&&!targetReadiness?.all_published)throw new VisibilityError('ALL_BOOST_POSTS_MUST_BE_PUBLISHED',409);
-      const profileMap=JSON.parse(process.env.KONEKTAG_BOOST_PAYMENT_PROFILES||'{}');
-      const {rows:[merchant]}=await lockClient.query('SELECT country FROM konektag.merchant_profiles WHERE id=$1',[current.merchant_profile_id]);
-      const paymentProfile=profileMap[boostMerchantCountry(merchant?.country)];
-      if(!paymentProfile)throw new VisibilityError('BOOST_PAYMENT_PROFILE_UNCONFIGURED',503);
-      const {paymentLinkService}=await import('./payment-link-service.ts');
-      const link=await paymentLinkService.create({merchantProfileId:String(paymentProfile),amountMinor:Number(current.budget_minor),currency:current.currency,description:'Boost social Konektag',reference:'BOOST:'+current.id,idempotencyKey:'BOOST-LINK-'+current.id,expiration:new Date(Date.now()+7*86400000)});
-      const {rows:[saved]}=await lockClient.query(`UPDATE konektag.merchant_social_boosts SET status='PAYMENT_PENDING',payment_link=$2,
-        payment_reference=$3,version=version+1,updated_at=now() WHERE id=$1 AND version=$4 RETURNING *`,[id,`/pay/l/${link.url_slug}`,link.url_slug,current.version]);
-      if(!saved)throw new VisibilityError('BOOST_VERSION_CONFLICT',409);
-      await boostEvent(lockClient,id,null,actor,'PAYMENT_LINK_CREATED',{paymentReference:link.url_slug,amountMinor:current.budget_minor,currency:current.currency});return saved;
+      // Boost payment by a Link Pay link of a merchant profile is retired: Link Pay is collected for a
+      // Frappe site through its network. Refused before any state change; the boost stays QUOTED.
+      throw new VisibilityError('LINK_PAY_MERCHANT_PROFILE_RETIRED',410);
     }finally{
       try{await lockClient.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',[lockKey]);}
       finally{lockClient.release();}

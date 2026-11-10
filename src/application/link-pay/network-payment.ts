@@ -6,6 +6,7 @@ import { checkUserKycVerified } from '../services/user-kyc-gate-service.ts';
 import { beneficiaryTerms, LinkPaySiteError } from './frappe-site-routing.ts';
 import { networkLinkService } from './network-link-service.ts';
 import { siteWebhookService } from './site-webhook-service.ts';
+import { sendLinkPaymentReceipt } from '../services/link-payment-receipt-service.ts';
 
 type NetworkLink = NonNullable<Awaited<ReturnType<typeof networkLinkService.getBySlug>>>;
 const reply = (body: unknown, status: number) => Response.json(body, { status });
@@ -16,7 +17,8 @@ const reply = (body: unknown, status: number) => Response.json(body, { status })
  * webhook queue and link consumption commit together; webhooks are sent after the commit.
  */
 export async function payNetworkLink(input: { link: NetworkLink; slug: string; user: { id: string };
-  attemptKey: string; commandHash: string; payerIdentity: string | null; externalTransactionId: string | null }) {
+  attemptKey: string; commandHash: string; payerIdentity: string | null; externalTransactionId: string | null;
+  receipt?: { email?: string; firstName?: string; locale?: string; origin: string } }) {
   const { link, slug, user } = input;
   if (link.status !== 'Active') return reply({ error: 'Lien introuvable, expire ou deja utilise' }, 404);
   const valuation = PointsKValuationSchema.safeParse(link.valuation);
@@ -58,5 +60,11 @@ export async function payNetworkLink(input: { link: NetworkLink; slug: string; u
   void pool.query(`SELECT id FROM konektag.link_pay_site_webhooks WHERE transaction_id = $1 AND status = 'pending'`,
     [result.transactionId]).then(({ rows }) => Promise.all(rows.map((row: any) => siteWebhookService.deliver(row.id))))
     .catch(() => undefined);
-  return reply({ success: true, message: 'Paiement confirme', kOperationId: result.kOperationId }, 201);
+  // Optional receipt, strictly after commit; it writes no payment state.
+  const receiptSent = input.receipt ? await sendLinkPaymentReceipt({ email: input.receipt.email, slug, userId: user.id,
+    firstName: input.receipt.firstName, locale: input.receipt.locale, origin: input.receipt.origin,
+    payment: { merchantName: link.beneficiary.name, amount: link.amount, currency: link.currency,
+      quantityK: link.quantityK, reference: link.reference } }) : false;
+  return Response.json({ success: true, message: 'Paiement confirme', kOperationId: result.kOperationId },
+    { status: 201, headers: { 'X-Link-Receipt-Sent': receiptSent ? 'true' : 'false' } });
 }

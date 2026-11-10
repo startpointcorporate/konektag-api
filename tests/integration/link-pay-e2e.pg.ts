@@ -93,6 +93,9 @@ beforeAll(async () => {
   }
   env.LINK_PAY_FRAPPE_SITES = JSON.stringify(sites);
   pool = (await import('../../src/infrastructure/database/pool.ts')).default;
+  // Link Pay must work without konektag.merchant_profiles: remove it from this throwaway database.
+  await pool.query('DROP TABLE IF EXISTS konektag.merchant_profiles CASCADE');
+  expect((await pool.query(`SELECT to_regclass('konektag.merchant_profiles') AS t`)).rows[0].t).toBeNull();
   routes = await import('../../src/api/routes/integrations/frappe/payment-links.ts');
   ({ POST: pay } = await import('../../src/api/routes/pay/pay-link.ts'));
   ({ siteWebhookService } = await import('../../src/application/link-pay/site-webhook-service.ts'));

@@ -12,6 +12,7 @@ export const POST: RouteHandler = async ({ locals, params }) => {
       `INSERT INTO konektag.pending_link_payments (payer_user_id, checkout_intent_id)
        SELECT $1, ci.id
        FROM konektag.checkout_intents ci
+       JOIN konektag.link_pay_network_links nl ON nl.checkout_intent_id = ci.id
        WHERE ci.public_id = $2
          AND ci.source_type = 'payment_link'
          AND ci.status = 'ISSUED'
@@ -26,6 +27,7 @@ export const POST: RouteHandler = async ({ locals, params }) => {
       `SELECT plp.id
        FROM konektag.pending_link_payments plp
        JOIN konektag.checkout_intents ci ON ci.id = plp.checkout_intent_id
+       JOIN konektag.link_pay_network_links nl ON nl.checkout_intent_id = ci.id
        WHERE plp.payer_user_id = $1
          AND ci.public_id = $2
          AND ci.source_type = 'payment_link'
