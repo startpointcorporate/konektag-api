@@ -59,17 +59,27 @@ export const paymentLinkService = {
     });
     const slug = crypto.randomBytes(8).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(`payment-link:${slug}`).digest('hex');
+    // The catalogue's transaction id is a UUID reference (core_transaction_id); text replay keys
+    // (erp-link:…, BOOST-LINK-…) have their own column, unique per merchant (migration 230).
+    const coreTransactionId = params.catalog?.transactionId || null;
+    const replayKey = params.catalog ? null : params.idempotencyKey || null;
     let { rows: [row] } = await pool.query(
       `INSERT INTO konektag.checkout_intents
        (token_hash, merchant_profile_id, amount, quantity_k, currency, service_description, expiration,
-        status, usage_unique, source_type, public_id, reference, core_transaction_id, quote_valuation)
-        VALUES ($1, $2, $9, $3, $4, $5, $6, 'ISSUED', true, 'payment_link', $7, $8, $10, $11)
-       ON CONFLICT (core_transaction_id) WHERE core_transaction_id IS NOT NULL AND source_type='payment_link' DO NOTHING
+        status, usage_unique, source_type, public_id, reference, core_transaction_id, quote_valuation, replay_key)
+        VALUES ($1, $2, $9, $3, $4, $5, $6, 'ISSUED', true, 'payment_link', $7, $8, $10, $11, $12)
+       ON CONFLICT DO NOTHING
        RETURNING *`,
       [tokenHash, params.merchantProfileId, valuation.quantityK, currency, params.description || null,
-       params.expiration, slug, params.reference || null, amountMinor, params.catalog?.transactionId || params.idempotencyKey || null, JSON.stringify(valuation)],
+       params.expiration, slug, params.reference || null, amountMinor, coreTransactionId, JSON.stringify(valuation), replayKey],
     );
-    if(!row && (params.catalog||params.idempotencyKey)) {const existing=await pool.query(`SELECT * FROM konektag.checkout_intents WHERE core_transaction_id=$1 AND merchant_profile_id=$2 AND source_type='payment_link'`,[params.catalog?.transactionId||params.idempotencyKey,params.merchantProfileId]);row=existing.rows[0];}
+    if (!row && (coreTransactionId || replayKey)) {
+      const existing = await pool.query(
+        `SELECT * FROM konektag.checkout_intents WHERE merchant_profile_id = $2 AND source_type = 'payment_link'
+           AND ${coreTransactionId ? 'core_transaction_id = $1::uuid' : 'replay_key = $1'}`,
+        [coreTransactionId || replayKey, params.merchantProfileId]);
+      row = existing.rows[0];
+    }
     if(!row)throw new Error('CHECKOUT_CREATION_FAILED');
     if(params.idempotencyKey && !params.catalog && (Number(row.amount)!==amountMinor || row.currency!==currency
       || (row.reference||null)!==(params.reference||null)))throw new Error('IDEMPOTENCY_KEY_REUSED');

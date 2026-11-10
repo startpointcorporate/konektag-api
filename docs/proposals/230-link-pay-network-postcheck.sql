@@ -20,6 +20,12 @@ SELECT pg_get_constraintdef(oid) LIKE '%CASE%WHEN (collection_route IS NULL)%' F
 -- 4c. No historical link without exactly one owner.       expected: 0
 SELECT count(*) FROM konektag.checkout_intents
  WHERE collection_route IS NULL AND (merchant_profile_id IS NOT NULL) = (owner_user_id IS NOT NULL);
+-- 4d. Text replay keys: own column, unique per merchant; core_transaction_id still uuid.  expected: uuid, 1, true
+SELECT data_type FROM information_schema.columns
+ WHERE table_schema = 'konektag' AND table_name = 'checkout_intents' AND column_name = 'core_transaction_id';
+SELECT count(*) FROM pg_indexes WHERE schemaname = 'konektag' AND indexname = 'checkout_intents_payment_link_replay_key'
+   AND indexdef LIKE '%(merchant_profile_id, replay_key)%';
+SELECT convalidated FROM pg_constraint WHERE conname = 'checkout_intents_replay_key_check';
 -- 5. Proof trigger: merchant branch kept, network branch added.  expected: true, true
 SELECT position('points_merchant_consumptions' IN pg_get_functiondef('konektag.check_link_k_completion'::regproc)) > 0,
        position('link_pay_network_transactions' IN pg_get_functiondef('konektag.check_link_k_completion'::regproc)) > 0;

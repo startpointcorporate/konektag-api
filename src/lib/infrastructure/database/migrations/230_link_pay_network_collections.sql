@@ -25,6 +25,21 @@ ALTER TABLE konektag.checkout_intents
                 ELSE collection_route = 'frappe_network' AND merchant_profile_id IS NULL AND owner_user_id IS NULL
            END);
 
+-- 1b. Text replay keys of merchant-profile links (erp-link:<merchant>:<attempt>, BOOST-LINK-<boost>).
+-- core_transaction_id stays a UUID for the references that already use it (catalogue, QR, offline).
+-- A key is unique within its merchant: the same key under another merchant is another link.
+ALTER TABLE konektag.checkout_intents
+  ADD COLUMN IF NOT EXISTS replay_key TEXT;
+ALTER TABLE konektag.checkout_intents
+  DROP CONSTRAINT IF EXISTS checkout_intents_replay_key_check;
+ALTER TABLE konektag.checkout_intents
+  ADD CONSTRAINT checkout_intents_replay_key_check
+    CHECK (replay_key IS NULL OR (source_type = 'payment_link' AND merchant_profile_id IS NOT NULL
+                                  AND length(replay_key) BETWEEN 1 AND 200));
+CREATE UNIQUE INDEX IF NOT EXISTS checkout_intents_payment_link_replay_key
+  ON konektag.checkout_intents(merchant_profile_id, replay_key)
+  WHERE replay_key IS NOT NULL AND source_type = 'payment_link';
+
 -- 2. Origin and frozen collection terms of each network link.
 CREATE TABLE IF NOT EXISTS konektag.link_pay_network_links (
   checkout_intent_id   UUID PRIMARY KEY REFERENCES konektag.checkout_intents(id),

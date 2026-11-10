@@ -28,10 +28,11 @@ beforeEach(() => {
     if (sql.includes('INSERT INTO konektag.checkout_intents')) {
       if (stored) return { rows: [] };
       stored = { merchant_profile_id: params[1], quantity_k: params[2], currency: params[3], expiration: params[5], public_id: params[6],
-        reference: params[7], amount: params[8], core_transaction_id: params[9], quote_valuation: JSON.parse(params[10]), status: 'ISSUED' };
+        reference: params[7], amount: params[8], core_transaction_id: params[9], quote_valuation: JSON.parse(params[10]), replay_key: params[11], status: 'ISSUED' };
       return { rows: [stored] };
     }
-    if (sql.includes('SELECT * FROM konektag.checkout_intents WHERE core_transaction_id')) return { rows: stored?.core_transaction_id === params[0] ? [stored] : [] };
+    if (sql.includes('SELECT * FROM konektag.checkout_intents WHERE merchant_profile_id') && sql.includes('replay_key = $1'))
+      return { rows: stored?.replay_key === params[0] && stored?.merchant_profile_id === params[1] ? [stored] : [] };
     if (sql.includes('SELECT business_name')) return { rows: [{ business_name: 'Merchant' }] };
     throw new Error(`Unexpected SQL: ${sql}`);
   });
@@ -43,7 +44,8 @@ describe('Link Pay ERP return contract', () => {
     const replay = await post({}, { 'X-Idempotency-Key': key });
     expect(replay.status).toBe(201);
     expect((await replay.json()).link.name).toBe(first.link.name);
-    expect(stored.core_transaction_id).toBe(`erp-link:${merchantProfileId}:${key}`);
+    // The text key has its own column; core_transaction_id stays for UUID references.
+    expect([stored.replay_key, stored.core_transaction_id]).toEqual([`erp-link:${merchantProfileId}:${key}`, null]);
   });
 
   it('refuses a key reused for another amount or a malformed key', async () => {
@@ -54,7 +56,7 @@ describe('Link Pay ERP return contract', () => {
 
   it('keeps links without a key independent', async () => {
     await post({});
-    expect(stored.core_transaction_id).toBeNull();
+    expect([stored.replay_key, stored.core_transaction_id]).toEqual([null, null]);
   });
 
   it('exposes the operation of a consumed link only in the owner listing, filtered by reference', async () => {

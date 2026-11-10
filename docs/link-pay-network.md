@@ -52,9 +52,17 @@ MARKETPLACE_FRAPPE_<SITE>_URL / _API_KEY / _API_SECRET   (utilisateur Frappe aya
 
 ## Migration 230
 
-Additive et rejouable. Sur `checkout_intents`, elle ajoute la colonne `collection_route` et étend
-`checkout_intents_owner_check` aux seuls liens réseau. Elle crée trois tables et étend la preuve de
-consommation `check_link_k_completion`, sans changer la branche marchande.
+Additive et rejouable. Sur `checkout_intents` :
+- `collection_route` ; `checkout_intents_owner_check` en deux branches `CASE` : un lien historique a
+  exactement un propriétaire, un lien Réseau n'en a aucun ;
+- `replay_key` (texte), unique par marchand (`checkout_intents_payment_link_replay_key`), pour les clés de
+  rejeu `erp-link:<marchand>:<tentative>` (ERP, konektag-api#40) et `BOOST-LINK-<boost>`. Elles étaient
+  écrites dans `core_transaction_id`, de type `uuid` en production : ces créations échouaient. Cette colonne
+  reste `uuid` pour les références qui l'utilisent (catalogue, QR, hors ligne). Le parcours Réseau garde sa
+  propre clé `link_pay_network_links.origin_key`.
+
+Elle crée trois tables et étend la preuve de consommation `check_link_k_completion`, sans changer la
+branche marchande. Checksum du fichier : `b9d2f0fe93b4962024366fd2e2c53690bab7071f5aec7c27e198907084d0c81a`.
 
 1. Sauvegarde PostgreSQL de `konektag` (`pg_dump -Fc`), vérifiée par `pg_restore -l`.
 2. `psql -X -v ON_ERROR_STOP=1 -f docs/proposals/230-link-pay-network-precheck.sql` : conserver la sortie.
@@ -78,6 +86,9 @@ bénéficiaires sur le Réseau.
 ## Validation
 
 - `tests/unit/link-pay-network-routing.test.ts` : authentification, routage, frais, accusé, charge utile.
+- `tests/integration/payment-link-replay.pg.ts` (PostgreSQL réel) : ERP et BOOST créent un lien, un rejeu
+  rend le même lien, la même clé avec d'autres données est refusée, clé limitée à son marchand, catalogue
+  inchangé en `core_transaction_id`.
 - `tests/integration/link-pay-network.pg.ts` (PostgreSQL réel, doubles HTTP Frappe) : rejeu de clé, débit
   unique, ordre Réseau → bénéficiaire, cas 360°, Réseau indisponible puis reprise, relivraison, conditions
   manquantes, approbation retirée.
