@@ -152,5 +152,12 @@
     "name": "retains the merchant list contract",
     "reason": "The merchant-profile listing of payment links is retired (konektag-api#43): GET /api/pay/payment-links without slug returns 410 with no query (public-link-projection \"retires the merchant list\", merchant-establishment-routes \"retires the merchant-profile listing of payment links without any query\").",
     "retiredBy": "konektag-api#43"
+  },
+  {
+    "operation": "POST /api/pay/recharges",
+    "file": "tests/unit/api-payment-recharge-route.test.ts",
+    "name": "wallet recharge checkout route rejects a recharge without a payment country before creating an order",
+    "reason": "The payment country of a Points K purchase is now resolved server-side from the buyer's residence country (konektag-api#44); a body without paymentCountry is valid. Replaced by \"rejects an invalid amount before routing or creating an order\" and the routing cases of tests/unit/konektag-site-routing.test.ts.",
+    "retiredBy": "konektag-api#44"
   }
 ]
