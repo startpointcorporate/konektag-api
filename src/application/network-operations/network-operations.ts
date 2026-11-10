@@ -19,7 +19,7 @@ import { frappeSite } from '../marketplace-transactions/frappe-site.ts';
 
 type Db = Pick<PoolClient, 'query'>;
 export const NETWORK_OPERATION_EVENT = 'NetworkOperationChanged';
-export type OperationStatus = 'pending' | 'paid' | 'failed';
+export type OperationStatus = 'pending' | 'paid' | 'failed' | 'expired';
 
 export interface NetworkOperation {
   key: string;
@@ -28,6 +28,8 @@ export interface NetworkOperation {
   eventKey: string;
   reference: string;
   issuedAt?: string;
+  /** Deadline of a Link Pay link. */
+  expiresAt?: string;
   settledAt?: string;
   currency?: string;
   /** Minor units of the currency. */

@@ -79,7 +79,8 @@ export const networkLinkService = {
         site: terms.networkSite, aggregateId: intent.id,
         operation: {
           key: `link-pay:${slug}`, type: 'link_pay', status: 'pending', eventKey: `link-pay:${slug}:issued`,
-          reference: slug, issuedAt: new Date().toISOString(), currency: terms.currency, amount: amountMinor,
+          reference: slug, issuedAt: new Date().toISOString(), expiresAt: params.expiration.toISOString(),
+          currency: terms.currency, amount: amountMinor,
           quantityK: valuation.quantityK, provider: 'points_k', beneficiarySite: terms.beneficiarySite,
           beneficiaryName: terms.name, issuerSite: params.site, invoice: invoice.name,
         },

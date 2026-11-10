@@ -943,6 +943,16 @@
     "score": 404
   },
   {
+    "path": "/api/integrations/frappe/network-operations",
+    "file": "src/api/routes/integrations/frappe/network-operations.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/integrations/frappe/network-operations/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/integrations/frappe/payment-links",
     "file": "src/api/routes/integrations/frappe/payment-links.ts",
     "methods": [

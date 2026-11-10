@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 323,
-    "operations": 410,
+    "paths": 324,
+    "operations": 411,
     "covered": 79,
-    "partial": 330,
+    "partial": 331,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 331,
-    "executedTests": 2783,
-    "passedTests": 2783
+    "businessUncovered": 332,
+    "executedTests": 2789,
+    "passedTests": 2789
   },
   "operations": [
     {
@@ -14294,6 +14294,44 @@
         {
           "file": "tests/rest/operations.test.ts",
           "name": "integrations [REST AUTH POST /api/integrations/frappe/link-pay/deliveries] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/integrations/frappe/network-operations",
+      "domain": "integrations",
+      "method": "POST",
+      "path": "/api/integrations/frappe/network-operations",
+      "source": "src/api/routes/integrations/frappe/network-operations.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT POST /api/integrations/frappe/network-operations] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH POST /api/integrations/frappe/network-operations] refuses invalid personal API credentials before loading the handler",
           "level": "contract"
         }
       ],

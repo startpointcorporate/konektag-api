@@ -23,43 +23,87 @@ Le site d'une recharge n'est jamais fixé dans le code : FR/BE → `konektag-fr`
 - Les montants en attente restent hors des soldes à verser et des versements : ceux-ci ne lisent que
   `Link Pay Network Transaction`, créée au paiement. Aucune écriture de règlement côté API n'est ajoutée.
 
-## Accès des équipes Réseau
+## Statuts
 
-Chaque site Frappe a sa propre base : un opérateur du site Congo voit toutes les opérations du Congo, en attente
-comprises, et aucune d'Europe ou du Liban. Lecture : rôles `Link Pay Manager`, `Link Pay Approver`, `Accounts Manager`,
-`Konektag Payment Admin` ou `System Manager`. Aucun opérateur ne peut écrire une opération : seuls les comptes de
-service de l'API (`Konektag Network API`, `Link Pay API`) appellent `record`. En production le 2026-11-10 : Congo
-`info-congo@` et un `Link Pay Approver` ; Europe et Liban `info-konektag@`.
+| Statut | Quand |
+|---|---|
+| En attente de paiement | lien émis ; page PawaPay acceptée ou PaymentIntent Stripe créé |
+| Payé | webhook vérifié, rapprochement PawaPay, vérification à la demande, ou paiement confirmé par un opérateur ; date = date effective du paiement |
+| Échoué | idem, recharges seulement |
+| Expiré | lien Link Pay non payé à son échéance (affichée sur la fiche) ; un paiement effectué dans les délais et confirmé tard le fait encore passer à Payé |
 
-## En cas d'incident
+Les opérations en attente ou expirées restent hors des soldes et des versements (`Link Pay Network Transaction` seule).
+Liens déjà émis au 2026-11-10 en production : aucun lien Réseau, aucune recharge, aucune tentative — pas de reprise de données.
 
-La fiche est en lecture seule : aucune action manuelle dans Frappe ne change un statut ou ne crédite des Points K.
-- PawaPay : le rapprochement automatique (à chaque passage du worker) interroge PawaPay pour toute tentative en
-  attente et produit la même mise à jour que le webhook.
-- Stripe : Stripe rejoue lui-même un webhook non acquitté ; on peut aussi le renvoyer depuis le tableau de bord
-  Stripe (même `evt_…`, sans double crédit). Il n'y a pas de rapprochement Stripe automatique : une recharge
-  dont aucun webhook n'arrive reste « En attente de paiement ».
-- Notification non livrée à Frappe : l'outbox reprend avec délai croissant puis dead-letter ; la réémission
-  d'un événement est sans effet si Frappe l'a déjà appliqué.
+## « Régulariser » depuis la fiche Opération Réseau
+
+Une seule action. L'écran affiche la source, le compte prestataire, la référence, le montant, l'état API, l'échéance et
+les options que l'API autorise pour l'opération, son état, ce Réseau et l'utilisateur (avec le motif des options indisponibles).
+
+| Option | Qui | Effet |
+|---|---|---|
+| Vérifier le statut du paiement | lecteurs Réseau (`Link Pay Manager`, `Link Pay Approver`, `Accounts Manager`, `Konektag Payment Admin`, `Konektag Network Regularizer`, `System Manager`) | interroge la source qui fait autorité ; un résultat final est appliqué par le traitement existant (même chemin que le webhook) ; en cours, indéterminé ou source indisponible : résultat affiché, statut conservé |
+| Enregistrer un paiement confirmé | `Konektag Network Regularizer` | motif (10 caractères au moins) et justificatif obligatoires ; l'API contrôle la référence, le montant, la devise et l'empreinte SHA-256 du fichier ; recharge : finalisation existante, Points K crédités une fois ; Link Pay : transaction Réseau rattachée et site marchand notifié (livraisons Link Pay) — seulement si l'API a enregistré le paiement |
+| Enregistrer un échec confirmé | `Konektag Network Regularizer` | recharges seulement ; même contrôle du justificatif ; transition vers Échoué et réouverture du checkout existante |
+
+Sources par opération :
+
+| Opération | Source | Compte |
+|---|---|---|
+| Recharge PawaPay | dépôt PawaPay (`GET /v2/deposits/{depositId}`) | configuration de la tentative (`providerConfigurationKey`), sinon PawaPay par défaut |
+| Recharge Stripe | PaymentIntent (`GET /v1/payment_intents/{id}`) | compte Stripe de la tentative (`<clé>_SECRET_KEY`) ; sans compte connu ou configuré : vérification indisponible, motif affiché |
+| Link Pay | transaction Link Pay de l'API ; livraisons aux sites | — |
+
+Contrôles côté serveur : Frappe vérifie le rôle et la lecture de l'opération ; l'API (`POST /api/integrations/frappe/network-operations`,
+canal du site `X-Konektag-Frappe-Site` + jeton) vérifie que le site authentifié possède l'opération (même clé ou même site
+Frappe, ex. CONGO et KONEKTAG_CG), le rôle déclaré et le justificatif. Un appel direct d'un autre site est refusé (403).
+Aucune option ne lance un nouveau paiement.
+
+Rejeux et conflits : mêmes protections que le webhook (événement prestataire `manual:<tentative>:<résultat>` ou
+`verify:<PaymentIntent>:<statut>`, un crédit par commande). Même résultat déjà appliqué : « Déjà traité ». Résultat contraire
+à un état final : « Conflit », état conservé. Échec technique (API ou prestataire injoignable) : « Échec temporaire »,
+l'écran reste ouvert pour réessayer ; un crédit confirmé mais non terminé est aussi repris par le worker.
+
+Journal : chaque action exécutée est tracée dans Frappe (`Konektag Network Regularization` : site, utilisateur, date,
+option, motif, justificatif joint en privé et son empreinte, résultat, réponse) et dans l'API
+(`konektag.network_operation_regularizations`, migration 233).
+
+## Comptes et configuration
+
+Comptes de service appelés par le worker (configuration réelle, 2026-11-10) :
+
+| Site | Clé API | Compte | Rôle |
+|---|---|---|---|
+| congo.erp.konektag.eu | `CONGO` (Link Pay) | `link-pay-api@congo.erp.konektag.eu` | `Link Pay API` (déjà accepté) |
+| congo.erp.konektag.eu | `KONEKTAG_CG` (recharges) | `api-congo@konektag.eu` | `Konektag Network API` à attribuer |
+| europe.erp.konektag.eu | `EUROPE` | `api-europe@konektag.eu` | `Konektag Network API` à attribuer |
+| liban.erp.konektag.eu | `LIBAN` | `api-lebanon@konektag.eu` | `Konektag Network API` à attribuer |
+
+Opérateurs : `Konektag Network Regularizer` aux personnes habilitées de chaque Réseau (à désigner).
+
+Canal « Régulariser » (Frappe → API) : configuré sur Congo (`konektag_link_pay_site` = CONGO, jeton, origine API). Europe
+et Liban ne l'ont pas : y ajouter `konektag_link_pay_site` (EUROPE, LIBAN), `konektag_link_pay_site_token`,
+`konektag_link_pay_api_origin`, et `EUROPE`, `LIBAN` dans `LINK_PAY_FRAPPE_SITES` (empreinte du jeton). Sans cela l'écran
+affiche « Canal API non configuré sur ce site ».
 
 ## Limites
 
-- Un lien Link Pay expiré sans paiement reste « En attente de paiement » : à distinguer d'un paiement bloqué par
-  sa date d'expiration (non affichée).
-- XAF n'est pas une devise carte pour l'API : les résidents du Congo rechargent par PawaPay, jamais par Stripe.
-- Les checkouts marchands et l'ancienne recharge Stripe n'ont pas de ligne Réseau.
+- XAF n'est pas une devise carte pour l'API : les résidents du Congo rechargent par PawaPay.
+- Pas de rapprochement Stripe automatique : la vérification Stripe se fait à la demande.
+- Les checkouts marchands, l'ancienne recharge Stripe et le Web sont hors périmètre.
 
 ## Déploiement (ordre)
 
-1. Sauvegarde puis migration 232 : un index seul, sans effet sur le code en place ; obligatoire **avant** le nouveau
-   code (sinon l'émission d'un lien échoue sur `ON CONFLICT`).
-2. Release `konektag_360` et `migrate` des sites : DocType et rôle `Konektag Network API`. Sans nouveau code API,
-   rien n'y écrit encore.
-3. Rôle `Konektag Network API` aux comptes `api-europe@`, `api-congo@`, `api-lebanon@` ; vérifier les rôles des trois
-   comptes et du compte `Link Pay API` de Congo.
-4. Fusion de la PR API : le déploiement automatique active la nouvelle version ; le worker d'outbox suit la même
-   version active et bascule en même temps (quelques secondes). Si un rôle manquait, les événements restent en
-   reprise dans l'outbox jusqu'à correction : aucune perte.
+1. Sauvegarde PostgreSQL, puis migrations 232 (index) et 233 (journal) : sans effet sur le code en place, obligatoires
+   avant le nouveau code.
+2. Release `konektag_360` (image), `migrate` des cinq sites : DocTypes, rôles, écran. Sans nouveau code API, rien n'y écrit.
+3. Habilitations : `Konektag Network API` aux trois comptes ci-dessus ; vérifier les quatre comptes (rôles lus par
+   `frappe.get_roles`) ; `Konektag Network Regularizer` aux opérateurs désignés ; canal Europe et Liban si voulu.
+4. Activation : fusion de la PR API → CI puis déploiement automatique (`Deploy Konektag API to K3s PVC`, `workflow_run`
+   sur `main`) qui écrit `/app/active-version` ; l'API et le worker d'outbox suivent ce fichier et basculent ensemble.
+   Contrôle : `kubectl -n konektag-api exec deploy/konektag-api -- cat /app/active-version` (et le même sur
+   `deploy/konektag-api-outbox`) = SHA fusionné ; `/livez`, `/api/internal/health`.
+5. Recette depuis Frappe Congo (lecture, Vérifier sur une opération réelle).
 
 ## Recette
 
@@ -68,4 +112,7 @@ congo.test (Réseau) et resto.test (marchand), vrai worker d'outbox. Couvre : li
 ligne (sites distincts et site commun), paiement reçu avant l'émission, rejeu d'événement, droits d'un opérateur Réseau
 (lecture de toutes les opérations du site, rien sur l'autre site, refus sans rôle Réseau, aucune écriture), recharge
 PawaPay par webhook et par rapprochement (échec), recharge Stripe réussie (frais affichés = frais appliqués, webhook
-rejoué sans double crédit) et échouée.
+rejoué sans double crédit) et échouée ; « Régulariser » : options par site, prestataire et droits (PawaPay Congo,
+Stripe EUR sur le second site), vérification payée / échouée / en cours / indisponible avec trace, paiement confirmé avec le
+webhook avant, pendant et après (un crédit), échec confirmé, Link Pay régularisé sur sites distincts et commun,
+expiration visible puis paiement dans les délais confirmé tard, refus hors rôle et hors site, conflit, reprise après échec technique.

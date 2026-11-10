@@ -113,6 +113,14 @@ export async function processPending(): Promise<void> {
     console.error('[Outbox] Link Pay site webhook processing failed');
   }
 
+  // Unpaid network links past their deadline: Expiré on their Network site.
+  try {
+    const { expireDueLinks } = await import('./network-operations/regularization.ts');
+    await expireDueLinks();
+  } catch (error) {
+    console.error('[network-operations] link expiry pass failed', (error as Error).message);
+  }
+
   // Reconcile non-terminal PawaPay deposits against the provider on every worker pass.
   // A missing webhook therefore does not leave a Mobile Money payment indefinitely stale.
   try {
