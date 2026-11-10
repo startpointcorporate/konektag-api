@@ -52,9 +52,9 @@ type DatabaseClient = {
 export class ApiPaymentWebhookValidationError extends Error {}
 
 const ENVIRONMENTS: ApiPaymentWebhookEnvironment[] = ['sandbox', 'live'];
-const RESPONSE_BODY_LIMIT = 4_000;
-const MAX_DELIVERY_ATTEMPTS = 7;
-const RETRY_DELAYS_SECONDS = [0, 60, 300, 1_800, 7_200, 21_600, 86_400];
+export const RESPONSE_BODY_LIMIT = 4_000;
+export const MAX_DELIVERY_ATTEMPTS = 7;
+export const RETRY_DELAYS_SECONDS = [0, 60, 300, 1_800, 7_200, 21_600, 86_400];
 
 function isPrivateAddress(address: string): boolean {
   const host = address.replace(/^\[|\]$/g, '').toLowerCase();
@@ -83,7 +83,7 @@ function isPrivateHostname(hostname: string): boolean {
   return host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal');
 }
 
-type ResolvedWebhookTarget = {
+export type ResolvedWebhookTarget = {
   url: URL;
   address?: string;
   family?: 4 | 6;
@@ -172,7 +172,7 @@ function paymentEventPayload(order: PaymentWebhookOrder, event: ApiPaymentWebhoo
   };
 }
 
-async function sendWebhook(target: ResolvedWebhookTarget, headers: Record<string, string>, rawPayload: string): Promise<{ status: number; body: string | null }> {
+export async function sendWebhook(target: ResolvedWebhookTarget, headers: Record<string, string>, rawPayload: string): Promise<{ status: number; body: string | null }> {
   const request = target.url.protocol === 'https:' ? httpsRequest : httpRequest;
   return new Promise((resolve, reject) => {
     const requestOptions: RequestOptions = {

@@ -105,6 +105,14 @@ export async function processPending(): Promise<void> {
     console.error('[Outbox] API payment webhook retry processing failed');
   }
 
+  // Link Pay webhooks to Frappe sites (network first, then beneficiary), same retry schedule.
+  try {
+    const { siteWebhookService } = await import('./link-pay/site-webhook-service.ts');
+    await siteWebhookService.processDue();
+  } catch (error) {
+    console.error('[Outbox] Link Pay site webhook processing failed');
+  }
+
   // Reconcile non-terminal PawaPay deposits against the provider on every worker pass.
   // A missing webhook therefore does not leave a Mobile Money payment indefinitely stale.
   try {
