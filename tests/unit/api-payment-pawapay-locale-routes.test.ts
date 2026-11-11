@@ -80,7 +80,22 @@ describe('PawaPay locale propagation routes', () => {
     expect(await response.json()).toEqual({ redirectUrl: 'https://pay.pawapay.io/redirect/dep-123', state: 'awaiting_mobile_money' });
     expect(pawaPayClientMocks.createPaymentPage).toHaveBeenCalledWith(expect.objectContaining({
       returnUrl: 'https://www.konektag.eu/api/pay/checkout/checkout-token/mobile-money/pawapay/return?lang=en',
+      amount: 12_500,
     }));
+  });
+
+  it('sends the exact zero-decimal XAF amount to pawaPay', async () => {
+    checkoutMocks.getMobileMoneyOrder.mockResolvedValue({
+      id: 'order-1', currency: 'XAF', externalAmount: 8_567, paymentCountry: 'COG',
+      providerConfigurationKey: 'KTG_CG_PAWAPAY_LIVE',
+    });
+    const response = await depositPost({
+      params: { token: 'checkout-token' }, locals: {},
+      request: new Request('https://www.konektag.eu/api/pay/checkout/checkout-token/mobile-money/pawapay/deposit', { method: 'POST' }),
+    } as any);
+    expect(response.status).toBe(201);
+    expect(attemptMocks.createOrGetPawaPayApiCheckoutAttempt).toHaveBeenCalledWith(expect.objectContaining({ amount: 8_567, currency: 'XAF' }));
+    expect(pawaPayClientMocks.createPaymentPage).toHaveBeenCalledWith(expect.objectContaining({ amount: 8_567, currency: 'XAF' }));
   });
 
   it('falls back to locale from referer path when body lang is absent', async () => {

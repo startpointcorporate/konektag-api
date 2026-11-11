@@ -257,8 +257,9 @@
       "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
     ],
     "constraints": [],
-    "sha256": "5e40379fcb80a5629a585757e6f0919219a371354f1d7c68a55b821d277df1c6",
+    "sha256": "5d324c29fab88634f20a5731807d2b1be5eac5139655a654c493534af570d09a",
     "tests": [
+      "API payment Stripe routes sends an exact EUR minor amount of 1200 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
       "API payment Stripe routes creates an intent from the stored external XOF amount and passes the authenticated payer",
@@ -281,8 +282,9 @@
       "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
     ],
     "constraints": [],
-    "sha256": "5e40379fcb80a5629a585757e6f0919219a371354f1d7c68a55b821d277df1c6",
+    "sha256": "5d324c29fab88634f20a5731807d2b1be5eac5139655a654c493534af570d09a",
     "tests": [
+      "API payment Stripe routes sends an exact EUR minor amount of 1200 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 101460 to Stripe",
       "API payment Stripe routes creates an intent from the stored external XOF amount and passes the authenticated payer",
@@ -1110,9 +1112,10 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "37b31b370639e38d5e87e5026d52b3fe90556c4e37d1c29bacaad483ef684b79",
+    "sha256": "e3f4b565db4aa275de118d6cd1bf197566d93ea37776c2725b80cf6c4871df54",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+      "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
       "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
       "PawaPay locale propagation routes defaults to fr when lang and referer locale are unavailable",
       "PawaPay locale propagation routes redirects provider return to pending page using requested locale",
@@ -1133,9 +1136,10 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "37b31b370639e38d5e87e5026d52b3fe90556c4e37d1c29bacaad483ef684b79",
+    "sha256": "e3f4b565db4aa275de118d6cd1bf197566d93ea37776c2725b80cf6c4871df54",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+      "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
       "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
       "PawaPay locale propagation routes defaults to fr when lang and referer locale are unavailable",
       "PawaPay locale propagation routes redirects provider return to pending page using requested locale",

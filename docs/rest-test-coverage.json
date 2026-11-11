@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 335,
-    "executedTests": 2850,
-    "passedTests": 2850
+    "executedTests": 2860,
+    "passedTests": 2860
   },
   "operations": [
     {
@@ -8329,6 +8329,11 @@
         {
           "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
           "name": "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
           "level": "unit"
         },
         {
@@ -17317,6 +17322,11 @@
         },
         {
           "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
+          "name": "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/api-payment-pawapay-locale-routes.test.ts",
           "name": "PawaPay locale propagation routes falls back to locale from referer path when body lang is absent",
           "level": "unit"
         },
@@ -17379,6 +17389,11 @@
         "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes sends an exact EUR minor amount of 1200 to Stripe",
+          "level": "unit"
+        },
         {
           "file": "tests/unit/api-payment-stripe-routes.test.ts",
           "name": "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
@@ -17446,6 +17461,11 @@
         "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/api-payment-stripe-routes.test.ts",
+          "name": "API payment Stripe routes sends an exact EUR minor amount of 1200 to Stripe",
+          "level": "unit"
+        },
         {
           "file": "tests/unit/api-payment-stripe-routes.test.ts",
           "name": "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
