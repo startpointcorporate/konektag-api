@@ -15,8 +15,9 @@
     "worker:accounting": "node dist/accounting-worker.mjs",
     "docs:generate": "node src/infrastructure/scripts/openapi.mjs",
     "typecheck": "tsc --noEmit",
-    "test:rest:coverage": "node src/infrastructure/scripts/test-rest.mjs",
+    "test:rest:coverage": "node src/infrastructure/scripts/test-wallet-recharge-pg-ci.mjs && node src/infrastructure/scripts/test-rest.mjs",
     "test:marketplace:pg": "vitest run --config tests/integration/vitest.config.ts",
+    "test:wallet-recharge:pg": "vitest run --config tests/integration/vitest.config.ts tests/integration/wallet-recharge-governed-rules.pg.ts",
     "test:rest:live": "node tests/rest/live-draft/run-batch.mjs"
   },
   "dependencies": {

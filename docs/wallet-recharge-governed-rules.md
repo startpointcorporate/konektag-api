@@ -14,8 +14,11 @@ paramètres réglementaires approuvés.
   Elle définit minimum, maximum par transaction, plafond journalier et plafond
   mensuel en unité mineure.
 - Toute règle `APPROVED` exige `source_reference`, `approval_reference`,
-  `approved_by` et `approved_at`. Les périodes approuvées ne peuvent pas se
-  chevaucher pour une même identité.
+  `approved_by`, `approved_at`, une devise et sa précision. Les lignes
+  historiques hors FR restent conservées avec devise/précision nulles plutôt
+  que de leur inventer des paramètres ; cette incomplétude interdit leur
+  approbation. Les périodes approuvées ne peuvent pas se chevaucher pour une
+  même identité.
 - Une application à un ordre conserve un snapshot JSON. Dès qu'une règle a été
   appliquée, sa mise à jour ou sa suppression est refusée ; le snapshot est lui
   aussi immuable.
@@ -31,7 +34,8 @@ plafonds, niveaux KYC, rails/providers, précision/arrondi et approbateurs. Les
 valeurs de recette doivent porter une provenance `TEST-FICTIF` et rester dans
 une base de test ; elles ne figurent pas dans la migration.
 
-La consommation des fonctions de résolution et l'écriture des snapshots par le
-checkout relèvent du ticket d'exécution Recharger suivant. Tant que cette
-intégration n'est pas livrée, la migration 183 ne doit plus servir de preuve
-d'approbation réglementaire.
+Le checkout Recharger filtre désormais explicitement la devise, le statut
+`APPROVED`, l'activation et la période. Il refuse l'opération si aucune règle ne
+correspond ; une ligne `DRAFT`, révoquée ou expirée ne produit donc jamais un
+0 % implicite. Les assiettes autres que `RECHARGE_AMOUNT` restent refusées tant
+que le calcul ordonné taxe/frais correspondant n'est pas implémenté.

@@ -264,16 +264,38 @@ describe('apiPaymentCheckoutService', () => {
     mocks.clientQuery
       .mockResolvedValueOnce(undefined)
       .mockResolvedValueOnce({ rows: [rechargeOrder] })
-      .mockResolvedValueOnce({ rows: [] }) // no applicable recharge tax
+      .mockResolvedValueOnce({ rows: [{ tax_code: 'TVA', calculation_kind: 'PERCENTAGE', rate_basis_points: 0,
+        fixed_amount_minor: null, taxable_basis: 'RECHARGE_AMOUNT' }] }) // explicit approved zero rate
       .mockResolvedValueOnce({ rows: [selectedOrder] })
       .mockResolvedValueOnce(undefined);
 
     await apiPaymentCheckoutService.prepareSelectedFunding('raw-token', undefined, 'signed-selection');
 
     expect(paymentContextMocks.verifyPaymentContextSelection).toHaveBeenCalledWith('signed-selection');
+    const taxLookup = mocks.clientQuery.mock.calls.find((call: unknown[]) => String(call[0]).includes('wallet_recharge_tax_rules'))!;
+    expect(taxLookup[0]).toContain("status = 'APPROVED'");
+    expect(taxLookup[0]).toContain('currency = $2');
+    expect(taxLookup[1]).toEqual([['FR'], 'EUR']);
     const update = mocks.clientQuery.mock.calls.find((call: unknown[]) => String(call[0]).includes('settlement_legal_entity_id'))!;
     expect(update[0]).toContain('WHERE id = $18 AND version = $19');
     expect(update[1]).toEqual([0, 0, 103, 3, 103, null, 'legal-entity-1', 'profile-1', 'KTG-FR-KTG-FR', 'actor-1', 'stripe', 'stripe', 'KTG_FR_STRIPE_TEST', 'FR', 'NETWORK', null, 10300, 'order-1', 1, 0, 0]);
+  });
+
+  it('fails closed when a wallet recharge has no approved active tax rule', async () => {
+    const rechargeOrder = { ...pendingOrder, merchant_profile_id: null, order_purpose: 'wallet_recharge', target_user_id: 'user-1',
+      environment: 'live' as const, currency: 'EUR', subtotal_amount: 100, tax_amount: 0, fee_amount: 0, total_amount: 100, external_amount: 100 };
+    const context = { currency: 'EUR', paymentCountry: 'FR', legalEntityId: 'legal-entity-1', regulatoryProfileId: 'profile-1',
+      corridorId: 'KTG-FR-KTG-FR', regulatedActorId: 'actor-1', rail: 'stripe', provider: 'stripe',
+      providerConfigurationKey: 'KTG_FR_STRIPE_TEST', percentageBps: 300, fixedAmount: 0 };
+    mocks.clientQuery
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [rechargeOrder] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce(undefined);
+
+    await expect(apiPaymentCheckoutService.prepareFundingOrder('raw-token', undefined, context))
+      .rejects.toThrow('Wallet recharge tax rule is missing or inactive');
+    expect(mocks.clientQuery.mock.calls.some((call: unknown[]) => String(call[0]).includes("funding_state = 'prepared'"))).toBe(false);
   });
 
   it('returns PawaPay country, configuration, and external amount from the frozen snapshot', async () => {

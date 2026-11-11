@@ -9,6 +9,9 @@ describe('wallet recharge governed rules migration', () => {
     expect(sql).toContain("status = COALESCE(status, 'DRAFT')");
     expect(sql).toContain('LEGACY-MIGRATION-183-UNVERIFIED');
     expect(sql).not.toContain('TEST-FICTIF');
+    expect(sql).not.toContain('ALTER COLUMN currency SET NOT NULL');
+    expect(sql).not.toContain('ALTER COLUMN minor_digits SET NOT NULL');
+    expect(sql).toContain('currency IS NOT NULL AND minor_digits IS NOT NULL');
   });
 
   it('requires explicit approval and rejects overlapping approved periods', async () => {

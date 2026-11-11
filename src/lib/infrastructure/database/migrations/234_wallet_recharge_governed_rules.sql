@@ -30,11 +30,9 @@ WHERE currency IS NULL OR tax_code IS NULL OR calculation_kind IS NULL
    OR status IS NULL OR source_reference IS NULL;
 
 ALTER TABLE konektag.wallet_recharge_tax_rules
-  ALTER COLUMN currency SET NOT NULL,
   ALTER COLUMN tax_code SET NOT NULL,
   ALTER COLUMN calculation_kind SET NOT NULL,
   ALTER COLUMN taxable_basis SET NOT NULL,
-  ALTER COLUMN minor_digits SET NOT NULL,
   ALTER COLUMN rounding_mode SET NOT NULL,
   ALTER COLUMN status SET NOT NULL,
   ALTER COLUMN source_reference SET NOT NULL,
@@ -57,7 +55,10 @@ ALTER TABLE konektag.wallet_recharge_tax_rules
     OR (calculation_kind = 'FIXED' AND fixed_amount_minor >= 0 AND rate_basis_points = 0)
   ),
   ADD CONSTRAINT wallet_recharge_tax_approval_ck CHECK (
-    status <> 'APPROVED' OR (approval_reference IS NOT NULL AND approved_by IS NOT NULL AND approved_at IS NOT NULL)
+    status <> 'APPROVED' OR (
+      currency IS NOT NULL AND minor_digits IS NOT NULL
+      AND approval_reference IS NOT NULL AND approved_by IS NOT NULL AND approved_at IS NOT NULL
+    )
   );
 
 CREATE INDEX wallet_recharge_tax_rule_lookup

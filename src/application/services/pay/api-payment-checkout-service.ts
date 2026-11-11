@@ -1110,18 +1110,33 @@ export const apiPaymentCheckoutService = {
         let taxAmount = Number(order.tax_amount);
         if (isWalletRecharge && settlementContext?.paymentCountry) {
           const aliases = paymentCountryAliases(settlementContext.paymentCountry);
-          const { rows: taxRules } = await client.query<{ rate_basis_points: number }>(
-            `SELECT rate_basis_points
+          const { rows: taxRules } = await client.query<{
+            tax_code: string; calculation_kind: 'PERCENTAGE' | 'FIXED'; rate_basis_points: number;
+            fixed_amount_minor: number | null; taxable_basis: string;
+          }>(
+            `SELECT tax_code, calculation_kind, rate_basis_points, fixed_amount_minor, taxable_basis
              FROM konektag.wallet_recharge_tax_rules
-             WHERE country_code = ANY($1::text[]) AND enabled = true
-               AND valid_from <= CURRENT_DATE
-               AND (valid_until IS NULL OR valid_until >= CURRENT_DATE)
-             ORDER BY valid_from DESC LIMIT 2`,
-            [aliases],
+             WHERE country_code = ANY($1::text[]) AND currency = $2
+               AND status = 'APPROVED' AND enabled = true
+               AND valid_from <= now() AND (valid_until IS NULL OR valid_until > now())
+             ORDER BY tax_code`,
+            [aliases, order.currency],
           );
-          if (taxRules.length > 1) throw new ApiPaymentConflictError('Wallet recharge tax rule is ambiguous');
-          const rateBps = Number(taxRules[0]?.rate_basis_points ?? 0);
-          taxAmount = Math.round(Number(order.subtotal_amount) * rateBps / 10_000);
+          if (taxRules.length === 0) {
+            throw new ApiPaymentConflictError('Wallet recharge tax rule is missing or inactive');
+          }
+          if (new Set(taxRules.map(rule => rule.tax_code)).size !== taxRules.length) {
+            throw new ApiPaymentConflictError('Wallet recharge tax rule is ambiguous');
+          }
+          taxAmount = taxRules.reduce((total, rule) => {
+            if (rule.taxable_basis !== 'RECHARGE_AMOUNT') {
+              throw new ApiPaymentConflictError('Wallet recharge tax basis is not supported by checkout');
+            }
+            const amount = rule.calculation_kind === 'FIXED'
+              ? Number(rule.fixed_amount_minor)
+              : Math.round(Number(order.subtotal_amount) * Number(rule.rate_basis_points) / 10_000);
+            return total + amount;
+          }, 0);
           if (!Number.isSafeInteger(taxAmount) || taxAmount < 0) throw new ApiPaymentValidationError('Wallet recharge tax amount is invalid');
         }
         const basketAmount = Number(order.subtotal_amount) + taxAmount;
