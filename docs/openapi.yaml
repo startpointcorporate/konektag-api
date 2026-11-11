@@ -20850,6 +20850,7 @@ paths:
       x-error-codes:
         - Unauthorized
         - PAYMENT_CURRENCY_MISMATCH
+        - CHECKOUT_ALREADY_EXISTS
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
@@ -20945,7 +20946,6 @@ paths:
       x-error-codes:
         - Unauthorized
         - INVALID_REQUEST
-        - POINTS_K_CHECKOUT_FAILED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
     post:
       operationId: post__api_points_k_checkout
@@ -20973,7 +20973,6 @@ paths:
       x-error-codes:
         - Unauthorized
         - INVALID_REQUEST
-        - POINTS_K_CHECKOUT_FAILED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
