@@ -1,5 +1,5 @@
 import { apiPaymentCheckoutService } from './api-payment-checkout-service.ts';
-import { PaymentContextResolver, publicPaymentContext } from './payment-context-resolver.ts';
+import { PaymentContextResolutionError, PaymentContextResolver, publicPaymentContext } from './payment-context-resolver.ts';
 import { konektagFrappeSite, routeKonektagFlow, type KonektagSiteRoute } from '../../shared/konektag-site.ts';
 import type { FrappeSite } from '../../marketplace-transactions/frappe-site.ts';
 import { minorDigits } from './money-unit.ts';
@@ -31,20 +31,29 @@ async function owned(input: Input, deps: Deps) {
     throw new PointsKCheckoutError('QUOTATION_NOT_OWNED');
   if (!Array.isArray(quotation.items) || quotation.items.length !== 1 || !(total(quotation) > 0))
     throw new PointsKCheckoutError('QUOTATION_INCONSISTENT');
-  const context = await (deps.context ?? new PaymentContextResolver()).resolveForRoute(route, 'link_payment');
-  if (context.currency !== quotation.currency) throw new PointsKCheckoutError('PAYMENT_CURRENCY_MISMATCH');
   const modes = await site.list('Mode of Payment', [['enabled', '=', 1]], ['name', 'type', 'enabled'], 100);
-  return { route, site, customer, quotation, context, modes: modes.filter(mode => Number(mode.enabled) === 1) };
+  return { route, site, customer, quotation, modes: modes.filter(mode => Number(mode.enabled) === 1) };
 }
 
 export async function readPointsKCheckout(input: Input, deps: Deps = {}) {
   const state = await owned(input, deps);
+  // Provider eligibility controls payment availability, not native ERPNext preparation.
+  let paymentContext = null;
+  let paymentContextError: string | null = null;
+  try {
+    const context = await (deps.context ?? new PaymentContextResolver()).resolveForRoute(state.route, 'link_payment');
+    if (context.currency !== state.quotation.currency) throw new PointsKCheckoutError('PAYMENT_CURRENCY_MISMATCH');
+    paymentContext = publicPaymentContext(context);
+  } catch (error) {
+    if (!(error instanceof PaymentContextResolutionError)) throw error;
+    paymentContextError = error.code;
+  }
   return {
     site: state.route.site, customer: state.customer.name,
     quotation: state.quotation,
     amount: total(state.quotation), currency: state.quotation.currency,
     modesOfPayment: state.modes.map(mode => ({ name: mode.name, type: mode.type ?? null })),
-    paymentContext: publicPaymentContext(state.context),
+    paymentContext, paymentContextError,
   };
 }
 
@@ -73,9 +82,16 @@ export async function createPointsKCheckout(input: Input & { modeOfPayment: stri
   let paymentRequest: any;
   const requests = await state.site.list('Payment Request', [['reference_doctype', '=', 'Sales Order'], ['reference_name', '=', salesOrder.name]], ['name'], 10);
   if (requests[0]) paymentRequest = await state.site.get('Payment Request', requests[0].name);
-  else paymentRequest = await state.site.call('erpnext.accounts.doctype.payment_request.payment_request.make_payment_request', {
-    dt: 'Sales Order', dn: salesOrder.name, submit_doc: 1, mute_email: 1, mode_of_payment: input.modeOfPayment,
-  });
+  else {
+    // Native submission may invoke a default gateway even when mute_email=1.
+    // Points K funding belongs to the existing API checkout, never to this ERPNext step.
+    const gateways = await state.site.list('Payment Gateway Account',
+      [['company', '=', salesOrder.company], ['is_default', '=', 1]], ['name'], 1);
+    if (gateways.length) throw new PointsKCheckoutError('PAYMENT_REQUEST_EXTERNAL_GATEWAY_CONFIGURED');
+    paymentRequest = await state.site.call('erpnext.accounts.doctype.payment_request.payment_request.make_payment_request', {
+      dt: 'Sales Order', dn: salesOrder.name, submit_doc: 1, mute_email: 1, mode_of_payment: input.modeOfPayment,
+    });
+  }
   if (Number(paymentRequest.docstatus) !== 1 || paymentRequest.reference_doctype !== 'Sales Order'
     || paymentRequest.reference_name !== salesOrder.name || paymentRequest.party !== state.customer.name)
     throw new PointsKCheckoutError('PAYMENT_REQUEST_INCONSISTENT');

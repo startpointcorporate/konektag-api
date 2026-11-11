@@ -2,6 +2,7 @@
  * No mocks, no checkout POST, no database migrations or payment order creation.
  * Bundle with esbuild (packages external) and run under /tmp in existing API pod.
  */
+import { GET as paymentContextGET } from '../../src/api/routes/pay/payment-context.ts';
 import { GET } from '../../src/api/routes/points-k/checkout.ts';
 import { readPointsKCheckout } from '../../src/application/services/pay/points-k-checkout-service.ts';
 import { routeKonektagFlow, konektagFrappeSite } from '../../src/application/shared/konektag-site.ts';
@@ -36,11 +37,16 @@ try {
         taxes: q.taxes.map((t: any) => ({ chargeType: t.charge_type, amount: t.tax_amount })) };
       r.attempts = [];
       for (let i = 0; i < 2; i++) {
-        try { const result = await readPointsKCheckout(input); r.attempts.push({ ok: true, amount: result.amount }); }
+        try { const result = await readPointsKCheckout(input); check(result.amount === f.total && result.currency === f.currency, 'CHECKOUT_TOTAL_CHANGED'); r.attempts.push({ ok: true, amount: result.amount, currency: result.currency, paymentContext: result.paymentContext, paymentContextError: result.paymentContextError }); }
         catch (e) { r.attempts.push(error(e)); }
       }
       const http = await GET({ url: new URL('https://local.invalid/api/points-k/checkout?' + new URLSearchParams({ country: f.country, customer: c.name, quotation: input.quotation })), locals: { user: { id: input.userId, keycloak_id: f.alias } } } as any);
-      r.http = { status: http.status, body: await http.json() };
+      const body = await http.json();
+      r.http = { status: http.status, amount: body.amount, currency: body.currency, paymentContext: body.paymentContext, paymentContextError: body.paymentContextError };
+      check(http.status === 200, 'NATIVE_READ_BLOCKED_BY_PAYMENT_CONTEXT');
+      const paymentHttp = await paymentContextGET({ url: new URL('https://local.invalid/api/pay/payment-context?country=' + f.country) } as any);
+      r.paymentContextHttp = { status: paymentHttp.status, body: await paymentHttp.json() };
+      check(paymentHttp.status === 422 && r.paymentContextHttp.body.error === 'PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND', 'PROVIDER_APPROVAL_GUARD_CHANGED');
       r.modes = await site.list('Mode of Payment', [['enabled', '=', 1]], ['name', 'type'], 100);
       r.profiles = await site.list('Konektag Regulatory Profile', [], ['name', 'status', 'runtime_operation', 'rail', 'valid_from', 'valid_until'], 100);
       r.corridors = await site.list('Konektag Corridor', [], ['name', 'status', 'corridor_code'], 100);

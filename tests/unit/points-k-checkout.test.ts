@@ -53,3 +53,38 @@ describe('Points K flow 2', () => {
     } } });
   });
 });
+
+describe('Points K native preparation is separate from provider eligibility', () => {
+  it('returns the owned ERPNext quotation when the provider profile is under review', async () => {
+    const f = fixture();
+    const { PaymentContextResolutionError } = await import('../../src/application/services/pay/payment-context-resolver.ts');
+    f.context.resolveForRoute.mockRejectedValue(new PaymentContextResolutionError('PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND'));
+    const result = await readPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN' },
+      { route: async () => route, site: () => f.site, context: f.context });
+    expect(result.amount).toBe(12.21);
+    expect(result.paymentContext).toBeNull();
+    expect(result.paymentContextError).toBe('PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND');
+  });
+
+  it('prepares the native documents without resolving a PSP context', async () => {
+    const f = fixture();
+    f.context.resolveForRoute.mockRejectedValue(new Error('Must not resolve providers during native preparation'));
+    const createOrder = vi.fn(async () => ({ order: { id: 'order' }, checkoutToken: 'token', created: true }));
+    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+      { route: async () => route, site: () => f.site, context: f.context, createOrder: createOrder as any });
+    expect(result.paymentRequest).toBe('PR');
+    expect(f.context.resolveForRoute).not.toHaveBeenCalled();
+    expect(createOrder).toHaveBeenCalledOnce();
+  });
+
+  it('stops before native Payment Request submission if ERPNext would select a gateway', async () => {
+    const f = fixture();
+    const list = f.site.list.getMockImplementation()!;
+    f.site.list.mockImplementation(async (type: string, ...args: any[]) => type === 'Payment Gateway Account' ? [{ name: 'GATEWAY' }] : list(type, ...args));
+    const createOrder = vi.fn();
+    await expect(createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+      { route: async () => route, site: () => f.site, context: f.context, createOrder })).rejects.toMatchObject({ code: 'PAYMENT_REQUEST_EXTERNAL_GATEWAY_CONFIGURED' });
+    expect(f.site.call.mock.calls.some(([method]: any[]) => method.endsWith('make_payment_request'))).toBe(false);
+    expect(createOrder).not.toHaveBeenCalled();
+  });
+});

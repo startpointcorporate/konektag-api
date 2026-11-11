@@ -1,73 +1,81 @@
-# KON-73 — recette réelle de KON-69 — 2026-11-11
+# KON-73 — diagnostic corrigé et recette réelle — 2026-11-11
 
-Recette **partielle, bloquée avant écriture** sur les trois ERPNext de production. Le service non fusionné de PR #54 a été exécuté contre leurs vraies API, avec routage PostgreSQL et comptes de service existants. Aucun mock ERPNext, paiement, déploiement, migration ou merge.
+## Conclusion
 
-## Résultat par site
+Le contrôle `link_payment` était **appliqué trop tôt dans KON-69**. Il ne représente pas une approbation de chaque client/recharge. La PR #54 sépare maintenant préparation ERPNext et disponibilité du paiement. Aucun profil n'a été approuvé, aucun contrôle PSP supprimé, aucun checkout reconstruit.
 
-| Contrôle réellement exécuté | France | Congo | Liban |
+Le GET corrigé rend le devis sur les trois vrais ERPNext malgré `Compliance Review`. La chaîne native complète Quotation → Sales Order → Payment Request a été réellement soumise sous Bench sur FR/CG/LB, dans une transaction annulée, **avec date de livraison renseignée explicitement dans les documents temporaires**. Les trois montants TTC et le Customer sont conservés. Aucun document durable, paiement, facture ou écriture comptable créé.
+
+Le flux API complet n'est pas déclaré validé : le mapper sans date de livraison échoue sur les trois sites. Cet écart distinct est documenté sans modification de calendrier métier, conformément au périmètre limité au contrôle réglementaire. Rejeux/concurrence API et metadata PostgreSQL restent à recetter en contexte isolé.
+
+## Contrats et cause exacte
+
+Contrats relus : Paperclip KON-69 (83a9cadf-0e14-436f-a6b2-61be3eb19796), KON-73 et son commentaire prioritaire du 11 novembre à 19:04:20 UTC, PR #54 au SHA de départ 3978f051dabe9a99e58de12870726b4eb9579635, documentation flux 1 et code du financement existant.
+
+Au SHA initial, `points-k-checkout-service.ts:34` appelait `resolveForRoute(route, 'link_payment')` dans `owned()`. GET et POST passaient tous deux par ce contrôle avant `frappe.client.submit` et avant le mapper/Sales Order.
+
+Le résolveur existant `payment-context-resolver.ts:179-198` sélectionne l'entité Konektag approuvée du pays, puis les profils `status=Approved`, `runtime_operation=link_payment`, courants et rattachés à cette entité. Les profils réels LINK-FR-STRIPE, LINK-CG-PAWAPAY, LINK-LB-STRIPE sont en `Compliance Review` : aucun profil éligible, donc `PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND`.
+
+Ce contrôle dépend de `profile.legal_entity`, du corridor et du prestataire, **pas de Customer.alias ni d'une approbation individuelle de la recharge**. L'ownership du client est un contrôle séparé.
+
+Le nom `link_payment` est partagé par le mécanisme de financement existant : `prepareSelectedFunding` dans `api-payment-checkout-service.ts:893-919` exige déjà un profil `authorized_operation=link_payment`, `status=APPROVED`, valide, une entité et un acteur approuvés. `prepareFundingOrder:1065-1069` traite les wallet_recharge comme merchantless, bénéficiaire NETWORK ; `:1104-1105` exige leur financement externe avec contexte sélectionné. Aucun contrat ou code n'établit ici un autre runtime_operation propre aux Points K : ne pas inventer un nouveau profil. L'anomalie démontrée est le **placement du prérequis PSP dans l'ownership/préparation ERPNext**, pas la nécessité de supprimer l'habilitation de l'entité/prestataire pour le paiement effectif.
+
+## Trois opérations distinctes
+
+| Opération | Contrôles réellement pertinents dans le code | Profil PSP approuvé |
+|---|---|---|
+| Création/soumission du Sales Order | Ownership Customer/Lead/Quotation, permissions natives, validations ERPNext dont date de livraison | Pas de prérequis natif démontré ; succès réel sous Compliance Review |
+| Création/soumission d'une Payment Request sans gateway | Sales Order soumis, Customer, devise/montant, permissions natives | Pas de prérequis natif démontré ; succès réel sous Compliance Review |
+| Soumission PR avec gateway / initiation Stripe ou pawaPay | Peut appeler un contrôleur PSP ; financement API exige sélection signée, habilitations entité/corridor/acteur/prestataire | Contrôles existants conservés ; aucun paiement essayé |
+
+ERPNext `PaymentRequest.before_submit` appelle request_phone_payment pour Phone, sinon set_payment_request_url, puis éventuellement email. `mute_email=1` n'empêche pas une gateway de démarrer une interaction PSP. La PR ajoute donc une vérification explicite du Payment Gateway Account par défaut de la société avant la création/soumission native : si présent, erreur `PAYMENT_REQUEST_EXTERNAL_GATEWAY_CONFIGURED`, sans initier de paiement. Les trois sites réels n'ont aucun Payment Gateway Account. Aucune valeur artificielle ni réglage Frappe n'est injecté pour contourner un contrôleur.
+
+## Correction minimale dans PR #54
+
+- `owned()` reste réservé à l'ownership, au devis et aux modes natifs ; le POST prépare les documents et l'ordre de checkout existant sans résoudre un PSP.
+- Le GET résout séparément la disponibilité du financement. En cas d'erreur de contexte, il retourne HTTP 200 avec le devis natif, `paymentContext=null` et `paymentContextError` explicite. Aucun provider ni token de sélection n'est fabriqué. Les modes ERPNext décrivent des moyens natifs ; leur présence ne vaut pas habilitation PSP.
+- Un contexte disponible garde sa validation de devise et les sélections signées existantes. L'endpoint `/api/pay/payment-context` et le financement/PSP ne changent pas. L'erreur 422 ajoutée précédemment au handler reste utilisable pour les erreurs de contexte propagées ; le cas sous revue est désormais un état de disponibilité dans le GET du devis.
+- Le contrôle gateway empêche de déplacer involontairement une initiation PSP dans l'étape native ERPNext. Aucun nouvel endpoint, mécanisme de paiement, taux ou logique fiscale.
+
+Une recharge de 10 EUR ne doit pas créer une tâche d'approbation individuelle : aucune n'est introduite. L'habilitation globale entité/prestataire reste une condition de disponibilité du paiement et ne doit pas être confondue avec l'achat du client.
+
+## Recette réelle FR / CG / LB
+
+| Contrôle exécuté | France / EUR | Congo / XAF | Liban / USD |
 |---|---|---|---|
-| Site HTTPS | europe.erp.konektag.eu | congo.erp.konektag.eu | liban.erp.konektag.eu |
-| Routage réel | FR / EUROPE | CG / KONEKTAG_CG | LB / LIBAN |
-| Identité authentifiée | api-europe@konektag.eu | api-congo@konektag.eu | api-lebanon@konektag.eu |
-| Quotation de recette existante | soumise, docstatus=1 | soumise, docstatus=1 | soumise, docstatus=1 |
-| Customer.alias / ownership Lead | concordants | concordants | concordants |
-| Sujet Keycloak étranger | CUSTOMER_NOT_OWNED | CUSTOMER_NOT_OWNED | CUSTOMER_NOT_OWNED |
-| HT / taxes natives | 10 / 2 EUR | 7 205 / 1 361,74 XAF | 11 / 1,21 USD |
-| grand_total / rounded_total | 12 / 12 EUR | 8 566,74 / 8 567 XAF | 12,21 / 12,21 USD |
-| TTC retenu | 12 EUR | 8 567 XAF | 12,21 USD |
-| Sales Orders existants du Customer | 3 brouillons | 2 brouillons | 3 brouillons |
-| Lecture checkout, deux tentatives | profil non approuvé | profil non approuvé | profil non approuvé |
-| Handler GET corrigé | 422, code explicite | 422, code explicite | 422, code explicite |
-| Droits effectifs QTN/SO/PR read/create/write/submit | oui | oui | oui |
-| Méthodes submit / mapper / make_payment_request whitelistées | oui | oui | oui |
-| Payment Gateway Account | aucun | aucun | aucun |
-| Nouvelle soumission QTN/SO/PR pendant KON-73 | non exécutée | non exécutée | non exécutée |
-| Idempotence création / concurrence / reprise | non validée | non validée | non validée |
+| Site réel | europe.erp.konektag.eu | congo.erp.konektag.eu | liban.erp.konektag.eu |
+| Compte de service existant | api-europe@konektag.eu | api-congo@konektag.eu | api-lebanon@konektag.eu |
+| GET checkout corrigé | 200 + devis | 200 + devis | 200 + devis |
+| Contexte PSP existant | 422, profil sous revue | 422, profil sous revue | 422, profil sous revue |
+| Sujet Keycloak étranger | rejeté | rejeté | rejeté |
+| Quotation temporaire soumise | oui | oui | oui |
+| SO sans date de livraison | refus natif, rollback | refus natif, rollback | refus natif, rollback |
+| SO temporaire avec date explicite, soumis | oui | oui | oui |
+| Payment Request native soumise depuis SO | oui | oui | oui |
+| Customer conservé / aucun Customer supplémentaire | oui | oui | oui |
+| TTC Quotation = SO = PR | 12 | 8 567 | 12,21 |
+| Rejeu natif make_payment_request | rejet, aucun doublon | rejet, aucun doublon | rejet, aucun doublon |
+| Rollback documents / séries / source | vérifié | vérifié | vérifié |
+| Init PSP / facture / Payment Entry / GL | aucune | aucune | aucune |
 
-La soumission des devis et l'insertion des commandes brouillons sont des faits **préexistants de KON-68**, relus pendant cette mission. Aucun nouveau mapper ni POST checkout n'a été exécuté ici. Au Congo, un ancien Sales Order de recette vaut 9 275 XAF ; le final vaut 8 567 XAF. Ne pas confondre cet ancien essai avec le devis final.
+Le Congo conserve le TTC natif arrondi : 7 205 HT + 1 361,74 taxes = 8 566,74 grand_total → 8 567 rounded_total. Aucun calcul fiscal alternatif. Le devis d'origine KON-68 reste inchangé et les Sales Orders historiques restent brouillons.
 
-## Blocages constatés et intervention minimale
+## Garanties et limites de l'essai Bench
 
-Les profils LINK-FR-STRIPE, LINK-CG-PAWAPAY et LINK-LB-STRIPE portent `runtime_operation=link_payment`, mais leur statut réel est **Compliance Review**. Le résolveur exige `Approved`. Les trois corridors internes correspondants sont Approved ; cela ne rend pas les profils éligibles. Le service lève `PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND` avant toute soumission. Deux appels par pays reproduisent ce même refus : cela prouve la stabilité du refus, **pas l'idempotence d'une création**.
+Le script `tests/integration/points-k-native-rollback.py` utilise les vrais modules, base et contrôleurs du bench de production via `bench --site SITE console`, avec l'utilisateur de service correspondant. Copie transactionnelle du seul devis réservé KON-68, alias de recette vérifié ; aucun client réel utilisé. Pas de faux Frappe ni de réponses synthétiques.
 
-Le responsable habilité doit terminer la revue et l'approbation natives des profils, puis faire vérifier les acteurs/providers et leur configuration. Cette mission n'autorise pas à passer ces contrôles ni à approuver ces profils. Aucun paramétrage métier ou fiscal n'a été modifié.
+Avant write : aucun Payment Gateway Account, Webhook activé, Workflow actif, Assignment Rule ou Server Script activé ; pas de crm_deal/k360_reservation sur le devis, article non stocké. Hooks runtime relus : CRM ne crée pas de Customer si présent, Konektag sales retourne sans réservation, Link Pay protège seulement ses demandes marquées.
 
-L'absence de Payment Gateway Account est relevée ; elle n'est pas présentée comme une exception effectivement levée par make_payment_request, qui n'a pas été appelée. Les modes actifs sont Bank Draft, Cash, Cheque, Credit Card et Wire Transfer ; CG ajoute Konektag Link Pay. Leur présence ne prouve pas une correspondance avec un provider autorisé.
+Les commits, nouvelles connexions réseau, enqueues, sendmail et émissions Redis sont **interdits par des gardes de processus qui lèvent une exception**, jamais simulés comme réussis. Les contrôleurs métier, SQL et calculs restent réels ; les notifications after_commit natives ne sont jamais validées. Aucune garde déclenchée dans les essais réussis. Rollback dans finally, puis relecture et comparaison : tous les documents créés absents, source intacte, tabSeries identique et tous les comptages identiques (Customer, Lead, Quotation, SO, PR, facture, Payment Entry, GL, Email Queue, Communication, Notification Log, Version, ToDo, Integration Request).
 
-La chaîne API effectue plusieurs requêtes Frappe HTTP séparées et une insertion PostgreSQL : un rollback Bench unique ne couvre pas ces transactions. Le contrôleur natif Payment Request appelle, selon la configuration, request_phone_payment ou get_payment_url pendant before_submit ; mute_email ne désactive que l'email. Les hooks Quotation/Sales Order incluent Konektag et CRM. Aucun contexte isolé couvrant ces sorties et toutes les transactions n'a été établi. Les écritures sont donc restées interdites dans cette recette, conformément à la mission.
+Cet essai prouve les opérations natives dans **une transaction Bench**. Il n'exécute pas le POST API en HTTP, dont les transactions séparées ne seraient pas annulées par ce rollback. La date de livraison ajoutée à la fixture n'est pas présente dans le code API ; le succès natif ne certifie donc pas le flux API complet. Le rejeu natif démontre un rejet sans nouvelle PR, pas l'idempotence/concurrence de l'ensemble API/PostgreSQL. Aucun login navigateur ou endpoint public déployé testé.
 
-Après levée du blocage de configuration, il restera à établir ce contexte réversible sur les sites réels avant de soumettre SO/PR et de tester les rejeux/concurrences. Ne pas déployer l'API pour contourner ce blocage. L'index PostgreSQL d'unicité erpnextPointsK n'existe pas dans la base partagée actuelle : résultat attendu pour cette PR non déployée ; aucune migration exécutée. La persistance de metadata et son unicité nécessitent une base PostgreSQL isolée.
+## Preuves, tests et reprise
 
-## Défaut API corrigé dans PR #54
+[Preuves de correction et transactions natives](KON69_RECETTE_CORRECTION_PREUVES_2026-11-11.json) : résultats HTTP réels, profil sous revue, préconditions natives, erreurs sans date, réussites avec date, hashes des références et comptages avant/après. Les [preuves de la première recette](KON69_RECETTE_PRODUCTION_PREUVES_2026-11-11.json) restent historiques. Aucun Secret publié.
 
-Le handler checkout ne reconnaissait pas PaymentContextResolutionError : le refus réel ci-dessus devenait une erreur générique HTTP 500. GET et POST utilisent maintenant paymentContextErrorStatus et exposent uniquement le code métier, HTTP 422 pour ce cas. Aucun assouplissement de contrôle. Le handler GET corrigé a été appelé en processus contre chaque vrai ERPNext et retourne bien ce résultat. Le POST corrigé est vérifié uniquement en test unitaire ; aucun POST réel n'est revendiqué.
+Harnais HTTP `tests/integration/points-k-checkout.live.ts` compilé avec esbuild, exécuté sous /tmp/kon73-acceptance dans le pod API existant, avec ses dépendances/variables ; aucun fichier actif, image ou Deployment modifié. Tests Bench opt-in explicite `exec(code, {'KON73_ALLOW_NATIVE_ROLLBACK': True, 'KON73_NATIVE_DELIVERY_DATE': True})` depuis la console du site ciblé ; sans second flag, le refus de date est reproduit. Toujours vérifier les préconditions avant rejeu.
 
-## Preuves et absence d'effet de bord
+Typecheck réussi ; 55 tests ciblés (checkout, erreurs, contexte, financement existant) réussis. Suite locale complète et rapports REST régénérés : 178 fichiers, 2 831 tests réussis et cinq échecs attendus préexistants, 2 836 cas. Les tests unitaires comportent des doublures et sont distincts des deux recettes réelles. Le générateur compte les cinq expected-fail parmi ses passedTests ; ils ne sont pas des défauts corrigés. CI du SHA final publiée dans KON-73.
 
-[Preuves JSON anonymisées](KON69_RECETTE_PRODUCTION_PREUVES_2026-11-11.json) : réponses métier réelles, permissions Bench, profils/corridors, devis/taxes, comptes avant/après et PostgreSQL en transaction READ ONLY. Les noms et alias Customer/Lead ne sont pas publiés dans les preuves ; les UUID du harnais sont exclusivement les identités de test KON-68. Aucune identité client réel ni valeur de Secret n'est utilisée ou publiée.
-
-| Comptages natifs avant → après | France | Congo | Liban |
-|---|---|---|---|
-| Customer | 2 → 2 | 4 → 4 | 2 → 2 |
-| Quotation | 3 → 3 | 3 → 3 | 3 → 3 |
-| Sales Order | 3 → 3 | 2 → 2 | 3 → 3 |
-| Payment Request / Sales Invoice / Payment Entry / GL Entry | chacun 0 → 0 | chacun 0 → 0 | chacun 0 → 0 |
-| Email Queue | 0 → 0 | 0 → 0 | 0 → 0 |
-| Communication | 2 → 2 | 11 → 11 | 0 → 0 |
-| Notification Log | 2 → 2 | 330 → 330 | 0 → 0 |
-
-PostgreSQL : api_payment_orders=0, dont erpnextPointsK=0. Le harnais n'appelle aucun créateur de commande, PSP ou portefeuille. Les comptages identiques sont des preuves complémentaires ; ils ne sont pas présentés comme une surveillance exhaustive de tous les canaux externes. Aucun chemin de soumission ou notification n'a été exécuté. Les données existantes KON-68 sont conservées sans modification ni nettoyage hors périmètre.
-
-## Reproduction et validation
-
-- Base PR inspectée : 48460c1520afb8e983a7df50d927b551069999e3.
-- Harnais : tests/integration/points-k-checkout.live.ts, opt-in hors suite unitaire ; bundle esbuild platform=node, format=esm, packages=external, exécution sous /tmp/kon73-acceptance dans le pod API existant avec ses variables et dépendances. Aucun fichier actif, image ou Deployment changé.
-- Exemple de compilation : `./node_modules/.bin/esbuild tests/integration/points-k-checkout.live.ts --bundle --platform=node --format=esm --packages=external --outfile=/tmp/kon73-live.mjs`.
-- Bench : `ssh konektag-core`, kubectl namespace konektag-common, `bench --site SITE console`, lecture des permissions/méthodes/hooks et comptages, puis rollback. Sites toujours explicitement ciblés.
-- Harnais : vrais clients Frappe, routage et contexte ; identité Keycloak de recette injectée à l'entrée du service/handler. Aucun login navigateur/Keycloak ni endpoint public déployé testé.
-- `npm run typecheck` : réussi.
-- Tests unitaires ciblés : 3 fichiers, 6 tests réussis (checkout, erreurs GET/POST, auth quotation). Ils utilisent des doublures et ne sont **pas** des preuves de recette production. Premier lancement sans DATABASE_URL arrêté à l'import ; relance avec URL locale factice sans connexion, réussie. CI a ensuite confirmé cette dépendance indue dans les deux fichiers checkout ; ils isolent maintenant le créateur de commande de paiement dans les tests unitaires, sans DATABASE_URL ni connexion. Le harnais réel reste sans mocks.
-- CI 8b5db7f : typecheck/OpenAPI réussis, 178 fichiers de tests réussis, 2 828 tests réussis et 5 échecs attendus préexistants (2 833 cas). Contrôle final arrêté sur rapport de couverture périmé ; rapports régénérés depuis le résultat JSON de cette CI, sans inventer de résultats. Voir la CI du SHA final pour le verdict après régénération. Le workflow deploy exclut la CI des PR et les push hors main.
-- Paperclip : les commentaires historiques confirment deux « ACP agent reported a terminal limit failure ». Lecture/écriture du connecteur opérationnelles ici ; aucune opération de logs d'exécution proposée par search_api. Cause interne du runner non établie, pas de relance d'agent. La recette a été reprise directement via SSH depuis ce poste.
-
-Conclusion : accès, ownership négatif, TTC, devis préexistants, configuration et refus réel vérifiés sur FR/CG/LB. **Quotation → Sales Order soumis → Payment Request soumise, conservation Customer après ces soumissions, montants PR, idempotence de création et metadata PostgreSQL restent non validés.** KON-73 ne constitue pas une autorisation de fusion ou de production.
+Suite restante : traiter séparément le prérequis de date de livraison selon la règle métier attendue ; valider rejeux/concurrence et metadata dans PostgreSQL isolé ; terminer les habilitations globales avant tout financement PSP. Aucune approbation individuelle de recharge requise par le correctif. Aucun merge, déploiement, migration, PSP ni donnée métier durable pendant cette mission.
