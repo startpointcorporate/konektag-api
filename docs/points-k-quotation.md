@@ -178,3 +178,34 @@ TTC est alors égal au total HT.
 `tests/unit/points-k-quotation.test.ts` simule un ERPNext par hôte qui applique ses taxes et calcule ses totaux ;
 chaque quantité attendue vient d'un balayage exhaustif de ces totaux, indépendant de l'algorithme.
 `tests/unit/points-k-quotation-auth.test.ts` vérifie la protection de la route par le middleware réel.
+
+## Recette réelle en production — 11 novembre 2026
+
+Recette exécutée sur EUROPE, KONEKTAG_CG et LIBAN depuis le pod API existant,
+avec le code de la branche KON-68, les identifiants de service existants et des
+données identifiées `KON68 TEST`, après autorisation explicite de l'utilisateur.
+Le scénario rejouable est `tests/integration/points-k-quotation.live.ts` ; il reste
+hors de la suite automatique et exige `KON68_ALLOW_SHARED_SITE_TEST_WRITES=YES`,
+un `KON68_TEST_RUN_ID` explicite et un chemin de résultat privé sous `/tmp/`.
+Il utilise les vrais clients HTTP Frappe, le routage PostgreSQL et les verrous,
+sans ERPNext simulé. L'identifiant Keycloak de recette est injecté à l'entrée du
+service : ce test ne déploie pas la route publique ni ne rejoue un login Keycloak.
+
+Deux réglages natifs ont été corrigés pendant la recette :
+
+- lecture de `Item Price` accordée uniquement aux trois comptes de service via
+  le rôle `Konektag Points K Price Reader` (read/select, aucune écriture de prix) ;
+- Congo : `Accounts Settings.add_taxes_from_taxes_and_charges_template=1` et
+  `add_taxes_from_item_tax_template=0`, ces options étant mutuellement exclusives.
+  Cela charge les deux lignes du modèle composé sur l'insertion REST d'une
+  Quotation vers un Lead. La seule TVA positive ne suffit pas à vérifier ce cas.
+
+Le test compare les comptes et types de **toutes** les lignes du modèle natif,
+vérifie `total(q) <= budget < total(q+1)`, rejoue le flux pour vérifier sa réutilisation,
+puis soumet uniquement la Quotation de test (prérequis du mapper natif) et crée
+le Sales Order en brouillon. Aucun paiement, facture ni écriture comptable.
+
+La conversion native reprend le Customer initial et son alias ; le nombre de
+Customers ne change pas et les liens `Customer.lead_name` / `Lead.customer`
+restent cohérents. Résultats et pièces de recette :
+[rapport du 11 novembre 2026](reports/KON68_RECETTE_PRODUCTION_2026-11-11.md).
