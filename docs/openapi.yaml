@@ -20850,6 +20850,7 @@ paths:
       x-error-codes:
         - Unauthorized
         - PAYMENT_CURRENCY_MISMATCH
+        - CHECKOUT_ALREADY_EXISTS
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
@@ -20918,6 +20919,153 @@ paths:
         - merchantProfileId required
         - MERCHANT_SCOPE_FORBIDDEN
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/points-k/checkout:
+    get:
+      operationId: get__api_points_k_checkout
+      summary: GET /api/points-k/checkout
+      tags:
+        - points-k
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. Session/API authentication and account restrictions run before the handler.
+      parameters: []
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+        - keycloakOAuth: []
+      x-source: src/api/routes/points-k/checkout.ts
+      x-error-codes:
+        - Unauthorized
+        - INVALID_REQUEST
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+    post:
+      operationId: post__api_points_k_checkout
+      summary: POST /api/points-k/checkout
+      tags:
+        - points-k
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. Session/API authentication and account restrictions run before the handler.
+      parameters: []
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+        - keycloakOAuth: []
+      x-source: src/api/routes/points-k/checkout.ts
+      x-error-codes:
+        - Unauthorized
+        - INVALID_REQUEST
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country:
+                  type: string
+                customer:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+                quotation:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+              required:
+                - country
+                - customer
+                - quotation
+  /api/points-k/quotations:
+    post:
+      operationId: post__api_points_k_quotations
+      summary: POST /api/points-k/quotations
+      tags:
+        - points-k
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. Session/API authentication and account restrictions run before the handler.
+      parameters: []
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: &a305
+                type: object
+                properties:
+                  code: {}
+        "400":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a305
+        "401":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a305
+        "500":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a305
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+        - keycloakOAuth: []
+      x-source: src/api/routes/points-k/quotations.ts
+      x-error-codes:
+        - Unauthorized
+        - INVALID_REQUEST
+        - INVALID_REQUEST
+        - POINTS_K_QUOTATION_FAILED
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country:
+                  type: string
+                currency:
+                  type: string
+                budget:
+                  type: number
+                  maximum: 1000000000000
+                itemCode:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+              required:
+                - country
+                - currency
+                - budget
+                - itemCode
   /api/preferences/complete:
     post:
       operationId: post__api_preferences_complete
@@ -20932,7 +21080,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a305
+              schema: &a306
                 anyOf:
                   - type: object
                     properties:
@@ -20955,17 +21103,17 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a305
+              schema: *a306
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a305
+              schema: *a306
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a305
+              schema: *a306
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -20993,7 +21141,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a306
+              schema: &a307
                 anyOf:
                   - type: object
                     properties:
@@ -21019,7 +21167,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a306
+              schema: *a307
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21046,7 +21194,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a307
+              schema: &a308
                 anyOf:
                   - type: object
                     properties:
@@ -21065,12 +21213,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a307
+              schema: *a308
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a307
+              schema: *a308
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21125,7 +21273,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a308
+              schema: &a309
                 anyOf:
                   - type: object
                     properties:
@@ -21153,22 +21301,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a308
+              schema: *a309
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a308
+              schema: *a309
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a308
+              schema: *a309
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a308
+              schema: *a309
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21211,7 +21359,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a309
+              schema: &a310
                 anyOf:
                   - type: object
                     properties:
@@ -21230,22 +21378,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a309
+              schema: *a310
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a309
+              schema: *a310
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a309
+              schema: *a310
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a309
+              schema: *a310
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21311,7 +21459,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a310
+              schema: &a311
                 type: object
                 properties:
                   error:
@@ -21321,7 +21469,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a310
+              schema: *a311
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21349,17 +21497,17 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a311 {}
+              schema: &a312 {}
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a311
+              schema: *a312
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a311
+              schema: *a312
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21386,17 +21534,17 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a312 {}
+              schema: &a313 {}
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a312
+              schema: *a313
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a312
+              schema: *a313
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21424,17 +21572,17 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a313 {}
+              schema: &a314 {}
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a313
+              schema: *a314
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a313
+              schema: *a314
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21480,17 +21628,17 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a314 {}
+              schema: &a315 {}
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a314
+              schema: *a315
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a314
+              schema: *a315
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21515,22 +21663,22 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a315 {}
+              schema: &a316 {}
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a315
+              schema: *a316
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a315
+              schema: *a316
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a315
+              schema: *a316
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21605,7 +21753,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a316
+              schema: &a317
                 type: object
                 properties:
                   email: {}
@@ -21614,22 +21762,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a316
+              schema: *a317
         "409":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a316
+              schema: *a317
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a316
+              schema: *a317
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a316
+              schema: *a317
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21717,7 +21865,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a317
+              schema: &a318
                 anyOf:
                   - type: object
                     properties:
@@ -21736,7 +21884,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a317
+              schema: *a318
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21763,12 +21911,12 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a318 {}
+              schema: &a319 {}
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a318
+              schema: *a319
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21795,7 +21943,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a319
+              schema: &a320
                 type: object
                 properties:
                   error:
@@ -21805,7 +21953,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a319
+              schema: *a320
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21832,22 +21980,22 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a320 {}
+              schema: &a321 {}
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a320
+              schema: *a321
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a320
+              schema: *a321
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a320
+              schema: *a321
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21882,22 +22030,22 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a321 {}
+              schema: &a322 {}
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a321
+              schema: *a322
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a321
+              schema: *a322
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a321
+              schema: *a322
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -21926,7 +22074,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a322
+              schema: &a323
                 anyOf:
                   - type: object
                     properties:
@@ -22093,32 +22241,32 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a322
+              schema: *a323
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a322
+              schema: *a323
         "403":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a322
+              schema: *a323
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a322
+              schema: *a323
         "409":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a322
+              schema: *a323
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a322
+              schema: *a323
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22195,22 +22343,22 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a323 {}
+              schema: &a324 {}
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a323
+              schema: *a324
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a323
+              schema: *a324
         "409":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a323
+              schema: *a324
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22239,7 +22387,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a324
+              schema: &a325
                 type: object
                 properties:
                   code: {}
@@ -22247,7 +22395,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a324
+              schema: *a325
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22273,7 +22421,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a325
+              schema: &a326
                 anyOf:
                   - type: object
                     properties:
@@ -22292,12 +22440,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a325
+              schema: *a326
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a325
+              schema: *a326
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22329,12 +22477,12 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a326 {}
+              schema: &a327 {}
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a326
+              schema: *a327
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22372,7 +22520,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a327
+              schema: &a328
                 type: object
                 properties:
                   reviews:
@@ -22388,7 +22536,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a327
+              schema: *a328
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22415,7 +22563,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a328
+              schema: &a329
                 anyOf:
                   - type: object
                     properties:
@@ -22451,17 +22599,17 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a328
+              schema: *a329
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a328
+              schema: *a329
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a328
+              schema: *a329
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22523,7 +22671,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a329
+              schema: &a330
                 anyOf:
                   - type: object
                     properties:
@@ -22547,12 +22695,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a329
+              schema: *a330
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a329
+              schema: *a330
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22593,7 +22741,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a330
+              schema: &a331
                 anyOf:
                   - type: object
                     properties:
@@ -22606,7 +22754,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a330
+              schema: *a331
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22632,7 +22780,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a331
+              schema: &a332
                 anyOf:
                   - type: object
                     properties:
@@ -22645,7 +22793,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a331
+              schema: *a332
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22677,7 +22825,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a332
+              schema: &a333
                 type: object
                 properties:
                   error:
@@ -22687,7 +22835,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a332
+              schema: *a333
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22714,7 +22862,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a333
+              schema: &a334
                 anyOf:
                   - type: object
                     properties:
@@ -22746,22 +22894,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a333
+              schema: *a334
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a333
+              schema: *a334
         "403":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a333
+              schema: *a334
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a333
+              schema: *a334
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22811,22 +22959,22 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a334 {}
+              schema: &a335 {}
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a334
+              schema: *a335
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a334
+              schema: *a335
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a334
+              schema: *a335
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22858,7 +23006,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a335
+              schema: &a336
                 anyOf:
                   - type: object
                     properties:
@@ -22874,12 +23022,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a335
+              schema: *a336
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a335
+              schema: *a336
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -22909,7 +23057,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a336
+              schema: &a337
                 anyOf:
                   - type: object
                     properties:
@@ -22933,12 +23081,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a336
+              schema: *a337
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a336
+              schema: *a337
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23005,7 +23153,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a337
+              schema: &a338
                 anyOf:
                   - type: object
                     properties:
@@ -23023,7 +23171,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a337
+              schema: *a338
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23058,7 +23206,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a338
+              schema: &a339
                 anyOf:
                   - type: object
                     properties:
@@ -23077,12 +23225,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a338
+              schema: *a339
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a338
+              schema: *a339
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23126,7 +23274,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a339
+              schema: &a340
                 type: object
                 properties:
                   error:
@@ -23136,7 +23284,7 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a339
+              schema: *a340
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23248,7 +23396,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a340
+              schema: &a341
                 anyOf:
                   - type: object
                     properties:
@@ -23262,12 +23410,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a340
+              schema: *a341
         "502":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a340
+              schema: *a341
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23405,7 +23553,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a341
+              schema: &a342
                 anyOf:
                   - type: object
                     properties:
@@ -23425,12 +23573,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a341
+              schema: *a342
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a341
+              schema: *a342
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23501,7 +23649,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a342
+              schema: &a343
                 anyOf:
                   - type: object
                     properties:
@@ -23520,22 +23668,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a342
+              schema: *a343
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a342
+              schema: *a343
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a342
+              schema: *a343
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a342
+              schema: *a343
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23573,37 +23721,37 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a343 {}
+              schema: &a344 {}
         "201":
           description: Response from the migrated handler
           content:
             application/json:
-              schema: *a343
+              schema: *a344
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a343
+              schema: *a344
         "413":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a343
+              schema: *a344
         "415":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a343
+              schema: *a344
         "429":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a343
+              schema: *a344
         "503":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a343
+              schema: *a344
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23646,12 +23794,12 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a344 {}
+              schema: &a345 {}
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a344
+              schema: *a345
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23675,7 +23823,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a345
+              schema: &a346
                 anyOf:
                   - type: object
                     properties:
@@ -23692,12 +23840,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a345
+              schema: *a346
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a345
+              schema: *a346
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23772,7 +23920,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a346
+              schema: &a347
                 anyOf:
                   - type: object
                     properties:
@@ -23802,12 +23950,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a346
+              schema: *a347
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a346
+              schema: *a347
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23880,7 +24028,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a347
+              schema: &a348
                 anyOf:
                   - type: object
                     properties:
@@ -23917,22 +24065,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a347
+              schema: *a348
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a347
+              schema: *a348
         "403":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a347
+              schema: *a348
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a347
+              schema: *a348
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -23980,7 +24128,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a348
+              schema: &a349
                 anyOf:
                   - type: object
                     properties:
@@ -24020,22 +24168,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a348
+              schema: *a349
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a348
+              schema: *a349
         "403":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a348
+              schema: *a349
         "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a348
+              schema: *a349
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -24065,7 +24213,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a349
+              schema: &a350
                 anyOf:
                   - type: object
                     properties:
@@ -24094,12 +24242,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a349
+              schema: *a350
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a349
+              schema: *a350
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -24177,7 +24325,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a350
+              schema: &a351
                 anyOf:
                   - type: object
                     properties:
@@ -24199,12 +24347,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a350
+              schema: *a351
         "422":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a350
+              schema: *a351
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -24297,7 +24445,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a351
+              schema: &a352
                 anyOf:
                   - type: object
                     properties:
@@ -24324,22 +24472,22 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a351
+              schema: *a352
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a351
+              schema: *a352
         "403":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a351
+              schema: *a352
         "409":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a351
+              schema: *a352
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -24379,7 +24527,7 @@ paths:
           description: Response from the migrated handler
           content:
             application/json:
-              schema: &a352
+              schema: &a353
                 anyOf:
                   - type: object
                     properties:
@@ -24401,12 +24549,12 @@ paths:
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a352
+              schema: *a353
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a352
+              schema: *a353
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
