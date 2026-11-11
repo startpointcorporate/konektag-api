@@ -2,7 +2,7 @@
  * Points K purchase, flow 1: draft ERPNext Quotation for a maximum TTC budget.
  *
  *   selected country -> payment_country_mappings -> konektag-<country> -> Frappe site
- *   Customer (alias = Keycloak subject) -> Lead (customer = Customer.name)
+ *   Customer (alias = Keycloak subject) <-> Lead (Lead.customer, Customer.lead_name)
  *   -> Item / Item Price / Price List of that site in the requested currency
  *   -> draft Quotation (quotation_to = Lead) whose quantity is the largest
  *      integer whose rounded TTC total stays within the budget.
@@ -168,7 +168,7 @@ async function readPrice(site: FrappeSite, item: { name: string; stockUom: strin
 /** Customer of the site whose alias is the Keycloak subject; created once, never matched otherwise. */
 async function ensureCustomer(site: FrappeSite, keycloakId: string, displayName: string) {
   const find = async () => {
-    const rows = await site.list('Customer', [['alias', '=', keycloakId]], ['name', 'alias', 'disabled'], 2) as any[];
+    const rows = await site.list('Customer', [['alias', '=', keycloakId]], ['name', 'alias', 'disabled', 'lead_name'], 2) as any[];
     if ((rows ?? []).length > 1) throw new PointsKQuotationError('CUSTOMER_IDENTITY_MISMATCH', { reason: 'ALIAS_NOT_UNIQUE' });
     return rows?.[0] ?? null;
   };
@@ -186,19 +186,58 @@ async function ensureCustomer(site: FrappeSite, keycloakId: string, displayName:
   }
   if (!customer?.name || customer.alias !== keycloakId) throw new PointsKQuotationError('CUSTOMER_IDENTITY_MISMATCH');
   if (Number(customer.disabled) === 1) throw new PointsKQuotationError('CUSTOMER_DISABLED');
-  return { name: String(customer.name), created };
+  return { name: String(customer.name), created, leadName: customer.lead_name ? String(customer.lead_name) : null };
 }
 
-/** The enabled Lead linked to the Customer, or a new one. */
-async function ensureLead(site: FrappeSite, customer: string, displayName: string) {
-  const rows = await site.list('Lead', [['customer', '=', customer]], ['name', 'customer', 'status', 'disabled', 'creation'], 50) as any[];
-  const usable = (rows ?? [])
-    .filter(row => row.customer === customer && Number(row.disabled) !== 1 && row.status !== 'Do Not Contact')
-    .sort((a, b) => String(a.creation ?? '').localeCompare(String(b.creation ?? '')) || String(a.name).localeCompare(String(b.name)));
-  if (usable[0]) return { name: String(usable[0].name), created: false };
-  const lead = await site.insert('Lead', { first_name: displayName, customer });
-  if (!lead?.name || lead.customer !== customer) throw new PointsKQuotationError('QUOTATION_INCONSISTENT', { reason: 'LEAD_CUSTOMER_NOT_SET' });
-  return { name: String(lead.name), created: true };
+/**
+ * The Lead of the Customer, linked both ways by native fields:
+ *   Lead.customer = Customer.name, and Customer.lead_name = Lead.name.
+ * ERPNext's Quotation -> Sales Order mapper (make_sales_order -> _make_customer ->
+ * get_existing_customer_name) finds the Customer only by Customer.lead_name;
+ * without it, it creates a second Customer from the Lead, without the alias.
+ *
+ * Setting Customer.lead_name makes ERPNext mark the Lead Converted and move that
+ * Lead's existing Quotations to the Customer (Customer.update_lead_status), so the
+ * link is always set before any Quotation of this flow is created for the Lead.
+ */
+async function ensureLead(site: FrappeSite, customer: { name: string; leadName: string | null }, displayName: string) {
+  let lead: { name: string; created: boolean };
+  if (customer.leadName) {
+    // The Customer already comes from a Lead: the only one the mapper can resolve.
+    let doc: any;
+    try { doc = await site.get('Lead', customer.leadName); } catch (error) {
+      if (isNotFound(error)) throw new PointsKQuotationError('CUSTOMER_IDENTITY_MISMATCH', { reason: 'CUSTOMER_LEAD_NOT_FOUND' });
+      throw erpnextError(error);
+    }
+    if (doc?.name !== customer.leadName || (doc.customer && doc.customer !== customer.name))
+      throw new PointsKQuotationError('CUSTOMER_IDENTITY_MISMATCH', { reason: 'LEAD_CUSTOMER_MISMATCH' });
+    if (Number(doc.disabled) === 1) throw new PointsKQuotationError('CUSTOMER_DISABLED', { reason: 'LEAD_DISABLED' });
+    if (!doc.customer) {
+      const updated = await site.update('Lead', doc.name, { customer: customer.name });
+      if (updated?.customer !== customer.name) throw new PointsKQuotationError('QUOTATION_INCONSISTENT', { reason: 'LEAD_CUSTOMER_NOT_SET' });
+    }
+    lead = { name: String(doc.name), created: false };
+  } else {
+    // A Lead converted to another Customer is not reused.
+    const rows = await site.list('Lead', [['customer', '=', customer.name]], ['name', 'customer', 'status', 'disabled', 'creation'], 50) as any[];
+    const usable = (rows ?? [])
+      .filter(row => row.customer === customer.name && Number(row.disabled) !== 1 && row.status !== 'Do Not Contact' && row.status !== 'Converted')
+      .sort((a, b) => String(a.creation ?? '').localeCompare(String(b.creation ?? '')) || String(a.name).localeCompare(String(b.name)));
+    if (usable[0]) lead = { name: String(usable[0].name), created: false };
+    else {
+      const doc = await site.insert('Lead', { first_name: displayName, customer: customer.name });
+      if (!doc?.name || doc.customer !== customer.name) throw new PointsKQuotationError('QUOTATION_INCONSISTENT', { reason: 'LEAD_CUSTOMER_NOT_SET' });
+      lead = { name: String(doc.name), created: true };
+    }
+    // Only lead_name is written: the alias is left as it is.
+    const updated = await site.update('Customer', customer.name, { lead_name: lead.name });
+    if (updated?.lead_name !== lead.name) throw new PointsKQuotationError('QUOTATION_INCONSISTENT', { reason: 'CUSTOMER_LEAD_NOT_SET' });
+  }
+  // Same lookup as get_existing_customer_name("Lead", lead): it must resolve to this Customer only.
+  const owners = await site.list('Customer', [['lead_name', '=', lead.name]], ['name'], 2) as any[];
+  if ((owners ?? []).length !== 1 || owners[0].name !== customer.name)
+    throw new PointsKQuotationError('CUSTOMER_IDENTITY_MISMATCH', { reason: 'LEAD_CUSTOMER_AMBIGUOUS' });
+  return lead;
 }
 
 /** Today's draft Quotation of this Lead for the same item, list and currency. */
@@ -295,7 +334,7 @@ export async function createPointsKQuotation(input: PointsKQuotationInput, deps:
       const item = await readItem(site, input.itemCode);
       const price = await readPrice(site, item, input.currency, today);
       const customer = await ensureCustomer(site, keycloakId, displayName);
-      const lead = await ensureLead(site, customer.name, displayName);
+      const lead = await ensureLead(site, customer, displayName);
       const draft = await findDraft(site, lead.name, input.currency, price.priceList, item.name, today);
       let name: string | null = draft?.name ?? null;
       const expected = { lead: lead.name, currency: input.currency, priceList: price.priceList, itemCode: item.name };
@@ -317,7 +356,7 @@ export async function createPointsKQuotation(input: PointsKQuotationInput, deps:
         konektagSite: route.slug,
         paymentCountry: route.paymentCountry,
         site: { key: site.key, host: site.host },
-        customer,
+        customer: { name: customer.name, created: customer.created },
         lead,
         quotation: {
           name: String(doc.name), created: !draft, docstatus: 0, status: doc.status ?? null, company: doc.company ?? null,

@@ -38,8 +38,14 @@ Champ inconnu ou mal typé : `400 INVALID_REQUEST` (avec `fields`).
 5. `Customer` filtré par `alias = keycloak_id` ; sinon créé (`customer_name` = username, `customer_type=Individual`,
    `alias`). `alias` est unique dans ERPNext : une création concurrente (409) est relue et réutilisée.
    Le Customer retourné doit porter exactement cet `alias`.
-6. `Lead` filtré par `customer = Customer.name`, non désactivé et pas « Do Not Contact » (le plus ancien) ;
-   sinon créé (`first_name`, `customer`).
+6. Lead lié dans les deux sens par champs natifs : `Lead.customer = Customer.name` **et**
+   `Customer.lead_name = Lead.name` (voir « Liaison Customer ↔ Lead et conversion en Sales Order ») :
+   - si `Customer.lead_name` est renseigné, ce Lead est utilisé (refus si absent, rattaché à un autre Customer ou
+     désactivé) ; `Lead.customer` est complété s'il est vide ;
+   - sinon `Lead` filtré par `customer = Customer.name`, non désactivé, ni « Do Not Contact » ni « Converted »
+     (le plus ancien) ; sinon créé (`first_name`, `customer`) ; puis `PUT Customer {lead_name}` (seul champ écrit,
+     `alias` inchangé), **avant** toute Quotation de ce Lead ;
+   - contrôle final : `Customer` filtré par `lead_name = Lead` doit renvoyer exactement ce Customer.
 7. Quotation brouillon du jour réutilisée (`quotation_to=Lead`, `party_name=Lead`, `docstatus=0`, même devise,
    liste et date, une seule ligne de cet article) ; sinon créée :
    `{quotation_to:"Lead", party_name, order_type:"Sales", transaction_date, currency, selling_price_list, items:[{item_code, qty, uom}]}`.
@@ -76,7 +82,8 @@ Les valeurs de l'exemple sont illustratives (taux de 20 % supposé) : tous les m
 
 Garanties utilisées par les flux suivants (KON-69, KON-71) : la Quotation a **une seule ligne**, de l'article
 demandé, avec une `qty` entière, dans l'unité de stock de l'article (`conversion_factor = 1`), et son Customer porte
-`alias = keycloak_id` de l'acheteur.
+`alias = keycloak_id` de l'acheteur. `Lead.customer = Customer.name` et `Customer.lead_name = Lead.name` :
+`make_sales_order` sur cette Quotation reprend ce même Customer, sans en créer un second.
 
 ## Erreurs
 
@@ -88,8 +95,8 @@ demandé, avec une `qty` entière, dans l'unité de stock de l'article (`convers
 | 422 | `ITEM_NOT_FOUND`, `ITEM_NOT_SALEABLE` | article absent, désactivé, non vendable |
 | 422 | `PRICE_NOT_FOUND`, `PRICE_INVALID` | aucune liste de prix de vente valide dans cette devise ; prix ≤ 0 |
 | 422 | `NO_PURCHASE_POSSIBLE` (+ `budget`, `totalForOne`, `quotation`) | même 1 unité dépasse le budget TTC |
-| 409 | `CUSTOMER_DISABLED`, `QUOTATION_BUSY` | Customer désactivé ; appel concurrent trop long |
-| 502 | `ERPNEXT_REJECTED`, `CUSTOMER_IDENTITY_MISMATCH`, `QUOTATION_INCONSISTENT` | ERPNext refuse ou renvoie un document incohérent (message ERPNext seulement dans les journaux) |
+| 409 | `CUSTOMER_DISABLED`, `QUOTATION_BUSY` | Customer ou son Lead désactivé ; appel concurrent trop long |
+| 502 | `ERPNEXT_REJECTED`, `CUSTOMER_IDENTITY_MISMATCH`, `QUOTATION_INCONSISTENT` | ERPNext refuse ou renvoie un document incohérent ; liaison Customer ↔ Lead contradictoire ou ambiguë (message ERPNext seulement dans les journaux) |
 | 503 | `PRICE_AMBIGUOUS`, `QUANTITY_NOT_CONVERGED`, `ERPNEXT_UNAVAILABLE`, `COUNTRY_RULE_*`, `KONEKTAG_SITE_NOT_CONFIGURED` | configuration ou site indisponible |
 
 ## Contrat ERPNext vérifié (ERPNext 16.54.0, Frappe 16.55.2 — versions relevées dans konektag_360)
@@ -98,7 +105,7 @@ Vérifié dans les sources de ces versions, sans appel aux sites partagés (aucu
 dans l'environnement de développement) :
 
 - `Customer.alias` : champ natif `Data`, **unique**, dans `search_fields`. `Lead.customer` : champ natif `Link Customer`.
-  `Customer.lead_name` n'est pas renseigné (il ferait passer le Lead à « Converted »).
+  `Customer.lead_name` : champ natif `Link Lead` (lecture seule dans Desk, `no_copy`, non unique, permlevel 0).
 - REST v1 : `POST /api/resource/<DocType>` = `frappe.new_doc(**data).insert()` (valeurs par défaut appliquées, dont
   la société par défaut) ; `PUT /api/resource/<DocType>/<name>` = `doc.update(data); doc.save()` (une table enfant
   envoyée remplace les lignes) ; les deux renvoient le document enregistré.
@@ -112,6 +119,30 @@ dans l'environnement de développement) :
 - `rounded_total` = `round_based_on_smallest_currency_fraction(grand_total)` ; 0 si `disable_rounded_total`.
 - Aucune méthode whitelistée ne calcule les totaux d'une Quotation sans l'enregistrer : le calcul passe donc par le
   brouillon, réutilisé, et non par un endpoint inventé.
+
+## Liaison Customer ↔ Lead et conversion en Sales Order (correction de revue KON-69)
+
+Constat (sources ERPNext 16.54.0, `selling/doctype/quotation/quotation.py`) : `make_sales_order` →
+`_make_sales_order` → `_make_customer(quotation)` → `get_existing_customer_name("Lead", party_name)` =
+`frappe.db.get_value("Customer", {"lead_name": party_name})`. Si aucun Customer ne porte ce `lead_name`,
+`create_customer_from_lead` crée **un second Customer** (sans `alias`). `Lead.customer` n'est pas lu par ce mapper.
+La première version (`445a15a`) ne posait que `Lead.customer` : la conversion aurait dédoublé le Customer.
+
+Correction : l'API pose aussi `Customer.lead_name = Lead.name` (champ natif). Effets ERPNext vérifiés
+(`selling/doctype/customer/customer.py`) :
+- `validate_lead_not_converted` ne s'applique qu'à la création d'un Customer ; le Customer existant est mis à jour.
+- `on_update` (si `lead_name` change) / `after_insert` → `update_lead_status` : Lead → « Converted » et les
+  Quotations existantes `quotation_to=Lead, party_name=Lead` sont **réaffectées au Customer** ; d'où la pose du lien
+  avant toute Quotation de ce Lead (un brouillon antérieur à la correction est ainsi réaffecté et un nouveau
+  brouillon est créé).
+- Une Quotation vers un Lead « Converted » reste acceptée : `validate_lead_is_enabled` ne refuse qu'un Lead
+  `disabled` (`crm/doctype/lead/lead.py`).
+- Frappe 16.55.2 REST (`api/v1.py`) : `update_doc` = `doc.update(data); doc.save()` ; le caractère « lecture seule »
+  d'un champ n'est pas imposé côté serveur (seuls permlevel et `set_only_once` le sont).
+
+Test de régression : le faux ERPNext reproduit `update_lead_status` et `_make_customer` ; la conversion de la
+Quotation doit renvoyer le Customer d'origine (`alias = keycloak_id`), sans nouveau Customer. Ce test échoue sur
+`2ee6f6c`.
 
 ## Responsabilité fiscale (décision du 2026-11-11)
 
@@ -133,10 +164,12 @@ TTC est alors égal au total HT.
   fiscale s'applique au brouillon du jour suivant.
 - La société est la société par défaut du site ; les taux de change éventuels sont ceux d'ERPNext.
 - Une demande refusée (`NO_PURCHASE_POSSIBLE`) laisse le brouillon du jour à 1 unité ; il est réutilisé ensuite.
-- L'unicité du Lead par Customer n'est pas garantie par ERPNext : elle repose sur le verrou PostgreSQL.
+- L'unicité du Lead par Customer n'est pas garantie par ERPNext (`lead_name` non unique) : elle repose sur le verrou
+  PostgreSQL et sur le contrôle `Customer[lead_name = Lead]` = ce seul Customer.
+- La conversion en Sales Order n'est vérifiée que contre les sources ERPNext et un faux ERPNext, pas sur un site.
 - La maximalité suppose un total croissant avec la quantité (cas des taxes en pourcentage ou fixes) ; une règle de
   prix dégressive pourrait la mettre en défaut, mais `total(q) ≤ budget` reste toujours vrai.
-- Droits du compte de service : lecture Item/Item Price/Price List, lecture/création Customer et Lead,
+- Droits du compte de service : lecture Item/Item Price/Price List, lecture/création/écriture Customer et Lead,
   lecture/création/écriture Quotation sur chaque site — non vérifiés en direct.
 - Tarifs installés selon le cadrage : FR 1 EUR/K HT, CG 655 XAF/K HT, LB 1 USD/K HT ; l'API les lit dans ERPNext.
 

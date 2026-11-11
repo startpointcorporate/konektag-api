@@ -88,6 +88,36 @@ function computeQuotation(host: string, doc: any) {
   return doc;
 }
 
+/**
+ * ERPNext 16.54.0 Customer.update_lead_status (after_insert, or on_update when
+ * lead_name changes): the Lead becomes Converted and its Quotations to the Lead
+ * are moved to the Customer.
+ */
+function customerLeadHook(host: string, customer: any) {
+  if (!customer.lead_name) return;
+  const lead = table(host, 'Lead').find(l => l.name === customer.lead_name);
+  if (lead) lead.status = 'Converted';
+  for (const q of table(host, 'Quotation'))
+    if (q.quotation_to === 'Lead' && q.party_name === customer.lead_name) Object.assign(q, { quotation_to: 'Customer', party_name: customer.name });
+}
+
+/**
+ * ERPNext 16.54.0 quotation._make_customer, run by make_sales_order:
+ * get_existing_customer_name -> frappe.db.get_value("Customer", {"lead_name": party_name});
+ * when none, create_customer_from_lead inserts a new Customer (no alias).
+ */
+function makeSalesOrderCustomer(host: string, quotationName: string) {
+  const quotation = table(host, 'Quotation').find(q => q.name === quotationName);
+  if (quotation.quotation_to === 'Customer') return table(host, 'Customer').find(c => c.name === quotation.party_name);
+  const existing = table(host, 'Customer').find(c => c.lead_name === quotation.party_name);
+  if (existing) return existing;
+  const lead = table(host, 'Lead').find(l => l.name === quotation.party_name);
+  const created = { name: 'CUSTOMER-FROM-' + lead.name, customer_name: lead.lead_name, lead_name: lead.name, disabled: 0 };
+  table(host, 'Customer').push(created);
+  customerLeadHook(host, created);
+  return created;
+}
+
 /** Minimal Frappe REST (resource list/get/insert/update with "=" filters) with ERPNext-side Quotation totals. */
 async function fakeFrappe(input: URL | string, init: RequestInit = {}) {
   const url = new URL(String(input));
@@ -117,15 +147,20 @@ async function fakeFrappe(input: URL | string, init: RequestInit = {}) {
       return fail(409, { exc_type: 'UniqueValidationError', exception: 'Duplicate alias' });
     const doc = { ...body, name: doctype.toUpperCase().replace(/ /g, '-') + '-' + (++seq), creation: `2026-11-11 10:00:${String(seq).padStart(2, '0')}`, disabled: 0 };
     if (doctype === 'Lead') Object.assign(doc, { status: 'Lead', lead_name: body.first_name });
+    if (doctype === 'Customer' && body.lead_name && rows.some(r => r.lead_name === body.lead_name))
+      return fail(409, { exc_type: 'DuplicateEntryError', exception: 'Lead already converted' });
     if (doctype === 'Quotation') computeQuotation(url.hostname, doc);
     rows.push(doc);
+    if (doctype === 'Customer') customerLeadHook(url.hostname, doc);
     return ok(structuredClone(doc));
   }
   if (method === 'PUT' && name) {
     const doc = rows.find(r => r.name === name);
     if (!doc) return fail(404);
+    const oldLead = doc.lead_name;
     Object.assign(doc, JSON.parse(String(init.body)));
     if (doctype === 'Quotation') computeQuotation(url.hostname, doc);
+    if (doctype === 'Customer' && doc.lead_name !== oldLead) customerLeadHook(url.hostname, doc);
     return ok(structuredClone(doc));
   }
   return fail(405);
@@ -202,7 +237,7 @@ describe('POST /api/points-k/quotations', () => {
     const [lead] = table(host, 'Lead');
     const [quotation] = table(host, 'Quotation');
     expect(table(host, 'Quotation')).toHaveLength(1);
-    expect(customer).toMatchObject({ name: body.customer.name, alias: KEYCLOAK, customer_type: 'Individual' });
+    expect(customer).toMatchObject({ name: body.customer.name, alias: KEYCLOAK, customer_type: 'Individual', lead_name: lead.name });
     expect(lead).toMatchObject({ name: body.lead.name, customer: customer.name });
     expect(quotation).toMatchObject({ name: body.quotation.name, quotation_to: 'Lead', party_name: lead.name, docstatus: 0, currency, selling_price_list: cfg.priceList });
     expect(quotation.items).toEqual([expect.objectContaining({ item_code: 'POINTS-K', qty: expected, uom: 'Nos' })]);
@@ -263,6 +298,74 @@ describe('POST /api/points-k/quotations', () => {
     const body = await (await request({ country: 'FR', currency: 'EUR', budget: 5, itemCode: 'POINTS-K' })).json();
     expect(body.customer).toEqual({ name: 'CUST-RACE', created: false });
     expect(table(host, 'Customer')).toHaveLength(1);
+  });
+
+  describe('Customer <-> Lead link usable by make_sales_order (ERPNext 16.54.0)', () => {
+    const host = 'europe.erp.konektag.eu';
+    const input = { country: 'FR', currency: 'EUR', budget: 100, itemCode: 'POINTS-K' };
+
+    it('converts the Quotation to the same Customer, without a second one, alias kept', async () => {
+      const body = await (await request(input)).json();
+      // The link is set before the Quotation exists: it is still addressed to the Lead.
+      expect(table(host, 'Quotation')[0]).toMatchObject({ quotation_to: 'Lead', party_name: body.lead.name });
+      expect(table(host, 'Lead')[0]).toMatchObject({ customer: body.customer.name, status: 'Converted' });
+      const converted = makeSalesOrderCustomer(host, body.quotation.name);
+      expect(converted).toMatchObject({ name: body.customer.name, alias: KEYCLOAK, lead_name: body.lead.name });
+      expect(table(host, 'Customer')).toHaveLength(1);
+      // The Customer write carries lead_name only.
+      const customerWrites = (fetch as any).mock.calls
+        .filter(([url, init]: any[]) => init?.method === 'PUT' && String(url).includes('/resource/Customer/'))
+        .map(([, init]: any[]) => JSON.parse(init.body));
+      expect(customerWrites).toEqual([{ lead_name: body.lead.name }]);
+      // A repeated request keeps everything and writes no link again.
+      calls = [];
+      const again = await (await request(input)).json();
+      expect(again).toMatchObject({ customer: { name: body.customer.name, created: false }, lead: { name: body.lead.name, created: false }, quotation: { name: body.quotation.name } });
+      expect(calls.filter(c => c.method === 'PUT' && c.doctype !== 'Quotation')).toEqual([]);
+    });
+
+    it('links a Lead created before the fix (Lead.customer only) and converts to the same Customer', async () => {
+      table(host, 'Customer').push({ name: 'CUST-ADA', alias: KEYCLOAK, disabled: 0, lead_name: null });
+      table(host, 'Lead').push({ name: 'LEAD-ADA', customer: 'CUST-ADA', status: 'Lead', disabled: 0, lead_name: 'Ada' });
+      const body = await (await request(input)).json();
+      expect(body).toMatchObject({ customer: { name: 'CUST-ADA', created: false }, lead: { name: 'LEAD-ADA', created: false } });
+      expect(makeSalesOrderCustomer(host, body.quotation.name)).toMatchObject({ name: 'CUST-ADA', alias: KEYCLOAK });
+      expect(table(host, 'Customer')).toHaveLength(1);
+    });
+
+    it('uses the Lead the Customer was converted from, and links it back', async () => {
+      table(host, 'Customer').push({ name: 'CUST-ADA', alias: KEYCLOAK, disabled: 0, lead_name: 'LEAD-SALES' });
+      table(host, 'Lead').push(
+        { name: 'LEAD-SALES', customer: null, status: 'Converted', disabled: 0, lead_name: 'Ada' },
+        { name: 'LEAD-OTHER', customer: 'CUST-ADA', status: 'Lead', disabled: 0, lead_name: 'Ada' },
+      );
+      const body = await (await request(input)).json();
+      expect(body.lead).toEqual({ name: 'LEAD-SALES', created: false });
+      expect(table(host, 'Lead')[0].customer).toBe('CUST-ADA');
+      expect(table(host, 'Customer')[0].lead_name).toBe('LEAD-SALES');
+      expect(makeSalesOrderCustomer(host, body.quotation.name).name).toBe('CUST-ADA');
+    });
+
+    it('does not reuse a Lead already converted to another Customer', async () => {
+      table(host, 'Customer').push({ name: 'CUST-ADA', alias: KEYCLOAK, disabled: 0, lead_name: null }, { name: 'CUST-X', alias: null, disabled: 0, lead_name: 'LEAD-X' });
+      table(host, 'Lead').push({ name: 'LEAD-X', customer: 'CUST-ADA', status: 'Converted', disabled: 0 });
+      const body = await (await request(input)).json();
+      expect(body.lead).toMatchObject({ created: true });
+      expect(body.lead.name).not.toBe('LEAD-X');
+      expect(makeSalesOrderCustomer(host, body.quotation.name).name).toBe('CUST-ADA');
+    });
+
+    it.each([
+      ['the Customer’s Lead belongs to another Customer', [{ name: 'LEAD-SALES', customer: 'CUST-X', status: 'Converted', disabled: 0 }], [], 502, 'CUSTOMER_IDENTITY_MISMATCH'],
+      ['another Customer claims the same Lead', [{ name: 'LEAD-SALES', customer: 'CUST-ADA', status: 'Converted', disabled: 0 }], [{ name: 'CUST-X', alias: null, disabled: 0, lead_name: 'LEAD-SALES' }], 502, 'CUSTOMER_IDENTITY_MISMATCH'],
+      ['the Customer’s Lead is disabled', [{ name: 'LEAD-SALES', customer: 'CUST-ADA', status: 'Converted', disabled: 1 }], [], 409, 'CUSTOMER_DISABLED'],
+    ])('refuses when %s, before any Quotation', async (_label, leads, others, status, error) => {
+      table(host, 'Customer').push({ name: 'CUST-ADA', alias: KEYCLOAK, disabled: 0, lead_name: 'LEAD-SALES' }, ...others);
+      table(host, 'Lead').push(...leads);
+      const response = await request(input);
+      expect([response.status, (await response.json()).error]).toEqual([status, error]);
+      expect(table(host, 'Quotation')).toEqual([]);
+    });
   });
 
   it('follows the rounding ERPNext applies (rounded_total, or grand_total when rounding is disabled)', async () => {
