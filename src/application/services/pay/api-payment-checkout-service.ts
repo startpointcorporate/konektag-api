@@ -138,6 +138,8 @@ export interface CreateWalletRechargeOrderInput {
   targetUserId: string;
   currency: string;
   amount: number;
+  /** Unit used by amount and persisted with every derived order amount. */
+  amountUnit?: AmountUnit;
   paymentCountry: string;
   /** Konektag site resolved server-side for a Points K purchase; checked again at funding. */
   konektagSite?: { slug: string };
@@ -796,6 +798,7 @@ export const apiPaymentCheckoutService = {
       throw new ApiPaymentValidationError('currency must be a three-letter uppercase code');
     }
     assertAmount(input.amount, 'amount', false);
+    const amountUnit = input.amountUnit ?? 'MAJOR';
     const countryAliases = paymentCountryAliases(input.paymentCountry);
     const paymentCountry = countryAliases[0];
     if (!paymentCountry) throw new ApiPaymentValidationError('paymentCountry is required');
@@ -809,15 +812,15 @@ export const apiPaymentCheckoutService = {
          execution_reference, label, payer_identity, line_items, redirect_success_url, redirect_cancel_url,
          redirect_pending_url, order_metadata, currency, subtotal_amount, tax_amount, fee_amount, cashback_amount,
          total_amount, wallet_available_amount, wallet_amount, external_amount, checkout_token_hash,
-         beneficiary_type, beneficiary_party_id, payment_country
+         beneficiary_type, beneficiary_party_id, payment_country, amount_unit
        ) VALUES (
          NULL, 'wallet_recharge', 'wallet_recharge', $1, 'live', $2, NULL, 'Wallet recharge', $3,
          '[]'::jsonb, NULL, NULL, NULL, $8::jsonb, $4, $5, 0, 0, 0,
-         $5, 0, 0, $5, $6, 'NETWORK', NULL, $7
+         $5, 0, 0, $5, $6, 'NETWORK', NULL, $7, $9
        ) ON CONFLICT DO NOTHING RETURNING *`,
       [input.targetUserId, `WALLET-RECHARGE-${randomUUID()}`, `user:${input.targetUserId}`,
         input.currency, input.amount, hashToken(checkoutToken), paymentCountry,
-        JSON.stringify(metadata)],
+        JSON.stringify(metadata), amountUnit],
     );
     if (rows[0]) return { order: toPublicOrder(rows[0]), checkoutToken, created: true };
     if (typeof paymentRequest === 'string' && paymentRequest) {

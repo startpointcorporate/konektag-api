@@ -119,7 +119,7 @@ export async function createPointsKCheckout(input: Input & { modeOfPayment: stri
 
   const item = quotation.items[0];
   const order = await (deps.createOrder ?? apiPaymentCheckoutService.createWalletRechargeOrder)({
-    targetUserId: input.userId, amount, currency: paymentRequest.currency,
+    targetUserId: input.userId, amount, amountUnit: 'MINOR', currency: paymentRequest.currency,
     paymentCountry: state.route.paymentCountry, konektagSite: { slug: state.route.slug },
     metadata: { erpnextPointsK: { version: 1, site: state.route.site, customer: state.customer.name,
       quotation: quotation.name, salesOrder: salesOrder.name, paymentRequest: paymentRequest.name,

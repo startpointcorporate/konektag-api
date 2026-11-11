@@ -160,6 +160,24 @@ describe('apiPaymentCheckoutService', () => {
     expect(mocks.poolQuery.mock.calls[0][1]).toEqual(expect.arrayContaining(['user-1', 'EUR', 2500]));
   });
 
+  it('persists an explicit MINOR unit for ERPNext-backed wallet recharges', async () => {
+    mocks.poolQuery.mockResolvedValueOnce({ rows: [{
+      ...pendingOrder, merchant_profile_id: null, order_purpose: 'wallet_recharge', target_user_id: 'user-1',
+      environment: 'live', amount_unit: 'MINOR', currency: 'EUR', subtotal_amount: 1200,
+      total_amount: 1200, external_amount: 1200, beneficiary_type: 'NETWORK',
+    }] });
+
+    const result = await apiPaymentCheckoutService.createWalletRechargeOrder({
+      targetUserId: 'user-1', currency: 'EUR', amount: 1200, amountUnit: 'MINOR', paymentCountry: 'FR',
+      metadata: { erpnextPointsK: { paymentRequest: 'PR-1' } },
+    });
+
+    const [sql, params] = mocks.poolQuery.mock.calls[0];
+    expect(sql).toContain('payment_country, amount_unit');
+    expect(params).toEqual(expect.arrayContaining(['EUR', 1200, 'MINOR']));
+    expect(result.order).toMatchObject({ totalAmount: 1200, amountUnit: 'MINOR' });
+  });
+
   it('expires an old non-terminal checkout when loading the public order', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-10T12:00:00.000Z'));
@@ -460,6 +478,8 @@ describe('apiPaymentCheckoutService', () => {
   it('converts only supported checkout currencies to Stripe minor units', () => {
     expect(toStripeAmount('XOF', 10_815)).toBe(10_815);
     expect(toStripeAmount('EUR', 108)).toBe(10_800);
+    expect(toStripeAmount('EUR', 1_200, 'MINOR')).toBe(1_200);
+    expect(toStripeAmount('USD', 1_221, 'MINOR')).toBe(1_221);
     expect(() => toStripeAmount('XYZ', 108)).toThrow(ApiPaymentValidationError);
   });
 
