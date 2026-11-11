@@ -141,6 +141,8 @@ export interface CreateWalletRechargeOrderInput {
   paymentCountry: string;
   /** Konektag site resolved server-side for a Points K purchase; checked again at funding. */
   konektagSite?: { slug: string };
+  /** Server-owned references used to reconcile an ERPNext-backed recharge. */
+  metadata?: Record<string, unknown>;
 }
 
 export class ApiPaymentValidationError extends Error {}
@@ -799,6 +801,8 @@ export const apiPaymentCheckoutService = {
     if (!paymentCountry) throw new ApiPaymentValidationError('paymentCountry is required');
 
     const checkoutToken = randomBytes(32).toString('base64url');
+    const metadata = { ...(input.konektagSite ? { konektagSite: input.konektagSite } : {}), ...(input.metadata ?? {}) };
+    const paymentRequest = (metadata as any)?.erpnextPointsK?.paymentRequest;
     const { rows } = await pool.query<ApiPaymentOrderRow>(
       `INSERT INTO konektag.api_payment_orders (
          merchant_profile_id, order_purpose, business_purpose, target_user_id, environment, merchant_transaction_id,
@@ -810,13 +814,22 @@ export const apiPaymentCheckoutService = {
          NULL, 'wallet_recharge', 'wallet_recharge', $1, 'live', $2, NULL, 'Wallet recharge', $3,
          '[]'::jsonb, NULL, NULL, NULL, $8::jsonb, $4, $5, 0, 0, 0,
          $5, 0, 0, $5, $6, 'NETWORK', NULL, $7
-       ) RETURNING *`,
+       ) ON CONFLICT DO NOTHING RETURNING *`,
       [input.targetUserId, `WALLET-RECHARGE-${randomUUID()}`, `user:${input.targetUserId}`,
         input.currency, input.amount, hashToken(checkoutToken), paymentCountry,
-        JSON.stringify(input.konektagSite ? { konektagSite: input.konektagSite } : {})],
+        JSON.stringify(metadata)],
     );
-    if (!rows[0]) throw new Error('Unable to create wallet recharge order');
-    return { order: toPublicOrder(rows[0]), checkoutToken };
+    if (rows[0]) return { order: toPublicOrder(rows[0]), checkoutToken, created: true };
+    if (typeof paymentRequest === 'string' && paymentRequest) {
+      const { rows: existing } = await pool.query<ApiPaymentOrderRow>(
+        `SELECT * FROM konektag.api_payment_orders
+         WHERE target_user_id=$1 AND order_purpose='wallet_recharge'
+           AND order_metadata #>> '{erpnextPointsK,paymentRequest}'=$2`,
+        [input.targetUserId, paymentRequest],
+      );
+      if (existing[0]) return { order: toPublicOrder(existing[0]), checkoutToken: null, created: false };
+    }
+    throw new Error('Unable to create wallet recharge order');
   },
 
   async getPublicOrder(token: string) {

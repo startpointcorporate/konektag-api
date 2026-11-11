@@ -20918,6 +20918,84 @@ paths:
         - merchantProfileId required
         - MERCHANT_SCOPE_FORBIDDEN
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/points-k/checkout:
+    get:
+      operationId: get__api_points_k_checkout
+      summary: GET /api/points-k/checkout
+      tags:
+        - points-k
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. Session/API authentication and account restrictions run before the handler.
+      parameters: []
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+        - keycloakOAuth: []
+      x-source: src/api/routes/points-k/checkout.ts
+      x-error-codes:
+        - Unauthorized
+        - INVALID_REQUEST
+        - POINTS_K_CHECKOUT_FAILED
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+    post:
+      operationId: post__api_points_k_checkout
+      summary: POST /api/points-k/checkout
+      tags:
+        - points-k
+      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
+        responses and business rules. Session/API authentication and account restrictions run before the handler.
+      parameters: []
+      responses:
+        "200":
+          description: Response from the migrated handler
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
+            service. See x-source and x-error-codes.
+      security:
+        - session: []
+        - userApiKey: []
+        - bearer: []
+        - keycloakOAuth: []
+      x-source: src/api/routes/points-k/checkout.ts
+      x-error-codes:
+        - Unauthorized
+        - INVALID_REQUEST
+        - POINTS_K_CHECKOUT_FAILED
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country:
+                  type: string
+                customer:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+                quotation:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+              required:
+                - country
+                - customer
+                - quotation
   /api/points-k/quotations:
     post:
       operationId: post__api_points_k_quotations

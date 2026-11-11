@@ -2955,6 +2955,17 @@
     "score": 303
   },
   {
+    "path": "/api/points-k/checkout",
+    "file": "src/api/routes/points-k/checkout.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "pattern": "^/api/points-k/checkout/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
     "path": "/api/points-k/quotations",
     "file": "src/api/routes/points-k/quotations.ts",
     "methods": [
