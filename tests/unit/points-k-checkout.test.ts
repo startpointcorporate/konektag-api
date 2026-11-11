@@ -52,6 +52,28 @@ describe('Points K flow 2', () => {
       version: 1, site: 'EUROPE', customer: 'CUST', quotation: 'QTN', salesOrder: 'SO', paymentRequest: 'PR', itemCode: 'K', quantityK: 11,
     } } });
   });
+
+  it.each([
+    ['EUR', 12, 1_200],
+    ['USD', 12.21, 1_221],
+    ['XAF', 8_567, 8_567],
+  ])('freezes %s Payment Request totals in exact minor units', async (currency, grandTotal, expectedMinor) => {
+    const f = fixture();
+    const get = f.site.get.getMockImplementation()!;
+    f.site.get.mockImplementation(async (type: string, name: string) => {
+      const doc = await get(type, name);
+      return type === 'Quotation' ? { ...doc, currency } : doc;
+    });
+    const call = f.site.call.getMockImplementation()!;
+    f.site.call.mockImplementation(async (method: string, args: any) => method.endsWith('make_payment_request')
+      ? { name: 'PR', docstatus: 1, reference_doctype: 'Sales Order', reference_name: 'SO', party: 'CUST', currency, grand_total: grandTotal }
+      : call(method, args));
+    const createOrder = vi.fn(async () => ({ order: { id: 'order' }, checkoutToken: 'token', created: true }));
+    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
+      { route: async () => route, site: () => f.site, context: f.context, createOrder: createOrder as any });
+    expect(result).toMatchObject({ amount: grandTotal, amountMinor: expectedMinor, currency });
+    expect(createOrder).toHaveBeenCalledWith(expect.objectContaining({ amount: expectedMinor, amountUnit: 'MINOR', currency }));
+  });
 });
 
 describe('Points K native preparation is separate from provider eligibility', () => {

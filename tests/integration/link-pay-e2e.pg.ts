@@ -298,16 +298,24 @@ describe('Network follow-up from issuance, real API, outbox and Congo site', () 
     expect(await operation(`link-pay:${issued.slug}`)).toMatchObject([{ status: 'Payé', amount: 1200 }]);
   }, 180000);
 
-  async function rechargeOrder(amount: number) {
+  async function rechargeOrder(amount: number, amountUnit: 'MAJOR' | 'MINOR' = 'MAJOR') {
     const buyer = await payer();
     // The routed site is frozen on the order at purchase (konektag-cg for a CG resident).
     const { apiPaymentCheckoutService } = await import('../../src/application/services/pay/api-payment-checkout-service.ts');
     const { order } = await apiPaymentCheckoutService.createWalletRechargeOrder({ targetUserId: buyer.id, amount, currency: 'XAF',
-      paymentCountry: 'CG', konektagSite: { slug: 'konektag-cg' } });
+      amountUnit, paymentCountry: 'CG', konektagSite: { slug: 'konektag-cg' } });
     return order;
   }
   const attemptId = async (reference: string) => (await pool.query(
     `SELECT id FROM konektag.payment_provider_attempts WHERE provider_reference=$1`, [reference])).rows[0].id as string;
+
+  it('persists Points K XAF recharge amounts as MINOR without changing the zero-decimal provider value', async () => {
+    const order = await rechargeOrder(8_567, 'MINOR');
+    const { rows } = await pool.query(
+      `SELECT subtotal_amount, total_amount, external_amount, amount_unit FROM konektag.api_payment_orders WHERE id=$1`,
+      [order.id]);
+    expect(rows[0]).toMatchObject({ subtotal_amount: 8_567, total_amount: 8_567, external_amount: 8_567, amount_unit: 'MINOR' });
+  });
 
   it('PawaPay recharge: pending once accepted, the verified webhook updates the same row, a replay writes nothing', async () => {
     const { paymentProviderAttemptService } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts');
