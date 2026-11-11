@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 324,
-    "operations": 411,
+    "paths": 325,
+    "operations": 412,
     "covered": 79,
-    "partial": 331,
+    "partial": 332,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 332,
-    "executedTests": 2789,
-    "passedTests": 2789
+    "businessUncovered": 333,
+    "executedTests": 2825,
+    "passedTests": 2825
   },
   "operations": [
     {
@@ -18052,6 +18052,46 @@
       ],
       "constraints": [
         "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
+      ]
+    },
+    {
+      "operation": "POST /api/points-k/quotations",
+      "domain": "points-k",
+      "method": "POST",
+      "path": "/api/points-k/quotations",
+      "source": "src/api/routes/points-k/quotations.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "points-k [REST TRANSPORT POST /api/points-k/quotations] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "points-k [REST AUTH POST /api/points-k/quotations] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/points-k-quotation.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
     },
     {
