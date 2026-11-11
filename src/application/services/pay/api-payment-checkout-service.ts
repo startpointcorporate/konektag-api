@@ -17,6 +17,7 @@ import { activationChallengeService } from '../activation-challenge-service.ts';
 import { frappeMasterDataProjectionService } from '../frappe-master-data-projection-service.ts';
 import { verifyPaymentContextSelection } from './payment-context-resolver.ts';
 import { confirmPointsAcquisition } from './points-acquisition-service.ts';
+import { pointsKV2Settlement, readPointsKReference } from './points-k-v2-settlement.ts';
 import { createPaymentRailAdapter } from '../../../infrastructure/adapters/payment-rail.ts';
 import { minorDigits, type AmountUnit } from './money-unit.ts';
 import { MerchantProSubscriptionService } from '../merchant-pro-subscription-service.ts';
@@ -1988,6 +1989,11 @@ export const apiPaymentCheckoutService = {
     const allowedProviders = paymentMethod === 'card' ? ['stripe','manual'] : ['pawapay','manual'];
     if (!allowedProviders.includes(attempt.provider)) throw new ApiPaymentConflictError('Wallet recharge provider mismatch');
 
+    // Points K V2: ERPNext has invoiced and recorded the payment; the Quotation sets the K.
+    if (readPointsKReference(order.order_metadata)) {
+      return pointsKV2Settlement.credit(client, order, attempt, providerReference);
+    }
+
     const digits = minorDigits(order.currency);
     const lotValueMinor = Math.round(Number(order.subtotal_amount) * (10 ** digits));
     // Points K are EUR-denominated: 1 K = 1 EUR. Never equate a foreign
@@ -2020,6 +2026,9 @@ export const apiPaymentCheckoutService = {
   },
 
   async markFinalAndDispatch(orderId: string, paymentMethod: Extract<ApiPaymentMethod, 'wallet' | 'card' | 'mobile_money'>, providerReference?: string, providerEventId?: string) {
+    // Points K V2 (no-op for any other order): Sales Invoice and Payment Entry in ERPNext
+    // before the K credit below. Outside the transaction: it calls ERPNext and resumes.
+    if (paymentMethod !== 'wallet') await pointsKV2Settlement.prepare(orderId, providerReference, providerEventId);
     const client = await pool.connect();
     try {
       await client.query('BEGIN');

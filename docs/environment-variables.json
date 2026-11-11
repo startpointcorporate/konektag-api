@@ -39,6 +39,9 @@
   "ERPNEXT_CATALOG_URL": [
     "src/application/services/merchant-catalog-access.ts"
   ],
+  "ERPNEXT_ITEM_HANDLERS": [
+    "src/application/services/pay/points-k-v2-settlement.ts"
+  ],
   "ERPNEXT_URL": [
     "src/application/services/merchant-accounting-projection-service.ts",
     "src/infrastructure/adapters/erpnext-adapter.ts",

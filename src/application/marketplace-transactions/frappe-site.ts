@@ -18,7 +18,8 @@ export class FrappeSiteError extends Error {
   }
 }
 
-export type Filter = [string, string, unknown];
+/** [field, operator, value], or [child doctype, field, operator, value] for a child table field. */
+export type Filter = [string, string, unknown] | [string, string, string, unknown];
 
 export interface FrappeSite {
   readonly key: string;

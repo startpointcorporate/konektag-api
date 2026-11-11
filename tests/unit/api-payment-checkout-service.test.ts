@@ -63,6 +63,11 @@ vi.mock('../../src/application/services/pay/points-wallet-service', () => ({
 vi.mock('../../src/application/services/pay/payment-context-resolver', () => ({
   verifyPaymentContextSelection: paymentContextMocks.verifyPaymentContextSelection,
 }));
+// These orders carry no Points K V2 reference: the ERPNext settlement is covered by its own tests.
+vi.mock('../../src/application/services/pay/points-k-v2-settlement', async importOriginal => {
+  const actual = await importOriginal<typeof import('../../src/application/services/pay/points-k-v2-settlement.ts')>();
+  return { ...actual, pointsKV2Settlement: { ...actual.pointsKV2Settlement, prepare: vi.fn(async () => null) } };
+});
 
 import {
   apiPaymentCheckoutService,
