@@ -36,6 +36,7 @@ export const POST: RouteHandler = async ({ request, locals }) => {
       konektagSite: { slug: route.slug },
     });
     const origin = process.env.PUBLIC_SITE_URL || new URL(request.url).origin;
+    if (!result.checkoutToken) return Response.json({ error: 'CHECKOUT_ALREADY_EXISTS', id: result.order.id }, { status: 409 });
     const checkoutUrl = new URL(`/fr/pay/checkout/?token=${encodeURIComponent(result.checkoutToken)}`, origin).toString();
     return Response.json({
       id: result.order.id, status: result.order.state, checkoutUrl,

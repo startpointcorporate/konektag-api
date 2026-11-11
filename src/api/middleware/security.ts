@@ -86,6 +86,7 @@ const PROTECTED_PREFIXES = [
   '/pay',
   '/api/qr',
   '/api/pay',
+  '/api/points-k/',
   '/api/wallet-authorizations/',
   '/settings',
   '/earn',

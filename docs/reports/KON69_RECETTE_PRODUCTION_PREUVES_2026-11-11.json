@@ -1,0 +1,586 @@
+{
+  "executed_at_utc": "2026-11-11T18:30:44.849753+00:00",
+  "initial_pr_sha": "48460c1520afb8e983a7df50d927b551069999e3",
+  "live": [
+    {
+      "country": "FR",
+      "route": {
+        "residenceCountry": "FR",
+        "paymentCountry": "FR",
+        "slug": "konektag-fr",
+        "site": "EUROPE",
+        "timezone": "Europe/Paris"
+      },
+      "host": "europe.erp.konektag.eu",
+      "authenticatedUser": "api-europe@konektag.eu",
+      "nativeQuotation": {
+        "docstatus": 1,
+        "amount": 12,
+        "currency": "EUR",
+        "netTotal": 10,
+        "grandTotal": 12,
+        "roundedTotal": 12,
+        "taxes": [
+          {
+            "chargeType": "On Net Total",
+            "amount": 2
+          }
+        ]
+      },
+      "attempts": [
+        {
+          "code": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        },
+        {
+          "code": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      ],
+      "http": {
+        "status": 422,
+        "body": {
+          "error": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      },
+      "modes": [
+        {
+          "name": "Bank Draft",
+          "type": "Bank"
+        },
+        {
+          "name": "Cash",
+          "type": "Cash"
+        },
+        {
+          "name": "Cheque",
+          "type": "Bank"
+        },
+        {
+          "name": "Credit Card",
+          "type": "Bank"
+        },
+        {
+          "name": "Wire Transfer",
+          "type": "Bank"
+        }
+      ],
+      "profiles": [
+        {
+          "name": "LINK-FR-STRIPE",
+          "status": "Compliance Review",
+          "runtime_operation": "link_payment",
+          "rail": "stripe",
+          "valid_from": "2026-11-10",
+          "valid_until": null
+        }
+      ],
+      "corridors": [
+        {
+          "name": "KTG-FR-KTG-FR",
+          "status": "Approved",
+          "corridor_code": "KTG-FR-KTG-FR"
+        }
+      ],
+      "ownershipRejected": true,
+      "gatewayAccounts": [],
+      "salesOrders": [
+        {
+          "docstatus": 0,
+          "currency": "EUR",
+          "grand_total": 12,
+          "rounded_total": 12
+        },
+        {
+          "docstatus": 0,
+          "currency": "EUR",
+          "grand_total": 12,
+          "rounded_total": 12
+        },
+        {
+          "docstatus": 0,
+          "currency": "EUR",
+          "grand_total": 12,
+          "rounded_total": 12
+        }
+      ],
+      "paymentRequests": [],
+      "customerUnchanged": true
+    },
+    {
+      "country": "CG",
+      "route": {
+        "residenceCountry": "CG",
+        "paymentCountry": "CG",
+        "slug": "konektag-cg",
+        "site": "KONEKTAG_CG",
+        "timezone": "Africa/Brazzaville"
+      },
+      "host": "congo.erp.konektag.eu",
+      "authenticatedUser": "api-congo@konektag.eu",
+      "nativeQuotation": {
+        "docstatus": 1,
+        "amount": 8567,
+        "currency": "XAF",
+        "netTotal": 7205,
+        "grandTotal": 8566.74,
+        "roundedTotal": 8567,
+        "taxes": [
+          {
+            "chargeType": "On Net Total",
+            "amount": 1296.9
+          },
+          {
+            "chargeType": "On Previous Row Amount",
+            "amount": 64.84
+          }
+        ]
+      },
+      "attempts": [
+        {
+          "code": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        },
+        {
+          "code": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      ],
+      "http": {
+        "status": 422,
+        "body": {
+          "error": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      },
+      "modes": [
+        {
+          "name": "Bank Draft",
+          "type": "Bank"
+        },
+        {
+          "name": "Cash",
+          "type": "Cash"
+        },
+        {
+          "name": "Cheque",
+          "type": "Bank"
+        },
+        {
+          "name": "Credit Card",
+          "type": "Bank"
+        },
+        {
+          "name": "Konektag Link Pay",
+          "type": "Cash"
+        },
+        {
+          "name": "Wire Transfer",
+          "type": "Bank"
+        }
+      ],
+      "profiles": [
+        {
+          "name": "LINK-CG-PAWAPAY",
+          "status": "Compliance Review",
+          "runtime_operation": "link_payment",
+          "rail": "mobile_money",
+          "valid_from": "2026-11-10",
+          "valid_until": null
+        }
+      ],
+      "corridors": [
+        {
+          "name": "KTG-CG-KTG-CG",
+          "status": "Approved",
+          "corridor_code": "KTG-CG-KTG-CG"
+        }
+      ],
+      "ownershipRejected": true,
+      "gatewayAccounts": [],
+      "salesOrders": [
+        {
+          "docstatus": 0,
+          "currency": "XAF",
+          "grand_total": 9274.8,
+          "rounded_total": 9275
+        },
+        {
+          "docstatus": 0,
+          "currency": "XAF",
+          "grand_total": 8566.74,
+          "rounded_total": 8567
+        }
+      ],
+      "paymentRequests": [],
+      "customerUnchanged": true
+    },
+    {
+      "country": "LB",
+      "route": {
+        "residenceCountry": "LB",
+        "paymentCountry": "LB",
+        "slug": "konektag-lb",
+        "site": "LIBAN",
+        "timezone": "Asia/Beirut"
+      },
+      "host": "liban.erp.konektag.eu",
+      "authenticatedUser": "api-lebanon@konektag.eu",
+      "nativeQuotation": {
+        "docstatus": 1,
+        "amount": 12.21,
+        "currency": "USD",
+        "netTotal": 11,
+        "grandTotal": 12.21,
+        "roundedTotal": 12.21,
+        "taxes": [
+          {
+            "chargeType": "On Net Total",
+            "amount": 1.21
+          }
+        ]
+      },
+      "attempts": [
+        {
+          "code": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        },
+        {
+          "code": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      ],
+      "http": {
+        "status": 422,
+        "body": {
+          "error": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      },
+      "modes": [
+        {
+          "name": "Bank Draft",
+          "type": "Bank"
+        },
+        {
+          "name": "Cash",
+          "type": "Cash"
+        },
+        {
+          "name": "Cheque",
+          "type": "Bank"
+        },
+        {
+          "name": "Credit Card",
+          "type": "Bank"
+        },
+        {
+          "name": "Wire Transfer",
+          "type": "Bank"
+        }
+      ],
+      "profiles": [
+        {
+          "name": "LINK-LB-STRIPE",
+          "status": "Compliance Review",
+          "runtime_operation": "link_payment",
+          "rail": "stripe",
+          "valid_from": "2026-11-10",
+          "valid_until": null
+        }
+      ],
+      "corridors": [
+        {
+          "name": "KTG-LB-KTG-LB",
+          "status": "Approved",
+          "corridor_code": "KTG-LB-KTG-LB"
+        }
+      ],
+      "ownershipRejected": true,
+      "gatewayAccounts": [],
+      "salesOrders": [
+        {
+          "docstatus": 0,
+          "currency": "USD",
+          "grand_total": 12.21,
+          "rounded_total": 12.21
+        },
+        {
+          "docstatus": 0,
+          "currency": "USD",
+          "grand_total": 12.21,
+          "rounded_total": 12.21
+        },
+        {
+          "docstatus": 0,
+          "currency": "USD",
+          "grand_total": 12.21,
+          "rounded_total": 12.21
+        }
+      ],
+      "paymentRequests": [],
+      "customerUnchanged": true
+    }
+  ],
+  "postgres_read_only": {
+    "orders": [
+      {
+        "all_orders": 0,
+        "points_k_orders": 0
+      }
+    ],
+    "indexes": []
+  },
+  "bench": {
+    "FR": {
+      "before": {
+        "Customer": 2,
+        "Quotation": 3,
+        "Sales Order": 3,
+        "Payment Request": 0,
+        "Sales Invoice": 0,
+        "Payment Entry": 0,
+        "GL Entry": 0,
+        "Email Queue": 0,
+        "Communication": 2,
+        "Notification Log": 2
+      },
+      "after": {
+        "Customer": 2,
+        "Quotation": 3,
+        "Sales Order": 3,
+        "Payment Request": 0,
+        "Sales Invoice": 0,
+        "Payment Entry": 0,
+        "GL Entry": 0,
+        "Email Queue": 0,
+        "Communication": 2,
+        "Notification Log": 2
+      },
+      "permissions": {
+        "Customer": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        },
+        "Quotation": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Sales Order": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Payment Request": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Mode of Payment": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        },
+        "Payment Gateway Account": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        }
+      },
+      "whitelisted_methods": {
+        "frappe.client.submit": true,
+        "erpnext.selling.doctype.quotation.quotation.make_sales_order": true,
+        "erpnext.accounts.doctype.payment_request.payment_request.make_payment_request": true
+      },
+      "gateway_accounts": [],
+      "enabled_notifications": [
+        {
+          "name": "Material Request Receipt Notification",
+          "document_type": "Material Request",
+          "event": "Value Change",
+          "channel": "Email"
+        },
+        {
+          "name": "Notification for new fiscal year",
+          "document_type": "Fiscal Year",
+          "event": "New",
+          "channel": "Email"
+        }
+      ],
+      "enabled_server_scripts": [],
+      "hooks_sha256": "8da325ed898f24435e84f07604cf11de7bb5007ef4490b546568404fc7923c1c"
+    },
+    "CG": {
+      "before": {
+        "Customer": 4,
+        "Quotation": 3,
+        "Sales Order": 2,
+        "Payment Request": 0,
+        "Sales Invoice": 0,
+        "Payment Entry": 0,
+        "GL Entry": 0,
+        "Email Queue": 0,
+        "Communication": 11,
+        "Notification Log": 330
+      },
+      "after": {
+        "Customer": 4,
+        "Quotation": 3,
+        "Sales Order": 2,
+        "Payment Request": 0,
+        "Sales Invoice": 0,
+        "Payment Entry": 0,
+        "GL Entry": 0,
+        "Email Queue": 0,
+        "Communication": 11,
+        "Notification Log": 330
+      },
+      "permissions": {
+        "Customer": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        },
+        "Quotation": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Sales Order": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Payment Request": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Mode of Payment": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        },
+        "Payment Gateway Account": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        }
+      },
+      "whitelisted_methods": {
+        "frappe.client.submit": true,
+        "erpnext.selling.doctype.quotation.quotation.make_sales_order": true,
+        "erpnext.accounts.doctype.payment_request.payment_request.make_payment_request": true
+      },
+      "gateway_accounts": [],
+      "enabled_notifications": [
+        {
+          "name": "Material Request Receipt Notification",
+          "document_type": "Material Request",
+          "event": "Value Change",
+          "channel": "Email"
+        },
+        {
+          "name": "Notification for new fiscal year",
+          "document_type": "Fiscal Year",
+          "event": "New",
+          "channel": "Email"
+        }
+      ],
+      "enabled_server_scripts": [],
+      "hooks_sha256": "8da325ed898f24435e84f07604cf11de7bb5007ef4490b546568404fc7923c1c"
+    },
+    "LB": {
+      "before": {
+        "Customer": 2,
+        "Quotation": 3,
+        "Sales Order": 3,
+        "Payment Request": 0,
+        "Sales Invoice": 0,
+        "Payment Entry": 0,
+        "GL Entry": 0,
+        "Email Queue": 0,
+        "Communication": 0,
+        "Notification Log": 0
+      },
+      "after": {
+        "Customer": 2,
+        "Quotation": 3,
+        "Sales Order": 3,
+        "Payment Request": 0,
+        "Sales Invoice": 0,
+        "Payment Entry": 0,
+        "GL Entry": 0,
+        "Email Queue": 0,
+        "Communication": 0,
+        "Notification Log": 0
+      },
+      "permissions": {
+        "Customer": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        },
+        "Quotation": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Sales Order": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Payment Request": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": true
+        },
+        "Mode of Payment": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        },
+        "Payment Gateway Account": {
+          "read": true,
+          "create": true,
+          "write": true,
+          "submit": false
+        }
+      },
+      "whitelisted_methods": {
+        "frappe.client.submit": true,
+        "erpnext.selling.doctype.quotation.quotation.make_sales_order": true,
+        "erpnext.accounts.doctype.payment_request.payment_request.make_payment_request": true
+      },
+      "gateway_accounts": [],
+      "enabled_notifications": [
+        {
+          "name": "Material Request Receipt Notification",
+          "document_type": "Material Request",
+          "event": "Value Change",
+          "channel": "Email"
+        },
+        {
+          "name": "Notification for new fiscal year",
+          "document_type": "Fiscal Year",
+          "event": "New",
+          "channel": "Email"
+        }
+      ],
+      "enabled_server_scripts": [],
+      "hooks_sha256": "8da325ed898f24435e84f07604cf11de7bb5007ef4490b546568404fc7923c1c"
+    }
+  }
+}

@@ -63,6 +63,7 @@ sont gardées en `INACTIVE`. Ces règles servent aussi aux prix Pro, au KYB et a
 | Demander un rendez-vous (`GET /api/meeting-slots`, `POST /api/meeting-request`) | `country`, code ISO de résidence | créneaux, Lead et `Appointment` sur un seul site résolu une fois par requête |
 | Inscription (worker `UserRegistered`) | `legalCountry` de l'événement, sinon `users.legal_country` | Contact retrouvé par `konektag_user_id`, puis consentement ; un échec est rejoué par l'outbox (backoff, puis dead-letter), sans doublon |
 | Achat de Points K (`POST /api/pay/recharges`) | `users.legal_country` de l'acheteur ; le `paymentCountry` du corps est ignoré | contexte de paiement et frais lus avant la création du checkout |
+| Points K, flux 1 (`POST /api/points-k/quotations`) | `country` **choisi** par l'utilisateur (la résidence n'est qu'une présélection UI) | Customer (`alias` = Keycloak), Lead et Quotation brouillon — voir [points-k-quotation.md](points-k-quotation.md) |
 
 Le fuseau d'un rendez-vous est celui de l'entité résolue (`Europe/Paris`, `Africa/Brazzaville`, `Asia/Beirut`).
 Les réponses portent `konektagSite` (slug) pour la recette.
