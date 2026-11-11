@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+// Unit-only isolation: real production acceptance uses no module mocks.
+vi.mock('../../src/application/services/pay/api-payment-checkout-service.ts', () => ({
+  apiPaymentCheckoutService: { createWalletRechargeOrder: vi.fn(() => { throw new Error('Unexpected payment order creation'); }) },
+}));
 import { PaymentContextResolutionError } from '../../src/application/services/pay/payment-context-resolver.ts';
 const calls = vi.hoisted(() => ({ read: vi.fn(), create: vi.fn() }));
 vi.mock('../../src/application/services/pay/points-k-checkout-service.ts', async importOriginal => ({

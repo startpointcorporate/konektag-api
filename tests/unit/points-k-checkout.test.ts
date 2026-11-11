@@ -1,4 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
+// Unit-only isolation: real production acceptance uses no module mocks.
+vi.mock('../../src/application/services/pay/api-payment-checkout-service.ts', () => ({
+  apiPaymentCheckoutService: { createWalletRechargeOrder: vi.fn(() => { throw new Error('Unexpected payment order creation'); }) },
+}));
 import { createPointsKCheckout, readPointsKCheckout } from '../../src/application/services/pay/points-k-checkout-service.ts';
 
 const route: any = { site: 'EUROPE', slug: 'konektag-fr', paymentCountry: 'FR' };
