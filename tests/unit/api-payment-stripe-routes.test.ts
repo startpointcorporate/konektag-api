@@ -80,7 +80,7 @@ describe('API payment Stripe routes', () => {
     else process.env.STRIPE_PUBLIC_KEY = originalPublicKey;
   });
 
-  it.each([8_900, 101_460])('sends an exact EUR minor amount of %i to Stripe', async amountMinor => {
+  it.each([1_200, 8_900, 101_460])('sends an exact EUR minor amount of %i to Stripe', async amountMinor => {
     const order = { ...stripeOrder, currency: 'EUR', totalAmount: amountMinor, externalAmount: amountMinor,
       providerExpectedAmount: amountMinor, amountUnit: 'MINOR' };
     checkoutMocks.getStripeOrder.mockResolvedValue(order);

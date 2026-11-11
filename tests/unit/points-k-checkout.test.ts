@@ -16,7 +16,7 @@ function fixture(docstatus = 0) {
     key: 'EUROPE', host: 'erp.invalid',
     get: vi.fn(async (type: string, name: string) => docs[type]?.[name]),
     list: vi.fn(async (type: string) => type === 'Customer' ? [{ name: 'CUST' }]
-      : type === 'Mode of Payment' ? [{ name: 'Carte', type: 'Bank', enabled: 1 }]
+      : type === 'Mode of Payment' ? [{ name: 'CB', type: 'Bank', enabled: 1 }]
       : type === 'Sales Order' ? [] : type === 'Payment Request' ? [] : []),
     insert: vi.fn(async (type: string, doc: any) => type === 'Sales Order'
       ? { ...doc, name: 'SO', docstatus: 0 } : doc),
@@ -39,18 +39,40 @@ describe('Points K flow 2', () => {
     const result = await readPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN' },
       { route: async () => route, site: () => f.site, context: f.context });
     expect(result.amount).toBe(12.21);
-    expect(result.modesOfPayment).toEqual([{ name: 'Carte', type: 'Bank' }]);
+    expect(result.modesOfPayment).toEqual([{ name: 'CB', type: 'Bank' }]);
   });
 
   it('submits the native chain and freezes ERPNext references in wallet metadata', async () => {
     const f = fixture();
     const createOrder = vi.fn(async (input: any) => ({ order: { id: 'order' }, checkoutToken: 'token', created: true, input }));
-    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
       { route: async () => route, site: () => f.site, context: f.context, createOrder: createOrder as any });
     expect(result).toMatchObject({ salesOrder: 'SO', paymentRequest: 'PR', amount: 12.21, amountMinor: 1221 });
-    expect(createOrder.mock.calls[0][0]).toMatchObject({ amount: 1221, metadata: { erpnextPointsK: {
+    expect(createOrder.mock.calls[0][0]).toMatchObject({ amount: 1221, amountUnit: 'MINOR', metadata: { erpnextPointsK: {
       version: 1, site: 'EUROPE', customer: 'CUST', quotation: 'QTN', salesOrder: 'SO', paymentRequest: 'PR', itemCode: 'K', quantityK: 11,
     } } });
+  });
+
+  it.each([
+    ['EUR', 12, 1_200],
+    ['USD', 12.21, 1_221],
+    ['XAF', 8_567, 8_567],
+  ])('freezes %s Payment Request totals in exact minor units', async (currency, grandTotal, expectedMinor) => {
+    const f = fixture();
+    const get = f.site.get.getMockImplementation()!;
+    f.site.get.mockImplementation(async (type: string, name: string) => {
+      const doc = await get(type, name);
+      return type === 'Quotation' ? { ...doc, currency } : doc;
+    });
+    const call = f.site.call.getMockImplementation()!;
+    f.site.call.mockImplementation(async (method: string, args: any) => method.endsWith('make_payment_request')
+      ? { name: 'PR', docstatus: 1, reference_doctype: 'Sales Order', reference_name: 'SO', party: 'CUST', currency, grand_total: grandTotal }
+      : call(method, args));
+    const createOrder = vi.fn(async () => ({ order: { id: 'order' }, checkoutToken: 'token', created: true }));
+    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
+      { route: async () => route, site: () => f.site, context: f.context, createOrder: createOrder as any });
+    expect(result).toMatchObject({ amount: grandTotal, amountMinor: expectedMinor, currency });
+    expect(createOrder).toHaveBeenCalledWith(expect.objectContaining({ amount: expectedMinor, amountUnit: 'MINOR', currency }));
   });
 });
 
@@ -70,7 +92,7 @@ describe('Points K native preparation is separate from provider eligibility', ()
     const f = fixture();
     f.context.resolveForRoute.mockRejectedValue(new Error('Must not resolve providers during native preparation'));
     const createOrder = vi.fn(async () => ({ order: { id: 'order' }, checkoutToken: 'token', created: true }));
-    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+    const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
       { route: async () => route, site: () => f.site, context: f.context, createOrder: createOrder as any });
     expect(result.paymentRequest).toBe('PR');
     expect(f.context.resolveForRoute).not.toHaveBeenCalled();
@@ -82,7 +104,7 @@ describe('Points K native preparation is separate from provider eligibility', ()
     const list = f.site.list.getMockImplementation()!;
     f.site.list.mockImplementation(async (type: string, ...args: any[]) => type === 'Payment Gateway Account' ? [{ name: 'GATEWAY' }] : list(type, ...args));
     const createOrder = vi.fn();
-    await expect(createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+    await expect(createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
       { route: async () => route, site: () => f.site, context: f.context, createOrder })).rejects.toMatchObject({ code: 'PAYMENT_REQUEST_EXTERNAL_GATEWAY_CONFIGURED' });
     expect(f.site.call.mock.calls.some(([method]: any[]) => method.endsWith('make_payment_request'))).toBe(false);
     expect(createOrder).not.toHaveBeenCalled();
@@ -97,7 +119,7 @@ describe('Points K native Sales Order delivery dates', () => {
     f.site.call.mockImplementation(async (method: string, args: any) => method.endsWith('make_sales_order')
       ? { customer: 'CUST', company: 'COMPANY', order_type: 'Sales', currency: 'EUR', items: [{ prevdoc_docname: 'QTN' }], ...mapped }
       : call(method, args));
-    const promise = createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+    const promise = createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
       { route: async () => route, site: () => f.site, context: f.context,
         createOrder: vi.fn(async () => ({ order: { id: 'order' }, checkoutToken: 'token', created: true })) as any });
     return { f, promise };
@@ -131,5 +153,40 @@ describe('Points K native Sales Order delivery dates', () => {
     const { f, promise } = await run({});
     await expect(promise).rejects.toMatchObject({ code: 'SALES_ORDER_DELIVERY_DATE_UNAVAILABLE' });
     expect(f.site.insert).not.toHaveBeenCalled();
+  });
+});
+
+describe('Points K country payment mode restrictions', () => {
+  const input = { keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN' };
+  for (const [country, expected] of Object.entries({ FR: ['CB', 'Virement Bancaire'], LB: ['Cash', 'Wire Transfer'], CG: ['Mobile Money', 'Cash', 'Wire Transfer'] })) {
+    it(`filters enabled native modes for routed ${country}, independently of residence`, async () => {
+      const f = fixture();
+      const list = f.site.list.getMockImplementation()!;
+      f.site.list.mockImplementation(async (type: string, ...args: any[]) => type === 'Mode of Payment'
+        ? ['CB', 'Virement Bancaire', 'Cash', 'Wire Transfer', 'Mobile Money', 'Konektag Link Pay', 'Link pay', 'Cheque'].map(name => ({ name, type: 'Bank', enabled: 1 }))
+        : list(type, ...args));
+      const result = await readPointsKCheckout({ ...input, country: 'BE' }, { route: async () => ({ ...route, paymentCountry: country }), site: () => f.site, context: f.context });
+      expect(result.modesOfPayment.map(mode => mode.name)).toEqual(expected);
+    });
+  }
+  for (const mode of ['Konektag Link Pay', 'Link pay', 'Cash', 'Wire Transfer']) {
+    it(`rejects a forged France submission of ${mode} before native writes`, async () => {
+      const f = fixture();
+      const list = f.site.list.getMockImplementation()!;
+      f.site.list.mockImplementation(async (type: string, ...args: any[]) => type === 'Mode of Payment'
+        ? [{ name: mode, enabled: 1 }] : list(type, ...args));
+      await expect(createPointsKCheckout({ ...input, modeOfPayment: mode }, { route: async () => route, site: () => f.site }))
+        .rejects.toMatchObject({ code: 'MODE_OF_PAYMENT_NOT_ALLOWED' });
+      expect(f.site.call).not.toHaveBeenCalled();
+      expect(f.site.insert).not.toHaveBeenCalled();
+    });
+  }
+  it('does not invent missing or disabled native modes', async () => {
+    const f = fixture();
+    const list = f.site.list.getMockImplementation()!;
+    f.site.list.mockImplementation(async (type: string, ...args: any[]) => type === 'Mode of Payment'
+      ? [{ name: 'CB', enabled: 0 }] : list(type, ...args));
+    const result = await readPointsKCheckout(input, { route: async () => route, site: () => f.site, context: f.context });
+    expect(result.modesOfPayment).toEqual([]);
   });
 });
