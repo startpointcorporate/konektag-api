@@ -16,6 +16,14 @@ type Deps = {
   createOrder?: typeof apiPaymentCheckoutService.createWalletRechargeOrder;
 };
 
+// Points K accepts only the configured native modes of its routed payment country.
+// In particular, Link Pay remains available to other ERPNext journeys.
+const pointsKPaymentModes = {
+  FR: ['CB', 'Virement Bancaire'],
+  LB: ['Cash', 'Wire Transfer'],
+  CG: ['Mobile Money', 'Cash', 'Wire Transfer'],
+} as const;
+
 const n = (value: unknown) => Number(value);
 const total = (doc: any) => Number(doc.disable_rounded_total) === 1 ? n(doc.grand_total) : n(doc.rounded_total);
 
@@ -32,7 +40,10 @@ async function owned(input: Input, deps: Deps) {
   if (!Array.isArray(quotation.items) || quotation.items.length !== 1 || !(total(quotation) > 0))
     throw new PointsKCheckoutError('QUOTATION_INCONSISTENT');
   const modes = await site.list('Mode of Payment', [['enabled', '=', 1]], ['name', 'type', 'enabled'], 100);
-  return { route, site, customer, quotation, modes: modes.filter(mode => Number(mode.enabled) === 1) };
+  return { route, site, customer, quotation, modes: pointsKPaymentModes[route.paymentCountry].flatMap(name => {
+    const mode = modes.find(mode => mode.name === name && Number(mode.enabled) === 1);
+    return mode ? [mode] : [];
+  }) };
 }
 
 export async function readPointsKCheckout(input: Input, deps: Deps = {}) {
