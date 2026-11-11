@@ -95,20 +95,22 @@ CREATE OR REPLACE FUNCTION konektag.guard_wallet_recharge_rule_overlap() RETURNS
 LANGUAGE plpgsql AS $$
 BEGIN
   IF NEW.status <> 'APPROVED' THEN RETURN NEW; END IF;
-  IF TG_TABLE_NAME = 'wallet_recharge_tax_rules' AND NOT NEW.enabled THEN RETURN NEW; END IF;
-  IF TG_TABLE_NAME = 'wallet_recharge_tax_rules' AND EXISTS (
-    SELECT 1 FROM konektag.wallet_recharge_tax_rules r
-    WHERE r.id <> NEW.id AND r.status = 'APPROVED' AND r.enabled
-      AND r.country_code = NEW.country_code AND r.currency = NEW.currency AND r.tax_code = NEW.tax_code
-      AND tstzrange(r.valid_from, r.valid_until, '[)') && tstzrange(NEW.valid_from, NEW.valid_until, '[)')
-  ) THEN RAISE EXCEPTION 'WALLET_RECHARGE_TAX_RULE_OVERLAP';
-  ELSIF TG_TABLE_NAME = 'wallet_recharge_limit_rules' AND EXISTS (
-    SELECT 1 FROM konektag.wallet_recharge_limit_rules r
-    WHERE r.id <> NEW.id AND r.status = 'APPROVED'
-      AND (r.country_code, r.currency, r.rail, r.provider, r.kyc_level) =
-          (NEW.country_code, NEW.currency, NEW.rail, NEW.provider, NEW.kyc_level)
-      AND tstzrange(r.valid_from, r.valid_until, '[)') && tstzrange(NEW.valid_from, NEW.valid_until, '[)')
-  ) THEN RAISE EXCEPTION 'WALLET_RECHARGE_LIMIT_RULE_OVERLAP';
+  IF TG_TABLE_NAME = 'wallet_recharge_tax_rules' THEN
+    IF NOT NEW.enabled THEN RETURN NEW; END IF;
+    IF EXISTS (
+      SELECT 1 FROM konektag.wallet_recharge_tax_rules r
+      WHERE r.id <> NEW.id AND r.status = 'APPROVED' AND r.enabled
+        AND r.country_code = NEW.country_code AND r.currency = NEW.currency AND r.tax_code = NEW.tax_code
+        AND tstzrange(r.valid_from, r.valid_until, '[)') && tstzrange(NEW.valid_from, NEW.valid_until, '[)')
+    ) THEN RAISE EXCEPTION 'WALLET_RECHARGE_TAX_RULE_OVERLAP'; END IF;
+  ELSIF TG_TABLE_NAME = 'wallet_recharge_limit_rules' THEN
+    IF EXISTS (
+      SELECT 1 FROM konektag.wallet_recharge_limit_rules r
+      WHERE r.id <> NEW.id AND r.status = 'APPROVED'
+        AND (r.country_code, r.currency, r.rail, r.provider, r.kyc_level) =
+            (NEW.country_code, NEW.currency, NEW.rail, NEW.provider, NEW.kyc_level)
+        AND tstzrange(r.valid_from, r.valid_until, '[)') && tstzrange(NEW.valid_from, NEW.valid_until, '[)')
+    ) THEN RAISE EXCEPTION 'WALLET_RECHARGE_LIMIT_RULE_OVERLAP'; END IF;
   END IF;
   RETURN NEW;
 END;
