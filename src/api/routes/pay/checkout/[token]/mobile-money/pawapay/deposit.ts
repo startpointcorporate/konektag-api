@@ -1,6 +1,6 @@
 import type { RouteHandler } from '../../../../../../http';
 import { apiPaymentCheckoutService, ApiPaymentConflictError, ApiPaymentNotFoundError, ApiPaymentValidationError } from '../../../../../../../application/services/pay/api-payment-checkout-service.ts';
-import { paymentProviderAttemptService } from '../../../../../../../application/services/pay/payment-provider-attempt-service.ts';
+import { PaymentProviderAttemptConflictError, paymentProviderAttemptService } from '../../../../../../../application/services/pay/payment-provider-attempt-service.ts';
 import { pawaPayClient, PawaPayError } from '../../../../../../../infrastructure/adapters/pawapay-client.ts';
 import { getPublicOrigin } from '../../../../../../../application/shared/public-origin.ts';
 import { getPaymentLocale } from '../../../../../../../application/catalogs/payment/catalog.ts';
@@ -46,5 +46,5 @@ export const POST: RouteHandler = async ({ request, params, locals }) => {
     // PawaPay accepted the payment page for this depositId: pending on the Network site (Points K recharges).
     await paymentProviderAttemptService.recordRechargeAccepted('pawapay', depositId);
     return Response.json({ redirectUrl, state: result.order.state }, { status: 201 });
-  } catch (error) { const status = error instanceof ApiPaymentNotFoundError ? 404 : error instanceof ApiPaymentValidationError ? 400 : error instanceof ApiPaymentConflictError ? 409 : error instanceof PawaPayError ? 502 : 500; return Response.json({ error: error instanceof Error ? error.message : 'Unable to start PawaPay deposit' }, { status }); }
+  } catch (error) { const status = error instanceof ApiPaymentNotFoundError ? 404 : error instanceof ApiPaymentValidationError ? 400 : error instanceof ApiPaymentConflictError || error instanceof PaymentProviderAttemptConflictError ? 409 : error instanceof PawaPayError ? 502 : 500; return Response.json({ error: error instanceof Error ? error.message : 'Unable to start PawaPay deposit' }, { status }); }
 };

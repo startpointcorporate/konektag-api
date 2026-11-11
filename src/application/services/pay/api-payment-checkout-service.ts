@@ -164,7 +164,7 @@ export interface ApiPaymentStripeOrder {
   stripePaymentIntentId: string | null;
   providerConfigurationKey: string | null;
 }
-export interface ApiPaymentMobileMoneyOrder { id: string; currency: string; externalAmount: number; paymentCountry: 'CMR' | 'COG' | 'GAB'; providerConfigurationKey: string | null; }
+export interface ApiPaymentMobileMoneyOrder { id: string; currency: string; externalAmount: number; paymentCountry: 'CMR' | 'COG' | 'GAB'; providerConfigurationKey: string | null; amountUnit: AmountUnit; pointsK: boolean; }
 
 export interface ApiPaymentFunding {
   amountUnit?: AmountUnit;
@@ -467,8 +467,31 @@ function isCheckoutExpired(order: Pick<ApiPaymentOrderRow, 'created_at' | 'state
   return Date.now() - createdAt.getTime() >= maxAgeMs;
 }
 
+const POINTS_K_RAILS = { stripe: { rail: 'stripe', paymentMethod: 'card' }, pawapay: { rail: 'mobile_money', paymentMethod: 'mobile_money' } } as const;
+
+/** The PSP frozen by the native Mode of Payment of an ERPNext Points K order; null for any other order. */
+export function pointsKProvider(order: Pick<ApiPaymentOrderRow, 'order_metadata'>) {
+  const pointsK = order.order_metadata?.erpnextPointsK as { provider?: unknown } | undefined;
+  if (!pointsK) return null;
+  const provider = pointsK.provider;
+  if (provider !== 'stripe' && provider !== 'pawapay') {
+    // Orders created before the mode was frozen cannot prove which PSP the payer chose.
+    throw new ApiPaymentConflictError('ERPNext Points K order has no frozen payment provider');
+  }
+  return { provider, ...POINTS_K_RAILS[provider] };
+}
+
+function assertPointsKMethod(order: ApiPaymentOrderRow, paymentMethod: ApiPaymentMethod): void {
+  const frozen = pointsKProvider(order);
+  if (frozen && frozen.paymentMethod !== paymentMethod) {
+    throw new ApiPaymentConflictError('Payment method does not match the ERPNext Points K Mode of Payment');
+  }
+}
+
 function toFunding(order: ApiPaymentOrderRow): ApiPaymentFunding {
-  const allowedPaymentMethods: ApiPaymentMethod[] = order.amount_unit === 'MINOR' ? ['card', 'mobile_money'] : order.environment === 'sandbox'
+  const frozen = pointsKProvider(order);
+  const allowedPaymentMethods: ApiPaymentMethod[] = frozen ? [frozen.paymentMethod]
+    : order.amount_unit === 'MINOR' ? ['card', 'mobile_money'] : order.environment === 'sandbox'
     ? ['sandbox']
     : order.external_amount === 0 ? ['wallet'] : ['card', 'mobile_money'];
   return {
@@ -1065,6 +1088,7 @@ export const apiPaymentCheckoutService = {
       if (order.order_metadata?.erpnextPointsK && order.amount_unit !== 'MINOR') {
         throw new ApiPaymentConflictError('ERPNext Points K amount unit must be corrected before funding');
       }
+      const frozenProvider = pointsKProvider(order);
 
       if (isCheckoutExpired(order)) {
         const expired = await this.updateState(client, order, 'expired');
@@ -1120,6 +1144,10 @@ export const apiPaymentCheckoutService = {
 
         if (isWalletRecharge && (!settlementContext?.regulatoryProfileId || settlementContext.rail === 'internal')) {
           throw new ApiPaymentConflictError('Wallet recharge requires an externally funded selected Payment Context');
+        }
+        // The provider is never chosen by the browser for Points K: only the PSP of the native mode is accepted.
+        if (frozenProvider && (settlementContext!.provider !== frozenProvider.provider || settlementContext!.rail !== frozenProvider.rail)) {
+          throw new ApiPaymentConflictError('Selected Payment Context does not match the ERPNext Points K Mode of Payment');
         }
         const walletContributionEnabled = !isWalletRecharge && order.amount_unit !== 'MINOR' && options.useWalletPoints !== false;
         const customWalletAmount = options.walletPointsAmount;
@@ -1552,6 +1580,7 @@ export const apiPaymentCheckoutService = {
     if (order.environment !== 'live') {
       throw new ApiPaymentValidationError('Stripe card collection is only available for live checkouts');
     }
+    assertPointsKMethod(order, 'card');
     if (order.state === 'paid' && !allowPaid) throw new ApiPaymentConflictError('Checkout has already been paid');
     if (order.state !== 'pending' && order.state !== 'processing' && order.state !== 'paid') {
       throw new ApiPaymentConflictError(`Checkout cannot collect a card payment while ${order.state}`);
@@ -1581,6 +1610,7 @@ export const apiPaymentCheckoutService = {
   async getMobileMoneyOrder(token: string, payer?: ApiPaymentPayer, feeContext?: ApiPaymentExternalFundingContext): Promise<ApiPaymentMobileMoneyOrder> {
     const order = await this.prepareFundingOrder(token, payer, feeContext);
     if (order.environment !== 'live' || order.state === 'paid' || order.external_amount === 0) throw new ApiPaymentConflictError('Checkout cannot collect Mobile Money');
+    assertPointsKMethod(order, 'mobile_money');
     if (order.state !== 'pending' && order.state !== 'processing' && order.state !== 'awaiting_mobile_money') throw new ApiPaymentConflictError(`Checkout cannot collect Mobile Money while ${order.state}`);
     if ((order.state === 'processing' || order.state === 'awaiting_mobile_money') && order.payment_method !== 'mobile_money') throw new ApiPaymentConflictError('Checkout is being processed by another payment method');
     if (Number(order.wallet_amount) > 0) await this.assertWalletAuthorizationForOrder(order.id);
@@ -1588,7 +1618,8 @@ export const apiPaymentCheckoutService = {
     if (order.settlement_provider !== 'pawapay') throw new ApiPaymentConflictError('Checkout is not configured for PawaPay');
     const paymentCountry = ({ CM: 'CMR', CG: 'COG', GA: 'GAB' } as const)[order.payment_country ?? ''];
     if (!paymentCountry || order.currency !== 'XAF') throw new ApiPaymentConflictError('Checkout is not configured for a supported PawaPay XAF country');
-    return { id: order.id, currency: order.currency, externalAmount: order.external_amount, paymentCountry, providerConfigurationKey: order.provider_configuration_key };
+    return { id: order.id, currency: order.currency, externalAmount: order.external_amount, paymentCountry, providerConfigurationKey: order.provider_configuration_key,
+      amountUnit: order.amount_unit ?? 'MAJOR', pointsK: Boolean(order.order_metadata?.erpnextPointsK) };
   },
 
   async attachStripePaymentIntent(token: string, paymentIntentId: string): Promise<ApiPaymentStripeOrder> {
@@ -1607,6 +1638,7 @@ export const apiPaymentCheckoutService = {
       if (order.environment !== 'live') {
         throw new ApiPaymentValidationError('Stripe card collection is only available for live checkouts');
       }
+      assertPointsKMethod(order, 'card');
       if (order.settlement_regulatory_profile_id || order.beneficiary_type) this.assertPaymentRequestFrozen(order, 'stripe');
       if (!order.beneficiary_type) await this.resolveBeneficiaryType(client, order.merchant_profile_id!);
       if (order.state === 'paid') throw new ApiPaymentConflictError('Checkout has already been paid');
@@ -1735,6 +1767,7 @@ export const apiPaymentCheckoutService = {
       }
 
       if (paymentMethod === 'mobile_money') {
+        assertPointsKMethod(order, 'mobile_money');
         if (order.state === 'paid') {
           await client.query('COMMIT');
           return { outcome: 'paid' as const, order: toPublicOrder(order) };

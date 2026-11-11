@@ -2066,5 +2066,31 @@
       "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
       "Achat de Points K refuses at funding a selection read on another Konektag site"
     ]
+  },
+  {
+    "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit",
+      "GET /api/pay/checkout/{token}/mobile-money/pawapay/providers"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated payer and checkout token forwarded; browser amount and malformed phone refused before the service; rejection, mode conflict and provider failure mapped to 422/409/502. Service, v2 bodies and lifecycle are unit-tested separately; no sandbox pawaPay call executed."
+    ],
+    "constraints": [],
+    "sha256": "7f59f87ccfa3fc65404214b92d6e79a4d43ef8fc9ceb3f8b267ae66bac8a09c0",
+    "tests": [
+      "Points K pawaPay direct deposit routes starts the deposit for the authenticated payer without accepting any amount",
+      "Points K pawaPay direct deposit routes maps Error: PAWAPAY_DEPOSIT_REJECTED to its HTTP status",
+      "Points K pawaPay direct deposit routes maps Error: Payment method does not match the ERPNext Points K Mode of Payment to its HTTP status",
+      "Points K pawaPay direct deposit routes maps Error: PawaPay request failed (500) to its HTTP status",
+      "Points K pawaPay direct deposit routes lists operators active for the checkout"
+    ]
   }
 ]

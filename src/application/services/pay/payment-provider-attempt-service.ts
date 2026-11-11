@@ -62,6 +62,7 @@ export type PawaPayEventConsumption =
   | { outcome: 'ready_to_settle'; eventId: string; sourceId: string };
 
 export class PaymentProviderAttemptValidationError extends Error {}
+export class PaymentProviderAttemptConflictError extends Error {}
 
 const PROHIBITED_METADATA_KEY = /pan|cvc|expiry|expiration|last4|client.?secret|raw.*payload|stripe.*payload/i;
 
@@ -152,11 +153,13 @@ export const paymentProviderAttemptService = {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      const existing = await client.query<{ provider_reference:string }>(
-        `SELECT provider_reference FROM konektag.payment_provider_attempts
+      const existing = await client.query<{ provider_reference:string; metadata:any }>(
+        `SELECT provider_reference,metadata FROM konektag.payment_provider_attempts
          WHERE provider='pawapay' AND source_type='api_payment' AND source_id=$1
            AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now())
          FOR UPDATE`, [input.orderId]);
+      // A direct deposit already prompted the payer's phone: never reuse its depositId on a Payment Page.
+      if (existing.rows[0]?.metadata?.directDeposit) throw new PaymentProviderAttemptConflictError('A payment attempt is still active');
       if (existing.rows[0]) { await client.query('COMMIT'); return existing.rows[0].provider_reference; }
       const depositId = randomUUID();
       // Payment Page URL is valid for 15 minutes according to PawaPay. The
@@ -172,6 +175,50 @@ export const paymentProviderAttemptService = {
       return depositId;
     } catch(error) { await client.query('ROLLBACK').catch(()=>undefined); throw error; }
     finally { client.release(); }
+  },
+  /**
+   * Direct v2 deposit for one payer phone and operator. An active attempt is reused
+   * only for the same phone/operator (same depositId, so pawaPay ignores the retry);
+   * any other active attempt, including a Payment Page, locks the checkout.
+   */
+  async createOrGetPawaPayDirectDepositAttempt(input: { orderId: string; amount: number; currency: string; providerConfigurationKey: string | null; provider: string; phoneNumberHash: string }): Promise<{ depositId: string; created: boolean }> {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const existing = await client.query<{ provider: string; provider_reference: string; metadata: any }>(
+        `SELECT provider,provider_reference,metadata FROM konektag.payment_provider_attempts
+         WHERE source_type='api_payment' AND source_id=$1
+           AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now())
+         FOR UPDATE`, [input.orderId]);
+      if (existing.rows.length) {
+        const direct = existing.rows.length === 1 && existing.rows[0].provider === 'pawapay' ? existing.rows[0].metadata?.directDeposit : null;
+        if (!direct || direct.provider !== input.provider || direct.phoneNumberHash !== input.phoneNumberHash) {
+          throw new PaymentProviderAttemptConflictError('A payment attempt is still active');
+        }
+        await client.query('COMMIT');
+        return { depositId: existing.rows[0].provider_reference, created: false };
+      }
+      const depositId = randomUUID();
+      // The operator prompt is short-lived; until pawaPay accepts the deposit the attempt expires on its own.
+      await client.query(
+        `INSERT INTO konektag.payment_provider_attempts
+         (source_type,source_id,operation_id,provider,provider_reference,expected_amount,expected_currency,state,metadata,expires_at)
+         VALUES('api_payment',$1,$1,'pawapay',$2,$3,$4,'pending',$5::jsonb,now()+interval '15 minutes')`,
+        [input.orderId,depositId,input.amount,input.currency.toUpperCase(),
+         JSON.stringify({providerConfigurationKey:input.providerConfigurationKey,depositObserved:false,
+           directDeposit:{provider:input.provider,phoneNumberHash:input.phoneNumberHash}})]);
+      await client.query('COMMIT');
+      return { depositId, created: true };
+    } catch(error) { await client.query('ROLLBACK').catch(()=>undefined); throw error; }
+    finally { client.release(); }
+  },
+  /** pawaPay synchronously REJECTED the deposit: it does not exist there and no callback will follow. */
+  async markPawaPayDepositRejected(depositId: string, failureCode: string | null): Promise<void> {
+    await pool.query(
+      `UPDATE konektag.payment_provider_attempts
+       SET state='failed',metadata=COALESCE(metadata,'{}'::jsonb)||jsonb_build_object('rejectedFailureCode',$2::text),
+           updated_at=now(),version=version+1
+       WHERE provider='pawapay' AND provider_reference=$1 AND state IN ('pending','processing')`,[depositId,failureCode]);
   },
   async markPawaPayDepositObserved(depositId:string): Promise<void> {
     await pool.query(

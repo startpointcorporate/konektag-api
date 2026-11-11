@@ -62,25 +62,39 @@ describe('Points K amount units through real PostgreSQL', () => {
     expect(Number(order.total_amount)).toBe(12);
     expect(toStripeAmount(order.currency, Number(order.total_amount), order.amount_unit)).toBe(1200);
   });
+  it('opens no PSP order for a native Lebanon Wire Transfer', async () => {
+    const suffix = randomUUID();
+    const result = await createPointsKCheckout({ keycloakId: 'kc', userId, country: 'LB', customer: 'CUST',
+      quotation: `Q-${suffix}`, modeOfPayment: 'Wire Transfer' }, {
+      route: async () => ({ residenceCountry: 'LB', paymentCountry: 'LB', slug: 'konektag-lb', site: 'LB', timezone: 'UTC' }),
+      site: () => nativeDocuments('USD', 12.21, 'Wire Transfer', suffix),
+    });
+    expect(result).toMatchObject({ paymentRequest: `PR-${suffix}`, modeOfPayment: 'Wire Transfer', provider: null, order: null, checkoutToken: null });
+    const { rows } = await pool.query(`SELECT 1 FROM konektag.api_payment_orders
+      WHERE order_metadata #>> '{erpnextPointsK,paymentRequest}'=$1`, [`PR-${suffix}`]);
+    expect(rows).toHaveLength(0);
+  });
+  // USD stays a technical two-decimal assertion on a CB route; Lebanon itself has no CB mode.
   for (const [currency, country, major, minor] of [
     ['EUR', 'FR', 4.8, 480], ['EUR', 'FR', 12, 1200], ['EUR', 'FR', 99.6, 9960],
-    ['USD', 'LB', 12.21, 1221], ['XAF', 'CG', 8567, 8567],
+    ['USD', 'FR', 12.21, 1221], ['XAF', 'CG', 8567, 8567],
   ] as const) {
     it(`${major} ${currency} is stored as ${minor} MINOR and sent to the provider once`, async () => {
       const suffix = randomUUID();
-      const mode = country === 'FR' ? 'CB' : country === 'CG' ? 'Mobile Money' : 'Wire Transfer';
+      const mode = country === 'FR' ? 'CB' : 'Mobile Money';
       const result = await createPointsKCheckout({ keycloakId: 'kc', userId, country, customer: 'CUST',
         quotation: `Q-${suffix}`, modeOfPayment: mode }, {
         route: async () => ({ residenceCountry: country, paymentCountry: country, slug: `konektag-${country.toLowerCase()}`, site: country, timezone: 'UTC' }),
         site: () => nativeDocuments(currency, major, mode, suffix),
       });
-      const { rows: [order] } = await pool.query('SELECT * FROM konektag.api_payment_orders WHERE id=$1', [result.order.id]);
+      const { rows: [order] } = await pool.query('SELECT * FROM konektag.api_payment_orders WHERE id=$1', [result.order!.id]);
       expect(order.amount_unit).toBe('MINOR');
       expect(Number(order.total_amount)).toBe(minor);
       expect(Number(order.external_amount)).toBe(minor);
       expect(result).toMatchObject({ amount: major, amountMinor: minor });
       expect(result.order).toMatchObject({ amountUnit: 'MINOR', totalAmount: minor });
-      expect(order.order_metadata.erpnextPointsK.quantityK).toBe(4);
+      expect(order.order_metadata.erpnextPointsK).toMatchObject({ quantityK: 4, modeOfPayment: mode,
+        provider: country === 'CG' ? 'pawapay' : 'stripe', paymentMethod: country === 'CG' ? 'mobile_money' : 'card' });
       // Exercise the real funding preparation too. The standard migrations include
       // legacy France VAT: it must not tax the native ERPNext TTC a second time.
       const { rows: [ids] } = await pool.query(`SELECT id AS profile_id, legal_entity_id,
