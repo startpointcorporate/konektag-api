@@ -12,7 +12,7 @@
  *
  * Contract with flux 2 (createPointsKCheckout, PR #54): the checkout is an existing
  * `wallet_recharge` api_payment_order whose amount is the Payment Request grand_total in minor
- * units and whose order_metadata.erpnextPointsK names the ERPNext documents (see
+ * units (amount_unit='MINOR', KON-74) and whose order_metadata.erpnextPointsK names the ERPNext documents (see
  * ErpnextPointsKReference). The ownership rule is flux 2's: Customer.alias is the buyer Keycloak
  * id and the Quotation is addressed to the Lead the Customer was converted from.
  * A browser redirect never reaches this code: only a succeeded provider attempt bound to a
@@ -219,13 +219,18 @@ async function recordProof(orderId: string, ref: ErpnextPointsKReference, handle
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { rows: [order] } = await client.query(`SELECT id,currency FROM konektag.api_payment_orders WHERE id=$1 FOR UPDATE`, [orderId]);
+    const { rows: [order] } = await client.query(`SELECT id,currency,amount_unit,total_amount FROM konektag.api_payment_orders WHERE id=$1 FOR UPDATE`, [orderId]);
     const { rows: [attempt] } = await client.query<{ id: string; provider: string; expected_amount: string; expected_currency: string; state: string }>(
       `SELECT id,provider,expected_amount,expected_currency,state FROM konektag.payment_provider_attempts
        WHERE source_type='api_payment' AND source_id::text=$1::text AND provider_reference=$2`, [orderId, providerReference]);
     if (!order || !attempt || attempt.state !== 'succeeded' || !['stripe', 'pawapay'].includes(attempt.provider)
       || attempt.expected_currency !== order.currency)
       throw new PointsKSettlementError('PROOF_MISSING', 'succeeded Stripe/pawaPay attempt');
+    // KON-74 contract: a Points K order stores the Payment Request total in MINOR units and the
+    // provider collects exactly that amount, without fees. Anything else is never invoiced.
+    if (order.amount_unit !== 'MINOR') throw new PointsKSettlementError('AMOUNT_MISMATCH', 'order amount_unit');
+    if (Number(attempt.expected_amount) !== Number(order.total_amount))
+      throw new PointsKSettlementError('AMOUNT_MISMATCH', 'provider attempt vs order');
     const { rows: [event] } = await client.query(
       `SELECT id FROM konektag.payment_provider_events WHERE id=$1 AND attempt_id=$2 AND failed_at IS NULL`, [providerEventId, attempt.id]);
     if (!event) throw new PointsKSettlementError('PROOF_MISSING', 'verified provider event');

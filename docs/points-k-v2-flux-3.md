@@ -15,7 +15,7 @@ Achat de Points K uniquement. ERPNext reste le système comptable : aucune écri
 
 ## Contrat du flux 2 (KON-69, PR #54, `createPointsKCheckout`)
 
-La commande de paiement est une `api_payment_orders` existante, `order_purpose = 'wallet_recharge'`, créée par `createWalletRechargeOrder` puis payée par le checkout existant (Stripe ou pawaPay). Son montant est le `grand_total` de la Payment Request en unités mineures, sa devise celle de la Payment Request, et `order_metadata` vaut :
+La commande de paiement est une `api_payment_orders` existante, `order_purpose = 'wallet_recharge'`, créée par `createWalletRechargeOrder` puis payée par le checkout existant (Stripe ou pawaPay). Son montant est le `grand_total` de la Payment Request en unités mineures (`amount_unit = 'MINOR'`, KON-74), sa devise celle de la Payment Request, et `order_metadata` vaut :
 
 ```json
 {
@@ -51,7 +51,7 @@ La commande de paiement est une `api_payment_orders` existante, `order_purpose =
 
 - Les tests utilisent une base PostgreSQL jetable (`konektag_test`, migrations 001 à 234, dont 201 du flux 2), les vraies routes de webhook avec signatures Stripe et pawaPay valides, et un double HTTP ERPNext. La commande et son `erpnextPointsK` sont produits par le vrai code du flux 2 (`createPointsKCheckout`) sur ce double. Aucun site Frappe, aucun prestataire réel, aucune transaction réelle : ce n'est **pas** une recette ERPNext réelle.
 - Le double reproduit le comportement ERPNext v15 : un Payment Entry dont la ligne porte `payment_request` réduit le restant dû de la Payment Request et la passe à `Paid`. Il faut le confirmer sur un site ERPNext de TEST avant la recette KON-72. Si la version installée ne le fait pas, le journal enregistre `payment_request_reflected:pending` et le statut ERPNext réel, sans le forcer.
-- **Unité du montant (flux 2, PR #54)** : `createPointsKCheckout` passe un montant en unités mineures à `createWalletRechargeOrder`, qui enregistre la commande avec `amount_unit = 'MAJOR'` (valeur par défaut). Pour une Payment Request de 12,00 EUR, la commande vaut 1200 MAJOR et `toStripeAmount` demande 120000 centimes (1200 EUR). Le flux 3 refuse alors de facturer (`AMOUNT_MISMATCH` contre la Payment Request), mais le client aurait été débité. XAF n'est pas concerné (0 décimale). Correction à faire dans le flux 2 avant toute recette de paiement.
+- **Unité du montant (corrigée par KON-74, PR #56)** : avant KON-74, la commande Points K enregistrait le montant mineur avec `amount_unit = 'MAJOR'` (12,00 EUR demandait 1200 EUR à Stripe). Depuis #56, `createPointsKCheckout` impose `amount_unit = 'MINOR'` et le checkout refuse de financer un ancien ordre ERPNext `MAJOR`. Le flux 3 applique la même règle à la preuve : `amount_unit` doit valoir `MINOR` et le montant attendu de la tentative doit égaler `total_amount` (aucun frais n'est ajouté au Payment Request), sinon `AMOUNT_MISMATCH` avant tout appel ERPNext. Un ancien ordre `MAJOR` n'est jamais facturé ni réécrit.
 - Le registre K refuse une entité juridique non `APPROVED` (trigger `derive_v3_gl_scope`). Dans une base neuve, `KTG-CG` est `PENDING_APPROVAL` : un achat CG serait alors facturé et réglé dans ERPNext, mais le crédit K attendrait. Il faut vérifier ce statut sur l'environnement visé.
 - Les confirmations `manual` (approbation administrateur) ne règlent pas un achat V2 : il faut une preuve Stripe ou pawaPay.
 

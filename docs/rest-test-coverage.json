@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 335,
-    "executedTests": 2860,
-    "passedTests": 2860
+    "executedTests": 2880,
+    "passedTests": 2880
   },
   "operations": [
     {
