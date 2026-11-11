@@ -74,6 +74,10 @@ Champ inconnu ou mal typé : `400 INVALID_REQUEST` (avec `fields`).
 
 Les valeurs de l'exemple sont illustratives (taux de 20 % supposé) : tous les montants et taux viennent du document ERPNext.
 
+Garanties utilisées par les flux suivants (KON-69, KON-71) : la Quotation a **une seule ligne**, de l'article
+demandé, avec une `qty` entière, dans l'unité de stock de l'article (`conversion_factor = 1`), et son Customer porte
+`alias = keycloak_id` de l'acheteur.
+
 ## Erreurs
 
 | HTTP | Code | Cause |
@@ -109,12 +113,22 @@ dans l'environnement de développement) :
 - Aucune méthode whitelistée ne calcule les totaux d'une Quotation sans l'enregistrer : le calcul passe donc par le
   brouillon, réutilisé, et non par un endpoint inventé.
 
+## Responsabilité fiscale (décision du 2026-11-11)
+
+La configuration fiscale et l'application des taxes appartiennent exclusivement à ERPNext. L'API ne configure aucune
+taxe, n'ajoute aucun repli de calcul fiscal et ne lit aucun modèle de taxes pour le compléter : elle crée la Quotation
+native, lit les totaux calculés par ERPNext et garantit que le total TTC arrondi ne dépasse pas le budget.
+Le contrat API ne dépend donc pas de la configuration ERPNext : avec ou sans lignes de taxes, la réponse reflète
+exactement le document ERPNext (`taxes`, `totalTaxesAndCharges`, `total`).
+
+**Point de recette ERPNext, séparé de ce contrat** (configuration de chaque site FR/CG/LB, sans changement Frappe ni
+code API) : pour que la Quotation créée par REST porte ses taxes, le site doit avoir soit
+`Accounts Settings.add_taxes_from_taxes_and_charges_template = 1` avec une Tax Rule applicable au Lead, soit un
+`Item Tax Template` sur l'article Points K. Sinon ERPNext enregistre la Quotation sans taxe (`taxes: []`) et le total
+TTC est alors égal au total HT.
+
 ## Limites connues
 
-- **Point à confirmer sur chaque site** : les taxes ne sont appliquées automatiquement que si le site a soit
-  `add_taxes_from_taxes_and_charges_template = 1` avec une Tax Rule applicable au Lead, soit un `Item Tax Template`
-  sur l'article Points K. Sinon ERPNext enregistre la Quotation sans taxe ; la réponse le montre (`taxes: []`) et
-  l'API ne complète rien elle-même.
 - Les lignes de taxes sont fixées à la création du brouillon (comportement ERPNext) ; un changement de configuration
   fiscale s'applique au brouillon du jour suivant.
 - La société est la société par défaut du site ; les taux de change éventuels sont ceux d'ERPNext.
