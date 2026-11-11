@@ -48,7 +48,7 @@ describe('Points K flow 2', () => {
     const result = await createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'CB' },
       { route: async () => route, site: () => f.site, context: f.context, createOrder: createOrder as any });
     expect(result).toMatchObject({ salesOrder: 'SO', paymentRequest: 'PR', amount: 12.21, amountMinor: 1221 });
-    expect(createOrder.mock.calls[0][0]).toMatchObject({ amount: 1221, metadata: { erpnextPointsK: {
+    expect(createOrder.mock.calls[0][0]).toMatchObject({ amount: 1221, amountUnit: 'MINOR', metadata: { erpnextPointsK: {
       version: 1, site: 'EUROPE', customer: 'CUST', quotation: 'QTN', salesOrder: 'SO', paymentRequest: 'PR', itemCode: 'K', quantityK: 11,
     } } });
   });

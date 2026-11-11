@@ -138,6 +138,8 @@ export interface CreateWalletRechargeOrderInput {
   targetUserId: string;
   currency: string;
   amount: number;
+  /** Legacy recharges use MAJOR; ERPNext Points K purchases explicitly use MINOR. */
+  amountUnit?: AmountUnit;
   paymentCountry: string;
   /** Konektag site resolved server-side for a Points K purchase; checked again at funding. */
   konektagSite?: { slug: string };
@@ -796,6 +798,14 @@ export const apiPaymentCheckoutService = {
       throw new ApiPaymentValidationError('currency must be a three-letter uppercase code');
     }
     assertAmount(input.amount, 'amount', false);
+    const amountUnit = input.amountUnit ?? 'MAJOR';
+    if (amountUnit !== 'MAJOR' && amountUnit !== 'MINOR') throw new ApiPaymentValidationError('Invalid amount unit');
+    if (amountUnit === 'MINOR') {
+      try { minorDigits(input.currency); } catch { throw new ApiPaymentValidationError('Unsupported minor-unit currency'); }
+    }
+    if (input.metadata?.erpnextPointsK && amountUnit !== 'MINOR') {
+      throw new ApiPaymentValidationError('ERPNext Points K requires explicit MINOR amounts');
+    }
     const countryAliases = paymentCountryAliases(input.paymentCountry);
     const paymentCountry = countryAliases[0];
     if (!paymentCountry) throw new ApiPaymentValidationError('paymentCountry is required');
@@ -809,15 +819,15 @@ export const apiPaymentCheckoutService = {
          execution_reference, label, payer_identity, line_items, redirect_success_url, redirect_cancel_url,
          redirect_pending_url, order_metadata, currency, subtotal_amount, tax_amount, fee_amount, cashback_amount,
          total_amount, wallet_available_amount, wallet_amount, external_amount, checkout_token_hash,
-         beneficiary_type, beneficiary_party_id, payment_country
+         beneficiary_type, beneficiary_party_id, payment_country, amount_unit
        ) VALUES (
          NULL, 'wallet_recharge', 'wallet_recharge', $1, 'live', $2, NULL, 'Wallet recharge', $3,
          '[]'::jsonb, NULL, NULL, NULL, $8::jsonb, $4, $5, 0, 0, 0,
-         $5, 0, 0, $5, $6, 'NETWORK', NULL, $7
+         $5, 0, 0, $5, $6, 'NETWORK', NULL, $7, $9
        ) ON CONFLICT DO NOTHING RETURNING *`,
       [input.targetUserId, `WALLET-RECHARGE-${randomUUID()}`, `user:${input.targetUserId}`,
         input.currency, input.amount, hashToken(checkoutToken), paymentCountry,
-        JSON.stringify(metadata)],
+        JSON.stringify(metadata), amountUnit],
     );
     if (rows[0]) return { order: toPublicOrder(rows[0]), checkoutToken, created: true };
     if (typeof paymentRequest === 'string' && paymentRequest) {
@@ -1050,6 +1060,12 @@ export const apiPaymentCheckoutService = {
       const order = rows[0];
       if (!order) throw new ApiPaymentNotFoundError('Checkout not found');
 
+      // Previously issued ERPNext orders may have stored cents as MAJOR.
+      // Refuse to collect them; never guess or rewrite historical payment amounts.
+      if (order.order_metadata?.erpnextPointsK && order.amount_unit !== 'MINOR') {
+        throw new ApiPaymentConflictError('ERPNext Points K amount unit must be corrected before funding');
+      }
+
       if (isCheckoutExpired(order)) {
         const expired = await this.updateState(client, order, 'expired');
         await client.query('COMMIT');
@@ -1063,6 +1079,7 @@ export const apiPaymentCheckoutService = {
       }
 
       const isWalletRecharge = order.order_purpose === 'wallet_recharge';
+      const isErpnextPointsK = isWalletRecharge && Boolean(order.order_metadata?.erpnextPointsK);
       // Merchant requests validate their merchant configuration. Network wallet
       // recharges are intentionally merchantless and freeze NETWORK directly.
       if (!isWalletRecharge && order.business_purpose !== 'pro_subscription_renewal') {
@@ -1121,7 +1138,9 @@ export const apiPaymentCheckoutService = {
           walletAvailable = Math.max(0, Math.floor(points.available));
       }
         let taxAmount = Number(order.tax_amount);
-        if (isWalletRecharge && settlementContext?.paymentCountry) {
+        // This recharge already contains the native ERPNext TTC. Legacy wallet
+        // tax rules must not tax that payable amount a second time.
+        if (isWalletRecharge && !isErpnextPointsK && settlementContext?.paymentCountry) {
           const aliases = paymentCountryAliases(settlementContext.paymentCountry);
           const { rows: taxRules } = await client.query<{ rate_basis_points: number }>(
             `SELECT rate_basis_points
@@ -1173,8 +1192,11 @@ export const apiPaymentCheckoutService = {
         const totalAmount = basketAmount + feeAmount;
         const providerExpectedAmount = settlementContext?.rail === 'stripe'
           ? toStripeAmount(order.currency, externalPrincipal, order.amount_unit)
-            + Math.round(toStripeAmount(order.currency, externalPrincipal) * externalContext.percentageBps / 10_000)
-            + (externalPrincipal === 0 || externalContext.fixedAmount === 0 ? 0 : toStripeAmount(order.currency, externalContext.fixedAmount))
+            // ERPNext Payment Request is the authoritative amount to collect.
+            // Keep the existing provider fee policy for the other checkout flows.
+            + (isErpnextPointsK ? 0
+              : Math.round(toStripeAmount(order.currency, externalPrincipal, order.amount_unit) * externalContext.percentageBps / 10_000)
+                + (externalPrincipal === 0 || externalContext.fixedAmount === 0 ? 0 : toStripeAmount(order.currency, externalContext.fixedAmount)))
           : null;
         const beneficiary = settlementContext?.regulatoryProfileId
           ? isWalletRecharge || order.business_purpose === 'pro_subscription_renewal'

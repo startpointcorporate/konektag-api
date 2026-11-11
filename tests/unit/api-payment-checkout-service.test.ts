@@ -160,6 +160,47 @@ describe('apiPaymentCheckoutService', () => {
     expect(mocks.poolQuery.mock.calls[0][1]).toEqual(expect.arrayContaining(['user-1', 'EUR', 2500]));
   });
 
+  it('persists the explicit unit of a Points K recharge and preserves the legacy default', async () => {
+    mocks.poolQuery.mockResolvedValue({ rows: [{ ...pendingOrder, amount_unit: 'MINOR' }] });
+    await apiPaymentCheckoutService.createWalletRechargeOrder({ targetUserId: 'u', currency: 'EUR', amount: 1200,
+      amountUnit: 'MINOR', paymentCountry: 'FR', metadata: { erpnextPointsK: { paymentRequest: 'PR' } } });
+    const [sql, values] = mocks.poolQuery.mock.calls[0];
+    expect(sql).toContain('payment_country, amount_unit');
+    expect(values[8]).toBe('MINOR');
+    await apiPaymentCheckoutService.createWalletRechargeOrder({ targetUserId: 'u', currency: 'EUR', amount: 12, paymentCountry: 'FR' });
+    expect(mocks.poolQuery.mock.calls[1][1][8]).toBe('MAJOR');
+  });
+
+  it('rejects a Points K recharge with a missing or invalid amount unit before insertion', async () => {
+    for (const amountUnit of [undefined, 'MAJOR', 'invalid']) {
+      await expect(apiPaymentCheckoutService.createWalletRechargeOrder({ targetUserId: 'u', currency: 'EUR', amount: 1200,
+        amountUnit: amountUnit as any, paymentCountry: 'FR', metadata: { erpnextPointsK: { paymentRequest: 'PR' } } }))
+        .rejects.toBeInstanceOf(ApiPaymentValidationError);
+    }
+    expect(mocks.poolQuery).not.toHaveBeenCalled();
+  });
+
+  it('refuses to fund an old ERPNext order labelled MAJOR before any provider call', async () => {
+    mocks.clientQuery.mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [{ ...pendingOrder, amount_unit: 'MAJOR', order_metadata: { erpnextPointsK: { paymentRequest: 'PR' } } }] })
+      .mockResolvedValueOnce(undefined);
+    await expect(apiPaymentCheckoutService.getStripeOrder('raw-token')).rejects.toThrow('amount unit must be corrected');
+    expect(mocks.clientQuery.mock.calls.map(call => call[0])).toEqual(['BEGIN', expect.stringContaining('SELECT *'), 'ROLLBACK']);
+  });
+
+  it('calculates the Stripe percentage fee from the minor-unit principal exactly once', async () => {
+    const order = { ...pendingOrder, environment: 'live', business_purpose: 'pro_subscription_renewal',
+      amount_unit: 'MINOR', currency: 'EUR', subtotal_amount: 1200, tax_amount: 0, order_metadata: { paymentCountry: 'FR' } };
+    const context = { currency: 'EUR', paymentCountry: 'FR', legalEntityId: 'le', regulatoryProfileId: 'profile',
+      corridorId: 'corridor', regulatedActorId: 'actor', rail: 'stripe', provider: 'stripe',
+      providerConfigurationKey: 'STRIPE_TEST', percentageBps: 300, fixedAmount: 0 };
+    mocks.clientQuery.mockResolvedValueOnce(undefined).mockResolvedValueOnce({ rows: [order] })
+      .mockResolvedValueOnce({ rows: [{ ...order, funding_state: 'prepared' }] }).mockResolvedValueOnce(undefined);
+    await apiPaymentCheckoutService.prepareFundingOrder('raw-token', undefined, context);
+    const update = mocks.clientQuery.mock.calls.find(call => String(call[0]).includes('SET wallet_available_amount'))!;
+    expect(update[1][16]).toBe(1236); // 1200 cents + 36 cents, not 1200 + 3600.
+  });
+
   it('expires an old non-terminal checkout when loading the public order', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-10T12:00:00.000Z'));
