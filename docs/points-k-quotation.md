@@ -209,3 +209,15 @@ La conversion native reprend le Customer initial et son alias ; le nombre de
 Customers ne change pas et les liens `Customer.lead_name` / `Lead.customer`
 restent cohérents. Résultats et pièces de recette :
 [rapport du 11 novembre 2026](reports/KON68_RECETTE_PRODUCTION_2026-11-11.md).
+
+Les deux corrections de configuration sont rejouables par les APIs natives de
+Bench avec `scripts/bench/kon68_readiness.py` : `run(apply=False)` contrôle le
+paramétrage sans le valider, `run(apply=True)` l'applique. Le site est limité aux
+trois sociétés autorisées ; le rôle reste limité à la lecture de Item Price et
+les autres utilisateurs ne sont pas réaffectés. Rejeu vérifié sur les trois sites :
+aucun changement restant.
+
+Le résultat global reste **2 820 réussites et 5 échecs attendus préexistants**,
+sans assimilation à une suite entièrement verte. Les cinq défauts, leur cause,
+leur correction nécessaire et leur reproduction avant/après KON-68 sont
+[documentés séparément](reports/KON68_CINQ_ECHECS_PREEXISTANTS_2026-11-11.md).

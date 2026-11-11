@@ -125,8 +125,9 @@ Les données de recette restent identifiées pour revue ; aucune suppression ni 
 - Exécution explicite uniquement : `KON68_ALLOW_SHARED_SITE_TEST_WRITES=YES`, `KON68_TEST_RUN_ID` et `KON68_RESULT_PATH` privé sous `/tmp/`. Le fichier n'est pas inclus dans la suite unitaire automatique.
 - Compilation du harnais avec esbuild, puis exécution dans le pod API avec les dépendances et variables existantes. Aucun changement du Deployment.
 - 34 tests ciblés Quotation/auth réussis.
-- Suite complète : 176 fichiers, 2 820 réussis et 5 expected fail préexistants, soit 2 825 tests.
+- Suite complète : 176 fichiers, 2 820 réussis et **5 échecs attendus préexistants**, soit 2 825 tests. Ce résultat ne constitue pas une suite entièrement verte fonctionnellement.
+- Les [cinq défauts sont documentés et reproduits à l’identique sur la base et le head de la PR](KON68_CINQ_ECHECS_PREEXISTANTS_2026-11-11.md) : aucune régression introduite par KON-68 sur ces cas, mais défauts toujours ouverts.
 - `tsc --noEmit` réussi.
 - Empreinte SHA-256 du résultat JSON privé de recette finale : `88b000167059fe8e0794efd4beeedbff883a20c5f727215f319afea68b37f798`.
 
-Les corrections ont été appliquées nativement dans ERPNext. La PR #52 est complétée avec ce scénario et cette preuve de recette ; elle reste non fusionnée et non déployée.
+Les corrections ont été appliquées nativement dans ERPNext. Elles sont également versionnées dans `scripts/bench/kon68_readiness.py` ; son rejeu en lecture transactionnelle sur les trois sites confirme `changed=[]`, permissions effectives en lecture seule et mode fiscal Congo correct. La PR #52 est complétée avec ce scénario et cette preuve de recette ; elle reste non fusionnée et non déployée.
