@@ -271,6 +271,7 @@ export const routes = [
   { path: "/api/pay/payments", pattern: new RegExp("^/api/pay/payments/?$"), keys: [], methods: ["POST"], load: () => import("./routes/pay/payments") },
   { path: "/api/pay/recharges", pattern: new RegExp("^/api/pay/recharges/?$"), keys: [], methods: ["POST"], load: () => import("./routes/pay/recharges") },
   { path: "/api/pay/settlements", pattern: new RegExp("^/api/pay/settlements/?$"), keys: [], methods: ["GET"], load: () => import("./routes/pay/settlements") },
+  { path: "/api/points-k/quotations", pattern: new RegExp("^/api/points-k/quotations/?$"), keys: [], methods: ["POST"], load: () => import("./routes/points-k/quotations") },
   { path: "/api/preferences/complete", pattern: new RegExp("^/api/preferences/complete/?$"), keys: [], methods: ["POST"], load: () => import("./routes/preferences/complete") },
   { path: "/api/preferences/dashboard", pattern: new RegExp("^/api/preferences/dashboard/?$"), keys: [], methods: ["GET","PUT"], load: () => import("./routes/preferences/dashboard") },
   { path: "/api/preferences/features", pattern: new RegExp("^/api/preferences/features/?$"), keys: [], methods: ["GET"], load: () => import("./routes/preferences/features") },
