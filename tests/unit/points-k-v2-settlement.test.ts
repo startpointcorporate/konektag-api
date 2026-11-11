@@ -8,12 +8,12 @@ import {
 } from '../../src/application/services/pay/points-k-v2-settlement.ts';
 
 const KEYCLOAK = 'kc-123';
-const ref = { version: 1 as const, site: 'EUROPE', customer: 'CUST-1', quotation: 'QTN-1', salesOrder: 'SO-1', paymentRequest: 'PR-1', itemCode: 'POINTS-K' };
+const ref = { version: 1 as const, site: 'EUROPE', customer: 'CUST-1', quotation: 'QTN-1', salesOrder: 'SO-1', paymentRequest: 'PR-1', itemCode: 'POINTS-K', quantityK: 83 };
 const item = { item_code: 'POINTS-K', qty: 83, conversion_factor: 1, net_amount: 83 };
 const totals = { currency: 'EUR', grand_total: 99.6, rounded_total: 0, disable_rounded_total: 1 };
 const chain = () => ({
-  customer: { name: 'CUST-1', alias: KEYCLOAK, disabled: 0 },
-  quotation: { name: 'QTN-1', docstatus: 1, ...totals, items: [{ ...item }] },
+  customer: { name: 'CUST-1', alias: KEYCLOAK, lead_name: 'CRM-LEAD-1', disabled: 0 },
+  quotation: { name: 'QTN-1', docstatus: 1, quotation_to: 'Lead', party_name: 'CRM-LEAD-1', ...totals, items: [{ ...item }] },
   salesOrder: { name: 'SO-1', docstatus: 1, customer: 'CUST-1', ...totals, items: [{ ...item, prevdoc_docname: 'QTN-1' }] },
   paymentRequest: { name: 'PR-1', docstatus: 1, status: 'Initiated', reference_doctype: 'Sales Order', reference_name: 'SO-1',
     party_type: 'Customer', party: 'CUST-1', payment_request_type: 'Inward', currency: 'EUR', grand_total: 99.6 },
@@ -29,6 +29,11 @@ describe('Points K V2 settlement checks', () => {
     expect(readPointsKReference({ erpnextPointsK: ref })).toEqual(ref);
     expect(code(() => readPointsKReference({ erpnextPointsK: { ...ref, site: 'europe' } }))).toBe('REFERENCE_INVALID');
     expect(code(() => readPointsKReference({ erpnextPointsK: { ...ref, extra: 1 } }))).toBe('REFERENCE_INVALID');
+    const { quantityK: _q, ...withoutQuantity } = ref;
+    expect(code(() => readPointsKReference({ erpnextPointsK: withoutQuantity }))).toBe('REFERENCE_INVALID');
+    // Exact order_metadata written by flux 2 createPointsKCheckout (PR #54).
+    expect(readPointsKReference({ konektagSite: { slug: 'konektag-fr' }, erpnextPointsK: { version: 1, site: 'EUROPE', customer: 'CUST-1',
+      quotation: 'QTN-1', salesOrder: 'SO-1', paymentRequest: 'PR-1', itemCode: 'POINTS-K', quantityK: 83 } })).toEqual(ref);
   });
 
   it('dispatches by configured item_code only', () => {
@@ -47,6 +52,8 @@ describe('Points K V2 settlement checks', () => {
     expect(code(() => erpMinor(0, 'EUR'))).toBe('AMOUNT_MISMATCH');
     expect(payableMinor({ currency: 'XAF', grand_total: 7728.95, rounded_total: 7730, disable_rounded_total: 0 })).toBe(7730);
     expect(payableMinor({ currency: 'EUR', grand_total: 99.6, rounded_total: 100, disable_rounded_total: 1 })).toBe(9960);
+    expect(payableMinor({ currency: 'EUR', grand_total: 99.6, rounded_total: 100, disable_rounded_total: '1' })).toBe(9960);
+    expect(code(() => payableMinor({ currency: 'EUR', grand_total: 99.6, rounded_total: 0, disable_rounded_total: 0 }))).toBe('AMOUNT_MISMATCH');
   });
 
   it('takes the K quantity from the Quotation item, never from the TTC or currency amount', () => {
@@ -55,13 +62,16 @@ describe('Points K V2 settlement checks', () => {
     for (const doc of [cg.quotation, cg.salesOrder]) Object.assign(doc, { currency: 'XAF', grand_total: 7728.95, rounded_total: 7730, disable_rounded_total: 0 });
     for (const row of [cg.quotation.items[0], cg.salesOrder.items[0]]) Object.assign(row, { qty: 10, net_amount: 6550 });
     Object.assign(cg.paymentRequest, { currency: 'XAF', grand_total: 7730 });
-    expect(verifyErpnextChain(ref, cg, { currency: 'XAF', confirmedMinor: 7730, keycloakId: KEYCLOAK })).toEqual({ quantityK: 10, netMinor: 6550 });
+    expect(verifyErpnextChain({ ...ref, quantityK: 10 }, cg, { currency: 'XAF', confirmedMinor: 7730, keycloakId: KEYCLOAK })).toEqual({ quantityK: 10, netMinor: 6550 });
   });
 
   it.each([
     ['provider amount differs from the Payment Request', (c: any) => c, { confirmedMinor: 8300 }, 'AMOUNT_MISMATCH'],
     ['provider currency differs', (c: any) => c, { currency: 'USD' }, 'DOCUMENT_MISMATCH'],
     ['Customer of another user', (c: any) => { c.customer.alias = 'other'; return c; }, {}, 'OWNER_MISMATCH'],
+    ['Quotation addressed to another Lead', (c: any) => { c.quotation.party_name = 'CRM-LEAD-2'; return c; }, {}, 'OWNER_MISMATCH'],
+    ['Quotation addressed to a Customer, not the Lead of flux 1', (c: any) => { c.quotation.quotation_to = 'Customer'; c.quotation.party_name = 'CUST-1'; return c; }, {}, 'OWNER_MISMATCH'],
+    ['Quotation quantity differs from the quantity frozen at checkout', (c: any) => { c.quotation.items[0].qty = 84; c.salesOrder.items[0].qty = 84; return c; }, {}, 'QUANTITY_INVALID'],
     ['draft Quotation', (c: any) => { c.quotation.docstatus = 0; return c; }, {}, 'DOCUMENT_MISMATCH'],
     ['fractional K', (c: any) => { c.quotation.items[0].qty = 82.5; return c; }, {}, 'QUANTITY_INVALID'],
     ['UOM conversion', (c: any) => { c.quotation.items[0].conversion_factor = 10; return c; }, {}, 'QUANTITY_INVALID'],

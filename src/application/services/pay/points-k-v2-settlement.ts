@@ -10,8 +10,11 @@
  *      Payment Request, submitted; ERPNext reflects the payment on the Payment Request
  *   -> item handler by item_code: points_k credits the Quotation K quantity in PostgreSQL
  *
- * Contract with flux 2: the checkout is an existing `wallet_recharge` api_payment_order whose
- * order_metadata.erpnextPointsK names the ERPNext documents (see ErpnextPointsKReference).
+ * Contract with flux 2 (createPointsKCheckout, PR #54): the checkout is an existing
+ * `wallet_recharge` api_payment_order whose amount is the Payment Request grand_total in minor
+ * units and whose order_metadata.erpnextPointsK names the ERPNext documents (see
+ * ErpnextPointsKReference). The ownership rule is flux 2's: Customer.alias is the buyer Keycloak
+ * id and the Quotation is addressed to the Lead the Customer was converted from.
  * A browser redirect never reaches this code: only a succeeded provider attempt bound to a
  * verified provider event does. Each step is idempotent and found again in ERPNext after a
  * crash, so a repeated event, the outbox recovery loop or a pawaPay reconciliation resume
@@ -37,8 +40,8 @@ export const erpnextPointsKReference = z.object({
   salesOrder: DOC_NAME,
   paymentRequest: DOC_NAME,
   itemCode: DOC_NAME,
-  /** Optional cross-check: the quantity flux 1 showed to the buyer. */
-  quantityK: z.number().int().positive().optional(),
+  /** Quotation item quantity frozen by flux 2; checked again against the Quotation. */
+  quantityK: z.number().int().positive(),
 }).strict();
 export type ErpnextPointsKReference = z.infer<typeof erpnextPointsKReference>;
 
@@ -94,10 +97,9 @@ export function erpMinor(value: unknown, currency: string): number {
   return minor;
 }
 
-/** What the customer owes for a selling document: rounded total unless rounding is disabled. */
+/** What the customer owes for a selling document, computed as flux 2 does. */
 export function payableMinor(doc: any): number {
-  const rounded = Number(doc?.rounded_total);
-  return erpMinor(!doc?.disable_rounded_total && rounded > 0 ? rounded : doc?.grand_total, doc?.currency);
+  return erpMinor(Number(doc?.disable_rounded_total) === 1 ? doc?.grand_total : doc?.rounded_total, doc?.currency);
 }
 
 const mismatch = (what: string) => new PointsKSettlementError('DOCUMENT_MISMATCH', what);
@@ -127,9 +129,11 @@ export function verifyErpnextChain(ref: ErpnextPointsKReference, docs: ErpnextCh
   if (customer.alias !== proof.keycloakId) throw new PointsKSettlementError('OWNER_MISMATCH', 'Customer.alias');
 
   if (quotation?.name !== ref.quotation || quotation.docstatus !== 1 || quotation.currency !== proof.currency) throw mismatch('Quotation');
+  if (quotation.quotation_to !== 'Lead' || !customer.lead_name || quotation.party_name !== customer.lead_name)
+    throw new PointsKSettlementError('OWNER_MISMATCH', 'Quotation.party_name');
   const qRow = pointsRow(quotation, ref.itemCode, 'Quotation');
   const quantityK = Number(qRow.qty);
-  if (ref.quantityK !== undefined && ref.quantityK !== quantityK) throw new PointsKSettlementError('QUANTITY_INVALID', 'reference.quantityK');
+  if (ref.quantityK !== quantityK) throw new PointsKSettlementError('QUANTITY_INVALID', 'reference.quantityK');
   const netMinor = erpMinor(qRow.net_amount ?? quotation.net_total, proof.currency);
   if (payableMinor(quotation) !== proof.confirmedMinor) throw new PointsKSettlementError('AMOUNT_MISMATCH', 'Quotation');
 
@@ -304,8 +308,15 @@ async function ensurePaymentEntry(site: FrappeSite, ref: ErpnextPointsKReference
     const si = await erp(() => site.get('Sales Invoice', invoice));
     if (erpMinor(si.outstanding_amount, s.currency) !== Number(s.confirmed_minor))
       throw new PointsKSettlementError('AMOUNT_MISMATCH', 'Sales Invoice.outstanding_amount');
+    // Flux 2 creates the Payment Request without a gateway, so it usually has no payment_account:
+    // the account then comes from the Mode of Payment Account of the company, read natively.
+    let account: string | undefined = paymentRequest.payment_account || undefined;
+    if (!account && paymentRequest.mode_of_payment) {
+      account = (await erp(() => site.call('erpnext.accounts.doctype.sales_invoice.sales_invoice.get_bank_cash_account',
+        { mode_of_payment: paymentRequest.mode_of_payment, company: si.company })))?.account || undefined;
+    }
     const mapped = await erp(() => site.call('erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry', {
-      dt: 'Sales Invoice', dn: invoice, ...(paymentRequest.payment_account ? { bank_account: paymentRequest.payment_account } : {}),
+      dt: 'Sales Invoice', dn: invoice, ...(account ? { bank_account: account } : {}),
     }));
     const draft: any = draftFrom(mapped);
     draft.mode_of_payment = paymentRequest.mode_of_payment || draft.mode_of_payment;

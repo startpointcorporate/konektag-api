@@ -1,7 +1,9 @@
 // Points K V2, flux 3, against a real PostgreSQL (all migrations up to 234), the real Stripe and
 // pawaPay webhook routes with genuinely signed requests, and a local HTTP ERPNext double that
-// reproduces the native mappers (make_sales_invoice, get_payment_entry) and the ERPNext v15
-// Payment Request reflection on Payment Entry submit. No provider, no Frappe site, never production.
+// reproduces the native mappers (make_sales_order, make_payment_request, make_sales_invoice,
+// get_payment_entry) and the ERPNext v15 Payment Request reflection on Payment Entry submit.
+// The checkout order and its order_metadata.erpnextPointsK are produced by the real flux 2 code
+// (createPointsKCheckout, PR #54). No provider, no Frappe site, never production.
 // Run: DATABASE_URL=postgres://…/konektag_test NODE_ENV=development npx vitest run --config tests/integration/vitest.config.ts points-k-v2
 import crypto from 'node:crypto';
 import http from 'node:http';
@@ -25,6 +27,7 @@ const docs: Record<string, Record<string, Doc>> = {};
 const calls: string[] = [];
 const faults: Record<string, number> = {};
 let seq = 0;
+const RUN = crypto.randomBytes(3).toString('hex').toUpperCase(); // the database outlives a run
 const table = (doctype: string) => (docs[doctype] ??= {});
 
 function matches(doc: Doc, filters: any[]): boolean {
@@ -54,11 +57,13 @@ function erpnext(): Promise<void> {
         if (req.method === 'GET' && name) return table(doctype)[name] ? send(200, { data: table(doctype)[name] }) : send(404, { exc_type: 'DoesNotExistError' });
         if (req.method === 'GET') {
           const filters = JSON.parse(target.searchParams.get('filters') || '[]');
-          return send(200, { data: Object.values(table(doctype)).filter(d => matches(d, filters)).map(d => ({ name: d.name })) });
+          const fields: string[] = JSON.parse(target.searchParams.get('fields') || '["name"]');
+          return send(200, { data: Object.values(table(doctype)).filter(d => matches(d, filters))
+            .map(d => Object.fromEntries(fields.map(f => [f, d[f]]))) });
         }
         if (req.method === 'POST') {
-          const prefix = doctype === 'Sales Invoice' ? 'ACC-SINV-2026-' : 'ACC-PAY-2026-';
-          const doc = { ...body, name: prefix + String(++seq).padStart(5, '0'), docstatus: 0 };
+          const prefix = { 'Sales Invoice': 'ACC-SINV-2026-', 'Sales Order': 'SAL-ORD-2026-' }[doctype] ?? 'ACC-PAY-2026-';
+          const doc = { ...body, name: prefix + RUN + '-' + String(++seq).padStart(5, '0'), docstatus: 0 };
           table(doctype)[doc.name] = doc;
           return send(200, { data: doc });
         }
@@ -75,6 +80,35 @@ function erpnext(): Promise<void> {
           return send(200, { data: doc });
         }
       }
+      // ---- flux 1/2 natives used by createPointsKCheckout
+      if (path === '/api/method/frappe.client.submit') {
+        const doc = table(body.doc.doctype)[body.doc.name];
+        if (!doc || doc.docstatus !== 0) return send(417, { exc_type: 'ValidationError' });
+        doc.docstatus = 1;
+        return send(200, { message: doc });
+      }
+      if (path === '/api/method/erpnext.selling.doctype.quotation.quotation.make_sales_order') {
+        const q = table('Quotation')[body.source_name];
+        const customer = Object.values(table('Customer')).find(c => c.lead_name === q.party_name);
+        const { name: _n, docstatus: _d, quotation_to: _t, party_name: _p, ...rest } = q;
+        return send(200, { message: { ...rest, doctype: 'Sales Order', __islocal: 1, name: 'new-sales-order-1', customer: customer!.name,
+          order_type: 'Sales', transaction_date: '2026-11-11', items: q.items.map((r: Doc) => ({ ...r, name: 'new-row', prevdoc_docname: q.name })) } });
+      }
+      if (path === '/api/method/erpnext.accounts.doctype.payment_request.payment_request.make_payment_request') {
+        const so = table('Sales Order')[body.dn];
+        // No Payment Gateway Account: ERPNext leaves payment_account empty.
+        const pr = { doctype: 'Payment Request', name: `ACC-PRQ-2026-${RUN}-${String(++seq).padStart(5, '0')}`, docstatus: body.submit_doc ? 1 : 0,
+          status: 'Initiated', payment_request_type: 'Inward', reference_doctype: 'Sales Order', reference_name: so.name,
+          party_type: 'Customer', party: so.customer, company: so.company, currency: so.currency, grand_total: payable(so),
+          outstanding_amount: payable(so), mode_of_payment: body.mode_of_payment, payment_account: '' };
+        table('Payment Request')[pr.name] = pr;
+        return send(200, { message: pr });
+      }
+      if (path === '/api/method/erpnext.accounts.doctype.sales_invoice.sales_invoice.get_bank_cash_account') {
+        const account = { Stripe: 'Stripe - KTG', 'Mobile Money': 'Mobile Money - KTG-CG' }[body.mode_of_payment as string];
+        return account ? send(200, { message: { account } }) : send(417, { exc_type: 'ValidationError' });
+      }
+      // ---- flux 3 natives
       if (path === '/api/method/erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice') {
         const so = table('Sales Order')[body.source_name];
         if (Object.values(table('Sales Invoice')).some(si => si.docstatus === 1 && si.items.some((r: Doc) => r.sales_order === so.name)))
@@ -135,7 +169,7 @@ function signedPawaPayRequest(body: string): Request {
 
 // ------------------------------------------------------------------ fixtures
 const servers: http.Server[] = [];
-let pool: any, stripeWebhook: any, pawapayWebhook: any, attempts: any, checkout: any;
+let pool: any, stripeWebhook: any, pawapayWebhook: any, attempts: any, checkout: any, createPointsKCheckout: any;
 const sha = (v: string) => crypto.createHash('sha256').update(v).digest('hex');
 
 async function buyer() {
@@ -147,39 +181,55 @@ async function buyer() {
 }
 const balance = async (party: string) => Number((await pool.query('SELECT balance FROM konektag.points_balance($1)', [party])).rows[0].balance);
 
-/** ERPNext chain as flux 1 and 2 leave it: submitted Quotation -> Sales Order -> Payment Request. */
-const RUN = crypto.randomBytes(3).toString('hex').toUpperCase(); // the database outlives a run
-function chain(label: string, user: { keycloak: string }, o: { currency: string; qty: number; rate: number; tax: number; grand: number; rounded?: number }) {
+/** What flux 1 leaves in ERPNext: a Lead converted to a Customer (alias = Keycloak id) and a draft Quotation. */
+table('Mode of Payment').Stripe = { name: 'Stripe', type: 'Bank', enabled: 1 };
+table('Mode of Payment')['Mobile Money'] = { name: 'Mobile Money', type: 'Bank', enabled: 1 };
+function quotation(label: string, user: { keycloak: string }, o: { currency: string; qty: number; rate: number; tax: number; grand: number; rounded?: number }) {
   const n = `${label}-${RUN}`;
-  const customer = `CUST-${n}`, quotation = `SAL-QTN-${n}`, salesOrder = `SAL-ORD-${n}`, paymentRequest = `ACC-PRQ-${n}`;
-  const totals = { currency: o.currency, net_total: o.qty * o.rate, total_taxes_and_charges: o.tax, grand_total: o.grand,
-    rounded_total: o.rounded ?? 0, disable_rounded_total: o.rounded === undefined ? 1 : 0 };
-  const item = { item_code: 'POINTS-K', qty: o.qty, conversion_factor: 1, rate: o.rate, net_amount: o.qty * o.rate, amount: o.qty * o.rate };
-  table('Customer')[customer] = { name: customer, alias: user.keycloak, disabled: 0 };
-  table('Quotation')[quotation] = { name: quotation, docstatus: 1, quotation_to: 'Lead', party_name: `CRM-LEAD-${n}`, ...totals, items: [{ ...item, name: 'qi-' + n }] };
-  table('Sales Order')[salesOrder] = { name: salesOrder, docstatus: 1, customer, ...totals, items: [{ ...item, name: 'soi-' + n, prevdoc_docname: quotation }] };
-  table('Payment Request')[paymentRequest] = { name: paymentRequest, docstatus: 1, status: 'Initiated', payment_request_type: 'Inward',
-    reference_doctype: 'Sales Order', reference_name: salesOrder, party_type: 'Customer', party: customer, currency: o.currency,
-    grand_total: o.rounded ?? o.grand, outstanding_amount: o.rounded ?? o.grand, mode_of_payment: o.currency === 'XAF' ? 'Mobile Money' : 'Stripe',
-    payment_account: o.currency === 'XAF' ? 'Mobile Money - KTG-CG' : 'Stripe - KTG' };
-  return { customer, quotation, salesOrder, paymentRequest };
+  const customer = `CUST-${n}`, lead = `CRM-LEAD-${n}`, name = `SAL-QTN-${n}`;
+  const company = o.currency === 'XAF' ? 'Konektag CG' : 'Konektag FR';
+  table('Customer')[customer] = { doctype: 'Customer', name: customer, alias: user.keycloak, lead_name: lead, disabled: 0 };
+  table('Quotation')[name] = { doctype: 'Quotation', name, docstatus: 0, quotation_to: 'Lead', party_name: lead, company, currency: o.currency,
+    net_total: o.qty * o.rate, total_taxes_and_charges: o.tax, grand_total: o.grand, rounded_total: o.rounded ?? 0,
+    disable_rounded_total: o.rounded === undefined ? 1 : 0,
+    items: [{ name: 'qi-' + n, item_code: 'POINTS-K', qty: o.qty, conversion_factor: 1, rate: o.rate, net_amount: o.qty * o.rate, amount: o.qty * o.rate }] };
+  return { customer, quotation: name };
 }
 
-/** The checkout flux 2 freezes: an existing wallet_recharge order carrying the ERPNext references. */
-async function order(user: { id: string }, site: string, refs: ReturnType<typeof chain>, o: { currency: string; minor: number; rail: 'stripe' | 'mobile_money' }) {
+const ROUTES = {
+  FR: { residenceCountry: 'FR', paymentCountry: 'FR', slug: 'konektag-fr', site: 'EUROPE', timezone: 'Europe/Paris' },
+  CG: { residenceCountry: 'CG', paymentCountry: 'CG', slug: 'konektag-cg', site: 'CONGO', timezone: 'Africa/Brazzaville' },
+} as const;
+
+/** Funding-time fields the existing checkout sets when the buyer picks a rail (not part of flux 2 or 3). */
+async function fund(orderId: string, country: 'FR' | 'CG', rail: 'stripe' | 'mobile_money') {
+  const entity = (await pool.query(`SELECT id FROM konektag.legal_entities WHERE code=$1`, [`KTG-${country}`])).rows[0].id;
+  const profile = (await pool.query(`SELECT id FROM konektag.regulatory_profiles WHERE profile_code=$1`, [country === 'CG' ? 'ACQ-CG-MM' : 'ACQ-FR-STRIPE'])).rows[0].id;
+  await pool.query(`UPDATE konektag.api_payment_orders SET state=$2, payment_method=$3, funding_state='external_started',
+      settlement_legal_entity_id=$4, settlement_regulatory_profile_id=$5, settlement_corridor_id=$6, settlement_rail=$7, settlement_provider=$8
+    WHERE id=$1`, [orderId, rail === 'stripe' ? 'processing' : 'awaiting_mobile_money', rail === 'stripe' ? 'card' : 'mobile_money',
+    entity, profile, `${country}-${country}`, rail, rail === 'stripe' ? 'stripe' : 'pawapay']);
+}
+
+/** Flux 2 as shipped: Quotation submitted -> Sales Order -> Payment Request -> wallet_recharge order with erpnextPointsK. */
+async function checkoutOrder(user: { id: string; keycloak: string }, country: 'FR' | 'CG', q: ReturnType<typeof quotation>, rail: 'stripe' | 'mobile_money') {
+  const result = await createPointsKCheckout({ keycloakId: user.keycloak, userId: user.id, country, ...q,
+    modeOfPayment: rail === 'stripe' ? 'Stripe' : 'Mobile Money' }, { route: async () => ROUTES[country] });
+  await fund(result.order.id, country, rail);
+  return { orderId: result.order.id as string, minor: result.amountMinor as number,
+    refs: { customer: q.customer, quotation: result.quotation, salesOrder: result.salesOrder, paymentRequest: result.paymentRequest } };
+}
+
+/** A tampered order written directly, to prove flux 3 does not trust the order alone. */
+async function rawOrder(user: { id: string }, refs: Record<string, string>, quantityK: number, o: { minor: number }) {
   const id = crypto.randomUUID();
-  const entity = (await pool.query(`SELECT id FROM konektag.legal_entities WHERE code=$1`, [o.currency === 'XAF' ? 'KTG-CG' : 'KTG-FR'])).rows[0].id;
-  const profile = (await pool.query(`SELECT id FROM konektag.regulatory_profiles WHERE profile_code=$1`, [o.currency === 'XAF' ? 'ACQ-CG-MM' : 'ACQ-FR-STRIPE'])).rows[0].id;
   await pool.query(`INSERT INTO konektag.api_payment_orders (id, merchant_profile_id, order_purpose, business_purpose, target_user_id, environment,
       merchant_transaction_id, label, payer_identity, line_items, order_metadata, currency, subtotal_amount, tax_amount, fee_amount,
-      cashback_amount, total_amount, wallet_available_amount, wallet_amount, external_amount, checkout_token_hash, beneficiary_type,
-      payment_country, amount_unit, state, payment_method, funding_state, settlement_legal_entity_id, settlement_regulatory_profile_id,
-      settlement_corridor_id, settlement_rail, settlement_provider)
-    VALUES ($1, NULL, 'wallet_recharge', 'wallet_recharge', $2, 'live', $3, 'Points K', $4, '[]', $5::jsonb, $6, $7, 0, 0, 0, $7, 0, 0, $7,
-      $8, 'NETWORK', $9, 'MINOR', $10, $11, 'external_started', $12, $13, $14, $15, $16)`,
-    [id, user.id, 'PK-' + id, 'user:' + user.id, JSON.stringify({ erpnextPointsK: { version: 1, site, itemCode: 'POINTS-K', ...refs } }),
-      o.currency, o.minor, sha(id), o.currency === 'XAF' ? 'CG' : 'FR', o.rail === 'stripe' ? 'processing' : 'awaiting_mobile_money',
-      o.rail === 'stripe' ? 'card' : 'mobile_money', entity, profile, o.currency === 'XAF' ? 'CG-CG' : 'FR-FR', o.rail, o.rail === 'stripe' ? 'stripe' : 'pawapay']);
+      cashback_amount, total_amount, wallet_available_amount, wallet_amount, external_amount, checkout_token_hash, beneficiary_type, payment_country)
+    VALUES ($1, NULL, 'wallet_recharge', 'wallet_recharge', $2, 'live', $3, 'Points K', $4, '[]', $5::jsonb, 'EUR', $6, 0, 0, 0, $6, 0, 0, $6, $7, 'NETWORK', 'FR')`,
+    [id, user.id, 'PK-' + id, 'user:' + user.id, JSON.stringify({ erpnextPointsK: { version: 1, site: 'EUROPE', itemCode: 'POINTS-K', quantityK, ...refs } }),
+      o.minor, sha(id)]);
+  await fund(id, 'FR', 'stripe');
   return id;
 }
 
@@ -212,6 +262,7 @@ beforeAll(async () => {
   ({ POST: pawapayWebhook } = await import('../../src/api/routes/webhooks/pawapay/deposits.ts'));
   ({ paymentProviderAttemptService: attempts } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts'));
   ({ apiPaymentCheckoutService: checkout } = await import('../../src/application/services/pay/api-payment-checkout-service.ts'));
+  ({ createPointsKCheckout } = await import('../../src/application/services/pay/points-k-checkout-service.ts'));
 });
 afterAll(async () => { for (const s of servers) s.close(); await pool?.end(); });
 beforeEach(() => { calls.length = 0; for (const k of Object.keys(faults)) delete faults[k]; });
@@ -219,8 +270,14 @@ beforeEach(() => { calls.length = 0; for (const k of Object.keys(faults)) delete
 describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
   it('credits exactly the Quotation K (83), not the TTC (99.60 EUR), after Sales Invoice and Payment Entry; replays are no-ops', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR1', user, { currency: 'EUR', qty: 83, rate: 1, tax: 16.6, grand: 99.6 });
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 9960, rail: 'stripe' });
+    const { orderId, refs, minor } = await checkoutOrder(user, 'FR', quotation('FR1', user, { currency: 'EUR', qty: 83, rate: 1, tax: 16.6, grand: 99.6 }), 'stripe');
+    expect(minor).toBe(9960);
+    // Exact contract written by flux 2 (PR #54), read back from PostgreSQL.
+    const { rows: [frozen] } = await pool.query(`SELECT order_metadata, currency, total_amount FROM konektag.api_payment_orders WHERE id=$1`, [orderId]);
+    expect(frozen.currency).toBe('EUR');
+    expect(Number(frozen.total_amount)).toBe(9960);
+    expect(frozen.order_metadata).toEqual({ konektagSite: { slug: 'konektag-fr' }, erpnextPointsK: { version: 1, site: 'EUROPE', customer: refs.customer,
+      quotation: refs.quotation, salesOrder: refs.salesOrder, paymentRequest: refs.paymentRequest, itemCode: 'POINTS-K', quantityK: 83 } });
     const pi = await stripeAttempt(orderId, 9960);
 
     const res = await stripeEvent(orderId, pi, 9960, `evt_fr1_${RUN}`);
@@ -234,6 +291,7 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
     expect(si).toMatchObject({ docstatus: 1, customer: refs.customer, outstanding_amount: 0 });
     expect(si.items[0]).toMatchObject({ item_code: 'POINTS-K', qty: 83, sales_order: refs.salesOrder });
     const pe = table('Payment Entry')[s.payment_entry];
+    // paid_to comes from the Mode of Payment Account (the Payment Request has no gateway account).
     expect(pe).toMatchObject({ docstatus: 1, reference_no: pi, mode_of_payment: 'Stripe', paid_to: 'Stripe - KTG', paid_amount: 99.6 });
     expect(pe.references).toEqual([expect.objectContaining({ reference_doctype: 'Sales Invoice', reference_name: si.name, allocated_amount: 99.6, payment_request: refs.paymentRequest })]);
     expect(table('Payment Request')[refs.paymentRequest]).toMatchObject({ status: 'Paid', outstanding_amount: 0 });
@@ -254,9 +312,10 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('rejects an unsigned or wrongly signed Stripe event before any write', async () => {
     const user = await buyer();
-    const refs = chain('FR2', user, { currency: 'EUR', qty: 10, rate: 1, tax: 2, grand: 12 });
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 1200, rail: 'stripe' });
+    const { orderId, refs, minor } = await checkoutOrder(user, 'FR', quotation('FR2', user, { currency: 'EUR', qty: 10, rate: 1, tax: 2, grand: 12 }), 'stripe');
+    expect(minor).toBe(1200);
     const pi = await stripeAttempt(orderId, 1200);
+    calls.length = 0;
     expect((await stripeEvent(orderId, pi, 1200, undefined, 'whsec_forged_' + 'y'.repeat(20))).status).toBe(400);
     expect(await settlement(orderId)).toBeUndefined();
     expect(calls).toEqual([]);
@@ -264,9 +323,9 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('refuses a provider amount different from the Payment Request and never invoices nor credits', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR3', user, { currency: 'EUR', qty: 50, rate: 1, tax: 10, grand: 60 });
-    // The checkout charged 50.00 EUR (the HT amount) while ERPNext asks 60.00 EUR TTC.
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 5000, rail: 'stripe' });
+    const { orderId, refs } = await checkoutOrder(user, 'FR', quotation('FR3', user, { currency: 'EUR', qty: 50, rate: 1, tax: 10, grand: 60 }), 'stripe');
+    // Tampered order: it charges 50.00 EUR (the HT amount) while the Payment Request asks 60.00 EUR TTC.
+    await pool.query(`UPDATE konektag.api_payment_orders SET subtotal_amount=5000,total_amount=5000,external_amount=5000 WHERE id=$1`, [orderId]);
     const pi = await stripeAttempt(orderId, 5000);
     expect((await stripeEvent(orderId, pi, 5000)).status).toBe(500);
     expect(await settlement(orderId)).toMatchObject({ status: 'payment_confirmed', quantity_k: null });
@@ -277,9 +336,9 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('refuses a Customer whose alias is not the buyer Keycloak identity', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR4', user, { currency: 'EUR', qty: 5, rate: 1, tax: 1, grand: 6 });
+    const { orderId, refs } = await checkoutOrder(user, 'FR', quotation('FR4', user, { currency: 'EUR', qty: 5, rate: 1, tax: 1, grand: 6 }), 'stripe');
+    // The Customer changed hands after the checkout (flux 2 checked the alias at that time).
     table('Customer')[refs.customer].alias = crypto.randomUUID();
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 600, rail: 'stripe' });
     const pi = await stripeAttempt(orderId, 600);
     expect((await stripeEvent(orderId, pi, 600)).status).toBe(500);
     expect((await settlement(orderId)).last_error).toMatch(/OWNER_MISMATCH/);
@@ -289,8 +348,8 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('resumes after a failure between the invoice and the payment without a second invoice', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR5', user, { currency: 'EUR', qty: 20, rate: 1, tax: 4, grand: 24 });
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 2400, rail: 'stripe' });
+    const { orderId, refs, minor } = await checkoutOrder(user, 'FR', quotation('FR5', user, { currency: 'EUR', qty: 20, rate: 1, tax: 4, grand: 24 }), 'stripe');
+    expect(minor).toBe(2400);
     const pi = await stripeAttempt(orderId, 2400);
     faults['get_payment_entry'] = 1;
     expect((await stripeEvent(orderId, pi, 2400, `evt_fr5_${RUN}`)).status).toBe(500);
@@ -306,8 +365,8 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('finds an unsubmitted draft left by a crash instead of creating another document', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR6', user, { currency: 'EUR', qty: 7, rate: 1, tax: 1.4, grand: 8.4 });
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 840, rail: 'stripe' });
+    const { orderId, refs, minor } = await checkoutOrder(user, 'FR', quotation('FR6', user, { currency: 'EUR', qty: 7, rate: 1, tax: 1.4, grand: 8.4 }), 'stripe');
+    expect(minor).toBe(840);
     const pi = await stripeAttempt(orderId, 840);
     faults['PUT /api/resource/Sales Invoice'] = 1; // inserted as draft, submit fails
     expect((await stripeEvent(orderId, pi, 840, `evt_fr6_${RUN}`)).status).toBe(500);
@@ -319,8 +378,8 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('resumes after a failure between accounting and the K credit through the recovery call, without ERPNext writes', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR7', user, { currency: 'EUR', qty: 30, rate: 1, tax: 6, grand: 36 });
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 3600, rail: 'stripe' });
+    const { orderId, refs, minor } = await checkoutOrder(user, 'FR', quotation('FR7', user, { currency: 'EUR', qty: 30, rate: 1, tax: 6, grand: 36 }), 'stripe');
+    expect(minor).toBe(3600);
     const pi = await stripeAttempt(orderId, 3600);
     await pool.query(`UPDATE konektag.parties SET is_active=false WHERE id=$1`, [user.party]);
     expect((await stripeEvent(orderId, pi, 3600, `evt_fr7_${RUN}`)).status).toBe(500);
@@ -343,8 +402,8 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('serialises concurrent deliveries: one invoice, one payment, one credit', async () => {
     const user = await buyer(); const before = await balance(user.party);
-    const refs = chain('FR8', user, { currency: 'EUR', qty: 12, rate: 1, tax: 2.4, grand: 14.4 });
-    const orderId = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 1440, rail: 'stripe' });
+    const { orderId, refs, minor } = await checkoutOrder(user, 'FR', quotation('FR8', user, { currency: 'EUR', qty: 12, rate: 1, tax: 2.4, grand: 14.4 }), 'stripe');
+    expect(minor).toBe(1440);
     const pi = await stripeAttempt(orderId, 1440);
     const results = await Promise.all([stripeEvent(orderId, pi, 1440, `evt_fr8_a_${RUN}`), stripeEvent(orderId, pi, 1440, `evt_fr8_b_${RUN}`)]);
     if (results.some(r => r.status !== 200)) expect((await stripeEvent(orderId, pi, 1440, `evt_fr8_a_${RUN}`)).status).toBe(200);
@@ -357,14 +416,20 @@ describe('Points K V2 flux 3 — Stripe (FR, EUR)', () => {
 
   it('refuses to settle a second order pointing at an already settled Payment Request', async () => {
     const user = await buyer();
-    const refs = chain('FR9', user, { currency: 'EUR', qty: 3, rate: 1, tax: 0.6, grand: 3.6 });
-    const first = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 360, rail: 'stripe' });
+    const q = quotation('FR9', user, { currency: 'EUR', qty: 3, rate: 1, tax: 0.6, grand: 3.6 });
+    const { orderId: first, refs } = await checkoutOrder(user, 'FR', q, 'stripe');
     expect((await stripeEvent(first, await stripeAttempt(first, 360), 360)).status).toBe(200);
-    const before = await balance(user.party);
-    const second = await order(user, 'EUROPE', refs, { currency: 'EUR', minor: 360, rail: 'stripe' });
+    // Flux 2 replay: same Sales Order and Payment Request, same order, no new checkout token.
+    const replay = await createPointsKCheckout({ keycloakId: user.keycloak, userId: user.id, country: 'FR', ...q, modeOfPayment: 'Stripe' },
+      { route: async () => ROUTES.FR });
+    expect(replay).toMatchObject({ salesOrder: refs.salesOrder, paymentRequest: refs.paymentRequest, checkoutToken: null, order: { id: first } });
+    // A second order (another account) forged on the same, already settled, Payment Request.
+    const other = await buyer(); const before = await balance(other.party);
+    const second = await rawOrder(other, refs, 3, { minor: 360 });
     expect((await stripeEvent(second, await stripeAttempt(second, 360), 360)).status).toBe(500);
     expect(await settlement(second)).toBeUndefined();
-    expect(await balance(user.party)).toBe(before);
+    expect(await balance(other.party)).toBe(before);
+    expect(count('Sales Invoice', refs.salesOrder)).toBe(1);
   });
 });
 
@@ -372,8 +437,8 @@ describe('Points K V2 flux 3 — pawaPay (CG, XAF)', () => {
   it('credits the Quotation K (10), not 7 730 XAF, from a signed pawaPay callback; a repeated callback changes nothing', async () => {
     const user = await buyer(); const before = await balance(user.party);
     // 10 K x 655 XAF HT + taxes configured on the site, rounded total 7 730 XAF.
-    const refs = chain('CG1', user, { currency: 'XAF', qty: 10, rate: 655, tax: 1178.95, grand: 7728.95, rounded: 7730 });
-    const orderId = await order(user, 'CONGO', refs, { currency: 'XAF', minor: 7730, rail: 'mobile_money' });
+    const { orderId, minor } = await checkoutOrder(user, 'CG', quotation('CG1', user, { currency: 'XAF', qty: 10, rate: 655, tax: 1178.95, grand: 7728.95, rounded: 7730 }), 'mobile_money');
+    expect(minor).toBe(7730);
     const depositId = await attempts.createOrGetPawaPayApiCheckoutAttempt({ orderId, amount: 7730, currency: 'XAF', providerConfigurationKey: null });
     const body = JSON.stringify({ depositId, status: 'COMPLETED', amount: '7730.00', currency: 'XAF' });
 
@@ -384,7 +449,7 @@ describe('Points K V2 flux 3 — pawaPay (CG, XAF)', () => {
     expect((await pawapayWebhook({ request: signedPawaPayRequest(body), params: {} })).status).toBe(200);
     const s = await settlement(orderId);
     expect(s).toMatchObject({ status: 'k_credited', quantity_k: '10', net_minor: '6550', confirmed_minor: '7730', currency: 'XAF', provider: 'pawapay', payment_request_status: 'Paid' });
-    expect(table('Payment Entry')[s.payment_entry]).toMatchObject({ reference_no: depositId, mode_of_payment: 'Mobile Money', paid_amount: 7730 });
+    expect(table('Payment Entry')[s.payment_entry]).toMatchObject({ reference_no: depositId, mode_of_payment: 'Mobile Money', paid_to: 'Mobile Money - KTG-CG', paid_amount: 7730 });
     expect(await balance(user.party) - before).toBe(10);
 
     calls.length = 0;
