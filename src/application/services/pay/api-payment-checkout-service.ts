@@ -243,8 +243,8 @@ type DatabaseClient = {
   query: <T>(text: string, params?: unknown[]) => Promise<{ rows: T[] }>;
 };
 
-// API payment amounts are stored as whole currency units. Keep the supported
-// card currencies explicit so an unknown code can never be charged at a wrong scale.
+// Stored amounts follow amount_unit (legacy MAJOR, explicit MINOR for Points K).
+// Keep card currencies explicit so an unknown code is never charged at a wrong scale.
 const STRIPE_AMOUNT_MULTIPLIERS: Record<string, 1 | 100> = {
   XOF: 1,
   EUR: 100,
