@@ -21,7 +21,7 @@ function fixture(docstatus = 0) {
     insert: vi.fn(async (type: string, doc: any) => type === 'Sales Order'
       ? { ...doc, name: 'SO', docstatus: 0 } : doc),
     call: vi.fn(async (method: string, args: any) => {
-      if (method.endsWith('make_sales_order')) return { customer: 'CUST', currency: 'EUR', items: [{ prevdoc_docname: 'QTN' }] };
+      if (method.endsWith('make_sales_order')) return { customer: 'CUST', company: 'COMPANY', order_type: 'Sales', transaction_date: '2026-11-11', currency: 'EUR', items: [{ prevdoc_docname: 'QTN' }] };
       if (method.endsWith('make_payment_request')) return { name: 'PR', docstatus: 1, reference_doctype: 'Sales Order', reference_name: 'SO', party: 'CUST', currency: 'EUR', grand_total: 12.21 };
       const doc = { ...args.doc, docstatus: 1 };
       if (doc.name === 'QTN') docs.Quotation.QTN = doc;
@@ -86,5 +86,50 @@ describe('Points K native preparation is separate from provider eligibility', ()
       { route: async () => route, site: () => f.site, context: f.context, createOrder })).rejects.toMatchObject({ code: 'PAYMENT_REQUEST_EXTERNAL_GATEWAY_CONFIGURED' });
     expect(f.site.call.mock.calls.some(([method]: any[]) => method.endsWith('make_payment_request'))).toBe(false);
     expect(createOrder).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('Points K native Sales Order delivery dates', () => {
+  async function run(mapped: any) {
+    const f = fixture();
+    const call = f.site.call.getMockImplementation()!;
+    f.site.call.mockImplementation(async (method: string, args: any) => method.endsWith('make_sales_order')
+      ? { customer: 'CUST', company: 'COMPANY', order_type: 'Sales', currency: 'EUR', items: [{ prevdoc_docname: 'QTN' }], ...mapped }
+      : call(method, args));
+    const promise = createPointsKCheckout({ keycloakId: 'kc', userId: 'u', country: 'FR', customer: 'CUST', quotation: 'QTN', modeOfPayment: 'Carte' },
+      { route: async () => route, site: () => f.site, context: f.context,
+        createOrder: vi.fn(async () => ({ order: { id: 'order' }, checkoutToken: 'token', created: true })) as any });
+    return { f, promise };
+  }
+  it('fills only the missing header from the native order date before inserting', async () => {
+    const { f, promise } = await run({ transaction_date: '2030-02-03' });
+    await promise;
+    const doc = f.site.insert.mock.calls[0][1];
+    expect(doc.delivery_date).toBe('2030-02-03');
+    expect(doc.items[0].delivery_date).toBeUndefined(); // ERPNext propagates it.
+  });
+  it('preserves an existing header schedule', async () => {
+    const { f, promise } = await run({ transaction_date: '2030-02-03', delivery_date: '2030-03-09' });
+    await promise;
+    expect(f.site.insert.mock.calls[0][1].delivery_date).toBe('2030-03-09');
+  });
+  it('leaves dated lines for native header aggregation', async () => {
+    const { f, promise } = await run({ transaction_date: '2030-02-03', items: [{ prevdoc_docname: 'QTN', delivery_date: '2030-04-05' }] });
+    await promise;
+    expect(f.site.insert.mock.calls[0][1].delivery_date).toBeUndefined();
+    expect(f.site.insert.mock.calls[0][1].items[0].delivery_date).toBe('2030-04-05');
+  });
+  for (const mapped of [{ order_type: 'Maintenance' }, { skip_delivery_note: 1 }]) {
+    it('does not require a delivery date when native validation does not require it: ' + JSON.stringify(mapped), async () => {
+      const { f, promise } = await run(mapped);
+      await promise;
+      expect(f.site.insert.mock.calls[0][1].delivery_date).toBeUndefined();
+    });
+  }
+  it('refuses to invent a date when the mapper has no native order date', async () => {
+    const { f, promise } = await run({});
+    await expect(promise).rejects.toMatchObject({ code: 'SALES_ORDER_DELIVERY_DATE_UNAVAILABLE' });
+    expect(f.site.insert).not.toHaveBeenCalled();
   });
 });

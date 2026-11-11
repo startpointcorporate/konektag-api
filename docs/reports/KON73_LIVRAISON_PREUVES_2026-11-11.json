@@ -1,0 +1,828 @@
+{
+  "executed_at_utc": "2026-11-11T19:38:19.425096+00:00",
+  "base_sha": "8e40c2fab853e1c8cfe0e02fd9c92f87491e0dfd",
+  "api_native_transaction_results": [
+    {
+      "country": "FR",
+      "host": "europe.erp.konektag.eu",
+      "route": {
+        "residenceCountry": "FR",
+        "paymentCountry": "FR",
+        "slug": "konektag-fr",
+        "site": "EUROPE",
+        "timezone": "Europe/Paris"
+      },
+      "apiServiceNative": {
+        "counts": {
+          "Customer": 2,
+          "Lead": 4,
+          "Quotation": 4,
+          "Sales Order": 4,
+          "Payment Request": 1,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 2,
+          "Notification Log": 2,
+          "Version": 39,
+          "ToDo": 2,
+          "Integration Request": 0
+        },
+        "customer_preserved": true,
+        "references_preserved": true,
+        "quotation_status": 1,
+        "sales_order_status": 1,
+        "payment_request_status": 1,
+        "transaction_date": "2026-11-11",
+        "delivery_date": "2026-11-11",
+        "row_delivery_dates": [
+          "2026-11-11"
+        ],
+        "quotation_total": 12,
+        "sales_order_total": 12,
+        "payment_request_total": 12,
+        "currency": "EUR",
+        "refs_hashes": {
+          "Quotation": "37728772c4c020a01526b61c8649cd01a9abf4e30130972a44772b5129c05aef",
+          "Sales Order": "e668d71c37c80a95d2821194b482208499aa3aeb737f28050ae4764655859eb0",
+          "Payment Request": "eaf9b0fbb34aae7a807b3e061d1e32a14d8a3c54e00f007b28dea595b8fca7e7"
+        }
+      },
+      "apiServiceReplayIdentical": true,
+      "boundaryMetadata": {
+        "version": 1,
+        "site": "EUROPE",
+        "itemCode": "POINTS-K",
+        "quantityK": 10,
+        "amountMinor": 1200,
+        "currency": "EUR",
+        "referencesMatch": true
+      },
+      "stoppedBeforePostgresPaymentOrder": true,
+      "rollback": {
+        "site": "europe.erp.konektag.eu",
+        "before": {
+          "Customer": 2,
+          "Lead": 4,
+          "Quotation": 3,
+          "Sales Order": 3,
+          "Payment Request": 0,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 2,
+          "Notification Log": 2,
+          "Version": 38,
+          "ToDo": 2,
+          "Integration Request": 0
+        },
+        "steps": [],
+        "blocked_effects": [],
+        "fixture_delivery_date": false,
+        "native": {
+          "counts": {
+            "Customer": 2,
+            "Lead": 4,
+            "Quotation": 4,
+            "Sales Order": 4,
+            "Payment Request": 1,
+            "Sales Invoice": 0,
+            "Payment Entry": 0,
+            "GL Entry": 0,
+            "Email Queue": 0,
+            "Communication": 2,
+            "Notification Log": 2,
+            "Version": 39,
+            "ToDo": 2,
+            "Integration Request": 0
+          },
+          "customer_preserved": true,
+          "references_preserved": true,
+          "quotation_status": 1,
+          "sales_order_status": 1,
+          "payment_request_status": 1,
+          "transaction_date": "2026-11-11",
+          "delivery_date": "2026-11-11",
+          "row_delivery_dates": [
+            "2026-11-11"
+          ],
+          "quotation_total": 12,
+          "sales_order_total": 12,
+          "payment_request_total": 12,
+          "currency": "EUR",
+          "refs_hashes": {
+            "Quotation": "37728772c4c020a01526b61c8649cd01a9abf4e30130972a44772b5129c05aef",
+            "Sales Order": "e668d71c37c80a95d2821194b482208499aa3aeb737f28050ae4764655859eb0",
+            "Payment Request": "eaf9b0fbb34aae7a807b3e061d1e32a14d8a3c54e00f007b28dea595b8fca7e7"
+          }
+        },
+        "after": {
+          "Customer": 2,
+          "Lead": 4,
+          "Quotation": 3,
+          "Sales Order": 3,
+          "Payment Request": 0,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 2,
+          "Notification Log": 2,
+          "Version": 38,
+          "ToDo": 2,
+          "Integration Request": 0
+        },
+        "counts_identical": true,
+        "created_documents_absent": true,
+        "source_unchanged": true,
+        "series_unchanged": true
+      }
+    },
+    {
+      "country": "CG",
+      "host": "congo.erp.konektag.eu",
+      "route": {
+        "residenceCountry": "CG",
+        "paymentCountry": "CG",
+        "slug": "konektag-cg",
+        "site": "KONEKTAG_CG",
+        "timezone": "Africa/Brazzaville"
+      },
+      "apiServiceNative": {
+        "counts": {
+          "Customer": 4,
+          "Lead": 2,
+          "Quotation": 4,
+          "Sales Order": 3,
+          "Payment Request": 1,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 11,
+          "Notification Log": 330,
+          "Version": 60,
+          "ToDo": 330,
+          "Integration Request": 0
+        },
+        "customer_preserved": true,
+        "references_preserved": true,
+        "quotation_status": 1,
+        "sales_order_status": 1,
+        "payment_request_status": 1,
+        "transaction_date": "2026-11-11",
+        "delivery_date": "2026-11-11",
+        "row_delivery_dates": [
+          "2026-11-11"
+        ],
+        "quotation_total": 8567,
+        "sales_order_total": 8567,
+        "payment_request_total": 8567,
+        "currency": "XAF",
+        "refs_hashes": {
+          "Quotation": "37728772c4c020a01526b61c8649cd01a9abf4e30130972a44772b5129c05aef",
+          "Sales Order": "c0190de26cf44aec840877b23d26db088a332464ebe745a9a1c0943088b54705",
+          "Payment Request": "eaf9b0fbb34aae7a807b3e061d1e32a14d8a3c54e00f007b28dea595b8fca7e7"
+        }
+      },
+      "apiServiceReplayIdentical": true,
+      "boundaryMetadata": {
+        "version": 1,
+        "site": "KONEKTAG_CG",
+        "itemCode": "POINTS-K",
+        "quantityK": 11,
+        "amountMinor": 8567,
+        "currency": "XAF",
+        "referencesMatch": true
+      },
+      "stoppedBeforePostgresPaymentOrder": true,
+      "rollback": {
+        "site": "congo.erp.konektag.eu",
+        "before": {
+          "Customer": 4,
+          "Lead": 2,
+          "Quotation": 3,
+          "Sales Order": 2,
+          "Payment Request": 0,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 11,
+          "Notification Log": 330,
+          "Version": 59,
+          "ToDo": 330,
+          "Integration Request": 0
+        },
+        "steps": [],
+        "blocked_effects": [],
+        "fixture_delivery_date": false,
+        "native": {
+          "counts": {
+            "Customer": 4,
+            "Lead": 2,
+            "Quotation": 4,
+            "Sales Order": 3,
+            "Payment Request": 1,
+            "Sales Invoice": 0,
+            "Payment Entry": 0,
+            "GL Entry": 0,
+            "Email Queue": 0,
+            "Communication": 11,
+            "Notification Log": 330,
+            "Version": 60,
+            "ToDo": 330,
+            "Integration Request": 0
+          },
+          "customer_preserved": true,
+          "references_preserved": true,
+          "quotation_status": 1,
+          "sales_order_status": 1,
+          "payment_request_status": 1,
+          "transaction_date": "2026-11-11",
+          "delivery_date": "2026-11-11",
+          "row_delivery_dates": [
+            "2026-11-11"
+          ],
+          "quotation_total": 8567,
+          "sales_order_total": 8567,
+          "payment_request_total": 8567,
+          "currency": "XAF",
+          "refs_hashes": {
+            "Quotation": "37728772c4c020a01526b61c8649cd01a9abf4e30130972a44772b5129c05aef",
+            "Sales Order": "c0190de26cf44aec840877b23d26db088a332464ebe745a9a1c0943088b54705",
+            "Payment Request": "eaf9b0fbb34aae7a807b3e061d1e32a14d8a3c54e00f007b28dea595b8fca7e7"
+          }
+        },
+        "after": {
+          "Customer": 4,
+          "Lead": 2,
+          "Quotation": 3,
+          "Sales Order": 2,
+          "Payment Request": 0,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 11,
+          "Notification Log": 330,
+          "Version": 59,
+          "ToDo": 330,
+          "Integration Request": 0
+        },
+        "counts_identical": true,
+        "created_documents_absent": true,
+        "source_unchanged": true,
+        "series_unchanged": true
+      }
+    },
+    {
+      "country": "LB",
+      "host": "liban.erp.konektag.eu",
+      "route": {
+        "residenceCountry": "LB",
+        "paymentCountry": "LB",
+        "slug": "konektag-lb",
+        "site": "LIBAN",
+        "timezone": "Asia/Beirut"
+      },
+      "apiServiceNative": {
+        "counts": {
+          "Customer": 2,
+          "Lead": 2,
+          "Quotation": 4,
+          "Sales Order": 4,
+          "Payment Request": 1,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 0,
+          "Notification Log": 0,
+          "Version": 24,
+          "ToDo": 0,
+          "Integration Request": 0
+        },
+        "customer_preserved": true,
+        "references_preserved": true,
+        "quotation_status": 1,
+        "sales_order_status": 1,
+        "payment_request_status": 1,
+        "transaction_date": "2026-11-11",
+        "delivery_date": "2026-11-11",
+        "row_delivery_dates": [
+          "2026-11-11"
+        ],
+        "quotation_total": 12.21,
+        "sales_order_total": 12.21,
+        "payment_request_total": 12.21,
+        "currency": "USD",
+        "refs_hashes": {
+          "Quotation": "37728772c4c020a01526b61c8649cd01a9abf4e30130972a44772b5129c05aef",
+          "Sales Order": "e668d71c37c80a95d2821194b482208499aa3aeb737f28050ae4764655859eb0",
+          "Payment Request": "eaf9b0fbb34aae7a807b3e061d1e32a14d8a3c54e00f007b28dea595b8fca7e7"
+        }
+      },
+      "apiServiceReplayIdentical": true,
+      "boundaryMetadata": {
+        "version": 1,
+        "site": "LIBAN",
+        "itemCode": "POINTS-K",
+        "quantityK": 11,
+        "amountMinor": 1221,
+        "currency": "USD",
+        "referencesMatch": true
+      },
+      "stoppedBeforePostgresPaymentOrder": true,
+      "rollback": {
+        "site": "liban.erp.konektag.eu",
+        "before": {
+          "Customer": 2,
+          "Lead": 2,
+          "Quotation": 3,
+          "Sales Order": 3,
+          "Payment Request": 0,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 0,
+          "Notification Log": 0,
+          "Version": 23,
+          "ToDo": 0,
+          "Integration Request": 0
+        },
+        "steps": [],
+        "blocked_effects": [],
+        "fixture_delivery_date": false,
+        "native": {
+          "counts": {
+            "Customer": 2,
+            "Lead": 2,
+            "Quotation": 4,
+            "Sales Order": 4,
+            "Payment Request": 1,
+            "Sales Invoice": 0,
+            "Payment Entry": 0,
+            "GL Entry": 0,
+            "Email Queue": 0,
+            "Communication": 0,
+            "Notification Log": 0,
+            "Version": 24,
+            "ToDo": 0,
+            "Integration Request": 0
+          },
+          "customer_preserved": true,
+          "references_preserved": true,
+          "quotation_status": 1,
+          "sales_order_status": 1,
+          "payment_request_status": 1,
+          "transaction_date": "2026-11-11",
+          "delivery_date": "2026-11-11",
+          "row_delivery_dates": [
+            "2026-11-11"
+          ],
+          "quotation_total": 12.21,
+          "sales_order_total": 12.21,
+          "payment_request_total": 12.21,
+          "currency": "USD",
+          "refs_hashes": {
+            "Quotation": "37728772c4c020a01526b61c8649cd01a9abf4e30130972a44772b5129c05aef",
+            "Sales Order": "e668d71c37c80a95d2821194b482208499aa3aeb737f28050ae4764655859eb0",
+            "Payment Request": "eaf9b0fbb34aae7a807b3e061d1e32a14d8a3c54e00f007b28dea595b8fca7e7"
+          }
+        },
+        "after": {
+          "Customer": 2,
+          "Lead": 2,
+          "Quotation": 3,
+          "Sales Order": 3,
+          "Payment Request": 0,
+          "Sales Invoice": 0,
+          "Payment Entry": 0,
+          "GL Entry": 0,
+          "Email Queue": 0,
+          "Communication": 0,
+          "Notification Log": 0,
+          "Version": 23,
+          "ToDo": 0,
+          "Integration Request": 0
+        },
+        "counts_identical": true,
+        "created_documents_absent": true,
+        "source_unchanged": true,
+        "series_unchanged": true
+      }
+    }
+  ],
+  "independent_committed_counts": {
+    "FR": {
+      "Customer": 2,
+      "Lead": 4,
+      "Quotation": 3,
+      "Sales Order": 3,
+      "Payment Request": 0,
+      "Sales Invoice": 0,
+      "Payment Entry": 0,
+      "GL Entry": 0,
+      "Email Queue": 0,
+      "Communication": 2,
+      "Notification Log": 2,
+      "Version": 38,
+      "ToDo": 2,
+      "Integration Request": 0
+    },
+    "CG": {
+      "Customer": 4,
+      "Lead": 2,
+      "Quotation": 3,
+      "Sales Order": 2,
+      "Payment Request": 0,
+      "Sales Invoice": 0,
+      "Payment Entry": 0,
+      "GL Entry": 0,
+      "Email Queue": 0,
+      "Communication": 11,
+      "Notification Log": 330,
+      "Version": 59,
+      "ToDo": 330,
+      "Integration Request": 0
+    },
+    "LB": {
+      "Customer": 2,
+      "Lead": 2,
+      "Quotation": 3,
+      "Sales Order": 3,
+      "Payment Request": 0,
+      "Sales Invoice": 0,
+      "Payment Entry": 0,
+      "GL Entry": 0,
+      "Email Queue": 0,
+      "Communication": 0,
+      "Notification Log": 0,
+      "Version": 23,
+      "ToDo": 0,
+      "Integration Request": 0
+    }
+  },
+  "http_routing_and_context": [
+    {
+      "country": "FR",
+      "route": {
+        "residenceCountry": "FR",
+        "paymentCountry": "FR",
+        "slug": "konektag-fr",
+        "site": "EUROPE",
+        "timezone": "Europe/Paris"
+      },
+      "host": "europe.erp.konektag.eu",
+      "authenticatedUser": "api-europe@konektag.eu",
+      "nativeQuotation": {
+        "docstatus": 1,
+        "amount": 12,
+        "currency": "EUR",
+        "netTotal": 10,
+        "grandTotal": 12,
+        "roundedTotal": 12,
+        "taxes": [
+          {
+            "chargeType": "On Net Total",
+            "amount": 2
+          }
+        ]
+      },
+      "attempts": [
+        {
+          "ok": true,
+          "amount": 12,
+          "currency": "EUR",
+          "paymentContext": null,
+          "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        },
+        {
+          "ok": true,
+          "amount": 12,
+          "currency": "EUR",
+          "paymentContext": null,
+          "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      ],
+      "http": {
+        "status": 200,
+        "amount": 12,
+        "currency": "EUR",
+        "paymentContext": null,
+        "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+      },
+      "paymentContextHttp": {
+        "status": 422,
+        "body": {
+          "error": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      },
+      "modes": [
+        {
+          "name": "Bank Draft",
+          "type": "Bank"
+        },
+        {
+          "name": "Cash",
+          "type": "Cash"
+        },
+        {
+          "name": "Cheque",
+          "type": "Bank"
+        },
+        {
+          "name": "Credit Card",
+          "type": "Bank"
+        },
+        {
+          "name": "Wire Transfer",
+          "type": "Bank"
+        }
+      ],
+      "profiles": [
+        {
+          "name": "LINK-FR-STRIPE",
+          "status": "Compliance Review",
+          "runtime_operation": "link_payment",
+          "rail": "stripe",
+          "valid_from": "2026-11-10",
+          "valid_until": null
+        }
+      ],
+      "corridors": [
+        {
+          "name": "KTG-FR-KTG-FR",
+          "status": "Approved",
+          "corridor_code": "KTG-FR-KTG-FR"
+        }
+      ],
+      "ownershipRejected": true,
+      "gatewayAccounts": [],
+      "salesOrders": [
+        {
+          "docstatus": 0,
+          "currency": "EUR",
+          "grand_total": 12,
+          "rounded_total": 12
+        },
+        {
+          "docstatus": 0,
+          "currency": "EUR",
+          "grand_total": 12,
+          "rounded_total": 12
+        },
+        {
+          "docstatus": 0,
+          "currency": "EUR",
+          "grand_total": 12,
+          "rounded_total": 12
+        }
+      ],
+      "paymentRequests": [],
+      "customerUnchanged": true
+    },
+    {
+      "country": "CG",
+      "route": {
+        "residenceCountry": "CG",
+        "paymentCountry": "CG",
+        "slug": "konektag-cg",
+        "site": "KONEKTAG_CG",
+        "timezone": "Africa/Brazzaville"
+      },
+      "host": "congo.erp.konektag.eu",
+      "authenticatedUser": "api-congo@konektag.eu",
+      "nativeQuotation": {
+        "docstatus": 1,
+        "amount": 8567,
+        "currency": "XAF",
+        "netTotal": 7205,
+        "grandTotal": 8566.74,
+        "roundedTotal": 8567,
+        "taxes": [
+          {
+            "chargeType": "On Net Total",
+            "amount": 1296.9
+          },
+          {
+            "chargeType": "On Previous Row Amount",
+            "amount": 64.84
+          }
+        ]
+      },
+      "attempts": [
+        {
+          "ok": true,
+          "amount": 8567,
+          "currency": "XAF",
+          "paymentContext": null,
+          "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        },
+        {
+          "ok": true,
+          "amount": 8567,
+          "currency": "XAF",
+          "paymentContext": null,
+          "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      ],
+      "http": {
+        "status": 200,
+        "amount": 8567,
+        "currency": "XAF",
+        "paymentContext": null,
+        "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+      },
+      "paymentContextHttp": {
+        "status": 422,
+        "body": {
+          "error": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      },
+      "modes": [
+        {
+          "name": "Bank Draft",
+          "type": "Bank"
+        },
+        {
+          "name": "Cash",
+          "type": "Cash"
+        },
+        {
+          "name": "Cheque",
+          "type": "Bank"
+        },
+        {
+          "name": "Credit Card",
+          "type": "Bank"
+        },
+        {
+          "name": "Konektag Link Pay",
+          "type": "Cash"
+        },
+        {
+          "name": "Wire Transfer",
+          "type": "Bank"
+        }
+      ],
+      "profiles": [
+        {
+          "name": "LINK-CG-PAWAPAY",
+          "status": "Compliance Review",
+          "runtime_operation": "link_payment",
+          "rail": "mobile_money",
+          "valid_from": "2026-11-10",
+          "valid_until": null
+        }
+      ],
+      "corridors": [
+        {
+          "name": "KTG-CG-KTG-CG",
+          "status": "Approved",
+          "corridor_code": "KTG-CG-KTG-CG"
+        }
+      ],
+      "ownershipRejected": true,
+      "gatewayAccounts": [],
+      "salesOrders": [
+        {
+          "docstatus": 0,
+          "currency": "XAF",
+          "grand_total": 9274.8,
+          "rounded_total": 9275
+        },
+        {
+          "docstatus": 0,
+          "currency": "XAF",
+          "grand_total": 8566.74,
+          "rounded_total": 8567
+        }
+      ],
+      "paymentRequests": [],
+      "customerUnchanged": true
+    },
+    {
+      "country": "LB",
+      "route": {
+        "residenceCountry": "LB",
+        "paymentCountry": "LB",
+        "slug": "konektag-lb",
+        "site": "LIBAN",
+        "timezone": "Asia/Beirut"
+      },
+      "host": "liban.erp.konektag.eu",
+      "authenticatedUser": "api-lebanon@konektag.eu",
+      "nativeQuotation": {
+        "docstatus": 1,
+        "amount": 12.21,
+        "currency": "USD",
+        "netTotal": 11,
+        "grandTotal": 12.21,
+        "roundedTotal": 12.21,
+        "taxes": [
+          {
+            "chargeType": "On Net Total",
+            "amount": 1.21
+          }
+        ]
+      },
+      "attempts": [
+        {
+          "ok": true,
+          "amount": 12.21,
+          "currency": "USD",
+          "paymentContext": null,
+          "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        },
+        {
+          "ok": true,
+          "amount": 12.21,
+          "currency": "USD",
+          "paymentContext": null,
+          "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      ],
+      "http": {
+        "status": 200,
+        "amount": 12.21,
+        "currency": "USD",
+        "paymentContext": null,
+        "paymentContextError": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+      },
+      "paymentContextHttp": {
+        "status": 422,
+        "body": {
+          "error": "PAYMENT_CONTEXT_REGULATORY_PROFILE_NOT_FOUND"
+        }
+      },
+      "modes": [
+        {
+          "name": "Bank Draft",
+          "type": "Bank"
+        },
+        {
+          "name": "Cash",
+          "type": "Cash"
+        },
+        {
+          "name": "Cheque",
+          "type": "Bank"
+        },
+        {
+          "name": "Credit Card",
+          "type": "Bank"
+        },
+        {
+          "name": "Wire Transfer",
+          "type": "Bank"
+        }
+      ],
+      "profiles": [
+        {
+          "name": "LINK-LB-STRIPE",
+          "status": "Compliance Review",
+          "runtime_operation": "link_payment",
+          "rail": "stripe",
+          "valid_from": "2026-11-10",
+          "valid_until": null
+        }
+      ],
+      "corridors": [
+        {
+          "name": "KTG-LB-KTG-LB",
+          "status": "Approved",
+          "corridor_code": "KTG-LB-KTG-LB"
+        }
+      ],
+      "ownershipRejected": true,
+      "gatewayAccounts": [],
+      "salesOrders": [
+        {
+          "docstatus": 0,
+          "currency": "USD",
+          "grand_total": 12.21,
+          "rounded_total": 12.21
+        },
+        {
+          "docstatus": 0,
+          "currency": "USD",
+          "grand_total": 12.21,
+          "rounded_total": 12.21
+        },
+        {
+          "docstatus": 0,
+          "currency": "USD",
+          "grand_total": 12.21,
+          "rounded_total": 12.21
+        }
+      ],
+      "paymentRequests": [],
+      "customerUnchanged": true
+    }
+  ]
+}

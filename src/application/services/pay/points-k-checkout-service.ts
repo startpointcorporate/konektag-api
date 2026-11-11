@@ -72,6 +72,13 @@ export async function createPointsKCheckout(input: Input & { modeOfPayment: stri
   }
   if (!salesOrder) {
     salesOrder = await state.site.call('erpnext.selling.doctype.quotation.quotation.make_sales_order', { source_name: quotation.name });
+    // ERPNext validates/propagates the header date to undated rows on insert.
+    // Preserve an existing schedule; otherwise use the native order date, never the API clock.
+    if (salesOrder.order_type === 'Sales' && !Number(salesOrder.skip_delivery_note)
+      && !salesOrder.delivery_date && !salesOrder.items?.some((item: any) => item.delivery_date)) {
+      if (!salesOrder.transaction_date) throw new PointsKCheckoutError('SALES_ORDER_DELIVERY_DATE_UNAVAILABLE');
+      salesOrder.delivery_date = salesOrder.transaction_date;
+    }
     salesOrder = await state.site.insert('Sales Order', salesOrder);
     salesOrder = await state.site.call('frappe.client.submit', { doc: salesOrder });
   }
