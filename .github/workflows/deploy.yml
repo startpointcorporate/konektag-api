@@ -54,8 +54,12 @@ jobs:
             exit 1
           }
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
       - name: Validate deploy script syntax
-        run: bash -n deploy-api.sh
+        run: bash -n deploy-api.sh scripts/api-build-pod.sh
 
       - name: Require deployment approval and SSH configuration
         shell: bash
@@ -75,6 +79,7 @@ jobs:
             }
 
       - name: Configure secure SSH alias for deployment
+        id: ssh
         shell: bash
         env:
           SSH_HOST: ${{ secrets.SSH_CORE_HOST }}
@@ -110,9 +115,15 @@ jobs:
         run: |
           set -euo pipefail
           ssh konektag-core "sudo -n k3s kubectl -n konektag-api get deployment konektag-api -o name"
-          ssh konektag-core "sudo -n k3s kubectl -n konektag-api get pod konektag-api-setup -o name"
+          ssh konektag-core "sudo -n k3s kubectl -n konektag-api get pvc konektag-api-code -o name"
 
       - name: Deploy with existing volume and in-pod Linux x64 build
         env:
           KONEKTAG_K3S_HOST: konektag-core
         run: bash deploy-api.sh
+
+      # Retry cleanup even when the deployment shell was interrupted by the runner.
+      # The helper validates the technical pod and can never delete its PVC.
+      - name: Clean up API build pod
+        if: ${{ always() && steps.ssh.outcome == 'success' }}
+        run: bash scripts/api-build-pod.sh cleanup

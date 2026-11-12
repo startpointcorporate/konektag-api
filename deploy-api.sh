@@ -23,16 +23,40 @@ fi
 K="sudo k3s kubectl -n $NS"
 echo "Deploying Konektag API $SHA to $HOST/$NS"
 
-ssh "$HOST" "$K get pod $SETUP -o jsonpath='{.status.phase}'" | grep -qx Running || {
-  echo "ERROR: setup pod not Running; recreate the PVC-mounted build pod first." >&2
-  exit 1
+ACTIVATED=0
+rollback() {
+  if [ "$ACTIVATED" = 1 ]; then
+    echo "ERROR: deployment failed; restoring $CURRENT" >&2
+    ssh "$HOST" "$K exec -i deployment/$APP -- sh -s -- $CURRENT" <<'REMOTE_ROLLBACK' || true
+set -eu
+version="$1"
+printf "%s\n" "$version" > /app/active-version.tmp
+mv /app/active-version.tmp /app/active-version
+REMOTE_ROLLBACK
+  fi
 }
+finish() {
+  local status=$?
+  trap - EXIT INT TERM
+  if [ "$status" != 0 ]; then rollback; fi
+  if ! bash scripts/api-build-pod.sh cleanup; then
+    echo "ERROR: build pod cleanup failed; PVC retained" >&2
+    if [ "$status" = 0 ]; then status=1; fi
+  fi
+  exit "$status"
+}
+trap finish EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
 ssh "$HOST" "$K get deployment $APP >/dev/null"
 CURRENT="$(ssh "$HOST" "$K exec deployment/$APP -- cat /app/active-version" | tr -d '\r\n')"
 if [ "$CURRENT" = "$SHA" ]; then
   echo "Already active: $SHA"
   exit 0
 fi
+
+bash scripts/api-build-pod.sh ensure
 
 # Refuse to overwrite a previously published release; immutable versions only.
 ssh "$HOST" "$K exec $SETUP -- sh -c 'test ! -e /app/releases/$SHA && mkdir -p /app/releases/$SHA'"
@@ -57,19 +81,6 @@ npm prune --omit=dev --no-audit --no-fund
 touch .ready
 echo BUILD_OK
 REMOTE_BUILD
-ACTIVATED=0
-rollback() {
-  if [ "$ACTIVATED" = 1 ]; then
-    echo "ERROR: deployment failed; restoring $CURRENT" >&2
-    ssh "$HOST" "$K exec -i deployment/$APP -- sh -s -- $CURRENT" <<'REMOTE_ROLLBACK' || true
-set -eu
-version="$1"
-printf "%s\n" "$version" > /app/active-version.tmp
-mv /app/active-version.tmp /app/active-version
-REMOTE_ROLLBACK
-  fi
-}
-trap rollback ERR INT TERM
 
 echo "=== Atomic activation ==="
 ssh "$HOST" "$K exec -i deployment/$APP -- sh -s -- $SHA" <<'REMOTE_ACTIVATE'
@@ -120,6 +131,5 @@ if [ "$OK" != 1 ]; then
 fi
 
 ACTIVATED=0
-trap - ERR INT TERM
 echo "SUCCESS: $CURRENT -> $SHA"
 echo "Swagger: https://api.konektag.eu/docs"

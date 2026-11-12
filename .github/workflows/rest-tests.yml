@@ -43,6 +43,10 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - name: Test API deployment pod lifecycle
+        run: |
+          bash -n deploy-api.sh scripts/api-build-pod.sh
+          node --test tests/deployment/api-build-pod.mjs
       - run: npm run docs:generate
       - run: npm run typecheck
       - run: git diff --exit-code -- src/api/registry.ts docs/routes.json docs/openapi.yaml
