@@ -17,15 +17,15 @@ export const GET:RouteHandler=async({request,locals})=>{
   const currency=(url.searchParams.get('currency')||profile?.preferred_currency||'EUR').trim().toUpperCase();
   if(!exchangeRateService.isSupported(currency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
   const partyId=await resolvePointsOwner(pool as any,user.id);
-  const {rows}=await pool.query(`SELECT le.created_at,ft.transaction_type AS operation_type,le.entry_side AS direction,
+  const {rows}=await pool.query(`WITH movements AS (
+   SELECT le.created_at,ft.transaction_type AS operation_type,le.entry_side AS direction,
     le.amount AS quantity_k,le.document_type AS source_type,le.document_ref AS source_id,
-    ft.id AS operation_id,u.username AS counterparty,
+    ft.id::text AS operation_id,u.username AS counterparty,
     CASE WHEN ft.status='pending' AND ft.accounting_status='processing' THEN 'PROCESSING'
       WHEN ft.status='pending' THEN 'PENDING' WHEN ft.status='failed' THEN 'FAILED'
       WHEN ft.status IN ('completed','reversed') THEN 'COMPLETED' ELSE 'FAILED' END AS status,
     ft.business_reference,pc.currency AS original_currency,pc.confirmed_minor AS original_amount_minor,
-    pc.provider AS original_provider,
-    count(*) OVER()::int AS total
+    pc.provider AS original_provider,le.id::text AS stable_id
    FROM konektag.ledger_entries le
    JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
    LEFT JOIN konektag.ledger_entries peer ON peer.transaction_id=le.transaction_id AND peer.account_code='1000'
@@ -35,7 +35,30 @@ export const GET:RouteHandler=async({request,locals})=>{
    LEFT JOIN konektag.points_acquisitions pa ON pa.transaction_id=ft.id
    LEFT JOIN konektag.points_payment_confirmations pc ON pc.order_id=pa.order_id
    WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
-   ORDER BY le.created_at DESC,le.id DESC LIMIT $2 OFFSET $3`,[partyId,limit,offset]);
+   UNION ALL
+   SELECT o.updated_at,'acquisition','credit',
+    (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric,'payment_order',o.id::text,o.id::text,NULL,
+    CASE WHEN attempt.state IN ('failed') THEN 'FAILED'
+      WHEN attempt.state IN ('cancelled','expired') THEN 'CANCELLED'
+      WHEN o.state IN ('processing','awaiting_mobile_money') OR attempt.state='processing' THEN 'PROCESSING'
+      WHEN o.state='pending' THEN 'PENDING' WHEN o.state IN ('cancelled','expired') THEN 'CANCELLED'
+      ELSE 'FAILED' END,
+    COALESCE(o.order_metadata #>> '{erpnextPointsK,paymentRequest}',o.merchant_transaction_id),
+    o.currency,o.subtotal_amount,
+    COALESCE(attempt.provider,o.settlement_provider,o.order_metadata #>> '{erpnextPointsK,provider}'),o.id::text
+   FROM konektag.api_payment_orders o
+   LEFT JOIN LATERAL (SELECT a.state,a.provider FROM konektag.payment_provider_attempts a
+    WHERE a.source_type='api_payment' AND a.source_id=o.id
+    ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
+   WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
+    AND o.order_metadata ? 'erpnextPointsK'
+    AND jsonb_typeof(o.order_metadata #> '{erpnextPointsK,quantityK}')='number'
+    AND (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric>0
+    AND o.state IN ('pending','processing','awaiting_mobile_money','failed','expired','cancelled')
+    AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)
+  )
+  SELECT movements.*,count(*) OVER()::int AS total FROM movements
+  ORDER BY created_at DESC,stable_id DESC LIMIT $3 OFFSET $4`,[partyId,user.id,limit,offset]);
   const rate=await exchangeRateService.getRate('EUR',currency);
   if(rate===null)return Response.json({error:'EXCHANGE_RATE_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});
   const evidence=await exchangeRateService.getRateEvidence('EUR',currency);

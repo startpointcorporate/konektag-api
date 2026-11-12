@@ -18,6 +18,8 @@ const { apiPaymentCheckoutService } = await import('../../src/application/servic
 const { createPointsKCheckout } = await import('../../src/application/services/pay/points-k-checkout-service.ts');
 const { startPawaPayDirectDeposit } = await import('../../src/application/services/pay/pawapay-direct-deposit-service.ts');
 const { PawaPayError } = await import('../../src/infrastructure/adapters/pawapay-client.ts');
+const { GET: accountBalance } = await import('../../src/api/routes/account/balance.ts');
+const { GET: accountHistory } = await import('../../src/api/routes/account/history/index.ts');
 
 const PHONE_A = '242053456789';
 const PHONE_B = '242053456780';
@@ -101,6 +103,16 @@ async function orderState(orderId: string) {
   const { rows: [row] } = await pool.query('SELECT state, payment_method FROM konektag.api_payment_orders WHERE id=$1', [orderId]);
   return row;
 }
+const accountContext = (path: string) => ({ request: new Request(`https://api.test${path}`), locals: { user: { id: userId } } } as any);
+async function walletReads() {
+  const [balanceResponse,historyResponse] = await Promise.all([
+    accountBalance(accountContext('/api/account/balance?currency=XAF')),
+    accountHistory(accountContext('/api/account/history?currency=XAF&limit=100')),
+  ]);
+  expect(balanceResponse.status).toBe(200);
+  expect(historyResponse.status).toBe(200);
+  return { balance: await balanceResponse.json(), history: await historyResponse.json() };
+}
 
 describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
   it('refuses a sandbox PSP on a live business order before creating an attempt', async () => {
@@ -130,9 +142,14 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     expect(await attempts(orderId)).toMatchObject([{ state: 'pending' }]);
   });
   it('settles concurrent repeated callbacks once without double credit or duplicate events', async () => {
+    const baseline = await walletReads();
     const { token, orderId } = await congoCheckout();
     const client = fakePawaPay();
     const first = await start(token, PHONE_A, client);
+    const before = await walletReads();
+    expect(before.balance.points_pending_net).toBe(baseline.balance.points_pending_net + 4);
+    expect(before.history.items).toContainEqual(expect.objectContaining({ operationId: orderId, quantityK: 4,
+      status: 'PROCESSING', sourceType: 'payment_order', original: expect.objectContaining({ currency: 'XAF', provider: 'pawapay' }) }));
     const { pawaPayDepositService } = await import('../../src/application/services/pay/pawapay-deposit-service.ts');
     const deposit = { depositId: first.depositId, status: 'COMPLETED' as const, amount: '8567', currency: 'XAF' };
     // Verified-event consumption only; cryptographic verification is covered
@@ -146,8 +163,36 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
       [orderId, `pawapay:deposit:${first.depositId}:COMPLETED`]);
     expect(evidence).toEqual({ acquisitions: 1, credits: 1, events: 1 });
     expect(await orderState(orderId)).toMatchObject({ state: 'paid' });
+    const after = await walletReads();
+    expect(after.balance.points_pending_net).toBe(baseline.balance.points_pending_net);
+    expect(after.balance.points_balance).toBe(baseline.balance.points_balance + 4);
+    expect(after.history.items.filter((item: any) => item.operationId === orderId)).toEqual([
+      expect.objectContaining({ quantityK: 4, status: 'COMPLETED', sourceType: 'points_acquisition' }),
+    ]);
     const { rows: [lot] } = await pool.query('SELECT economic_value FROM konektag.klots WHERE klot_ref=$1', [`KLOT-POINTS-${orderId}`]);
     expect(Number(lot.economic_value)).toBe(8567);
+  });
+
+  it('keeps failed and cancelled PSP orders visible without affecting either K balance', async () => {
+    const baseline = await walletReads();
+    const failed = await congoCheckout();
+    const failedAttempt = await start(failed.token, PHONE_A, fakePawaPay());
+    const { pawaPayDepositService } = await import('../../src/application/services/pay/pawapay-deposit-service.ts');
+    const failure = { depositId: failedAttempt.depositId, status: 'FAILED' as const, amount: '8567', currency: 'XAF', failureReason: 'DECLINED' };
+    await pawaPayDepositService.consume(failure, JSON.stringify(failure));
+
+    const cancelled = await congoCheckout();
+    await apiPaymentCheckoutService.cancelCheckout(cancelled.token);
+    const reads = await walletReads();
+    expect(reads.balance.points_pending_net).toBe(baseline.balance.points_pending_net);
+    expect(reads.balance.points_balance).toBe(baseline.balance.points_balance);
+    expect(reads.history.items).toContainEqual(expect.objectContaining({ operationId: failed.orderId, quantityK: 4, status: 'FAILED' }));
+    expect(reads.history.items).toContainEqual(expect.objectContaining({ operationId: cancelled.orderId, quantityK: 4, status: 'CANCELLED' }));
+    const { rows:[proof] } = await pool.query(`SELECT
+      (SELECT count(*)::int FROM konektag.ledger_entries WHERE points_order_id IN ($1,$2)) AS entries,
+      (SELECT count(*)::int FROM konektag.points_acquisitions WHERE order_id IN ($1,$2)) AS acquisitions`,
+    [failed.orderId,cancelled.orderId]);
+    expect(proof).toEqual({ entries: 0, acquisitions: 0 });
   });
   it('locks the checkout and keeps one observed attempt with the frozen amount', async () => {
     const { token, orderId } = await congoCheckout();

@@ -25,6 +25,20 @@ describe('account wallet read contracts',()=>{
   const response=await balance(context('/api/account/balance'));
   expect(response.status).toBe(200);
   expect(await response.json()).toMatchObject({points_balance:100,points_reserved:20,points_available:80,points_pending_net:7,source:'ledger',valuation:{kind:'INDICATIVE'}});
+  expect(mocks.query.mock.calls[1][1]).toEqual(['party-1','user-1']);
+ });
+
+ it('includes an unposted PSP order in history without treating it as confirmed K',async()=>{
+  mocks.query.mockResolvedValueOnce({rows:[{country:'CG',preferred_currency:'XAF'}]})
+   .mockResolvedValueOnce({rows:[{created_at:'2026-11-12T00:00:00Z',operation_type:'acquisition',direction:'credit',quantity_k:'4',
+    source_type:'payment_order',source_id:'order-1',operation_id:'order-1',counterparty:null,status:'PROCESSING',
+    business_reference:'PR-1',original_currency:'XAF',original_amount_minor:'8567',original_provider:'pawapay',total:1}]});
+  mocks.rate.mockResolvedValue(650);mocks.evidence.mockResolvedValue({source:'test',valuedAt:'2026-11-12T00:00:00Z'});
+  const response=await history(context('/api/account/history?currency=XAF'));
+  expect(response.status).toBe(200);
+  expect(await response.json()).toMatchObject({items:[{quantityK:4,status:'PROCESSING',sourceType:'payment_order',
+   original:{amountMinor:8567,currency:'XAF',provider:'pawapay'}}]});
+  expect(mocks.query.mock.calls[1][1]).toEqual(['party-1','user-1',50,0]);
  });
 
  it('returns signed, paginated history with canonical statuses',async()=>{

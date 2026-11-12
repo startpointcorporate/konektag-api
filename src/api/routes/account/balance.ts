@@ -17,9 +17,25 @@ export const GET: RouteHandler = async ({ request, locals }) => {
     if(!exchangeRateService.isSupported(displayCurrency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
     const partyId = await resolvePointsOwner(pool as any, user.id);
     const points = await kPointsBalance(partyId);
-    const {rows:[pending]}=await pool.query(`SELECT COALESCE(sum(CASE WHEN le.entry_side='credit' THEN le.amount ELSE -le.amount END),0)::text AS net
+    const {rows:[pending]}=await pool.query(`SELECT COALESCE(sum(quantity_k),0)::text AS net FROM (
+      SELECT CASE WHEN le.entry_side='credit' THEN le.amount ELSE -le.amount END AS quantity_k
       FROM konektag.ledger_entries le JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
-      WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND upper(ft.status) IN ('PENDING','PROCESSING')`,[partyId]);
+      WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K'
+        AND le.gl_scope='GLOBAL_USER_GL' AND upper(ft.status) IN ('PENDING','PROCESSING')
+      UNION ALL
+      SELECT (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric AS quantity_k
+      FROM konektag.api_payment_orders o
+      LEFT JOIN LATERAL (SELECT a.state FROM konektag.payment_provider_attempts a
+        WHERE a.source_type='api_payment' AND a.source_id=o.id
+        ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
+      WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
+        AND o.order_metadata ? 'erpnextPointsK'
+        AND jsonb_typeof(o.order_metadata #> '{erpnextPointsK,quantityK}')='number'
+        AND (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric>0
+        AND o.state IN ('pending','processing','awaiting_mobile_money')
+        AND COALESCE(attempt.state,'pending') IN ('pending','processing')
+        AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)
+    ) pending_movements`,[partyId,user.id]);
     const pendingK=Number(pending?.net??0);
     const fx=await exchangeRateService.convert(1,'EUR',displayCurrency);
     if(!fx)return Response.json({error:'EXCHANGE_RATE_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});

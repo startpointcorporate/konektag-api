@@ -10,13 +10,29 @@ DECLARE operation uuid; movement record; ledger_id uuid;
 BEGIN
  FOR operation IN
   SELECT DISTINCT w.operation_id FROM konektag.k_wallet_entries w
-  WHERE NOT EXISTS(SELECT 1 FROM konektag.financial_transactions ft WHERE ft.id=w.operation_id)
+  WHERE w.source_type='k_send' AND w.operation_type='k_send'
+   AND NOT EXISTS(SELECT 1 FROM konektag.financial_transactions ft WHERE ft.id=w.operation_id)
  LOOP
   INSERT INTO konektag.financial_transactions
    (id,transaction_type,business_reference,idempotency_key,currency,status,accounting_status)
   VALUES(operation,'k_send','legacy-k-send:'||operation,'legacy-k-wallet:'||operation,'K','pending','pending');
 
-  FOR movement IN SELECT * FROM konektag.k_wallet_entries WHERE operation_id=operation ORDER BY id
+  -- A legacy K_SEND is a balanced user-to-user pair. Do not guess a domain for
+  -- recharge, QR or merchant projections that happen to lack a transaction.
+  IF (SELECT count(*) FROM konektag.k_wallet_entries WHERE operation_id=operation
+       AND source_type='k_send' AND operation_type='k_send')<>2
+   OR (SELECT count(*) FROM konektag.k_wallet_entries WHERE operation_id=operation
+       AND source_type='k_send' AND operation_type='k_send' AND direction='debit')<>1
+   OR (SELECT count(*) FROM konektag.k_wallet_entries WHERE operation_id=operation
+       AND source_type='k_send' AND operation_type='k_send' AND direction='credit')<>1
+   OR (SELECT COALESCE(sum(CASE WHEN direction='credit' THEN quantity_k ELSE -quantity_k END),0)
+       FROM konektag.k_wallet_entries WHERE operation_id=operation
+        AND source_type='k_send' AND operation_type='k_send')<>0 THEN
+    RAISE EXCEPTION 'LEGACY_K_SEND_UNBALANCED: %',operation;
+  END IF;
+
+  FOR movement IN SELECT * FROM konektag.k_wallet_entries WHERE operation_id=operation
+    AND source_type='k_send' AND operation_type='k_send' ORDER BY id
   LOOP
    INSERT INTO konektag.ledger_entries
     (transaction_id,account_code,entry_type,entry_side,party_id,amount,currency,document_type,document_ref,operation_id)
