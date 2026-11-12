@@ -11703,8 +11703,8 @@ paths:
       summary: Lister les mouvements Points K
       tags:
         - account
-      description: Historique paginé signé. Cashback, transferts, acquisitions, paiements et remboursements partagent la
-        projection wallet comptable.
+      description: Historique paginé signé, lu directement dans le ledger canonique. Cashback, transferts, acquisitions,
+        paiements et remboursements partagent les mêmes faits comptables.
       parameters:
         - name: limit
           in: query
@@ -11759,11 +11759,23 @@ paths:
                                   type: number
                         original:
                           type: object
+                          required:
+                            - amountMinor
+                            - currency
+                            - provider
                           properties:
-                            amountK:
-                              type: integer
+                            amountMinor:
+                              type:
+                                - integer
+                                - "null"
                             currency:
-                              type: string
+                              type:
+                                - string
+                                - "null"
+                            provider:
+                              type:
+                                - string
+                                - "null"
                         reference:
                           type: string
                         status:

@@ -29,11 +29,12 @@ describe('account wallet read contracts',()=>{
 
  it('returns signed, paginated history with canonical statuses',async()=>{
   mocks.query.mockResolvedValueOnce({rows:[{country:'FR',preferred_currency:'EUR'}]})
-   .mockResolvedValueOnce({rows:[{created_at:'2026-11-12T00:00:00Z',operation_type:'k_send',direction:'debit',quantity_k:'4',source_type:'k_send',source_id:'send-1',operation_id:'op-1',counterparty:'Ada',status:'COMPLETED',business_reference:'ref-1',original_currency:'K',total:1}]});
+   .mockResolvedValueOnce({rows:[{created_at:'2026-11-12T00:00:00Z',operation_type:'k_send',direction:'debit',quantity_k:'4',source_type:'k_send',source_id:'send-1',operation_id:'op-1',counterparty:'Ada',status:'COMPLETED',business_reference:'ref-1',total:1}]});
   mocks.rate.mockResolvedValue(1);
   const response=await history(context('/api/account/history?limit=10&offset=0'));
   expect(response.status).toBe(200);
-  expect(await response.json()).toMatchObject({items:[{quantityK:-4,status:'COMPLETED',reference:'ref-1',counterparty:'Ada'}],pagination:{limit:10,offset:0,total:1}});
+  expect(await response.json()).toMatchObject({items:[{quantityK:-4,status:'COMPLETED',reference:'ref-1',counterparty:'Ada',
+   original:{amountMinor:null,currency:null,provider:null}}],pagination:{limit:10,offset:0,total:1}});
  });
 
  it('never hides a history database failure behind an empty 200',async()=>{

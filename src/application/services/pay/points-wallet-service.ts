@@ -75,7 +75,7 @@ export async function consumeCheckoutPoints(db: Database, order: {
 
 export async function sendPointsK(db: Database, input: {
   payerPartyId: string; recipientPartyId: string; quantity: number; operationKey: string;
-  legalEntityId?: string; corridorId: string; regulatoryProfileId: string;
+  legalEntityId?: string; corridorId?: string; regulatoryProfileId?: string;
 }): Promise<string> {
   if (!Number.isSafeInteger(input.quantity) || input.quantity <= 0) throw new Error('INVALID_POINTS_QUANTITY');
   const first = input.payerPartyId < input.recipientPartyId ? input.payerPartyId : input.recipientPartyId;
@@ -106,12 +106,12 @@ export async function sendPointsK(db: Database, input: {
   const { rows: [tx] } = await db.query(`INSERT INTO konektag.financial_transactions
     (transaction_type,business_reference,idempotency_key,currency,status,legal_entity_id,corridor_id,operation_id,regulatory_profile_id,value_date,eligibility_decision)
     VALUES('k_send',$1,$2,'K','pending',$3,$4,$2,$5,CURRENT_DATE,'ALLOWED') RETURNING id`,
-    [input.operationKey,input.operationKey,input.legalEntityId??null,input.corridorId,input.regulatoryProfileId]);
+    [input.operationKey,input.operationKey,input.legalEntityId??null,input.corridorId??null,input.regulatoryProfileId??null]);
   for (const [party, side] of [[input.payerPartyId,'debit'],[input.recipientPartyId,'credit']] as const) {
     await db.query(`INSERT INTO konektag.ledger_entries
       (transaction_id,account_code,entry_type,entry_side,party_id,amount,currency,document_type,document_ref,legal_entity_id,corridor_id,operation_id,regulatory_profile_id,value_date)
       VALUES($1,'1000',$2,$2,$3,$4,'K','k_send',$5,$6,$7,$8,$9,CURRENT_DATE)`,
-      [tx.id,side,party,input.quantity,input.operationKey,input.legalEntityId??null,input.corridorId,input.operationKey,input.regulatoryProfileId]);
+      [tx.id,side,party,input.quantity,input.operationKey,input.legalEntityId??null,input.corridorId??null,input.operationKey,input.regulatoryProfileId??null]);
   }
   await db.query("UPDATE konektag.financial_transactions SET status='completed',completed_at=now() WHERE id=$1",[tx.id]);
   return tx.id;

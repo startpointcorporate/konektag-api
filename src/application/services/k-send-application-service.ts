@@ -2,7 +2,8 @@ import type { KSendIntentRow } from '../../infrastructure/repositories/k-send-re
 import { KSendRepository } from '../../infrastructure/repositories/k-send-repository.ts';
 import { KSendBeneficiaryRepository } from '../../infrastructure/repositories/k-send-beneficiary-repository.ts';
 import pool from '../../infrastructure/database/pool.ts';
-import { ensureKParty, transferKPoints } from './k-points-service.ts';
+import { ensureKParty } from './k-points-service.ts';
+import { sendPointsK } from './pay/points-wallet-service.ts';
 import { emailService } from './resend-service.ts';
 import { encryptionService } from '../../infrastructure/adapters/encryption-service.ts';
 
@@ -54,7 +55,8 @@ export const kSendService={
    const quantityK=Number(intent.quantity_k);
    const senderParty=await ensureKParty(client,intent.sender_user_id);
    const recipientParty=await ensureKParty(client,intent.recipient_user_id);
-   const walletOperationId=await transferKPoints(client,{senderPartyId:senderParty.id,recipientPartyId:recipientParty.id,quantityK,operationKey:`k_send:${intent.id}`});
+   const walletOperationId=await sendPointsK(client,{payerPartyId:senderParty.id,recipientPartyId:recipientParty.id,
+    quantity:quantityK,operationKey:`k_send:${intent.id}`});
    const completed=await repository.markFunded(intent.id,intent.version,{authorizationReference,walletOperationId,sendDepth:0});
    const eventKey=`k-send-received:${intent.id}`;
    await client.query(`INSERT INTO konektag.notifications(user_id,type,title,body,link,event_key)

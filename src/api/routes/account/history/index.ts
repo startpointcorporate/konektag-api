@@ -17,16 +17,25 @@ export const GET:RouteHandler=async({request,locals})=>{
   const currency=(url.searchParams.get('currency')||profile?.preferred_currency||'EUR').trim().toUpperCase();
   if(!exchangeRateService.isSupported(currency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
   const partyId=await resolvePointsOwner(pool as any,user.id);
-  const {rows}=await pool.query(`SELECT w.created_at,w.operation_type,w.direction,w.quantity_k,w.source_type,w.source_id,
-    w.operation_id,u.username AS counterparty,
-    COALESCE(upper(ft.status),'COMPLETED') AS status,
-    ft.business_reference,ft.currency AS original_currency,
+  const {rows}=await pool.query(`SELECT le.created_at,ft.transaction_type AS operation_type,le.entry_side AS direction,
+    le.amount AS quantity_k,le.document_type AS source_type,le.document_ref AS source_id,
+    ft.id AS operation_id,u.username AS counterparty,
+    CASE WHEN ft.status='pending' AND ft.accounting_status='processing' THEN 'PROCESSING'
+      WHEN ft.status='pending' THEN 'PENDING' WHEN ft.status='failed' THEN 'FAILED'
+      WHEN ft.status IN ('completed','reversed') THEN 'COMPLETED' ELSE 'FAILED' END AS status,
+    ft.business_reference,pc.currency AS original_currency,pc.confirmed_minor AS original_amount_minor,
+    pc.provider AS original_provider,
     count(*) OVER()::int AS total
-   FROM konektag.k_wallet_entries w
-   LEFT JOIN konektag.financial_transactions ft ON ft.id=w.operation_id
-   LEFT JOIN konektag.parties cp ON cp.id=w.counterparty_party_id
+   FROM konektag.ledger_entries le
+   JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+   LEFT JOIN konektag.ledger_entries peer ON peer.transaction_id=le.transaction_id AND peer.account_code='1000'
+    AND peer.party_id<>le.party_id AND peer.entry_side<>le.entry_side
+   LEFT JOIN konektag.parties cp ON cp.id=peer.party_id
    LEFT JOIN konektag.users u ON u.keycloak_id=cp.keycloak_id AND u.deleted_at IS NULL
-   WHERE w.party_id=$1 ORDER BY w.created_at DESC,w.id DESC LIMIT $2 OFFSET $3`,[partyId,limit,offset]);
+   LEFT JOIN konektag.points_acquisitions pa ON pa.transaction_id=ft.id
+   LEFT JOIN konektag.points_payment_confirmations pc ON pc.order_id=pa.order_id
+   WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
+   ORDER BY le.created_at DESC,le.id DESC LIMIT $2 OFFSET $3`,[partyId,limit,offset]);
   const rate=await exchangeRateService.getRate('EUR',currency);
   if(rate===null)return Response.json({error:'EXCHANGE_RATE_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});
   const evidence=await exchangeRateService.getRateEvidence('EUR',currency);
@@ -44,7 +53,8 @@ export const GET:RouteHandler=async({request,locals})=>{
    return {date:w.created_at,type:w.operation_type,label:type,detail,quantityK:signed,
     value:{amount:Math.round(signed*rate*1e6)/1e6,currency,rate,rateSource:evidence?.source??'static_fallback',
      rateDate:evidence?.valuedAt??null,kind:'INDICATIVE'},
-    original:{amountK:Number(w.quantity_k),currency:w.original_currency||'K'},
+    original:w.original_currency?{amountMinor:Number(w.original_amount_minor),currency:w.original_currency,
+     provider:w.original_provider}:{amountMinor:null,currency:null,provider:null},
     reference:w.business_reference||w.source_id,status,counterparty:w.counterparty||null,
     operationId:w.operation_id,sourceType:w.source_type};
   });
