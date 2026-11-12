@@ -210,9 +210,13 @@ export const pawaPayClient = {
           .filter((row: any) => row?.currency === currency && row?.operationTypes?.DEPOSIT && typeof provider.provider === 'string')
           .map((row: any): PawaPayDepositProvider => {
             const deposit = row.operationTypes.DEPOSIT;
+            // The v2 schema names the limits minAmount/maxAmount while its example uses
+            // minTransactionLimit/maxTransactionLimit: accept both rather than silently drop the limits.
             return {
               provider: provider.provider, nameDisplayedToCustomer: str(provider.nameDisplayedToCustomer), currency,
-              status: str(deposit.status) ?? 'UNKNOWN', minAmount: str(deposit.minAmount), maxAmount: str(deposit.maxAmount),
+              status: str(deposit.status) ?? 'UNKNOWN',
+              minAmount: str(deposit.minAmount) ?? str(deposit.minTransactionLimit),
+              maxAmount: str(deposit.maxAmount) ?? str(deposit.maxTransactionLimit),
               decimalsInAmount: deposit.decimalsInAmount === 'TWO_PLACES' || deposit.decimalsInAmount === 'NONE' ? deposit.decimalsInAmount : null,
               authType: str(deposit.authType), pinPrompt: str(deposit.pinPrompt),
               pinPromptRevivable: typeof deposit.pinPromptRevivable === 'boolean' ? deposit.pinPromptRevivable : null,

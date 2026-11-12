@@ -110,4 +110,13 @@ describe('PawaPay v2 direct deposit contract', () => {
     }]);
     expect(fetchMock.mock.calls[0][0]).toBe('https://api.sandbox.pawapay.io/v2/active-conf?country=COG&operationType=DEPOSIT');
   });
+
+  it('reads the limits under the minTransactionLimit/maxTransactionLimit names of the documented example', async () => {
+    stub(json({ companyName: 'Konektag', countries: [{ country: 'COG', providers: [
+      { provider: 'MTN_MOMO_COG', currencies: [{ currency: 'XAF', operationTypes: { DEPOSIT: { authType: 'PROVIDER_AUTH', pinPrompt: 'AUTOMATIC',
+        pinPromptRevivable: true, minTransactionLimit: '1', maxTransactionLimit: '1000', decimalsInAmount: 'NONE', status: 'OPERATIONAL' } } }] },
+    ] }] }));
+    const [provider] = await pawaPayClient.depositProviders('COG', 'XAF', key);
+    expect(provider).toMatchObject({ minAmount: '1', maxAmount: '1000', status: 'OPERATIONAL', decimalsInAmount: 'NONE' });
+  });
 });

@@ -51,6 +51,7 @@ for (const p of providers) {
   if (p.status === 'UNKNOWN') failures.push(`${p.provider}: DEPOSIT.status not found`);
   if (p.decimalsInAmount === null) failures.push(`${p.provider}: decimalsInAmount not recognised`);
   if (p.authType === null) failures.push(`${p.provider}: authType not found`);
+  if (p.minAmount === null || p.maxAmount === null) failures.push(`${p.provider}: DEPOSIT amount limits not found`);
 }
 if (prediction.country !== country) failures.push(`prediction country ${prediction.country} != ${country}`);
 if (!providers.some(p => p.provider === prediction.provider)) failures.push(`predicted ${prediction.provider} absent from active-conf`);

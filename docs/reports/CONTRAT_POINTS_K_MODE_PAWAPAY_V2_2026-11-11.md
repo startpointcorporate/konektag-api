@@ -78,7 +78,11 @@ Le PIN et l'approbation restent sur le téléphone, chez l'opérateur. Le statut
 ## 5. Limites de la recette
 
 - Tests unitaires et de contrat : `fetch` et services injectés sont des mocks. **Aucun appel sandbox ni réel à pawaPay ou Stripe n'a été exécuté.**
-- PostgreSQL réel jetable (`konektag_test`, PostgreSQL 18.6 local, 233 migrations appliquées) : `tests/integration/points-k-money.pg.ts` (7) et `tests/integration/points-k-direct-deposit.pg.ts` (10) passent. Ce dernier couvre la relance, la concurrence (même téléphone ×5, deux téléphones), le rejet `REJECTED`, le 4xx, la panne du verrouillage (avant et après commit) et l'issue incertaine. Le client pawaPay y est un stub injecté. Ces fichiers ne tournent pas en CI.
+- PostgreSQL réel jetable (`konektag_test` ; PostgreSQL 18.6 puis 18.1 embarqué le 12/11 ; 230 fichiers de migration, 001 à 233) : `tests/integration/points-k-money.pg.ts` (7) et `tests/integration/points-k-direct-deposit.pg.ts` (10) passent. Ce dernier couvre la relance, la concurrence (même téléphone ×5, deux téléphones), le rejet `REJECTED`, le 4xx, la panne du verrouillage (avant et après commit) et l'issue incertaine. Le client pawaPay y est un stub injecté. Ces fichiers ne tournent pas en CI.
+- Contrat documentaire vérifié le 12/11 sur docs.pawapay.io/v2 :
+  - `predict-provider` : `POST {phoneNumber}` → `{country, provider, phoneNumber}`, conforme au parseur ;
+  - `active-conf` : `GET ?country&operationType`, `countries[].providers[].currencies[].operationTypes.DEPOSIT` avec `status` (`OPERATIONAL|DELAYED|CLOSED`), `authType`, `pinPrompt`, `decimalsInAmount` (`TWO_PLACES|NONE`), conforme au parseur.
+  - La documentation est contradictoire sur les limites : le schéma dit `minAmount`/`maxAmount`, l'exemple `minTransactionLimit`/`maxTransactionLimit`. L'adaptateur lit les deux noms ; le script de recette échoue si aucune limite n'est lue.
 - Contrat réel `active-conf` / `predict-provider` : `npx tsx scripts/recette/pawapay-v2-contract.ts` (sandbox uniquement, lecture seule, `/deposits` refusé par le script). Il faut une clé `*_PAWAPAY_SANDBOX` : sans cette clé, le script n'a pas été exécuté.
 - Les opérateurs `PREAUTH` et `REDIRECT_AUTH` sont refusés : aucun parcours de code d'autorisation ou de redirection n'est implémenté.
 - Le callback existant compare des montants entiers. Cela convient pour XAF, seule devise pawaPay acceptée par `getMobileMoneyOrder`.
