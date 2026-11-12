@@ -37,7 +37,7 @@ export const GET:RouteHandler=async({request,locals})=>{
    WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
    UNION ALL
    SELECT o.updated_at,'acquisition','credit',
-    (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric,'payment_order',o.id::text,o.id::text,NULL,
+    o.points_quantity::numeric,'payment_order',o.id::text,o.id::text,NULL,
     CASE WHEN attempt.state IN ('failed') THEN 'FAILED'
       WHEN attempt.state IN ('cancelled','expired') THEN 'CANCELLED'
       WHEN o.state IN ('processing','awaiting_mobile_money') OR attempt.state='processing' THEN 'PROCESSING'
@@ -52,8 +52,7 @@ export const GET:RouteHandler=async({request,locals})=>{
     ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
    WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
     AND o.order_metadata ? 'erpnextPointsK'
-    AND jsonb_typeof(o.order_metadata #> '{erpnextPointsK,quantityK}')='number'
-    AND (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric>0
+    AND o.points_quantity>0
     AND o.state IN ('pending','processing','awaiting_mobile_money','failed','expired','cancelled')
     AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)
   )

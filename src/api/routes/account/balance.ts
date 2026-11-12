@@ -23,15 +23,14 @@ export const GET: RouteHandler = async ({ request, locals }) => {
       WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K'
         AND le.gl_scope='GLOBAL_USER_GL' AND upper(ft.status) IN ('PENDING','PROCESSING')
       UNION ALL
-      SELECT (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric AS quantity_k
+      SELECT o.points_quantity::numeric AS quantity_k
       FROM konektag.api_payment_orders o
       LEFT JOIN LATERAL (SELECT a.state FROM konektag.payment_provider_attempts a
         WHERE a.source_type='api_payment' AND a.source_id::text=o.id::text
         ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
       WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
         AND o.order_metadata ? 'erpnextPointsK'
-        AND jsonb_typeof(o.order_metadata #> '{erpnextPointsK,quantityK}')='number'
-        AND (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric>0
+        AND o.points_quantity>0
         AND o.state IN ('pending','processing','awaiting_mobile_money')
         AND COALESCE(attempt.state,'pending') IN ('pending','processing')
         AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)

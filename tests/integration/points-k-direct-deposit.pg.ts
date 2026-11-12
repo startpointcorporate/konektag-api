@@ -147,8 +147,8 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     const client = fakePawaPay();
     const first = await start(token, PHONE_A, client);
     const before = await walletReads();
-    expect(before.balance.points_pending_net).toBe(baseline.balance.points_pending_net + 4);
-    expect(before.history.items).toContainEqual(expect.objectContaining({ operationId: orderId, quantityK: 4,
+    expect(before.balance.points_pending_net).toBe(baseline.balance.points_pending_net + 86);
+    expect(before.history.items).toContainEqual(expect.objectContaining({ operationId: orderId, quantityK: 86,
       status: 'PROCESSING', sourceType: 'payment_order', original: expect.objectContaining({ currency: 'XAF', provider: 'pawapay' }) }));
     const { pawaPayDepositService } = await import('../../src/application/services/pay/pawapay-deposit-service.ts');
     const deposit = { depositId: first.depositId, status: 'COMPLETED' as const, amount: '8567', currency: 'XAF' };
@@ -165,9 +165,9 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     expect(await orderState(orderId)).toMatchObject({ state: 'paid' });
     const after = await walletReads();
     expect(after.balance.points_pending_net).toBe(baseline.balance.points_pending_net);
-    expect(after.balance.points_balance).toBe(baseline.balance.points_balance + 4);
+    expect(after.balance.points_balance).toBe(baseline.balance.points_balance + 86);
     expect(after.history.items.filter((item: any) => item.operationId === orderId)).toEqual([
-      expect.objectContaining({ quantityK: 4, status: 'COMPLETED', sourceType: 'points_acquisition' }),
+      expect.objectContaining({ quantityK: 86, status: 'COMPLETED', sourceType: 'points_acquisition' }),
     ]);
     const { rows: [lot] } = await pool.query('SELECT economic_value FROM konektag.klots WHERE klot_ref=$1', [`KLOT-POINTS-${orderId}`]);
     expect(Number(lot.economic_value)).toBe(8567);
@@ -186,8 +186,8 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     const reads = await walletReads();
     expect(reads.balance.points_pending_net).toBe(baseline.balance.points_pending_net);
     expect(reads.balance.points_balance).toBe(baseline.balance.points_balance);
-    expect(reads.history.items).toContainEqual(expect.objectContaining({ operationId: failed.orderId, quantityK: 4, status: 'FAILED' }));
-    expect(reads.history.items).toContainEqual(expect.objectContaining({ operationId: cancelled.orderId, quantityK: 4, status: 'CANCELLED' }));
+    expect(reads.history.items).toContainEqual(expect.objectContaining({ operationId: failed.orderId, quantityK: 86, status: 'FAILED' }));
+    expect(reads.history.items).toContainEqual(expect.objectContaining({ operationId: cancelled.orderId, quantityK: 86, status: 'CANCELLED' }));
     const { rows:[proof] } = await pool.query(`SELECT
       (SELECT count(*)::int FROM konektag.ledger_entries WHERE points_order_id IN ($1,$2)) AS entries,
       (SELECT count(*)::int FROM konektag.points_acquisitions WHERE order_id IN ($1,$2)) AS acquisitions`,
