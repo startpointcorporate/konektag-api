@@ -254,10 +254,11 @@
       "refusal"
     ],
     "assertions": [
-      "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
+      "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal.",
+      "Points K resumes the persisted intent despite elapsed local attempt TTL, reuses one creation key after response loss, and refuses a new unreferenced initiation after the recovery window."
     ],
     "constraints": [],
-    "sha256": "5d324c29fab88634f20a5731807d2b1be5eac5139655a654c493534af570d09a",
+    "sha256": "948ca909db4647e2a9a3a602846c53a1c4693ba3c79c75ddc2d5625d1f472e72",
     "tests": [
       "API payment Stripe routes sends an exact EUR minor amount of 1200 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",
@@ -279,10 +280,11 @@
       "refusal"
     ],
     "assertions": [
-      "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal."
+      "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal.",
+      "Points K resumes the persisted intent despite elapsed local attempt TTL, reuses one creation key after response loss, and refuses a new unreferenced initiation after the recovery window."
     ],
     "constraints": [],
-    "sha256": "5d324c29fab88634f20a5731807d2b1be5eac5139655a654c493534af570d09a",
+    "sha256": "948ca909db4647e2a9a3a602846c53a1c4693ba3c79c75ddc2d5625d1f472e72",
     "tests": [
       "API payment Stripe routes sends an exact EUR minor amount of 1200 to Stripe",
       "API payment Stripe routes sends an exact EUR minor amount of 8900 to Stripe",

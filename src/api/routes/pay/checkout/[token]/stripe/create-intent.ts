@@ -28,10 +28,17 @@ export const POST: RouteHandler = async ({ params, locals }) => {
     const configuration = resolveStripeConfiguration(order.providerConfigurationKey);
     const stripe = new Stripe(configuration.secretKey);
     const expectedAmount = order.providerExpectedAmount;
-    await paymentProviderAttemptService.expireStaleApiPaymentAttempts(order.id);
+    if (!order.pointsK) await paymentProviderAttemptService.expireStaleApiPaymentAttempts(order.id);
     const reuseStoredIntent = order.stripePaymentIntentId
-      && await paymentProviderAttemptService.hasActiveApiPaymentAttempt(order.id);
+      && (order.pointsK || await paymentProviderAttemptService.hasActiveApiPaymentAttempt(order.id));
     const attemptKey = randomUUID();
+    if (order.pointsK && !reuseStoredIntent) {
+      const initiatedAt = await apiPaymentCheckoutService.reservePointsKStripeInitiation(order.id);
+      // Bound automatic recovery of an unreferenced initiation. Beyond this
+      // window reconcile it; do not risk sending a fresh request to the PSP.
+      if (!(Date.now() - new Date(initiatedAt).getTime() < 30 * 60_000))
+        throw new ApiPaymentConflictError('Stripe initiation requires reconciliation');
+    }
     const paymentIntent = reuseStoredIntent
       ? await stripe.paymentIntents.retrieve(order.stripePaymentIntentId!)
       : await stripe.paymentIntents.create({
@@ -43,7 +50,7 @@ export const POST: RouteHandler = async ({ params, locals }) => {
           konektag_source_id: order.id,
           konektag_operation_id: order.id,
         },
-      }, { idempotencyKey: `api-payment-order:${order.id}:attempt:${attemptKey}` });
+      }, { idempotencyKey: order.pointsK ? `api-payment-order:${order.id}:points-k` : `api-payment-order:${order.id}:attempt:${attemptKey}` });
 
     if (paymentIntent.metadata.konektag_source_type !== 'api_payment'
       || paymentIntent.metadata.konektag_source_id !== order.id
@@ -66,6 +73,7 @@ export const POST: RouteHandler = async ({ params, locals }) => {
       clientSecret: paymentIntent.client_secret,
       publishableKey: configuration.publishableKey,
       paymentIntentId: paymentIntent.id,
+      status: paymentIntent.status,
     }, 201);
   } catch (error) {
     if (error instanceof ProviderConfigurationError) return json({ error: 'Stripe is not configured: STRIPE_PUBLISHABLE_KEY is required' }, 503);

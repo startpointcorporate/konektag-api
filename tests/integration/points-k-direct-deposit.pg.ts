@@ -246,7 +246,12 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     await expect(start(token, PHONE_A, client)).rejects.toMatchObject({ code: 'PAWAPAY_DEPOSIT_UNCONFIRMED', status: 502 });
     const [ambiguous] = await attempts(orderId);
     expect(ambiguous).toMatchObject({ state: 'pending', metadata: expect.objectContaining({ depositRequested: true }) });
-    expect(ambiguous.expires_at).not.toBeNull();
+    expect(ambiguous.expires_at).toBeNull();
+    // A network timeout is unresolved, even after the checkout link lifetime.
+    await pool.query("UPDATE konektag.api_payment_orders SET created_at=now()-interval '2 days' WHERE id=$1", [orderId]);
+    expect((await apiPaymentCheckoutService.getPublicOrder(token)).state).toBe('awaiting_mobile_money');
+    // Also recover attempts persisted by the previous release with an elapsed TTL.
+    await pool.query("UPDATE konektag.payment_provider_attempts SET expires_at=now()-interval '1 day' WHERE source_id=$1", [orderId]);
     // A lock failure on another request must not release an attempt whose deposit may exist.
     const failingLock = { ...apiPaymentCheckoutService, confirmCheckout: async () => { throw new Error('injected'); } } as typeof apiPaymentCheckoutService;
     await expect(start(token, PHONE_A, client, { checkout: failingLock })).rejects.toThrow('injected');

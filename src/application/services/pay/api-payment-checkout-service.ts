@@ -156,6 +156,7 @@ export class ApiPaymentNetworkOperationGuideRequiredError extends ApiPaymentConf
 }
 
 export interface ApiPaymentStripeOrder {
+  pointsK?: boolean;
   id: string;
   merchantTransactionId: string;
   currency: string;
@@ -460,8 +461,12 @@ function isTerminalState(state: ApiPaymentState): boolean {
   return state === 'paid' || state === 'failed' || state === 'expired' || state === 'cancelled';
 }
 
-function isCheckoutExpired(order: Pick<ApiPaymentOrderRow, 'created_at' | 'state'>): boolean {
+function isCheckoutExpired(order: Pick<ApiPaymentOrderRow, 'created_at' | 'state'> & Partial<Pick<ApiPaymentOrderRow, 'order_metadata' | 'stripe_payment_intent_id' | 'funding_state'>>): boolean {
   if (isTerminalState(order.state)) return false;
+  // Link expiry is not proof that a PSP operation failed. Keep its reference and
+  // accept authoritative settlement/reconciliation after the browser has left.
+  if (order.order_metadata?.erpnextPointsK && (order.state !== 'pending'
+    || order.stripe_payment_intent_id || order.funding_state === 'external_started')) return false;
   const createdAt = new Date(order.created_at);
   if (Number.isNaN(createdAt.getTime())) return false;
   const maxAgeMs = checkoutExpirationMinutes() * 60_000;
@@ -1576,6 +1581,24 @@ export const apiPaymentCheckoutService = {
     } finally { client.release(); }
   },
 
+  async reservePointsKStripeInitiation(orderId: string): Promise<string> {
+    // Persist the uncertain operation BEFORE contacting Stripe. A lost response
+    // must neither expire the checkout nor allow a fresh financial operation.
+    const { rows } = await pool.query<{ initiated_at: string }>(
+      `UPDATE konektag.api_payment_orders
+       SET state='processing',payment_method='card',funding_state='external_started',
+         order_metadata=jsonb_set(order_metadata,'{erpnextPointsK,stripeInitiatedAt}',
+           COALESCE(order_metadata #> '{erpnextPointsK,stripeInitiatedAt}',to_jsonb(now()::text))),
+         updated_at=now(),version=version+1
+       WHERE id=$1 AND state IN ('pending','processing')
+         AND order_metadata #>> '{erpnextPointsK,provider}'='stripe'
+         AND funding_state IN ('prepared','external_started')
+         AND (payment_method IS NULL OR payment_method='card')
+       RETURNING order_metadata #>> '{erpnextPointsK,stripeInitiatedAt}' AS initiated_at`, [orderId]);
+    if (!rows[0]) throw new ApiPaymentConflictError('Checkout cannot start a Stripe operation');
+    return rows[0].initiated_at;
+  },
+
   async getStripeOrder(token: string, payer?: ApiPaymentPayer, allowPaid = false, feeContext?: ApiPaymentExternalFundingContext): Promise<ApiPaymentStripeOrder> {
     const order = await this.prepareFundingOrder(token, payer, feeContext);
     if (order.environment !== 'live') {
@@ -1604,6 +1627,7 @@ export const apiPaymentCheckoutService = {
       totalAmount: order.total_amount,
       externalAmount: order.external_amount,
       providerExpectedAmount: order.provider_expected_amount ?? toStripeAmount(order.currency, order.external_amount, order.amount_unit),
+      pointsK: Boolean(order.order_metadata?.erpnextPointsK),
       stripePaymentIntentId: order.stripe_payment_intent_id,
       providerConfigurationKey: order.provider_configuration_key,
     };

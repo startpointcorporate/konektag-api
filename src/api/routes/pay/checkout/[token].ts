@@ -6,13 +6,13 @@ export const GET: RouteHandler = async ({ params }) => {
     const checkout = await apiPaymentCheckoutService.getPublicOrder(params.token || '');
     return new Response(JSON.stringify(checkout), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
   } catch (error) {
     const status = error instanceof ApiPaymentNotFoundError ? 404 : 500;
     return new Response(JSON.stringify({ error: status === 404 ? 'Checkout not found' : 'Unable to load checkout' }), {
       status,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
   }
 };

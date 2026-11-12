@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 337,
-    "executedTests": 2951,
-    "passedTests": 2951
+    "executedTests": 2960,
+    "passedTests": 2960
   },
   "operations": [
     {
@@ -17572,6 +17572,7 @@
       ],
       "assertions": [
         "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal.",
+        "Points K resumes the persisted intent despite elapsed local attempt TTL, reuses one creation key after response loss, and refuses a new unreferenced initiation after the recovery window.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -17644,6 +17645,7 @@
       ],
       "assertions": [
         "Stored minor-unit amounts sent to Stripe and provider attempt evidence; browser finalization cannot settle; missing configuration refusal.",
+        "Points K resumes the persisted intent despite elapsed local attempt TTL, reuses one creation key after response loss, and refuses a new unreferenced initiation after the recovery window.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",

@@ -145,6 +145,10 @@ export const paymentProviderAttemptService = {
        SET state='expired',updated_at=now(),version=version+1
        WHERE source_type='api_payment' AND state IN ('pending','processing')
          AND expires_at IS NOT NULL AND expires_at<=now()
+         AND COALESCE(metadata->>'depositRequested','false')<>'true'
+         AND NOT EXISTS (SELECT 1 FROM konektag.api_payment_orders o
+           WHERE o.id::text=payment_provider_attempts.source_id
+             AND o.order_metadata ? 'erpnextPointsK' AND payment_provider_attempts.provider='stripe')
          AND ($1::uuid IS NULL OR source_id=$1::text)`,
       [orderId ?? null],
     );
@@ -160,7 +164,7 @@ export const paymentProviderAttemptService = {
       const existing = await client.query<{ provider_reference:string; metadata:any }>(
         `SELECT provider_reference,metadata FROM konektag.payment_provider_attempts
          WHERE provider='pawapay' AND source_type='api_payment' AND source_id=$1
-           AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now())
+           AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now() OR metadata->>'depositRequested'='true')
          FOR UPDATE`, [input.orderId]);
       // A direct deposit already prompted the payer's phone: never reuse its depositId on a Payment Page.
       if (existing.rows[0]?.metadata?.directDeposit) throw new PaymentProviderAttemptConflictError('A payment attempt is still active');
@@ -195,7 +199,7 @@ export const paymentProviderAttemptService = {
       const existing = await client.query<{ provider: string; provider_reference: string; metadata: any }>(
         `SELECT provider,provider_reference,metadata FROM konektag.payment_provider_attempts
          WHERE source_type='api_payment' AND source_id=$1
-           AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now())
+           AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now() OR metadata->>'depositRequested'='true')
          FOR UPDATE`, [input.orderId]);
       if (existing.rows.length) {
         const direct = existing.rows.length === 1 && existing.rows[0].provider === 'pawapay' ? existing.rows[0].metadata?.directDeposit : null;
@@ -226,10 +230,10 @@ export const paymentProviderAttemptService = {
   async claimPawaPayDepositRequest(depositId: string): Promise<boolean> {
     const result = await pool.query(
       `UPDATE konektag.payment_provider_attempts
-       SET metadata=COALESCE(metadata,'{}'::jsonb)||jsonb_build_object('depositRequested',true),
+       SET metadata=COALESCE(metadata,'{}'::jsonb)||jsonb_build_object('depositRequested',true), expires_at=NULL,
            updated_at=now(),version=version+1
        WHERE provider='pawapay' AND provider_reference=$1 AND state IN ('pending','processing')
-         AND (expires_at IS NULL OR expires_at>now())`,[depositId]);
+         AND (expires_at IS NULL OR expires_at>now() OR metadata->>'depositRequested'='true')`,[depositId]);
     return (result.rowCount ?? 0) > 0;
   },
   /**
@@ -264,7 +268,7 @@ export const paymentProviderAttemptService = {
     const { rows } = await pool.query<{ present: boolean }>(
       `SELECT EXISTS(SELECT 1 FROM konektag.payment_provider_attempts
        WHERE source_type='api_payment' AND source_id=$1
-         AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now())) AS present`,
+         AND state IN ('pending','processing') AND (expires_at IS NULL OR expires_at>now() OR metadata->>'depositRequested'='true')) AS present`,
       [orderId],
     );
     return rows[0]?.present === true;
