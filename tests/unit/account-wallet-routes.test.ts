@@ -6,7 +6,7 @@ vi.mock('../../src/application/services/k-points-service.ts',()=>({kPointsBalanc
 vi.mock('../../src/application/services/pay/points-wallet-service.ts',()=>({resolvePointsOwner:mocks.owner}));
 vi.mock('../../src/application/services/wallet-integrity-service.ts',()=>({financialAccountStatus:mocks.control}));
 vi.mock('../../src/application/services/exchange-rate-service.ts',()=>({exchangeRateService:{
- isSupported:(currency:string)=>['EUR','XAF'].includes(currency),convert:mocks.rate,getRate:mocks.rate,getRateEvidence:mocks.evidence,
+ isSupported:(currency:string)=>['EUR','XAF','USD'].includes(currency),convert:mocks.rate,getRate:mocks.rate,getRateEvidence:mocks.evidence,
 }}));
 
 import {GET as balance} from '../../src/api/routes/account/balance.ts';
@@ -59,6 +59,11 @@ describe('account wallet read contracts',()=>{
   mocks.query.mockResolvedValueOnce({rows:[{country:'CG',preferred_currency:null}]});
   const pref=await preference(context('/api/account/currency-preference'));expect(await pref.json()).toEqual({currency:'XAF',defaultCurrency:'XAF',country:'CG'});
   expect(pref.headers.get('cache-control')).toBe('no-store');
+ });
+ it.each([['FR','EUR'],['CG','XAF'],['LB','USD']])('defaults %s to the existing business currency %s',async(country,currency)=>{
+  mocks.query.mockResolvedValueOnce({rows:[{country,preferred_currency:null}]});
+  const res=await preference(context('/api/account/currency-preference'));expect(res.status).toBe(200);
+  expect(await res.json()).toEqual({country,currency,defaultCurrency:currency});
  });
  it('fails closed on preference read and write database errors',async()=>{
   mocks.query.mockRejectedValue(new Error('offline'));
