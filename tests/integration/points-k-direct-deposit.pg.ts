@@ -148,7 +148,7 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     const first = await start(token, PHONE_A, client);
     const before = await walletReads();
     expect(before.balance.points_pending_net).toBe(baseline.balance.points_pending_net + 86);
-    expect(before.history.items).toContainEqual(expect.objectContaining({ operationId: orderId, quantityK: 86,
+    expect(before.history.items).toContainEqual(expect.objectContaining({ operationId: orderId, reference: `POINTS-ACQ-${orderId}`, quantityK: 86,
       status: 'PROCESSING', sourceType: 'payment_order', original: expect.objectContaining({ currency: 'XAF', provider: 'pawapay' }) }));
     const { pawaPayDepositService } = await import('../../src/application/services/pay/pawapay-deposit-service.ts');
     const deposit = { depositId: first.depositId, status: 'COMPLETED' as const, amount: '8567', currency: 'XAF' };
@@ -166,7 +166,7 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     const after = await walletReads();
     expect(after.balance.points_pending_net).toBe(baseline.balance.points_pending_net);
     expect(after.balance.points_balance).toBe(baseline.balance.points_balance + 86);
-    expect(after.history.items.filter((item: any) => item.operationId === orderId)).toEqual([
+    expect(after.history.items.filter((item: any) => item.reference === `POINTS-ACQ-${orderId}`)).toEqual([
       expect.objectContaining({ quantityK: 86, status: 'COMPLETED', sourceType: 'points_acquisition' }),
     ]);
     const { rows: [lot] } = await pool.query('SELECT economic_value FROM konektag.klots WHERE klot_ref=$1', [`KLOT-POINTS-${orderId}`]);

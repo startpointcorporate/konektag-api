@@ -43,7 +43,7 @@ export const GET:RouteHandler=async({request,locals})=>{
       WHEN o.state IN ('processing','awaiting_mobile_money') OR attempt.state='processing' THEN 'PROCESSING'
       WHEN o.state='pending' THEN 'PENDING' WHEN o.state IN ('cancelled','expired') THEN 'CANCELLED'
       ELSE 'FAILED' END,
-    COALESCE(o.order_metadata #>> '{erpnextPointsK,paymentRequest}',o.merchant_transaction_id),
+    'POINTS-ACQ-'||o.id::text,
     o.currency,o.subtotal_amount,
     COALESCE(attempt.provider,o.settlement_provider,o.order_metadata #>> '{erpnextPointsK,provider}'),o.id::text
    FROM konektag.api_payment_orders o
