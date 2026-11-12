@@ -5,9 +5,9 @@ import { routes } from '../../src/api/registry';
 
 describe('HTTP extraction',()=>{
   it('registers all source route methods with unique paths',()=>{
-    expect(routes).toHaveLength(328);
-    expect(routes.reduce((sum,r)=>sum+r.methods.length,0)).toBe(416);
-    expect(new Set(routes.map(r=>r.path)).size).toBe(328);
+    expect(routes).toHaveLength(329);
+    expect(routes.reduce((sum,r)=>sum+r.methods.length,0)).toBe(418);
+    expect(new Set(routes.map(r=>r.path)).size).toBe(329);
   });
   it('extracts decoded dynamic parameters before authorization',async()=>{
     const middleware=vi.fn(async ctx=>Response.json(ctx.params));

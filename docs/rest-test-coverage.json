@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 328,
-    "operations": 416,
+    "paths": 329,
+    "operations": 418,
     "covered": 79,
-    "partial": 336,
+    "partial": 338,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 337,
-    "executedTests": 2960,
-    "passedTests": 2960
+    "businessUncovered": 339,
+    "executedTests": 2968,
+    "passedTests": 2968
   },
   "operations": [
     {
@@ -1255,6 +1255,46 @@
         "credential refusal",
         "no database or handler execution"
       ],
+      "candidates": [
+        "tests/unit/account-wallet-routes.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/account/currency-preference",
+      "domain": "account",
+      "method": "GET",
+      "path": "/api/account/currency-preference",
+      "source": "src/api/routes/account/currency-preference.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "account [REST TRANSPORT GET /api/account/currency-preference] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "account [REST AUTH GET /api/account/currency-preference] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
       "candidates": [],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
@@ -1293,7 +1333,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/account-wallet-routes.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -20183,6 +20225,44 @@
         "tests/unit/api-payment-create-route.test.ts",
         "tests/unit/pro-entitlement-routes.test.ts"
       ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "PUT /api/account/currency-preference",
+      "domain": "account",
+      "method": "PUT",
+      "path": "/api/account/currency-preference",
+      "source": "src/api/routes/account/currency-preference.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "account [REST TRANSPORT PUT /api/account/currency-preference] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "account [REST AUTH PUT /api/account/currency-preference] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]

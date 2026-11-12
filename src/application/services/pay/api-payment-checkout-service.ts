@@ -95,6 +95,9 @@ interface ApiPaymentOrderRow {
   settlement_rail: string | null;
   settlement_provider: string | null;
   provider_configuration_key: string | null;
+  points_quantity: number | null;
+  lot_value_minor: number | null;
+  acquisition_status: 'pending' | 'processing' | 'failed' | 'completed' | null;
   payment_country: string | null;
   beneficiary_type: MerchantBeneficiaryType | null;
   beneficiary_party_id: string | null;
@@ -1262,8 +1265,27 @@ export const apiPaymentCheckoutService = {
            [walletAvailable, walletAmount, externalAmount, feeAmount, totalAmount, payerPartyId, order.id, order.version],
          );
        const updatedRows = update.rows;
-      const updated = updatedRows[0];
+      let updated = updatedRows[0];
       if (!updated) throw new ApiPaymentConflictError('Payment funding changed concurrently');
+      if (isErpnextPointsK) {
+        const valuation = await valuePointsK({
+          sourceCurrency: order.currency,
+          sourceAmountMinor: Number(order.subtotal_amount),
+          context: 'wallet-recharge-acquisition',
+        }, client);
+        if (!Number.isSafeInteger(valuation.quantityK) || valuation.quantityK <= 0) {
+          throw new ApiPaymentConflictError('Wallet recharge valuation did not produce a valid Points K quantity');
+        }
+        const frozen = await client.query<ApiPaymentOrderRow>(
+          `UPDATE konektag.api_payment_orders
+           SET points_quantity=$2,lot_value_minor=$3,acquisition_status='pending',updated_at=now()
+           WHERE id=$1 AND funding_state='prepared' AND state='pending'
+           RETURNING *`,
+          [updated.id,valuation.quantityK,Number(order.subtotal_amount)],
+        );
+        if (!frozen.rows[0]) throw new ApiPaymentConflictError('Points K funding changed concurrently');
+        updated = frozen.rows[0];
+      }
       await client.query('COMMIT');
       return updated;
     } catch (error) {
@@ -2082,20 +2104,11 @@ export const apiPaymentCheckoutService = {
     const allowedProviders = paymentMethod === 'card' ? ['stripe','manual'] : ['pawapay','manual'];
     if (!allowedProviders.includes(attempt.provider)) throw new ApiPaymentConflictError('Wallet recharge provider mismatch');
 
-    const digits = minorDigits(order.currency);
-    const lotValueMinor = order.amount_unit === 'MINOR'
-      ? Number(order.subtotal_amount)
-      : Math.round(Number(order.subtotal_amount) * (10 ** digits));
-    // Points K are EUR-denominated: 1 K = 1 EUR. Never equate a foreign
-    // currency nominal amount (e.g. 9,000 XAF) with the number of K acquired.
-    // Use the same authoritative FX valuation service as the rest of the wallet.
-    const valuation = await valuePointsK({
-      sourceCurrency: order.currency,
-      sourceAmountMinor: lotValueMinor,
-      context: 'wallet-recharge-acquisition',
-    }, client);
-    if (!Number.isSafeInteger(valuation.quantityK) || valuation.quantityK <= 0) {
-      throw new ApiPaymentConflictError('Wallet recharge valuation did not produce a valid Points K quantity');
+    const lotValueMinor = Number(order.lot_value_minor);
+    const pointsQuantity = Number(order.points_quantity);
+    if (!Number.isSafeInteger(lotValueMinor) || lotValueMinor <= 0
+      || !Number.isSafeInteger(pointsQuantity) || pointsQuantity <= 0) {
+      throw new ApiPaymentConflictError('Wallet recharge valuation was not frozen before provider collection');
     }
     const result = await confirmPointsAcquisition(client, {
       orderId: order.id,
@@ -2106,7 +2119,7 @@ export const apiPaymentCheckoutService = {
       attemptId: attempt.id,
       confirmedMinor: Number(attempt.expected_amount),
       currency: order.currency,
-      pointsQuantity: valuation.quantityK,
+      pointsQuantity,
       lotValueMinor,
       legalEntityId: order.settlement_legal_entity_id!,
       corridorId: order.settlement_corridor_id!,

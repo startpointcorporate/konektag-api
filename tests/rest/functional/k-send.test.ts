@@ -56,9 +56,12 @@ for(const [source,method,path] of routes)describe(`[REST BUSINESS ${method} ${pa
     sql(/SELECT \* FROM konektag.k_send_intents/,[row]);sql(/SELECT \* FROM konektag.k_send_intents/,[row],(_,q)=>expect(q).toContain('FOR UPDATE'));
     for(const [user,party,kc] of [[actor,'party-a','kc-owner'],[other,'party-b','kc-recipient']]){sql(/SELECT id,keycloak_id,COALESCE/,[{id:user,keycloak_id:kc,display_name:user}],v=>expect(v).toEqual([user]));sql(/INSERT INTO konektag.parties/,[{id:party,keycloak_id:kc,is_active:true}],v=>expect(v).toEqual([kc,user]));}
     sql(/pg_advisory_xact_lock/,[],v=>expect(v).toEqual(['points-wallet:party-a']));sql(/pg_advisory_xact_lock/,[],v=>expect(v).toEqual(['points-wallet:party-b']));
-    sql(/SELECT operation_id,party_id/);sql(/require_financial_account_active/,[],v=>expect(v).toEqual(['party-a']));sql(/konektag.points_balance/,[{balance:30,reserved:5}]);
-    let operation='';sql(/INSERT INTO konektag.k_wallet_entries/,[],(v,q)=>{expect(v.slice(0,2)).toEqual(['party-a','party-b']);operation=v[2];expect(v.slice(3)).toEqual([10,`k_send:${id}`]);expect(q).toContain("'debit'");expect(q).toContain("'credit'");});
-    sql(/UPDATE konektag.k_send_intents/,[{...row,status:'Funded',operation_id:'transfer-1'}],v=>expect(v).toEqual([id,2,`k-send-otp:${id}`,operation,0]));
+    sql(/FROM konektag.financial_transactions ft/);sql(/require_financial_account_active/,[],v=>expect(v).toEqual(['party-a']));sql(/konektag.points_balance/,[{balance:30,reserved:5,available:25}]);
+    sql(/INSERT INTO konektag.financial_transactions/,[{id:'transfer-1'}],v=>expect(v.slice(0,2)).toEqual([`k_send:${id}`,`k_send:${id}`]));
+    sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v.slice(1,5)).toEqual(['debit','party-a',10,`k_send:${id}`]));
+    sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v.slice(1,5)).toEqual(['credit','party-b',10,`k_send:${id}`]));
+    sql(/UPDATE konektag.financial_transactions/);
+    sql(/UPDATE konektag.k_send_intents/,[{...row,status:'Funded',operation_id:'transfer-1'}],v=>expect(v).toEqual([id,2,`k-send-otp:${id}`,'transfer-1',0]));
     sql(/INSERT INTO konektag.notifications/,[],v=>{expect(v[0]).toBe('kc-recipient');expect(v[4]).toBe(`k-send-received:${id}`);});sql(/SELECT encrypted_data,locale,username/);
     const r=await call(source,method,{authorizationId:other,otp:'123456',senderId:'victim'});expect(r.status).toBe(200);expect(await r.json()).toEqual({...dto,status:'Funded',operationId:'transfer-1'});
     expect(db.query.mock.calls.some(([q])=>q==='COMMIT')).toBe(true);expect(db.query.mock.calls.some(([q])=>q==='ROLLBACK')).toBe(false);expect(db.release).toHaveBeenCalledOnce();consumed();
