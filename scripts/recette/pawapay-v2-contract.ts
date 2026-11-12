@@ -10,13 +10,24 @@
 // Env: PAWAPAY_CHECK_KEY (e.g. KTG_CG_PAWAPAY_SANDBOX, with <KEY>_API_URL / <KEY>_API_TOKEN set),
 //      PAWAPAY_CHECK_COUNTRY (default COG), PAWAPAY_CHECK_CURRENCY (default XAF),
 //      PAWAPAY_CHECK_PHONE (a pawaPay sandbox test MSISDN, default 242053456789),
-//      PAWAPAY_CHECK_ALLOWED_IPS (optional, comma-separated allowlist configured at pawaPay).
+//      PAWAPAY_CHECK_ALLOWED_IPS (optional, comma-separated allowlist configured at pawaPay),
+//      PAWAPAY_CHECK_TOKEN_STDIN=1 (optional, read <KEY>_API_TOKEN from stdin instead of env).
 // Run: npx tsx scripts/recette/pawapay-v2-contract.ts
 import { resolvePawaPayConfiguration } from '../../src/infrastructure/adapters/provider-configuration.ts';
 import { pawaPayClient } from '../../src/infrastructure/adapters/pawapay-client.ts';
 
 const key = process.env.PAWAPAY_CHECK_KEY ?? '';
 if (!/_PAWAPAY_SANDBOX$/.test(key)) { console.error('PAWAPAY_CHECK_KEY must be a *_PAWAPAY_SANDBOX configuration key'); process.exit(2); }
+// PAWAPAY_CHECK_TOKEN_STDIN=1: the sandbox token is piped on stdin (`kubectl exec -i ... < token`),
+// so it never appears in a command line, pod spec, env listing or log. The URL defaults to the sandbox.
+if (process.env.PAWAPAY_CHECK_TOKEN_STDIN === '1') {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
+  const token = Buffer.concat(chunks).toString('utf8').trim();
+  if (!token || /\s/.test(token)) { console.error('PAWAPAY_CHECK_TOKEN_STDIN=1 but stdin holds no single-line token'); process.exit(2); }
+  process.env[`${key}_API_TOKEN`] = token;
+  process.env[`${key}_API_URL`] ??= 'https://api.sandbox.pawapay.io';
+}
 const { apiUrl } = resolvePawaPayConfiguration(key);
 if (new URL(apiUrl).host !== 'api.sandbox.pawapay.io') { console.error(`Refusing non-sandbox host ${new URL(apiUrl).host}`); process.exit(2); }
 const country = process.env.PAWAPAY_CHECK_COUNTRY ?? 'COG';
