@@ -5,11 +5,11 @@ import { PawaPayError, pawaPaySignatureBase, verifyPawaPayWebhook } from '../../
 const pair = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
 const publicPem = pair.publicKey.export({ type: 'spki', format: 'pem' }).toString();
 
-function signedRequest(options: { body?: string; path?: string; authority?: string; keyId?: string; created?: number; expires?: number; digest?: string; signatureInput?: string; signature?: string } = {}) {
+function signedRequest(options: { body?: string; path?: string; authority?: string; keyId?: string; created?: number; expires?: number; digest?: string; signatureInput?: string; signature?: string; signatureDate?: string } = {}) {
   const body = options.body ?? '{"depositId":"00000000-0000-4000-8000-000000000001"}'; const now = Math.floor(Date.now() / 1000); const created = options.created ?? now; const expires = options.expires ?? now + 60;
   const input = options.signatureInput ?? `sig-pp=("@method" "@authority" "@path" "signature-date" "content-digest" "content-type");alg="ecdsa-p256-sha256";keyid="${options.keyId ?? 'HTTP_EC_P256_KEY:1'}";created=${created};expires=${expires}`;
   const digest = options.digest ?? `sha-256=:${createHash('sha256').update(body).digest('base64')}:`;
-  const request = new Request(`https://${options.authority ?? 'www.konektag.eu'}${options.path ?? '/api/webhooks/pawapay/deposits'}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Signature-Date': new Date(created * 1000).toUTCString(), 'Content-Digest': digest, 'Signature-Input': input }, body });
+  const request = new Request(`https://${options.authority ?? 'www.konektag.eu'}${options.path ?? '/api/webhooks/pawapay/deposits'}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Signature-Date': options.signatureDate ?? new Date(created * 1000).toUTCString(), 'Content-Digest': digest, 'Signature-Input': input }, body });
   const base = pawaPaySignatureBase(request, (awaitableParse(input)));
   request.headers.set('Signature', options.signature ?? `sig-pp=:${sign('sha256', Buffer.from(base), pair.privateKey).toString('base64')}:`);
   return request;
@@ -22,6 +22,27 @@ describe('PawaPay RFC 9421 signatures', () => {
   beforeEach(() => { process.env.PAWAPAY_API_URL = 'https://api.sandbox.pawapay.io'; process.env.PAWAPAY_API_TOKEN = 'test-token'; vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify([{ id: 'HTTP_EC_P256_KEY:1', key: publicPem }]), { status: 200 }))); });
   afterEach(() => { vi.unstubAllGlobals(); globalThis.fetch = originalFetch; delete process.env.PAWAPAY_API_URL; delete process.env.PAWAPAY_API_TOKEN; });
   it('accepts a real ECDSA P-256 signature', async () => { await expect(verifyPawaPayWebhook(signedRequest(), '{"depositId":"00000000-0000-4000-8000-000000000001"}')).resolves.toBeUndefined(); });
+  it.each(['not-a-date', new Date(0).toISOString()])('rejects a signed but invalid or inconsistent Signature-Date: %s', async signatureDate => {
+    await expect(verifyPawaPayWebhook(signedRequest({ signatureDate }), '{"depositId":"00000000-0000-4000-8000-000000000001"}')).rejects.toBeInstanceOf(PawaPayError);
+  });
+  it('rejects a correctly signed message without all required signed components', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const signatureInput = `sig-pp=("signature-date");alg="ecdsa-p256-sha256";keyid="HTTP_EC_P256_KEY:1";created=${now};expires=${now + 60}`;
+    await expect(verifyPawaPayWebhook(signedRequest({ signatureInput }), '{"depositId":"00000000-0000-4000-8000-000000000001"}')).rejects.toBeInstanceOf(PawaPayError);
+  });
+  it('rejects an old signature with an arbitrarily distant expiration', async () => {
+    const now = Math.floor(Date.now() / 1000);
+    await expect(verifyPawaPayWebhook(signedRequest({ created: now - 86400, expires: now + 86400 }), '{"depositId":"00000000-0000-4000-8000-000000000001"}')).rejects.toBeInstanceOf(PawaPayError);
+  });
+  it('does not reuse a public key from another provider configuration', async () => {
+    const body = '{"depositId":"00000000-0000-4000-8000-000000000001"}';
+    await verifyPawaPayWebhook(signedRequest(), body);
+    process.env.KTG_CG_PAWAPAY_SANDBOX_API_URL = 'https://api.sandbox.pawapay.io';
+    process.env.KTG_CG_PAWAPAY_SANDBOX_API_TOKEN = 'scoped-test';
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('[]')));
+    try { await expect(verifyPawaPayWebhook(signedRequest(), body, 'KTG_CG_PAWAPAY_SANDBOX')).rejects.toBeInstanceOf(PawaPayError); }
+    finally { delete process.env.KTG_CG_PAWAPAY_SANDBOX_API_URL; delete process.env.KTG_CG_PAWAPAY_SANDBOX_API_TOKEN; }
+  });
   it.each([
     ['modified body', () => [signedRequest(), '{"tampered":true}'] as const],
     ['modified digest', () => [signedRequest({ digest: 'sha-256=:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=:' }), '{"depositId":"00000000-0000-4000-8000-000000000001"}'] as const],

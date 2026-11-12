@@ -1112,7 +1112,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "e3f4b565db4aa275de118d6cd1bf197566d93ea37776c2725b80cf6c4871df54",
+    "sha256": "701d0bd46201a5a319b7ff4b6a955eb44859b3b03c8ecd996540cfaad4d241ce",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
@@ -1136,7 +1136,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "e3f4b565db4aa275de118d6cd1bf197566d93ea37776c2725b80cf6c4871df54",
+    "sha256": "701d0bd46201a5a319b7ff4b6a955eb44859b3b03c8ecd996540cfaad4d241ce",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
@@ -2065,6 +2065,32 @@
       "Achat de Points K shows the same fees on the checkout page as at purchase",
       "Achat de Points K refuses a currency that is not the one of the routed entity, and a buyer without rule",
       "Achat de Points K refuses at funding a selection read on another Konektag site"
+    ]
+  },
+  {
+    "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+    "operations": [
+      "POST /api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit",
+      "GET /api/pay/checkout/{token}/mobile-money/pawapay/providers"
+    ],
+    "level": "unit",
+    "status": "partial",
+    "facets": [
+      "business",
+      "validation",
+      "refusal"
+    ],
+    "assertions": [
+      "Authenticated payer and checkout token forwarded; browser amount and malformed phone refused before the service; rejection, mode conflict and provider failure mapped to 422/409/502. Service, v2 bodies and lifecycle are unit-tested separately; no sandbox pawaPay call executed."
+    ],
+    "constraints": [],
+    "sha256": "6e084efe91fc3e6e2af2b11dff5e6c44ebc31937e985e360d56d6c7454ebfa5c",
+    "tests": [
+      "Points K pawaPay direct deposit routes starts the deposit for the authenticated payer without accepting any amount",
+      "Points K pawaPay direct deposit routes maps Error: PAWAPAY_DEPOSIT_REJECTED to its HTTP status",
+      "Points K pawaPay direct deposit routes maps Error: Payment method does not match the ERPNext Points K Mode of Payment to its HTTP status",
+      "Points K pawaPay direct deposit routes maps Error: PawaPay request failed (500) to its HTTP status",
+      "Points K pawaPay direct deposit routes lists operators active for the checkout"
     ]
   }
 ]

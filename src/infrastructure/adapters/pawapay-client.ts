@@ -1,7 +1,10 @@
 import { createHash, createPublicKey, timingSafeEqual, verify } from 'node:crypto';
 import { resolvePawaPayConfiguration, type PawaPayProviderConfiguration } from './provider-configuration.ts';
+import { assertPawaPayFinancialOperation } from './pawapay-sandbox-policy.ts';
 
-export class PawaPayError extends Error {}
+export class PawaPayError extends Error {
+  constructor(message: string, readonly status: number | null = null, readonly failureCode: string | null = null) { super(message); }
+}
 
 export type PawaPayDepositStatus = 'ACCEPTED' | 'PROCESSING' | 'IN_RECONCILIATION' | 'COMPLETED' | 'FAILED';
 export interface PawaPayDeposit {
@@ -11,6 +14,37 @@ export interface PawaPayDeposit {
   currency: string;
   failureReason?: string;
 }
+
+/** Operator availability for one country, currency and DEPOSIT, read from /v2/active-conf. */
+export interface PawaPayDepositProvider {
+  provider: string;
+  nameDisplayedToCustomer: string | null;
+  currency: string;
+  status: string;
+  minAmount: string | null;
+  maxAmount: string | null;
+  decimalsInAmount: 'TWO_PLACES' | 'NONE' | null;
+  authType: string | null;
+  pinPrompt: string | null;
+  pinPromptRevivable: boolean | null;
+}
+export interface PawaPayDirectDepositInput {
+  depositId: string;
+  phoneNumber: string;
+  provider: string;
+  /** Major-unit decimal string, as required by v2 (for example "7000" XAF or "12.21"). */
+  amount: string;
+  currency: string;
+  customerMessage: string;
+  clientReferenceId: string;
+  metadata: Array<Record<string, string | boolean>>;
+  providerConfigurationKey: string | null;
+}
+export type PawaPayDepositInitiation =
+  | { status: 'ACCEPTED' | 'DUPLICATE_IGNORED' }
+  | { status: 'REJECTED'; failureCode: string | null; failureMessage: string | null };
+
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export interface PawaPayCheckout {
   checkoutId: string;
@@ -32,8 +66,9 @@ type SignatureInput = { label: string; components: string[]; params: string; key
 
 const KEY_CACHE_TTL_MS = 5 * 60_000;
 const CLOCK_SKEW_SECONDS = Number(process.env.PAWAPAY_SIGNATURE_CLOCK_SKEW_SECONDS ?? 60);
-let keyCache: PawaPayPublicKey[] = [];
-let keyCacheExpiresAt = 0;
+const MAX_SIGNATURE_VALIDITY_SECONDS = 300;
+const SIGNED_COMPONENTS = ['@method', '@authority', '@path', 'signature-date', 'content-digest', 'content-type'];
+const keyCaches = new Map<string, { keys: PawaPayPublicKey[]; expiresAt: number }>();
 
 function configuration(key?: string | null): PawaPayProviderConfiguration {
   try { return resolvePawaPayConfiguration(key ?? null); }
@@ -41,12 +76,21 @@ function configuration(key?: string | null): PawaPayProviderConfiguration {
 }
 
 async function api<T>(path: string, init?: RequestInit, key?: string | null): Promise<T> {
+  if (init?.method && !['GET', 'HEAD'].includes(init.method.toUpperCase()) && path !== '/v2/predict-provider') {
+    assertPawaPayFinancialOperation(key ?? null);
+  }
   const config = configuration(key);
   const response = await fetch(`${config.apiUrl}${path}`, {
     ...init,
+    // Do not forward a bearer token to a redirected host.
+    redirect: 'error',
     headers: { Authorization: `Bearer ${config.apiToken}`, Accept: 'application/json', ...init?.headers },
   });
-  if (!response.ok) throw new PawaPayError(`PawaPay request failed (${response.status})`);
+  if (!response.ok) {
+    const failure = await response.json().catch(() => null) as { failureReason?: { failureCode?: unknown } } | null;
+    const code = typeof failure?.failureReason?.failureCode === 'string' ? failure.failureReason.failureCode : null;
+    throw new PawaPayError(`PawaPay request failed (${response.status})`, response.status, code);
+  }
   return response.json() as Promise<T>;
 }
 
@@ -71,25 +115,52 @@ export function fromPawaPayAmount(currency: string, amount: unknown): number {
 }
 
 export const pawaPayClient = {
-  async predictCorrespondent(phoneNumber: string): Promise<string> {
-    const response = await api<{ correspondent?: string }>('/v2/predict-correspondent', {
+  /** v2 toolkit: normalises the MSISDN and returns its country and operator. */
+  async predictProvider(phoneNumber: string, providerConfigurationKey: string | null): Promise<{ country: string; provider: string; phoneNumber: string }> {
+    const response = await api<{ country?: unknown; provider?: unknown; phoneNumber?: unknown }>('/v2/predict-provider', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payer: { type: 'MSISDN', address: { value: phoneNumber } } }),
-    });
-    if (typeof response.correspondent !== 'string' || !/^[A-Z0-9_]{3,80}$/.test(response.correspondent)) {
-      throw new PawaPayError('PawaPay did not return a valid correspondent');
+      body: JSON.stringify({ phoneNumber }),
+    }, providerConfigurationKey);
+    if (typeof response.country !== 'string' || !/^[A-Z]{3}$/.test(response.country)
+      || typeof response.provider !== 'string' || !/^[A-Z0-9_]{3,80}$/.test(response.provider)
+      || typeof response.phoneNumber !== 'string' || !/^\d{6,20}$/.test(response.phoneNumber)) {
+      throw new PawaPayError('PawaPay did not return a valid provider prediction');
     }
-    return response.correspondent;
+    return { country: response.country, provider: response.provider, phoneNumber: response.phoneNumber };
   },
-  async createDeposit(input: { depositId: string; phoneNumber: string; correspondent: string; amount: number; currency: string; statementDescription: string }) {
-    const response = await api<{ status?: string }>('/v2/deposits', {
+  /** v2 direct deposit: the operator prompts the payer, who approves with their PIN on the phone. */
+  async createDeposit(input: PawaPayDirectDepositInput): Promise<PawaPayDepositInitiation> {
+    assertPawaPayFinancialOperation(input.providerConfigurationKey);
+    if (!UUID_V4.test(input.depositId)) throw new PawaPayError('depositId must be a UUIDv4');
+    if (!/^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/.test(input.amount) || !(Number(input.amount) > 0) || !/^[A-Z]{3}$/.test(input.currency)
+      || !/^\d{6,20}$/.test(input.phoneNumber) || !/^[A-Z0-9_]{3,80}$/.test(input.provider)
+      || !/^[A-Za-z0-9 ]{4,22}$/.test(input.customerMessage) || input.metadata.length > 10) {
+      throw new PawaPayError('Invalid PawaPay deposit request');
+    }
+    const response = await api<{ depositId?: unknown; status?: unknown; failureReason?: { failureCode?: unknown; failureMessage?: unknown } }>('/v2/deposits', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ depositId: input.depositId, amount: toPawaPayAmount(input.currency, input.amount), currency: input.currency, correspondent: input.correspondent, payer: { type: 'MSISDN', address: { value: input.phoneNumber } }, customerTimestamp: new Date().toISOString(), statementDescription: input.statementDescription }),
-    });
-    if (!response.status || !['ACCEPTED', 'DUPLICATE_IGNORED', 'REJECTED'].includes(response.status)) throw new PawaPayError('Invalid PawaPay deposit initiation response');
-    return response.status as 'ACCEPTED' | 'DUPLICATE_IGNORED' | 'REJECTED';
+      body: JSON.stringify({
+        depositId: input.depositId,
+        payer: { type: 'MMO', accountDetails: { phoneNumber: input.phoneNumber, provider: input.provider } },
+        amount: input.amount,
+        currency: input.currency,
+        clientReferenceId: input.clientReferenceId,
+        customerMessage: input.customerMessage,
+        metadata: input.metadata,
+      }),
+    }, input.providerConfigurationKey);
+    if (response.status === 'ACCEPTED' || response.status === 'DUPLICATE_IGNORED') {
+      if (response.depositId !== input.depositId) throw new PawaPayError('PawaPay deposit response does not match depositId');
+      return { status: response.status };
+    }
+    if (response.status === 'REJECTED') {
+      const code = response.failureReason?.failureCode; const message = response.failureReason?.failureMessage;
+      return { status: 'REJECTED', failureCode: typeof code === 'string' ? code : null, failureMessage: typeof message === 'string' ? message : null };
+    }
+    throw new PawaPayError('Invalid PawaPay deposit initiation response');
   },
   async createPaymentPage(input: PawaPayPaymentPageInput & { providerConfigurationKey: string | null }): Promise<string> {
+    assertPawaPayFinancialOperation(input.providerConfigurationKey);
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.depositId)) {
       throw new PawaPayError('depositId must be a UUIDv4');
     }
@@ -133,7 +204,34 @@ export const pawaPayClient = {
     if (response.status !== 'FOUND' || !response.data) throw new PawaPayError(`PawaPay deposit ${response.status ?? 'UNKNOWN'}`);
     return response.data;
   },
-  activeConfiguration() { return api<unknown>('/v2/active-conf'); },
+  activeConfiguration(filter: { country?: string; operationType?: 'DEPOSIT' } = {}, providerConfigurationKey: string | null = null) {
+    const query = new URLSearchParams(Object.entries(filter).filter(([, value]) => value) as Array<[string, string]>).toString();
+    return api<unknown>(`/v2/active-conf${query ? `?${query}` : ''}`, undefined, providerConfigurationKey);
+  },
+  /** DEPOSIT operators really enabled on the corridor account for one country and currency. */
+  async depositProviders(country: string, currency: string, providerConfigurationKey: string | null): Promise<PawaPayDepositProvider[]> {
+    const configuration = await this.activeConfiguration({ country, operationType: 'DEPOSIT' }, providerConfigurationKey) as any;
+    const countries = Array.isArray(configuration?.countries) ? configuration.countries : [];
+    const str = (value: unknown) => typeof value === 'string' ? value : null;
+    return countries.filter((entry: any) => entry?.country === country).flatMap((entry: any) =>
+      (Array.isArray(entry.providers) ? entry.providers : []).flatMap((provider: any) =>
+        (Array.isArray(provider?.currencies) ? provider.currencies : [])
+          .filter((row: any) => row?.currency === currency && row?.operationTypes?.DEPOSIT && typeof provider.provider === 'string')
+          .map((row: any): PawaPayDepositProvider => {
+            const deposit = row.operationTypes.DEPOSIT;
+            // The v2 schema names the limits minAmount/maxAmount while its example uses
+            // minTransactionLimit/maxTransactionLimit: accept both rather than silently drop the limits.
+            return {
+              provider: provider.provider, nameDisplayedToCustomer: str(provider.nameDisplayedToCustomer), currency,
+              status: str(deposit.status) ?? 'UNKNOWN',
+              minAmount: str(deposit.minAmount) ?? str(deposit.minTransactionLimit),
+              maxAmount: str(deposit.maxAmount) ?? str(deposit.maxTransactionLimit),
+              decimalsInAmount: deposit.decimalsInAmount === 'TWO_PLACES' || deposit.decimalsInAmount === 'NONE' ? deposit.decimalsInAmount : null,
+              authType: str(deposit.authType), pinPrompt: str(deposit.pinPrompt),
+              pinPromptRevivable: typeof deposit.pinPromptRevivable === 'boolean' ? deposit.pinPromptRevivable : null,
+            };
+          })));
+  },
   publicKeys(providerConfigurationKey?: string | null) { return api<PawaPayPublicKey[]>('/v2/public-key/http', undefined, providerConfigurationKey); },
 };
 
@@ -181,11 +279,17 @@ function verifyDigest(rawBody: string, digest: string): void {
 }
 
 async function publicKey(keyId: string, providerConfigurationKey?: string | null): Promise<string> {
-  if (Date.now() >= keyCacheExpiresAt || !keyCache.some(key => key.id === keyId)) {
-    keyCache = await pawaPayClient.publicKeys(providerConfigurationKey);
-    keyCacheExpiresAt = Date.now() + KEY_CACHE_TTL_MS;
+  const config = configuration(providerConfigurationKey);
+  const scope = `${config.key}:${config.apiUrl}`;
+  let cache = keyCaches.get(scope);
+  if (!cache || Date.now() >= cache.expiresAt || !cache.keys.some(key => key.id === keyId)) {
+    const keys = await pawaPayClient.publicKeys(providerConfigurationKey);
+    if (!Array.isArray(keys) || keys.some(key => typeof key?.id !== 'string' || typeof key?.key !== 'string')
+      || new Set(keys.map(key => key.id)).size !== keys.length) throw new PawaPayError('Invalid PawaPay public keys');
+    cache = { keys, expiresAt: Date.now() + KEY_CACHE_TTL_MS };
+    keyCaches.set(scope, cache);
   }
-  const found = keyCache.find(key => key.id === keyId);
+  const found = cache.keys.find(key => key.id === keyId);
   if (!found) throw new PawaPayError('Unknown PawaPay signing key');
   return found.key;
 }
@@ -193,11 +297,17 @@ async function publicKey(keyId: string, providerConfigurationKey?: string | null
 export async function verifyPawaPayWebhook(request: Request, rawBody: string, providerConfigurationKey?: string | null): Promise<void> {
   const digest = requiredHeader(request, 'Content-Digest');
   requiredHeader(request, 'Content-Type');
-  requiredHeader(request, 'Signature-Date');
+  const signatureDate = Date.parse(requiredHeader(request, 'Signature-Date')) / 1000;
   verifyDigest(rawBody, digest);
   const input = parseSignatureInput(requiredHeader(request, 'Signature-Input'));
   const now = Math.floor(Date.now() / 1000);
-  if (input.algorithm !== 'ecdsa-p256-sha256' || input.created > now + CLOCK_SKEW_SECONDS || input.expires < now - CLOCK_SKEW_SECONDS || input.expires < input.created) throw new PawaPayError('Expired or unsupported PawaPay signature');
+  if (SIGNED_COMPONENTS.some(component => !input.components.includes(component))
+    || new Set(input.components).size !== input.components.length) throw new PawaPayError('Missing or repeated PawaPay signed components');
+  if (input.algorithm !== 'ecdsa-p256-sha256' || input.created > now + CLOCK_SKEW_SECONDS
+    || input.created < now - MAX_SIGNATURE_VALIDITY_SECONDS - CLOCK_SKEW_SECONDS
+    || input.expires < now - CLOCK_SKEW_SECONDS || input.expires < input.created
+    || input.expires - input.created > MAX_SIGNATURE_VALIDITY_SECONDS
+    || !Number.isFinite(signatureDate) || Math.abs(signatureDate - input.created) >= 1) throw new PawaPayError('Expired or unsupported PawaPay signature');
   const key = createPublicKey(await publicKey(input.keyId, providerConfigurationKey));
   if (key.asymmetricKeyType !== 'ec' || key.asymmetricKeyDetails?.namedCurve !== 'prime256v1' || !verify('sha256', Buffer.from(pawaPaySignatureBase(request, input)), key, signatureValue(requiredHeader(request, 'Signature'), input.label))) throw new PawaPayError('Invalid PawaPay signature');
 }

@@ -34,4 +34,16 @@ describe('provider configuration resolution', () => {
     expect(() => resolveStripeConfiguration('KTG_CG_PAWAPAY_SANDBOX')).toThrow(ProviderConfigurationError);
     expect(() => resolvePawaPayConfiguration('KTG_FR_STRIPE_TEST')).toThrow(ProviderConfigurationError);
   });
+
+  it.each([
+    ['KTG_CG_PAWAPAY_SANDBOX', 'https://api.pawapay.io'],
+    ['KTG_CG_PAWAPAY_LIVE', 'https://api.sandbox.pawapay.io'],
+    ['KTG_CG_PAWAPAY_SANDBOX', 'http://api.sandbox.pawapay.io'],
+    ['KTG_CG_PAWAPAY_SANDBOX', 'https://api.sandbox.pawapay.io/other'],
+    ['KTG_CG_PAWAPAY_SANDBOX', 'https://user:password@api.sandbox.pawapay.io'],
+  ])('rejects an inconsistent or unsafe host for %s', (key, url) => {
+    process.env[`${key}_API_URL`] = url;
+    process.env[`${key}_API_TOKEN`] = 'local-test-token';
+    expect(() => resolvePawaPayConfiguration(key)).toThrow(ProviderConfigurationError);
+  });
 });

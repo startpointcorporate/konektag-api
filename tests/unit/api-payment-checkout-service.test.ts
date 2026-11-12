@@ -351,6 +351,7 @@ describe('apiPaymentCheckoutService', () => {
 
     await expect(apiPaymentCheckoutService.getMobileMoneyOrder('raw-token')).resolves.toEqual({
       id: 'order-1', currency: 'XAF', externalAmount: 12_345, paymentCountry: 'CMR', providerConfigurationKey: 'KTG_CM_PAWAPAY_SANDBOX',
+      amountUnit: 'MAJOR', pointsK: false,
     });
     expect(mocks.poolQuery).not.toHaveBeenCalled();
   });
@@ -1021,5 +1022,69 @@ describe('apiPaymentCheckoutService', () => {
     })).rejects.toThrow('Wallet balance is no longer available for this checkout');
     expect(mocks.clientQuery.mock.calls.some((call: unknown[]) => String(call[0]).includes('pg_advisory_xact_lock'))).toBe(true);
     expect(mocks.clientQuery.mock.calls.some((call: unknown[]) => String(call[0]).includes('INSERT INTO konektag.api_payment_wallet_reservations'))).toBe(false);
+  });
+});
+
+describe('ERPNext Points K Mode of Payment freezes its provider', () => {
+  const pointsKOrder = (provider: unknown, extra: Record<string, unknown> = {}) => ({
+    ...pendingOrder, merchant_profile_id: null, order_purpose: 'wallet_recharge', business_purpose: 'wallet_recharge',
+    environment: 'live' as const, amount_unit: 'MINOR', currency: 'XAF', subtotal_amount: 8_567, tax_amount: 0,
+    fee_amount: 0, total_amount: 8_567, external_amount: 8_567, payment_country: 'CG',
+    order_metadata: { erpnextPointsK: { paymentRequest: 'PR', modeOfPayment: provider === 'stripe' ? 'CB' : 'Mobile Money', provider } },
+    ...extra,
+  });
+  const context = (provider: 'stripe' | 'pawapay') => ({
+    currency: 'XAF', paymentCountry: 'CG', legalEntityId: 'le', regulatoryProfileId: 'profile', corridorId: 'corridor',
+    regulatedActorId: 'actor', rail: provider === 'stripe' ? 'stripe' : 'mobile_money', provider,
+    providerConfigurationKey: null, percentageBps: 0, fixedAmount: 0,
+  });
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mocks.connect.mockResolvedValue({ query: mocks.clientQuery, release: mocks.release });
+  });
+
+  it('offers only the provider of the native mode on a prepared checkout', async () => {
+    mocks.clientQuery.mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [pointsKOrder('pawapay', { funding_state: 'prepared' })] })
+      .mockResolvedValueOnce(undefined);
+    await expect(apiPaymentCheckoutService.prepareFunding('raw-token')).resolves
+      .toMatchObject({ amountUnit: 'MINOR', allowedPaymentMethods: ['mobile_money'] });
+  });
+
+  it.each([['pawapay', 'stripe'], ['stripe', 'pawapay']] as const)(
+    'refuses a %s Points K order funded through a %s selection before any write', async (frozen, selected) => {
+      mocks.clientQuery.mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ rows: [pointsKOrder(frozen)] })
+        .mockResolvedValueOnce(undefined);
+      await expect(apiPaymentCheckoutService.prepareFundingOrder('raw-token', undefined, context(selected)))
+        .rejects.toThrow('does not match the ERPNext Points K Mode of Payment');
+      expect(mocks.clientQuery.mock.calls.some(call => /UPDATE konektag/.test(String(call[0])))).toBe(false);
+    });
+
+  it('refuses a Stripe PaymentIntent for a Mobile Money Points K order', async () => {
+    mocks.clientQuery.mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [pointsKOrder('pawapay', { funding_state: 'prepared' })] })
+      .mockResolvedValueOnce(undefined);
+    await expect(apiPaymentCheckoutService.getStripeOrder('raw-token')).rejects.toThrow('does not match the ERPNext Points K Mode of Payment');
+  });
+
+  it('refuses Mobile Money confirmation for a CB Points K order', async () => {
+    mocks.clientQuery.mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [pointsKOrder('stripe', { funding_state: 'prepared' })] })
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [pointsKOrder('stripe', { funding_state: 'prepared' })] })
+      .mockResolvedValueOnce(undefined);
+    await expect(apiPaymentCheckoutService.confirmCheckout('raw-token', 'mobile_money')).rejects.toThrow('does not match the ERPNext Points K Mode of Payment');
+    expect(mocks.clientQuery.mock.calls.some(call => /UPDATE konektag/.test(String(call[0])))).toBe(false);
+  });
+
+  it('refuses to fund an order whose native mode was never frozen', async () => {
+    mocks.clientQuery.mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [pointsKOrder(undefined)] })
+      .mockResolvedValueOnce(undefined);
+    await expect(apiPaymentCheckoutService.prepareFundingOrder('raw-token', undefined, context('pawapay')))
+      .rejects.toThrow('has no frozen payment provider');
   });
 });

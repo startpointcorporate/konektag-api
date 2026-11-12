@@ -12,6 +12,30 @@
     "score": 607
   },
   {
+    "path": "/api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit",
+    "file": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/direct-deposit.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/mobile-money/pawapay/direct-deposit/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 607
+  },
+  {
+    "path": "/api/pay/checkout/{token}/mobile-money/pawapay/providers",
+    "file": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/providers.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/pay/checkout/([^/]+)/mobile-money/pawapay/providers/?$",
+    "keys": [
+      "token"
+    ],
+    "score": 607
+  },
+  {
     "path": "/api/pay/checkout/{token}/mobile-money/pawapay/return",
     "file": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/return.ts",
     "methods": [

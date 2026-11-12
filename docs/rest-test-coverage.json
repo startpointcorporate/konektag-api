@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 326,
-    "operations": 414,
+    "paths": 328,
+    "operations": 416,
     "covered": 79,
-    "partial": 334,
+    "partial": 336,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 335,
-    "executedTests": 2860,
-    "passedTests": 2860
+    "businessUncovered": 337,
+    "executedTests": 2951,
+    "passedTests": 2951
   },
   "operations": [
     {
@@ -8304,6 +8304,76 @@
         "no database or handler execution"
       ],
       "candidates": [],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/pay/checkout/{token}/mobile-money/pawapay/providers",
+      "domain": "pay",
+      "method": "GET",
+      "path": "/api/pay/checkout/{token}/mobile-money/pawapay/providers",
+      "source": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/providers.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes starts the deposit for the authenticated payer without accepting any amount",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes maps Error: PAWAPAY_DEPOSIT_REJECTED to its HTTP status",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes maps Error: Payment method does not match the ERPNext Points K Mode of Payment to its HTTP status",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes maps Error: PawaPay request failed (500) to its HTTP status",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes lists operators active for the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "pay [REST TRANSPORT GET /api/pay/checkout/{token}/mobile-money/pawapay/providers] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "pay [REST AUTH GET /api/pay/checkout/{token}/mobile-money/pawapay/providers] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Authenticated payer and checkout token forwarded; browser amount and malformed phone refused before the service; rejection, mode conflict and provider failure mapped to 422/409/502. Service, v2 bodies and lifecycle are unit-tested separately; no sandbox pawaPay call executed.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/pawapay-direct-deposit-routes.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]
@@ -17365,6 +17435,76 @@
       ],
       "candidates": [
         "tests/unit/api-payment-pawapay-locale-routes.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit",
+      "domain": "pay",
+      "method": "POST",
+      "path": "/api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit",
+      "source": "src/api/routes/pay/checkout/[token]/mobile-money/pawapay/direct-deposit.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport",
+        "validation"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes starts the deposit for the authenticated payer without accepting any amount",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes maps Error: PAWAPAY_DEPOSIT_REJECTED to its HTTP status",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes maps Error: Payment method does not match the ERPNext Points K Mode of Payment to its HTTP status",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes maps Error: PawaPay request failed (500) to its HTTP status",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/pawapay-direct-deposit-routes.test.ts",
+          "name": "Points K pawaPay direct deposit routes lists operators active for the checkout",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "pay [REST TRANSPORT POST /api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "pay [REST AUTH POST /api/pay/checkout/{token}/mobile-money/pawapay/direct-deposit] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Authenticated payer and checkout token forwarded; browser amount and malformed phone refused before the service; rejection, mode conflict and provider failure mapped to 422/409/502. Service, v2 bodies and lifecycle are unit-tested separately; no sandbox pawaPay call executed.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/pawapay-direct-deposit-routes.test.ts"
       ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."

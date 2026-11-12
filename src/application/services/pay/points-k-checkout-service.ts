@@ -24,6 +24,14 @@ const pointsKPaymentModes = {
   CG: ['Mobile Money', 'Cash', 'Wire Transfer'],
 } as const;
 
+// Native mode -> the only PSP allowed to collect it. Cash and bank transfers keep
+// their native ERPNext treatment: no PSP order, hence no automatic K credit.
+export const pointsKModeProviders: Record<string, { provider: 'stripe' | 'pawapay'; paymentMethod: 'card' | 'mobile_money' }> = {
+  CB: { provider: 'stripe', paymentMethod: 'card' },
+  'Mobile Money': { provider: 'pawapay', paymentMethod: 'mobile_money' },
+};
+const modeProvider = (mode: string) => Object.hasOwn(pointsKModeProviders, mode) ? pointsKModeProviders[mode] : null;
+
 const n = (value: unknown) => Number(value);
 const total = (doc: any) => Number(doc.disable_rounded_total) === 1 ? n(doc.grand_total) : n(doc.rounded_total);
 
@@ -63,7 +71,8 @@ export async function readPointsKCheckout(input: Input, deps: Deps = {}) {
     site: state.route.site, customer: state.customer.name,
     quotation: state.quotation,
     amount: total(state.quotation), currency: state.quotation.currency,
-    modesOfPayment: state.modes.map(mode => ({ name: mode.name, type: mode.type ?? null })),
+    modesOfPayment: state.modes.map(mode => ({ name: mode.name, type: mode.type ?? null,
+      provider: modeProvider(mode.name)?.provider ?? null, paymentMethod: modeProvider(mode.name)?.paymentMethod ?? null })),
     paymentContext, paymentContextError,
   };
 }
@@ -115,6 +124,13 @@ export async function createPointsKCheckout(input: Input & { modeOfPayment: stri
     throw new PointsKCheckoutError('PAYMENT_REQUEST_INCONSISTENT');
   const paymentRequestTotal = n(paymentRequest.grand_total);
   if (!(paymentRequestTotal > 0) || paymentRequest.currency !== quotation.currency) throw new PointsKCheckoutError('PAYMENT_REQUEST_INCONSISTENT');
+  // The submitted Payment Request freezes the native mode; a later submission cannot switch it.
+  if (paymentRequest.mode_of_payment && paymentRequest.mode_of_payment !== input.modeOfPayment)
+    throw new PointsKCheckoutError('MODE_OF_PAYMENT_MISMATCH', { modeOfPayment: paymentRequest.mode_of_payment });
+  const references = { quotation: quotation.name, salesOrder: salesOrder.name, paymentRequest: paymentRequest.name,
+    amount: paymentRequestTotal, currency: paymentRequest.currency, modeOfPayment: input.modeOfPayment };
+  const psp = modeProvider(input.modeOfPayment);
+  if (!psp) return { ...references, provider: null, paymentMethod: null, amountMinor: null, order: null, checkoutToken: null };
   const amount = Math.round(paymentRequestTotal * (10 ** minorDigits(paymentRequest.currency)));
 
   const item = quotation.items[0];
@@ -123,9 +139,9 @@ export async function createPointsKCheckout(input: Input & { modeOfPayment: stri
     paymentCountry: state.route.paymentCountry, konektagSite: { slug: state.route.slug },
     metadata: { erpnextPointsK: { version: 1, site: state.route.site, customer: state.customer.name,
       quotation: quotation.name, salesOrder: salesOrder.name, paymentRequest: paymentRequest.name,
-      itemCode: item.item_code, quantityK: n(item.qty) } },
+      itemCode: item.item_code, quantityK: n(item.qty), modeOfPayment: input.modeOfPayment,
+      provider: psp.provider, paymentMethod: psp.paymentMethod } },
   });
-  return { quotation: quotation.name, salesOrder: salesOrder.name, paymentRequest: paymentRequest.name,
-    amount: paymentRequestTotal, amountMinor: amount, currency: paymentRequest.currency,
+  return { ...references, provider: psp.provider, paymentMethod: psp.paymentMethod, amountMinor: amount,
     order: order.order, checkoutToken: order.checkoutToken };
 }

@@ -1,0 +1,78 @@
+sandbox host: api.sandbox.pawapay.io
+egress IP (this pod): 31.70.104.198; allowlist match: true
+GET /v2/active-conf?country=COG&operationType=DEPOSIT -> 200
+active-conf raw shape: {
+  "companyName": "string",
+  "countries": [
+    {
+      "country": "string",
+      "displayName": {
+        "en": "string",
+        "fr": "string"
+      },
+      "prefix": "string",
+      "flag": "string",
+      "providers": [
+        {
+          "provider": "string",
+          "nameDisplayedToCustomer": "string",
+          "displayName": "string",
+          "logo": "string",
+          "currencies": [
+            {
+              "currency": "string",
+              "displayName": "string",
+              "operationTypes": {
+                "DEPOSIT": "object"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "signatureConfiguration": {
+    "signedRequestsOnly": "boolean",
+    "signedCallbacks": "boolean"
+  }
+}
+active-conf parsed DEPOSIT providers: [
+  {
+    "provider": "AIRTEL_COG",
+    "nameDisplayedToCustomer": "PAWAPAY",
+    "currency": "XAF",
+    "status": "OPERATIONAL",
+    "minAmount": "10",
+    "maxAmount": "1500000",
+    "decimalsInAmount": "NONE",
+    "authType": "PROVIDER_AUTH",
+    "pinPrompt": "AUTOMATIC",
+    "pinPromptRevivable": false
+  },
+  {
+    "provider": "MTN_MOMO_COG",
+    "nameDisplayedToCustomer": null,
+    "currency": "XAF",
+    "status": "OPERATIONAL",
+    "minAmount": "1",
+    "maxAmount": "1000000",
+    "decimalsInAmount": "NONE",
+    "authType": "PROVIDER_AUTH",
+    "pinPrompt": "AUTOMATIC",
+    "pinPromptRevivable": true
+  }
+]
+GET /v2/public-key/http -> 200
+public-key/http raw shape: [{"id":"string","key":"string"}]
+public-key/http key: {"keyId":"HTTP_EC_P256_KEY:1","format":"PEM/SPKI","curve":"prime256v1","valid":true}
+POST /v2/predict-provider -> 200
+predict-provider raw shape: {"country":"string","provider":"string","phoneNumber":"string"}
+predict-provider phoneNumber format: digits only (12 digits)
+predict-provider parsed: {"country":"COG","provider":"AIRTEL_COG","phoneNumber":"<redacted>"}
+signatureConfiguration.signedRequestsOnly: false
+signatureConfiguration.signedCallbacks: true
+active-conf raw DEPOSIT AIRTEL_COG/XAF: keys=["minAmount","maxAmount","authType","pinPrompt","pinPromptRevivable","decimalsInAmount","status","callbackUrl"] values={"status":{"type":"string","value":"OPERATIONAL"},"minAmount":{"type":"string","value":"10"},"maxAmount":{"type":"string","value":"1500000"},"decimalsInAmount":{"type":"string","value":"NONE"},"authType":{"type":"string","value":"PROVIDER_AUTH"},"pinPrompt":{"type":"string","value":"AUTOMATIC"},"pinPromptRevivable":{"type":"boolean","value":false}}
+active-conf DEPOSIT AIRTEL_COG callback URL matches Konektag: true
+active-conf raw DEPOSIT MTN_MOMO_COG/XAF: keys=["minAmount","maxAmount","authType","pinPrompt","pinPromptRevivable","pinPromptInstructions","decimalsInAmount","status","callbackUrl"] values={"status":{"type":"string","value":"OPERATIONAL"},"minAmount":{"type":"string","value":"1"},"maxAmount":{"type":"string","value":"1000000"},"decimalsInAmount":{"type":"string","value":"NONE"},"authType":{"type":"string","value":"PROVIDER_AUTH"},"pinPrompt":{"type":"string","value":"AUTOMATIC"},"pinPromptRevivable":{"type":"boolean","value":true}}
+active-conf DEPOSIT MTN_MOMO_COG callback URL matches Konektag: true
+CONTRACT OK (read-only, no deposit created)
