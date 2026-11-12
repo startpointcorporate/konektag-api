@@ -7,6 +7,17 @@ vi.mock('../../src/application/services/pay/points-wallet-service.ts', () => ({
 import { confirmPointsAcquisition } from '../../src/application/services/pay/points-acquisition-service.ts';
 
 describe('confirmPointsAcquisition', () => {
+  it.each([['EUR', 1200, 12], ['USD', 1221, 12.21], ['XAF', 8567, 8567]])(
+    'keeps the %s economic value in major currency units', async (currency, lotValueMinor, economicValue) => {
+      const query = vi.fn(async (sql: string) => ({ rows: sql.includes('INSERT INTO konektag.points_acquisitions') ? [{ id: 'acq' }] : [] }));
+      await confirmPointsAcquisition({ query } as any, {
+        orderId: 'order', userId: 'user', provider: 'pawapay', providerReference: 'deposit', providerEventId: 'event',
+        attemptId: 'attempt', confirmedMinor: lotValueMinor, currency, pointsQuantity: 12, lotValueMinor,
+        legalEntityId: 'entity', corridorId: 'CG-CG', regulatoryProfileId: 'profile',
+      });
+      const insert = query.mock.calls.find(([sql]) => sql.includes('INSERT INTO konektag.klots')) as unknown as [string, unknown[]];
+      expect(insert[1][7]).toBe(economicValue);
+    });
   it('mints purchased K quantity, excluding PSP fees and tax', async () => {
     const calls: Array<{ sql: string; params: unknown[] }> = [];
     const db: any = {

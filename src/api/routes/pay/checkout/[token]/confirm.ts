@@ -1,4 +1,5 @@
 import type { RouteHandler } from '../../../../http';
+import { PawaPaySandboxPolicyError } from '../../../../../infrastructure/adapters/pawapay-sandbox-policy.ts';
 import {
   apiPaymentCheckoutService,
   ApiPaymentConflictError,
@@ -34,6 +35,7 @@ export const POST: RouteHandler = async ({ request, params, locals }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    if (error instanceof PawaPaySandboxPolicyError) return Response.json({ error: 'PAWAPAY_SANDBOX_DISABLED' }, { status: 503 });
     const status = error instanceof ApiPaymentNotFoundError ? 404
       : error instanceof ApiPaymentValidationError ? 400
         : error instanceof ApiPaymentConflictError ? 409

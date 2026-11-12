@@ -2,9 +2,14 @@
 // retries, concurrency, provider rejection and failure compensation. The pawaPay client is an
 // injected stub: no sandbox or live pawaPay call, no payment, no ERPNext site.
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { pointsKValuationModule } from '../helpers/points-k-valuation-stub.ts';
+import { enableIsolatedPawaPaySandbox } from '../helpers/pawapay-sandbox-runtime.ts';
+beforeEach(enableIsolatedPawaPaySandbox);
+afterEach(() => vi.unstubAllEnvs());
 
 vi.mock('../../src/infrastructure/adapters/redis-adapter.ts', () => ({ redisAdapter: { publishPaymentStatus: async () => {} } }));
+vi.mock('../../src/application/services/points-k-valuation-service.ts', () => pointsKValuationModule);
 
 const url = process.env.DATABASE_URL;
 if (!url || new URL(url).pathname !== '/konektag_test') throw new Error('Use a throwaway konektag_test database');
@@ -26,10 +31,8 @@ beforeAll(async () => {
     VALUES ($1,$2,$3,$4,'\\x00')`, [userId, randomUUID(), `kon75-${userId.slice(0,8)}`, userId.replaceAll('-', '').padEnd(64, '0')]);
 });
 afterAll(async () => {
-  await pool.query(`DELETE FROM konektag.payment_provider_attempts WHERE source_type='api_payment'
-    AND source_id IN (SELECT id::text FROM konektag.api_payment_orders WHERE target_user_id=$1)`, [userId]);
-  await pool.query('DELETE FROM konektag.api_payment_orders WHERE target_user_id=$1', [userId]);
-  await pool.query('DELETE FROM konektag.users WHERE id=$1', [userId]);
+  // Completed financial entries are immutable. Destroy the throwaway database
+  // after this suite instead of deleting their acquisition/ledger evidence.
   await pool.end();
 });
 
@@ -64,7 +67,7 @@ async function congoCheckout() {
   await apiPaymentCheckoutService.prepareFundingOrder(result.checkoutToken!, { userId } as any, {
     currency: 'XAF', paymentCountry: 'CG', konektagSite: 'konektag-cg', legalEntityId: ids.legal_entity_id,
     regulatoryProfileId: ids.profile_id, corridorId: ids.corridor_id, regulatedActorId: ids.regulated_actor_id,
-    rail: 'mobile_money', provider: 'pawapay', providerConfigurationKey: null, percentageBps: 300, fixedAmount: 1,
+    rail: 'mobile_money', provider: 'pawapay', providerConfigurationKey: 'KTG_CG_PAWAPAY_SANDBOX', percentageBps: 300, fixedAmount: 1,
   });
   return { token: result.checkoutToken!, orderId: result.order!.id };
 }
@@ -100,6 +103,52 @@ async function orderState(orderId: string) {
 }
 
 describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
+  it('refuses a sandbox PSP on a live business order before creating an attempt', async () => {
+    const { token, orderId } = await congoCheckout();
+    vi.stubEnv('PAWAPAY_ALLOW_SANDBOX', undefined);
+    const client = fakePawaPay();
+    await expect(start(token, PHONE_A, client)).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    expect(await attempts(orderId)).toEqual([]);
+    expect(client.createDeposit).not.toHaveBeenCalled();
+    expect(client.predictProvider).not.toHaveBeenCalled();
+    expect(await orderState(orderId)).toMatchObject({ state: 'pending' });
+  });
+
+  it('rejects sandbox callbacks and low-level consumption before any financial event write', async () => {
+    const { token, orderId } = await congoCheckout();
+    const first = await start(token, PHONE_A, fakePawaPay());
+    vi.stubEnv('PAWAPAY_ALLOW_SANDBOX', undefined);
+    const deposit = { depositId: first.depositId, status: 'COMPLETED' as const, amount: '8567', currency: 'XAF' };
+    const { pawaPayDepositService } = await import('../../src/application/services/pay/pawapay-deposit-service.ts');
+    const { paymentProviderAttemptService } = await import('../../src/application/services/pay/payment-provider-attempt-service.ts');
+    await expect(pawaPayDepositService.consume(deposit, JSON.stringify(deposit))).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    await expect(paymentProviderAttemptService.consumePawaPayDeposit(deposit, 'local-hash')).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    await expect(apiPaymentCheckoutService.confirmCheckout(token, 'mobile_money', payer())).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    await expect(apiPaymentCheckoutService.markFinalAndDispatch(orderId, 'mobile_money', first.depositId, randomUUID())).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    const { rows: [event] } = await pool.query('SELECT count(*)::int n FROM konektag.payment_provider_events WHERE provider_event_id=$1', [`pawapay:deposit:${first.depositId}:COMPLETED`]);
+    expect(event.n).toBe(0);
+    expect(await attempts(orderId)).toMatchObject([{ state: 'pending' }]);
+  });
+  it('settles concurrent repeated callbacks once without double credit or duplicate events', async () => {
+    const { token, orderId } = await congoCheckout();
+    const client = fakePawaPay();
+    const first = await start(token, PHONE_A, client);
+    const { pawaPayDepositService } = await import('../../src/application/services/pay/pawapay-deposit-service.ts');
+    const deposit = { depositId: first.depositId, status: 'COMPLETED' as const, amount: '8567', currency: 'XAF' };
+    // Verified-event consumption only; cryptographic verification is covered
+    // independently. Provider and valuation are explicit local doubles.
+    await Promise.all(Array.from({ length: 4 }, () => pawaPayDepositService.consume(deposit, JSON.stringify(deposit))));
+    await pawaPayDepositService.consume(deposit, JSON.stringify(deposit));
+    const { rows: [evidence] } = await pool.query(`SELECT
+      (SELECT count(*)::int FROM konektag.points_acquisitions WHERE order_id=$1) acquisitions,
+      (SELECT count(*)::int FROM konektag.ledger_entries WHERE points_order_id=$1 AND points_leg='allocation_credit') credits,
+      (SELECT count(*)::int FROM konektag.payment_provider_events WHERE provider='pawapay' AND provider_event_id=$2) events`,
+      [orderId, `pawapay:deposit:${first.depositId}:COMPLETED`]);
+    expect(evidence).toEqual({ acquisitions: 1, credits: 1, events: 1 });
+    expect(await orderState(orderId)).toMatchObject({ state: 'paid' });
+    const { rows: [lot] } = await pool.query('SELECT economic_value FROM konektag.klots WHERE klot_ref=$1', [`KLOT-POINTS-${orderId}`]);
+    expect(Number(lot.economic_value)).toBe(8567);
+  });
   it('locks the checkout and keeps one observed attempt with the frozen amount', async () => {
     const { token, orderId } = await congoCheckout();
     const client = fakePawaPay();

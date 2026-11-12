@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { assertPawaPayFinancialOperation } from '../../../infrastructure/adapters/pawapay-sandbox-policy.ts';
 import type Stripe from 'stripe';
 import pool from '../../../infrastructure/database/pool.ts';
 import { fromPawaPayAmount, type PawaPayDeposit } from '../../../infrastructure/adapters/pawapay-client.ts';
@@ -150,6 +151,7 @@ export const paymentProviderAttemptService = {
     return result.rowCount ?? 0;
   },
   async createOrGetPawaPayApiCheckoutAttempt(input: { orderId: string; amount: number; currency: string; providerConfigurationKey: string | null }): Promise<string> {
+    assertPawaPayFinancialOperation(input.providerConfigurationKey);
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -184,6 +186,7 @@ export const paymentProviderAttemptService = {
    * any other active attempt, including a Payment Page, locks the checkout.
    */
   async createOrGetPawaPayDirectDepositAttempt(input: { orderId: string; amount: number; currency: string; providerConfigurationKey: string | null; provider: string; phoneNumberHash: string }): Promise<{ depositId: string; created: boolean }> {
+    assertPawaPayFinancialOperation(input.providerConfigurationKey);
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -276,6 +279,7 @@ export const paymentProviderAttemptService = {
     return typeof key === 'string' ? key : null;
   },
   async consumePawaPayDeposit(deposit: PawaPayDeposit, payloadHash: string): Promise<PawaPayEventConsumption> {
+    assertPawaPayFinancialOperation(await this.getPawaPayConfigurationKey(deposit.depositId));
     const amount = fromPawaPayAmount(deposit.currency.toUpperCase(), deposit.amount); const eventKey = `pawapay:deposit:${deposit.depositId}:${deposit.status}`; const client = await pool.connect();
     try { await client.query('BEGIN'); const inserted = await client.query<ProviderEventRow>(`INSERT INTO konektag.payment_provider_events(provider,provider_event_id,event_type,payload_hash) VALUES('pawapay',$1,$2,$3) ON CONFLICT(provider,provider_event_id) DO NOTHING RETURNING id,processed_at,failed_at`, [eventKey, `deposit.${deposit.status.toLowerCase()}`, payloadHash]); let event = inserted.rows[0]; if (!event) { const row = await client.query<ProviderEventRow>(`SELECT id,processed_at,failed_at FROM konektag.payment_provider_events WHERE provider='pawapay' AND provider_event_id=$1 FOR UPDATE`, [eventKey]); event = row.rows[0]; if (!event || event.processed_at) { await client.query('COMMIT'); return { outcome: 'deduplicated' }; }
       if (event.failed_at) {
@@ -301,6 +305,7 @@ export const paymentProviderAttemptService = {
   },
   /** The provider accepted the request and gave its reference: the Network sees the recharge, pending. */
   async recordRechargeAccepted(provider: 'stripe' | 'pawapay', providerReference: string): Promise<void> {
+    if (provider === 'pawapay') assertPawaPayFinancialOperation(await this.getPawaPayConfigurationKey(providerReference));
     try { await enqueueRechargeOperation(pool, { provider, providerReference, status: 'pending' }); }
     catch (error) { console.error('[network-operations] pending recharge not queued', { provider, providerReference, error: (error as Error).message }); }
   },

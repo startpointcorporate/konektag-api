@@ -6,6 +6,7 @@
  * Other consumers keep the Payment Page flow.
  */
 import { createHash } from 'node:crypto';
+import { assertPawaPayFinancialOperation } from '../../../infrastructure/adapters/pawapay-sandbox-policy.ts';
 import { pawaPayClient, PawaPayError, type PawaPayDepositProvider } from '../../../infrastructure/adapters/pawapay-client.ts';
 import { apiPaymentCheckoutService, ApiPaymentConflictError, type ApiPaymentMobileMoneyOrder, type ApiPaymentPayer } from './api-payment-checkout-service.ts';
 import { PaymentProviderAttemptConflictError, paymentProviderAttemptService } from './payment-provider-attempt-service.ts';
@@ -62,6 +63,7 @@ export async function startPawaPayDirectDeposit(
   const checkout = deps.checkout ?? apiPaymentCheckoutService;
   const attempts = deps.attempts ?? paymentProviderAttemptService;
   const order = await pointsKOrder(token, payer, deps);
+  assertPawaPayFinancialOperation(order.providerConfigurationKey);
   const amount = providerAmount(order);
 
   let prediction: Awaited<ReturnType<typeof client.predictProvider>>;

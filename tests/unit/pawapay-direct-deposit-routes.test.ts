@@ -11,6 +11,7 @@ import { GET } from '../../src/api/routes/pay/checkout/[token]/mobile-money/pawa
 import { PawaPayDirectDepositError } from '../../src/application/services/pay/pawapay-direct-deposit-service.ts';
 import { ApiPaymentConflictError } from '../../src/application/services/pay/api-payment-checkout-service.ts';
 import { PawaPayError } from '../../src/infrastructure/adapters/pawapay-client.ts';
+import { PawaPaySandboxPolicyError } from '../../src/infrastructure/adapters/pawapay-sandbox-policy.ts';
 
 const user = { id: 'user-1', keycloak_id: 'kc-1', username: 'payer', email: 'payer@example.test' };
 const post = (body: unknown) => POST({ params: { token: 'tok' }, locals: { user },
@@ -32,6 +33,7 @@ describe('Points K pawaPay direct deposit routes', () => {
   });
 
   it.each([
+    [new PawaPaySandboxPolicyError(), 503, { error: 'PAWAPAY_SANDBOX_DISABLED' }],
     [new PawaPayDirectDepositError('PAWAPAY_DEPOSIT_REJECTED', 422, { failureCode: 'INVALID_AMOUNT' }), 422, { error: 'PAWAPAY_DEPOSIT_REJECTED', failureCode: 'INVALID_AMOUNT' }],
     [new ApiPaymentConflictError('Payment method does not match the ERPNext Points K Mode of Payment'), 409, { error: 'Payment method does not match the ERPNext Points K Mode of Payment' }],
     [new PawaPayError('PawaPay request failed (500)', 500), 502, { error: 'PawaPay request failed (500)' }],

@@ -1,4 +1,5 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { assertPawaPayFinancialOperation } from '../../../infrastructure/adapters/pawapay-sandbox-policy.ts';
 import countries from 'i18n-iso-countries';
 import type { PostFinancialTransactionCommand } from '../../../domain/Accounting.ts';
 import type { FinancialAccountCode } from '../../../domain/Accounting.ts';
@@ -1730,7 +1731,8 @@ export const apiPaymentCheckoutService = {
     }
 
     if (paymentMethod === 'mobile_money') {
-      await this.prepareFundingOrder(token, payer);
+      const funding = await this.prepareFundingOrder(token, payer);
+      assertPawaPayFinancialOperation(funding.provider_configuration_key);
     }
 
     const client = await pool.connect();
@@ -2057,7 +2059,9 @@ export const apiPaymentCheckoutService = {
     if (!allowedProviders.includes(attempt.provider)) throw new ApiPaymentConflictError('Wallet recharge provider mismatch');
 
     const digits = minorDigits(order.currency);
-    const lotValueMinor = Math.round(Number(order.subtotal_amount) * (10 ** digits));
+    const lotValueMinor = order.amount_unit === 'MINOR'
+      ? Number(order.subtotal_amount)
+      : Math.round(Number(order.subtotal_amount) * (10 ** digits));
     // Points K are EUR-denominated: 1 K = 1 EUR. Never equate a foreign
     // currency nominal amount (e.g. 9,000 XAF) with the number of K acquired.
     // Use the same authoritative FX valuation service as the rest of the wallet.
@@ -2091,6 +2095,12 @@ export const apiPaymentCheckoutService = {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      // PawaPay consumption locks event -> attempt. Acquire the event before
+      // the order/attempt here too: a concurrent replay can otherwise hold the
+      // event while waiting for our attempt lock, as acquisition references it.
+      if (paymentMethod === 'mobile_money' && providerEventId) {
+        await client.query('SELECT id FROM konektag.payment_provider_events WHERE id=$1 FOR UPDATE', [providerEventId]);
+      }
       const { rows } = await client.query<ApiPaymentOrderRow>(
         `SELECT * FROM konektag.api_payment_orders WHERE id = $1 FOR UPDATE`,
         [orderId],
@@ -2098,6 +2108,9 @@ export const apiPaymentCheckoutService = {
       const order = rows[0];
       if (!order) throw new ApiPaymentNotFoundError('Payment order not found');
       if (order.environment !== 'live') throw new ApiPaymentValidationError('Provider confirmation is only valid for live payments');
+      if (order.settlement_provider === 'pawapay' || order.provider_configuration_key?.includes('_PAWAPAY_')) {
+        assertPawaPayFinancialOperation(order.provider_configuration_key);
+      }
       if (paymentMethod !== 'wallet') {
         if (!providerReference) throw new ApiPaymentConflictError('Provider confirmation reference is required');
         const allowedProviders = paymentMethod === 'card' ? ['stripe','manual'] : ['pawapay','manual'];
@@ -2108,6 +2121,7 @@ export const apiPaymentCheckoutService = {
           [order.id, providerReference],
         );
         const provider = attempts[0]?.provider;
+        if (provider === 'pawapay') assertPawaPayFinancialOperation(order.provider_configuration_key);
         if (!provider || !allowedProviders.includes(provider)) {
           throw new ApiPaymentConflictError('Provider attempt does not match payment method');
         }

@@ -48,6 +48,16 @@ import { POST as depositPost } from '../../src/api/routes/pay/checkout/[token]/m
 import { GET as returnGet } from '../../src/api/routes/pay/checkout/[token]/mobile-money/pawapay/return.ts';
 
 describe('PawaPay locale propagation routes', () => {
+  it('rejects a sandbox Payment Page before attempts or checkout mutation on the shared API', async () => {
+    checkoutMocks.getMobileMoneyOrder.mockResolvedValue({ id: 'order-1', providerConfigurationKey: 'KTG_CG_PAWAPAY_SANDBOX' });
+    const response = await depositPost({ params: { token: 'token' }, locals: {},
+      request: new Request('https://api.konektag.eu/x', { method: 'POST', body: '{}' }) } as any);
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: 'PAWAPAY_SANDBOX_DISABLED' });
+    expect(attemptMocks.createOrGetPawaPayApiCheckoutAttempt).not.toHaveBeenCalled();
+    expect(checkoutMocks.confirmCheckout).not.toHaveBeenCalled();
+    expect(pawaPayClientMocks.createPaymentPage).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     checkoutMocks.getMobileMoneyOrder.mockResolvedValue({

@@ -65,5 +65,8 @@ export function resolveStripeConfiguration(key: string | null): StripeProviderCo
 export function resolvePawaPayConfiguration(key: string | null): PawaPayProviderConfiguration {
   if (!key) return legacyPawaPay();
   assertProviderConfigurationKey('pawapay', key);
-  return { provider: 'pawapay', key, apiUrl: required(key, 'API_URL').replace(/\/$/, ''), apiToken: required(key, 'API_TOKEN') };
+  const apiUrl = required(key, 'API_URL').replace(/\/$/, '');
+  const expected = key.endsWith('_SANDBOX') ? 'https://api.sandbox.pawapay.io' : 'https://api.pawapay.io';
+  if (apiUrl !== expected) throw new ProviderConfigurationError(`Provider configuration ${key} has an incompatible API URL`);
+  return { provider: 'pawapay', key, apiUrl, apiToken: required(key, 'API_TOKEN') };
 }

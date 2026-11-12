@@ -1,4 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { enableIsolatedPawaPaySandbox } from '../helpers/pawapay-sandbox-runtime.ts';
+beforeEach(enableIsolatedPawaPaySandbox);
+afterEach(() => vi.unstubAllEnvs());
 // Unit isolation: the database-backed services are injected; no pawaPay call is made.
 vi.mock('../../src/infrastructure/database/pool.ts', () => ({ default: {} }));
 import { listPawaPayDepositProviders, startPawaPayDirectDeposit } from '../../src/application/services/pay/pawapay-direct-deposit-service.ts';

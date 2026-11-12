@@ -1,6 +1,7 @@
 import type { PoolClient } from 'pg';
 import crypto from 'node:crypto';
 import { resolvePointsOwner } from './points-wallet-service.ts';
+import { minorDigits } from './money-unit.ts';
 
 export interface ConfirmPointsAcquisitionInput {
   orderId: string;
@@ -70,7 +71,7 @@ export async function confirmPointsAcquisition(db: PoolClient, input: ConfirmPoi
      SELECT $1::uuid,$2::varchar,$3::uuid,le.country_code,$4::varchar,$5::varchar,'Konektag',
             $6::numeric,$6::numeric,$7::varchar,$8::numeric,$9::uuid,'VALUATED'
      FROM konektag.legal_entities le WHERE le.id=$3::uuid`,
-    [klotId,`KLOT-POINTS-${input.orderId}`,input.legalEntityId,input.provider,input.providerReference,input.pointsQuantity,input.currency,input.lotValueMinor/100,input.regulatoryProfileId]);
+    [klotId,`KLOT-POINTS-${input.orderId}`,input.legalEntityId,input.provider,input.providerReference,input.pointsQuantity,input.currency,input.lotValueMinor/(10 ** minorDigits(input.currency)),input.regulatoryProfileId]);
 
   const legs = [
     ['K_ISSUANCE','debit',null,'issuance_debit'],

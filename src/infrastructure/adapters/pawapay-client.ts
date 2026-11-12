@@ -1,5 +1,6 @@
 import { createHash, createPublicKey, timingSafeEqual, verify } from 'node:crypto';
 import { resolvePawaPayConfiguration, type PawaPayProviderConfiguration } from './provider-configuration.ts';
+import { assertPawaPayFinancialOperation } from './pawapay-sandbox-policy.ts';
 
 export class PawaPayError extends Error {
   constructor(message: string, readonly status: number | null = null, readonly failureCode: string | null = null) { super(message); }
@@ -65,8 +66,9 @@ type SignatureInput = { label: string; components: string[]; params: string; key
 
 const KEY_CACHE_TTL_MS = 5 * 60_000;
 const CLOCK_SKEW_SECONDS = Number(process.env.PAWAPAY_SIGNATURE_CLOCK_SKEW_SECONDS ?? 60);
-let keyCache: PawaPayPublicKey[] = [];
-let keyCacheExpiresAt = 0;
+const MAX_SIGNATURE_VALIDITY_SECONDS = 300;
+const SIGNED_COMPONENTS = ['@method', '@authority', '@path', 'signature-date', 'content-digest', 'content-type'];
+const keyCaches = new Map<string, { keys: PawaPayPublicKey[]; expiresAt: number }>();
 
 function configuration(key?: string | null): PawaPayProviderConfiguration {
   try { return resolvePawaPayConfiguration(key ?? null); }
@@ -74,9 +76,14 @@ function configuration(key?: string | null): PawaPayProviderConfiguration {
 }
 
 async function api<T>(path: string, init?: RequestInit, key?: string | null): Promise<T> {
+  if (init?.method && !['GET', 'HEAD'].includes(init.method.toUpperCase()) && path !== '/v2/predict-provider') {
+    assertPawaPayFinancialOperation(key ?? null);
+  }
   const config = configuration(key);
   const response = await fetch(`${config.apiUrl}${path}`, {
     ...init,
+    // Do not forward a bearer token to a redirected host.
+    redirect: 'error',
     headers: { Authorization: `Bearer ${config.apiToken}`, Accept: 'application/json', ...init?.headers },
   });
   if (!response.ok) {
@@ -123,6 +130,7 @@ export const pawaPayClient = {
   },
   /** v2 direct deposit: the operator prompts the payer, who approves with their PIN on the phone. */
   async createDeposit(input: PawaPayDirectDepositInput): Promise<PawaPayDepositInitiation> {
+    assertPawaPayFinancialOperation(input.providerConfigurationKey);
     if (!UUID_V4.test(input.depositId)) throw new PawaPayError('depositId must be a UUIDv4');
     if (!/^([0]|([1-9][0-9]{0,17}))([.][0-9]{0,3}[1-9])?$/.test(input.amount) || !(Number(input.amount) > 0) || !/^[A-Z]{3}$/.test(input.currency)
       || !/^\d{6,20}$/.test(input.phoneNumber) || !/^[A-Z0-9_]{3,80}$/.test(input.provider)
@@ -152,6 +160,7 @@ export const pawaPayClient = {
     throw new PawaPayError('Invalid PawaPay deposit initiation response');
   },
   async createPaymentPage(input: PawaPayPaymentPageInput & { providerConfigurationKey: string | null }): Promise<string> {
+    assertPawaPayFinancialOperation(input.providerConfigurationKey);
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.depositId)) {
       throw new PawaPayError('depositId must be a UUIDv4');
     }
@@ -270,11 +279,17 @@ function verifyDigest(rawBody: string, digest: string): void {
 }
 
 async function publicKey(keyId: string, providerConfigurationKey?: string | null): Promise<string> {
-  if (Date.now() >= keyCacheExpiresAt || !keyCache.some(key => key.id === keyId)) {
-    keyCache = await pawaPayClient.publicKeys(providerConfigurationKey);
-    keyCacheExpiresAt = Date.now() + KEY_CACHE_TTL_MS;
+  const config = configuration(providerConfigurationKey);
+  const scope = `${config.key}:${config.apiUrl}`;
+  let cache = keyCaches.get(scope);
+  if (!cache || Date.now() >= cache.expiresAt || !cache.keys.some(key => key.id === keyId)) {
+    const keys = await pawaPayClient.publicKeys(providerConfigurationKey);
+    if (!Array.isArray(keys) || keys.some(key => typeof key?.id !== 'string' || typeof key?.key !== 'string')
+      || new Set(keys.map(key => key.id)).size !== keys.length) throw new PawaPayError('Invalid PawaPay public keys');
+    cache = { keys, expiresAt: Date.now() + KEY_CACHE_TTL_MS };
+    keyCaches.set(scope, cache);
   }
-  const found = keyCache.find(key => key.id === keyId);
+  const found = cache.keys.find(key => key.id === keyId);
   if (!found) throw new PawaPayError('Unknown PawaPay signing key');
   return found.key;
 }
@@ -282,11 +297,17 @@ async function publicKey(keyId: string, providerConfigurationKey?: string | null
 export async function verifyPawaPayWebhook(request: Request, rawBody: string, providerConfigurationKey?: string | null): Promise<void> {
   const digest = requiredHeader(request, 'Content-Digest');
   requiredHeader(request, 'Content-Type');
-  requiredHeader(request, 'Signature-Date');
+  const signatureDate = Date.parse(requiredHeader(request, 'Signature-Date')) / 1000;
   verifyDigest(rawBody, digest);
   const input = parseSignatureInput(requiredHeader(request, 'Signature-Input'));
   const now = Math.floor(Date.now() / 1000);
-  if (input.algorithm !== 'ecdsa-p256-sha256' || input.created > now + CLOCK_SKEW_SECONDS || input.expires < now - CLOCK_SKEW_SECONDS || input.expires < input.created) throw new PawaPayError('Expired or unsupported PawaPay signature');
+  if (SIGNED_COMPONENTS.some(component => !input.components.includes(component))
+    || new Set(input.components).size !== input.components.length) throw new PawaPayError('Missing or repeated PawaPay signed components');
+  if (input.algorithm !== 'ecdsa-p256-sha256' || input.created > now + CLOCK_SKEW_SECONDS
+    || input.created < now - MAX_SIGNATURE_VALIDITY_SECONDS - CLOCK_SKEW_SECONDS
+    || input.expires < now - CLOCK_SKEW_SECONDS || input.expires < input.created
+    || input.expires - input.created > MAX_SIGNATURE_VALIDITY_SECONDS
+    || !Number.isFinite(signatureDate) || Math.abs(signatureDate - input.created) >= 1) throw new PawaPayError('Expired or unsupported PawaPay signature');
   const key = createPublicKey(await publicKey(input.keyId, providerConfigurationKey));
   if (key.asymmetricKeyType !== 'ec' || key.asymmetricKeyDetails?.namedCurve !== 'prime256v1' || !verify('sha256', Buffer.from(pawaPaySignatureBase(request, input)), key, signatureValue(requiredHeader(request, 'Signature'), input.label))) throw new PawaPayError('Invalid PawaPay signature');
 }

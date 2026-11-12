@@ -1112,7 +1112,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "e3f4b565db4aa275de118d6cd1bf197566d93ea37776c2725b80cf6c4871df54",
+    "sha256": "701d0bd46201a5a319b7ff4b6a955eb44859b3b03c8ecd996540cfaad4d241ce",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
@@ -1136,7 +1136,7 @@
       "Provider locale/redirect propagation verified; broader deposit lifecycle unverified at route boundary."
     ],
     "constraints": [],
-    "sha256": "e3f4b565db4aa275de118d6cd1bf197566d93ea37776c2725b80cf6c4871df54",
+    "sha256": "701d0bd46201a5a319b7ff4b6a955eb44859b3b03c8ecd996540cfaad4d241ce",
     "tests": [
       "PawaPay locale propagation routes uses explicit lang from request body when creating provider returnUrl",
       "PawaPay locale propagation routes sends the exact zero-decimal XAF amount to pawaPay",
@@ -2084,7 +2084,7 @@
       "Authenticated payer and checkout token forwarded; browser amount and malformed phone refused before the service; rejection, mode conflict and provider failure mapped to 422/409/502. Service, v2 bodies and lifecycle are unit-tested separately; no sandbox pawaPay call executed."
     ],
     "constraints": [],
-    "sha256": "7f59f87ccfa3fc65404214b92d6e79a4d43ef8fc9ceb3f8b267ae66bac8a09c0",
+    "sha256": "6e084efe91fc3e6e2af2b11dff5e6c44ebc31937e985e360d56d6c7454ebfa5c",
     "tests": [
       "Points K pawaPay direct deposit routes starts the deposit for the authenticated payer without accepting any amount",
       "Points K pawaPay direct deposit routes maps Error: PAWAPAY_DEPOSIT_REJECTED to its HTTP status",

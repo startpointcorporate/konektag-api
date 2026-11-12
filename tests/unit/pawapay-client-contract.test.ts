@@ -1,4 +1,7 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { enableIsolatedPawaPaySandbox } from '../helpers/pawapay-sandbox-runtime.ts';
+beforeEach(enableIsolatedPawaPaySandbox);
+afterEach(() => vi.unstubAllEnvs());
 import { pawaPayClient } from '../../src/infrastructure/adapters/pawapay-client.ts';
 
 describe('PawaPay Payment Page contract', () => {
@@ -39,6 +42,21 @@ describe('PawaPay v2 direct deposit contract', () => {
   afterEach(() => vi.unstubAllGlobals());
   const key = 'KTG_CG_PAWAPAY_SANDBOX';
   const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
+  it('keeps toolkit diagnostics available with sandbox financial operations disabled', async () => {
+    const phone = '2'.repeat(12);
+    stub(json({ countries: [] }), json([{ id: 'public-test-key', key: 'PEM' }]), json({ country: 'COG', provider: 'MTN_MOMO_COG', phoneNumber: phone }));
+    vi.stubEnv('PAWAPAY_ALLOW_SANDBOX', undefined);
+    await expect(pawaPayClient.depositProviders('COG', 'XAF', key)).resolves.toEqual([]);
+    await expect(pawaPayClient.publicKeys(key)).resolves.toHaveLength(1);
+    await expect(pawaPayClient.predictProvider(phone, key)).resolves.toMatchObject({ country: 'COG', provider: 'MTN_MOMO_COG' });
+  });
+  it('blocks both financial adapter entry points before making an HTTP request', async () => {
+    const fetchMock = stub();
+    vi.stubEnv('PAWAPAY_ALLOW_SANDBOX', undefined);
+    await expect(pawaPayClient.createDeposit({ providerConfigurationKey: key } as any)).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    await expect(pawaPayClient.createPaymentPage({ providerConfigurationKey: key } as any)).rejects.toMatchObject({ code: 'PAWAPAY_SANDBOX_DISABLED' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
   function stub(...responses: Response[]) {
     process.env.KTG_CG_PAWAPAY_SANDBOX_API_URL = 'https://api.sandbox.pawapay.io';
     process.env.KTG_CG_PAWAPAY_SANDBOX_API_TOKEN = 'corridor-token';

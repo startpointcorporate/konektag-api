@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { assertPawaPayFinancialOperation, PawaPaySandboxPolicyError } from '../../../infrastructure/adapters/pawapay-sandbox-policy.ts';
 import pool from '../../../infrastructure/database/pool.ts';
 import { pawaPayClient, type PawaPayDeposit } from '../../../infrastructure/adapters/pawapay-client.ts';
 import { apiPaymentCheckoutService } from './api-payment-checkout-service.ts';
@@ -6,6 +7,7 @@ import { paymentProviderAttemptService } from './payment-provider-attempt-servic
 
 export const pawaPayDepositService = {
   async consume(deposit: PawaPayDeposit, rawPayload: string): Promise<void> {
+    assertPawaPayFinancialOperation(await paymentProviderAttemptService.getPawaPayConfigurationKey(deposit.depositId));
     await paymentProviderAttemptService.markPawaPayDepositObserved(deposit.depositId);
     const event = await paymentProviderAttemptService.consumePawaPayDeposit(deposit, createHash('sha256').update(rawPayload).digest('hex'));
     if (event.outcome === 'failed') {
@@ -34,6 +36,8 @@ export const pawaPayDepositService = {
       ORDER BY a.updated_at
       LIMIT $1`, [batchSize]);
     for (const failure of staleFailures.rows) {
+      try { assertPawaPayFinancialOperation(await paymentProviderAttemptService.getPawaPayConfigurationKey(failure.provider_reference)); }
+      catch (error) { if (error instanceof PawaPaySandboxPolicyError) continue; throw error; }
       console.log('[pawapay-reconciliation] recovering failed checkout', {
         orderId: failure.order_id, depositId: failure.provider_reference,
       });

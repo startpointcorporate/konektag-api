@@ -6,6 +6,31 @@ on:
 permissions:
   contents: read
 jobs:
+  points-k-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: konektag_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d konektag_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres@127.0.0.1:5432/konektag_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/run-migrations.mjs
+      - name: Verify Points K money, concurrency and settlement on disposable PostgreSQL
+        run: npx vitest run --config tests/integration/vitest.config.ts tests/integration/points-k-money.pg.ts tests/integration/points-k-direct-deposit.pg.ts
   rest-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
