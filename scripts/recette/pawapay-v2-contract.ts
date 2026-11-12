@@ -76,7 +76,30 @@ const publicKeys = await step('/v2/public-key/http', () => pawaPayClient.publicK
 console.log('public-key/http raw shape:', JSON.stringify(shape(raw['/v2/public-key/http'])));
 const prediction = await step('/v2/predict-provider', () => pawaPayClient.predictProvider(phone, key));
 console.log('predict-provider raw shape:', JSON.stringify(shape(raw['/v2/predict-provider'])));
-console.log('predict-provider parsed:', JSON.stringify(prediction));
+// The normalised number is never printed: only its format, judged on the raw response so a '+'
+// prefix (which our parser rejects) is still reported.
+const rawPhone = (raw['/v2/predict-provider'] as Record<string, unknown> | null)?.phoneNumber;
+const phoneFormat = typeof rawPhone !== 'string' ? `absent (${typeof rawPhone})`
+  : /^\d+$/.test(rawPhone) ? `digits only (${rawPhone.length} digits)` : /^\+\d+$/.test(rawPhone) ? `'+' prefix then digits (${rawPhone.length - 1} digits)` : 'other characters';
+console.log(`predict-provider phoneNumber format: ${phoneFormat}`);
+console.log('predict-provider parsed:', JSON.stringify(prediction && { ...prediction, phoneNumber: '<redacted>' }));
+
+// Non-personal account settings needed by the contract: request-signing flags and the raw
+// DEPOSIT values (both limit name variants) per provider, so the parser's field names are checked.
+const conf = raw['/v2/active-conf'] as Record<string, any> | null;
+const flag = (value: unknown) => typeof value === 'boolean' ? value : `not a boolean (${typeof value})`;
+console.log(`signatureConfiguration.signedRequestsOnly: ${flag(conf?.signatureConfiguration?.signedRequestsOnly)}`);
+console.log(`signatureConfiguration.signedCallbacks: ${flag(conf?.signatureConfiguration?.signedCallbacks)}`);
+const depositFields = ['status', 'minAmount', 'maxAmount', 'minTransactionLimit', 'maxTransactionLimit', 'decimalsInAmount', 'authType', 'pinPrompt', 'pinPromptRevivable'];
+for (const entry of Array.isArray(conf?.countries) ? conf.countries.filter((c: any) => c?.country === country) : []) {
+  for (const provider of Array.isArray(entry.providers) ? entry.providers : []) {
+    for (const row of Array.isArray(provider?.currencies) ? provider.currencies.filter((r: any) => r?.currency === currency) : []) {
+      const deposit = row?.operationTypes?.DEPOSIT;
+      const values = Object.fromEntries(depositFields.filter(f => deposit && f in deposit).map(f => [f, { type: typeof deposit[f], value: deposit[f] }]));
+      console.log(`active-conf raw DEPOSIT ${provider?.provider}/${currency}: keys=${JSON.stringify(deposit ? Object.keys(deposit) : null)} values=${JSON.stringify(values)}`);
+    }
+  }
+}
 
 if (!providers) failures.push('active-conf call failed');
 else if (!providers.length) failures.push(`no DEPOSIT provider parsed for ${country}/${currency}`);
@@ -87,6 +110,7 @@ for (const p of providers ?? []) {
   if (p.minAmount === null || p.maxAmount === null) failures.push(`${p.provider}: DEPOSIT amount limits not found`);
 }
 if (!Array.isArray(publicKeys) || !publicKeys.length) failures.push('public-key/http returned no key');
+if (conf?.signatureConfiguration?.signedRequestsOnly === true) failures.push('signedRequestsOnly=true: outgoing requests (incl. /v2/deposits) must be signed, which the API does not do — decision required');
 if (!prediction) failures.push('predict-provider call failed');
 else {
   if (prediction.country !== country) failures.push(`prediction country ${prediction.country} != ${country}`);
