@@ -256,6 +256,19 @@ describe('apiPaymentCheckoutService', () => {
     }
   });
 
+  it.each(['processing', 'awaiting_mobile_money'])('does not expire an unresolved Points K %s payment on refresh', async state => {
+    const order = { ...pendingOrder, state, created_at: '2000-01-01T00:00:00Z',
+      order_metadata: { erpnextPointsK: { provider: state === 'processing' ? 'stripe' : 'pawapay' } } };
+    mocks.clientQuery.mockResolvedValueOnce(undefined).mockResolvedValueOnce({ rows: [order] }).mockResolvedValueOnce(undefined);
+    await expect(apiPaymentCheckoutService.getPublicOrder('raw-token')).resolves.toMatchObject({ state });
+    expect(mocks.clientQuery.mock.calls.some(call => String(call[0]).includes('UPDATE konektag.api_payment_orders'))).toBe(false);
+  });
+
+  it.each(['paid', 'failed', 'expired', 'cancelled'])('rejects a terminal %s checkout moving back to processing', async state => {
+    await expect(apiPaymentCheckoutService.updateState({ query: vi.fn() } as any,
+      { ...pendingOrder, state } as any, 'processing')).rejects.toThrow('Cannot transition');
+  });
+
   it('keeps a recent checkout active when loading the public order', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-08-10T12:00:00.000Z'));

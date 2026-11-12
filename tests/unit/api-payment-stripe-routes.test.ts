@@ -7,6 +7,7 @@ const stripeMocks = vi.hoisted(() => ({
 
 const checkoutMocks = vi.hoisted(() => ({
   getStripeOrder: vi.fn(),
+  reservePointsKStripeInitiation: vi.fn(),
   attachStripePaymentIntent: vi.fn(),
   markFinalAndDispatch: vi.fn(),
 }));
@@ -64,6 +65,7 @@ describe('API payment Stripe routes', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     checkoutMocks.getStripeOrder.mockResolvedValue(stripeOrder);
+    checkoutMocks.reservePointsKStripeInitiation.mockImplementation(async () => new Date().toISOString());
     providerAttemptMocks.expireStaleApiPaymentAttempts.mockResolvedValue(0);
     providerAttemptMocks.hasActiveApiPaymentAttempt.mockResolvedValue(false);
     process.env.STRIPE_SECRET_KEY = 'sk_test_example';
@@ -78,6 +80,33 @@ describe('API payment Stripe routes', () => {
     else process.env.STRIPE_PUBLISHABLE_KEY = originalPublishableKey;
     if (originalPublicKey === undefined) delete process.env.STRIPE_PUBLIC_KEY;
     else process.env.STRIPE_PUBLIC_KEY = originalPublicKey;
+  });
+
+  it('retrieves the persisted Points K intent even when its local attempt expired', async () => {
+    checkoutMocks.getStripeOrder.mockResolvedValue({ ...stripeOrder, pointsK: true, stripePaymentIntentId: 'pi_existing' });
+    stripeMocks.retrieve.mockResolvedValue({ id: 'pi_existing', client_secret: 'secret', amount: 3815, currency: 'xof', status: 'processing',
+      metadata: { konektag_source_type: 'api_payment', konektag_source_id: 'order-1', konektag_operation_id: 'order-1' } });
+    const response = await createIntent({ params: { token: 'checkout-token' }, locals: {} } as any);
+    expect(response.status).toBe(201);
+    expect(stripeMocks.create).not.toHaveBeenCalled();
+    expect(stripeMocks.retrieve).toHaveBeenCalledWith('pi_existing');
+    expect(await response.json()).toMatchObject({ status: 'processing', paymentIntentId: 'pi_existing' });
+  });
+
+  it('uses the same Points K creation key after a lost Stripe response', async () => {
+    checkoutMocks.getStripeOrder.mockResolvedValue({ ...stripeOrder, pointsK: true });
+    stripeMocks.create.mockRejectedValue(new Error('response lost'));
+    for (let n = 0; n < 2; n++) await createIntent({ params: { token: 'checkout-token' }, locals: {} } as any);
+    expect(stripeMocks.create.mock.calls.map(call => call[1].idempotencyKey)).toEqual([
+      'api-payment-order:order-1:points-k', 'api-payment-order:order-1:points-k',
+    ]);
+  });
+
+  it('keeps an old unreferenced initiation unresolved instead of creating another operation', async () => {
+    checkoutMocks.getStripeOrder.mockResolvedValue({ ...stripeOrder, pointsK: true });
+    checkoutMocks.reservePointsKStripeInitiation.mockResolvedValue('2000-01-01T00:00:00Z');
+    expect((await createIntent({ params: { token: 'checkout-token' }, locals: {} } as any)).status).toBe(409);
+    expect(stripeMocks.create).not.toHaveBeenCalled();
   });
 
   it.each([1_200, 8_900, 101_460])('sends an exact EUR minor amount of %i to Stripe', async amountMinor => {
@@ -95,6 +124,7 @@ describe('API payment Stripe routes', () => {
 
   it('creates an intent from the stored external XOF amount and passes the authenticated payer', async () => {
     checkoutMocks.getStripeOrder.mockResolvedValue(stripeOrder);
+    checkoutMocks.reservePointsKStripeInitiation.mockImplementation(async () => new Date().toISOString());
     checkoutMocks.attachStripePaymentIntent.mockResolvedValue({ ...stripeOrder, stripePaymentIntentId: 'pi_stored' });
     stripeMocks.create.mockResolvedValue({
       id: 'pi_stored',

@@ -120,6 +120,11 @@ describe('Points K amount units through real PostgreSQL', () => {
         const response = await createStripeIntent({ params: { token: result.checkoutToken }, locals: { user: { id: userId } } } as any);
         expect(response.status).toBe(201);
         expect(stripeCalls.create).toHaveBeenCalledOnce();
+        const { rows: [initiated] } = await pool.query('SELECT state,order_metadata FROM konektag.api_payment_orders WHERE id=$1', [order.id]);
+        expect(initiated.state).toBe('processing');
+        expect(initiated.order_metadata.erpnextPointsK.stripeInitiatedAt).toBeTruthy();
+        await pool.query("UPDATE konektag.api_payment_orders SET created_at=now()-interval '2 days' WHERE id=$1", [order.id]);
+        expect((await apiPaymentCheckoutService.getPublicOrder(result.checkoutToken!)).state).toBe('processing');
         expect(stripeCalls.create.mock.calls[0][0]).toMatchObject({ amount: minor, currency: currency.toLowerCase() });
       }
       await pool.query(`UPDATE konektag.api_payment_orders SET amount_unit='MAJOR' WHERE id=$1`, [order.id]);
