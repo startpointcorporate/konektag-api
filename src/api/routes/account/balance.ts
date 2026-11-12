@@ -3,7 +3,7 @@ import type { RouteHandler } from '../../http';
 import { resolvePointsOwner } from '../../../application/services/pay/points-wallet-service.ts';
 import { kPointsBalance } from '../../../application/services/k-points-service.ts';
 import { exchangeRateService } from '../../../application/services/exchange-rate-service.ts';
-import { currencyForCountry } from '../../../application/services/operation-currency-service.ts';
+import { walletDisplayCurrencyForCountry } from '../../../application/services/operation-currency-service.ts';
 import pool from '../../../infrastructure/database/pool.ts';
 
 export const GET: RouteHandler = async ({ request, locals }) => {
@@ -13,15 +13,16 @@ export const GET: RouteHandler = async ({ request, locals }) => {
     const url = new URL(request.url);
     const {rows:[profile]}=await pool.query(`SELECT u.country,up.preferred_currency FROM konektag.users u
       LEFT JOIN konektag.user_preferences up ON up.user_id=u.id AND up.deleted_at IS NULL WHERE u.id=$1`,[user.id]);
-    const displayCurrency=(url.searchParams.get('currency')||profile?.preferred_currency||currencyForCountry(profile?.country)).toUpperCase();
+    const displayCurrency=(url.searchParams.get('currency')||profile?.preferred_currency||walletDisplayCurrencyForCountry(profile?.country)).toUpperCase();
     if(!exchangeRateService.isSupported(displayCurrency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
     const partyId = await resolvePointsOwner(pool as any, user.id);
     const points = await kPointsBalance(partyId);
     const {rows:[pending]}=await pool.query(`SELECT COALESCE(sum(quantity_k),0)::text AS net FROM (
       SELECT CASE WHEN le.entry_side='credit' THEN le.amount ELSE -le.amount END AS quantity_k
-      FROM konektag.ledger_entries le JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+      FROM konektag.ledger_entries le LEFT JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+      LEFT JOIN konektag.k_operations ko ON ko.id=le.k_operation_id
       WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K'
-        AND le.gl_scope='GLOBAL_USER_GL' AND upper(ft.status) IN ('PENDING','PROCESSING')
+        AND le.gl_scope='GLOBAL_USER_GL' AND upper(COALESCE(ko.status,ft.status)) IN ('PENDING','PROCESSING')
       UNION ALL
       SELECT o.points_quantity::numeric AS quantity_k
       FROM konektag.api_payment_orders o
@@ -29,10 +30,9 @@ export const GET: RouteHandler = async ({ request, locals }) => {
         WHERE a.source_type='api_payment' AND a.source_id::text=o.id::text
         ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
       WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
-        AND o.order_metadata ? 'erpnextPointsK'
         AND o.points_quantity>0
-        AND o.state IN ('pending','processing','awaiting_mobile_money')
-        AND COALESCE(attempt.state,'pending') IN ('pending','processing')
+        AND o.state IN ('pending','processing','awaiting_mobile_money','paid')
+        AND (o.state='paid' OR COALESCE(attempt.state,'pending') IN ('pending','processing'))
         AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)
     ) pending_movements`,[partyId,user.id]);
     const pendingK=Number(pending?.net??0);

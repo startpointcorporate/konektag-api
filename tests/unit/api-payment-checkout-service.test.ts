@@ -264,6 +264,14 @@ describe('apiPaymentCheckoutService', () => {
     expect(mocks.clientQuery.mock.calls.some(call => String(call[0]).includes('UPDATE konektag.api_payment_orders'))).toBe(false);
   });
 
+  it.each([false,true])('publishes accounting credit evidence independently from paid (credited=%s)',async credited=>{
+    const order={...pendingOrder,state:'paid',order_purpose:'wallet_recharge',points_credited:credited};
+    mocks.clientQuery.mockResolvedValueOnce(undefined).mockResolvedValueOnce({rows:[order]}).mockResolvedValueOnce(undefined);
+    const result=await apiPaymentCheckoutService.getPublicOrder('raw-token');
+    expect(result).toMatchObject({state:'paid',pointsCreditStatus:credited?'credited':'pending'});
+    expect(mocks.clientQuery.mock.calls[1][0]).toContain("pa.status='completed'");
+  });
+
   it.each(['paid', 'failed', 'expired', 'cancelled'])('rejects a terminal %s checkout moving back to processing', async state => {
     await expect(apiPaymentCheckoutService.updateState({ query: vi.fn() } as any,
       { ...pendingOrder, state } as any, 'processing')).rejects.toThrow('Cannot transition');

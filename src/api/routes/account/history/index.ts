@@ -1,3 +1,4 @@
+import { walletDisplayCurrencyForCountry } from '../../../../application/services/operation-currency-service.ts';
 import type { RouteHandler } from '../../../http';
 import pool from '../../../../infrastructure/database/pool.ts';
 import { resolvePointsOwner } from '../../../../application/services/pay/points-wallet-service.ts';
@@ -14,33 +15,39 @@ export const GET:RouteHandler=async({request,locals})=>{
   if(!Number.isSafeInteger(limit)||!Number.isSafeInteger(offset))return Response.json({error:'INVALID_PAGINATION'},{status:400});
   const {rows:[profile]}=await pool.query(`SELECT up.preferred_currency,u.country FROM konektag.users u
    LEFT JOIN konektag.user_preferences up ON up.user_id=u.id AND up.deleted_at IS NULL WHERE u.id=$1`,[user.id]);
-  const currency=(url.searchParams.get('currency')||profile?.preferred_currency||'EUR').trim().toUpperCase();
+  const currency=(url.searchParams.get('currency')||profile?.preferred_currency||walletDisplayCurrencyForCountry(profile?.country)).trim().toUpperCase();
   if(!exchangeRateService.isSupported(currency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
   const partyId=await resolvePointsOwner(pool as any,user.id);
   const {rows}=await pool.query(`WITH movements AS (
-   SELECT le.created_at,ft.transaction_type AS operation_type,le.entry_side AS direction,
+   SELECT le.created_at,COALESCE(ft.transaction_type,CASE WHEN ko.operation_type='merchant_consumption' THEN 'payment' ELSE ko.operation_type END) AS operation_type,le.entry_side AS direction,
     le.amount AS quantity_k,le.document_type AS source_type,le.document_ref AS source_id,
-    ft.id::text AS operation_id,u.username AS counterparty,
+    COALESCE(ft.id,ko.id)::text AS operation_id,peer.counterparty,
     CASE WHEN ft.status='pending' AND ft.accounting_status='processing' THEN 'PROCESSING'
-      WHEN ft.status='pending' THEN 'PENDING' WHEN ft.status='failed' THEN 'FAILED'
-      WHEN ft.status IN ('completed','reversed') THEN 'COMPLETED' ELSE 'FAILED' END AS status,
-    ft.business_reference,pc.currency AS original_currency,pc.confirmed_minor AS original_amount_minor,
+      WHEN COALESCE(ko.status,ft.status)='pending' THEN 'PENDING' WHEN ft.status='failed' THEN 'FAILED'
+      WHEN COALESCE(ko.status,ft.status) IN ('completed','reversed') THEN 'COMPLETED' ELSE 'FAILED' END AS status,
+    COALESCE(ft.business_reference,ko.operation_key) AS business_reference,COALESCE(pc.currency,consumption.transaction_currency) AS original_currency,COALESCE(pc.confirmed_minor,consumption.transaction_amount_minor) AS original_amount_minor,
     pc.provider AS original_provider,le.id::text AS stable_id
    FROM konektag.ledger_entries le
-   JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
-   LEFT JOIN konektag.ledger_entries peer ON peer.transaction_id=le.transaction_id AND peer.account_code='1000'
-    AND peer.party_id<>le.party_id AND peer.entry_side<>le.entry_side
-   LEFT JOIN konektag.parties cp ON cp.id=peer.party_id
-   LEFT JOIN konektag.users u ON u.keycloak_id=cp.keycloak_id AND u.deleted_at IS NULL
+   LEFT JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+   LEFT JOIN konektag.k_operations ko ON ko.id=le.k_operation_id
+   LEFT JOIN LATERAL (
+    SELECT string_agg(DISTINCT u.username, ', ' ORDER BY u.username) AS counterparty
+    FROM konektag.ledger_entries other
+    JOIN konektag.parties cp ON cp.id=other.party_id
+    LEFT JOIN konektag.users u ON u.keycloak_id=cp.keycloak_id AND u.deleted_at IS NULL
+    WHERE other.transaction_id=le.transaction_id AND other.account_code='1000'
+     AND other.party_id<>le.party_id AND other.entry_side<>le.entry_side
+   ) peer ON true
+   LEFT JOIN konektag.points_merchant_consumptions consumption ON consumption.k_operation_id=ko.id OR consumption.k_transaction_id=ft.id
    LEFT JOIN konektag.points_acquisitions pa ON pa.transaction_id=ft.id
    LEFT JOIN konektag.points_payment_confirmations pc ON pc.order_id=pa.order_id
-   WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
+   WHERE (ft.id IS NOT NULL OR ko.id IS NOT NULL) AND le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
    UNION ALL
    SELECT o.updated_at,'acquisition','credit',
     o.points_quantity::numeric,'payment_order',o.id::text,o.id::text,NULL,
     CASE WHEN attempt.state IN ('failed') THEN 'FAILED'
       WHEN attempt.state IN ('cancelled','expired') THEN 'CANCELLED'
-      WHEN o.state IN ('processing','awaiting_mobile_money') OR attempt.state='processing' THEN 'PROCESSING'
+      WHEN o.state IN ('processing','awaiting_mobile_money','paid') OR attempt.state='processing' THEN 'PROCESSING'
       WHEN o.state='pending' THEN 'PENDING' WHEN o.state IN ('cancelled','expired') THEN 'CANCELLED'
       ELSE 'FAILED' END,
     'POINTS-ACQ-'||o.id::text,
@@ -51,9 +58,8 @@ export const GET:RouteHandler=async({request,locals})=>{
     WHERE a.source_type='api_payment' AND a.source_id::text=o.id::text
     ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
    WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
-    AND o.order_metadata ? 'erpnextPointsK'
     AND o.points_quantity>0
-    AND o.state IN ('pending','processing','awaiting_mobile_money','failed','expired','cancelled')
+    AND o.state IN ('pending','processing','awaiting_mobile_money','paid','failed','expired','cancelled')
     AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)
   )
   SELECT movements.*,count(*) OVER()::int AS total FROM movements
@@ -73,8 +79,8 @@ export const GET:RouteHandler=async({request,locals})=>{
     ?(credit?'Reçu de ':'Vers ')+(w.counterparty||'Utilisateur Konektag'):type;
    const status=STATUSES.includes(w.status)?w.status:'COMPLETED';
    return {date:w.created_at,type:w.operation_type,label:type,detail,quantityK:signed,
-    value:{amount:Math.round(signed*rate*1e6)/1e6,currency,rate,rateSource:evidence?.source??'static_fallback',
-     rateDate:evidence?.valuedAt??null,kind:'INDICATIVE'},
+    value:{amount:Math.round(signed*rate*1e6)/1e6,currency,rate,source:evidence?.source??'static_fallback',
+     date:evidence?.valuedAt??null,kind:'INDICATIVE'},
     original:w.original_currency?{amountMinor:Number(w.original_amount_minor),currency:w.original_currency,
      provider:w.original_provider}:{amountMinor:null,currency:null,provider:null},
     reference:w.business_reference||w.source_id,status,counterparty:w.counterparty||null,

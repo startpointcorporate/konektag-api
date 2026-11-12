@@ -6,10 +6,11 @@ vi.mock('../../src/application/services/k-points-service.ts',()=>({kPointsBalanc
 vi.mock('../../src/application/services/pay/points-wallet-service.ts',()=>({resolvePointsOwner:mocks.owner}));
 vi.mock('../../src/application/services/wallet-integrity-service.ts',()=>({financialAccountStatus:mocks.control}));
 vi.mock('../../src/application/services/exchange-rate-service.ts',()=>({exchangeRateService:{
- isSupported:(currency:string)=>['EUR','XAF'].includes(currency),convert:mocks.rate,getRate:mocks.rate,getRateEvidence:mocks.evidence,
+ isSupported:(currency:string)=>['EUR','XAF','USD'].includes(currency),convert:mocks.rate,getRate:mocks.rate,getRateEvidence:mocks.evidence,
 }}));
 
 import {GET as balance} from '../../src/api/routes/account/balance.ts';
+import {GET as preference,PUT as putPreference} from '../../src/api/routes/account/currency-preference.ts';
 import {GET as history} from '../../src/api/routes/account/history/index.ts';
 
 const context=(path:string)=>({request:new Request(`https://api.test${path}`),locals:{user:{id:'user-1'}}} as any);
@@ -48,9 +49,29 @@ describe('account wallet read contracts',()=>{
   const response=await history(context('/api/account/history?limit=10&offset=0'));
   expect(response.status).toBe(200);
   expect(await response.json()).toMatchObject({items:[{quantityK:-4,status:'COMPLETED',reference:'ref-1',counterparty:'Ada',
-   original:{amountMinor:null,currency:null,provider:null}}],pagination:{limit:10,offset:0,total:1}});
+   original:{amountMinor:null,currency:null,provider:null},value:{source:'static_fallback',date:null,kind:'INDICATIVE'}}],pagination:{limit:10,offset:0,total:1}});
  });
 
+ it('uses the country default consistently before any preference is saved',async()=>{
+  mocks.query.mockResolvedValueOnce({rows:[{country:'CG',preferred_currency:null}]}).mockResolvedValueOnce({rows:[]});mocks.rate.mockResolvedValue(655.957);
+  const response=await history(context('/api/account/history'));expect(response.status).toBe(200);
+  expect(mocks.rate).toHaveBeenCalledWith('EUR','XAF');
+  mocks.query.mockResolvedValueOnce({rows:[{country:'CG',preferred_currency:null}]});
+  const pref=await preference(context('/api/account/currency-preference'));expect(await pref.json()).toEqual({currency:'XAF',defaultCurrency:'XAF',country:'CG'});
+  expect(pref.headers.get('cache-control')).toBe('no-store');
+ });
+ it.each([['FR','EUR'],['CG','XAF'],['LB','USD']])('defaults %s to the existing business currency %s',async(country,currency)=>{
+  mocks.query.mockResolvedValueOnce({rows:[{country,preferred_currency:null}]});
+  const res=await preference(context('/api/account/currency-preference'));expect(res.status).toBe(200);
+  expect(await res.json()).toEqual({country,currency,defaultCurrency:currency});
+ });
+ it('fails closed on preference read and write database errors',async()=>{
+  mocks.query.mockRejectedValue(new Error('offline'));
+  for(const handler of [preference,putPreference]){
+   const ctx=context('/api/account/currency-preference');ctx.request=new Request('https://api.test/api/account/currency-preference',{method:'PUT',body:JSON.stringify({currency:'EUR'})});
+   const res=await handler(ctx);expect(res.status).toBe(503);expect(await res.json()).toEqual({error:'CURRENCY_PREFERENCE_UNAVAILABLE'});
+  }
+ });
  it('never hides a history database failure behind an empty 200',async()=>{
   mocks.query.mockRejectedValueOnce(new Error('database unavailable'));
   const response=await history(context('/api/account/history'));

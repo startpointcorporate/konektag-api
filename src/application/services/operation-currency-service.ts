@@ -7,6 +7,12 @@ export function currencyForCountry(country: unknown): string {
   return currencyForMerchantCountry(country);
 }
 
+// Display preference only: the existing Lebanon ERPNext site and its companies
+// use USD. This does not authorize a financial currency/corridor or PSP rail.
+export function walletDisplayCurrencyForCountry(country: unknown): string {
+  return String(country ?? '').trim().toUpperCase() === 'LB' ? 'USD' : currencyForCountry(country);
+}
+
 export function requireCanonicalCurrency(country: unknown, requestedCurrency?: unknown): string {
   const currency = currencyForCountry(country);
   if (requestedCurrency !== undefined && requestedCurrency !== null

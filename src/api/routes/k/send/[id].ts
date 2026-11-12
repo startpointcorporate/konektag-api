@@ -19,7 +19,10 @@ export const POST:RouteHandler=async({params,request,locals})=>{const user=local
  }
  await kSendOtpService.verify({userId:user.id,sendId:id,authorizationId:body.authorizationId,otp:body.otp});
  return json(await kSendService.execute(id,`k-send-otp:${id}`));
-}catch(e){console.error('[api/k/send/:id]',e);return json({error:e instanceof Error?e.message:'K_SEND_FAILED'},500);}};
+}catch(e){console.error('[api/k/send/:id]',e);const code=e instanceof Error?e.message:'K_SEND_FAILED';
+ if(code==='K_SEND_BLOCKED_NOT_CONFIGURED')return json({error:code},503);
+ if(code.startsWith('K_SEND_BLOCKED_'))return json({error:code},403);
+ return json({error:code},500);}};
 
 export const DELETE:RouteHandler=async({params,locals})=>{const user=locals.user;if(!user)return json({error:'Unauthorized'},401);
  const send=await kSendService.get(params.id!);if(send.senderId!==user.keycloak_id&&send.senderId!==user.id)return json({error:'Forbidden'},403);
