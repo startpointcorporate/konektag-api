@@ -19,16 +19,17 @@ export const GET:RouteHandler=async({request,locals})=>{
   if(!exchangeRateService.isSupported(currency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
   const partyId=await resolvePointsOwner(pool as any,user.id);
   const {rows}=await pool.query(`WITH movements AS (
-   SELECT le.created_at,ft.transaction_type AS operation_type,le.entry_side AS direction,
+   SELECT le.created_at,COALESCE(ft.transaction_type,CASE WHEN ko.operation_type='merchant_consumption' THEN 'payment' ELSE ko.operation_type END) AS operation_type,le.entry_side AS direction,
     le.amount AS quantity_k,le.document_type AS source_type,le.document_ref AS source_id,
-    ft.id::text AS operation_id,peer.counterparty,
+    COALESCE(ft.id,ko.id)::text AS operation_id,peer.counterparty,
     CASE WHEN ft.status='pending' AND ft.accounting_status='processing' THEN 'PROCESSING'
-      WHEN ft.status='pending' THEN 'PENDING' WHEN ft.status='failed' THEN 'FAILED'
-      WHEN ft.status IN ('completed','reversed') THEN 'COMPLETED' ELSE 'FAILED' END AS status,
-    ft.business_reference,pc.currency AS original_currency,pc.confirmed_minor AS original_amount_minor,
+      WHEN COALESCE(ko.status,ft.status)='pending' THEN 'PENDING' WHEN ft.status='failed' THEN 'FAILED'
+      WHEN COALESCE(ko.status,ft.status) IN ('completed','reversed') THEN 'COMPLETED' ELSE 'FAILED' END AS status,
+    COALESCE(ft.business_reference,ko.operation_key) AS business_reference,COALESCE(pc.currency,consumption.transaction_currency) AS original_currency,COALESCE(pc.confirmed_minor,consumption.transaction_amount_minor) AS original_amount_minor,
     pc.provider AS original_provider,le.id::text AS stable_id
    FROM konektag.ledger_entries le
-   JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+   LEFT JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+   LEFT JOIN konektag.k_operations ko ON ko.id=le.k_operation_id
    LEFT JOIN LATERAL (
     SELECT string_agg(DISTINCT u.username, ', ' ORDER BY u.username) AS counterparty
     FROM konektag.ledger_entries other
@@ -37,9 +38,10 @@ export const GET:RouteHandler=async({request,locals})=>{
     WHERE other.transaction_id=le.transaction_id AND other.account_code='1000'
      AND other.party_id<>le.party_id AND other.entry_side<>le.entry_side
    ) peer ON true
+   LEFT JOIN konektag.points_merchant_consumptions consumption ON consumption.k_operation_id=ko.id OR consumption.k_transaction_id=ft.id
    LEFT JOIN konektag.points_acquisitions pa ON pa.transaction_id=ft.id
    LEFT JOIN konektag.points_payment_confirmations pc ON pc.order_id=pa.order_id
-   WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
+   WHERE (ft.id IS NOT NULL OR ko.id IS NOT NULL) AND le.party_id=$1 AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
    UNION ALL
    SELECT o.updated_at,'acquisition','credit',
     o.points_quantity::numeric,'payment_order',o.id::text,o.id::text,NULL,

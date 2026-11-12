@@ -174,6 +174,35 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     expect(Number(lot.economic_value)).toBe(8567);
   });
 
+  it('reads merchant K consumption, reservations and transfers from the canonical ledger',async()=>{
+    const baseline=await walletReads();const client=await pool.connect();
+    let consumptionId:string;let sendId:string;
+    try{
+      await client.query('BEGIN');
+      const {resolvePointsOwner,sendPointsK}=await import('../../src/application/services/pay/points-wallet-service.ts');
+      const {reservePoints}=await import('../../src/application/services/pay/points-reservation-service.ts');
+      const {consumeReservedLinkPoints}=await import('../../src/application/services/pay/link-k-consumption-service.ts');
+      const partyId=await resolvePointsOwner(client,userId);
+      const {rows:[recipient]}=await client.query("INSERT INTO konektag.parties(party_type,keycloak_id,display_name) VALUES('individual',$1,'Wallet test recipient') RETURNING id",[randomUUID()]);
+      const key='kon80-send:'+randomUUID();
+      const {rows:[dimensions]}=await client.query('SELECT id,legal_entity_id,corridor_id FROM konektag.regulatory_profiles LIMIT 1');
+      const sendInput={payerPartyId:partyId,recipientPartyId:recipient.id,quantity:3,operationKey:key,legalEntityId:dimensions.legal_entity_id,corridorId:dimensions.corridor_id,regulatoryProfileId:dimensions.id};
+      sendId=await sendPointsK(client,sendInput);
+      expect(await sendPointsK(client,sendInput)).toBe(sendId);
+      const hold=await reservePoints(client,{partyId,operationKey:'kon80-hold:'+randomUUID(),quantity:5,expiresAt:new Date(Date.now()+60000)});
+      const {rows:[before]}=await client.query('SELECT * FROM konektag.points_balance($1)',[partyId]);
+      expect(Number(before.balance)).toBe(baseline.balance.points_balance-3);expect(Number(before.reserved)).toBe(5);
+      consumptionId=await consumeReservedLinkPoints(client,{partyId,reservationId:hold.id,operationKey:'kon80-consumption:'+randomUUID(),quantity:5});
+      expect(await consumeReservedLinkPoints(client,{partyId,reservationId:hold.id,operationKey:(await client.query('SELECT operation_key FROM konektag.k_operations WHERE id=$1',[consumptionId])).rows[0].operation_key,quantity:5})).toBe(consumptionId);
+      await client.query('COMMIT');
+    }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+    const after=await walletReads();
+    expect(after.balance.points_balance).toBe(baseline.balance.points_balance-8);
+    expect(after.balance.points_reserved).toBe(0);
+    expect(after.history.items.filter((x:any)=>x.operationId===consumptionId)).toEqual([expect.objectContaining({type:'payment',quantityK:-5,status:'COMPLETED'})]);
+    expect(after.history.items.filter((x:any)=>x.operationId===sendId)).toEqual([expect.objectContaining({type:'k_send',quantityK:-3,status:'COMPLETED'})]);
+  });
+
   it('keeps a paid PSP order visible until its ledger credit exists', async () => {
     const baseline=await walletReads();const {token,orderId}=await congoCheckout();
     await pool.query("UPDATE konektag.api_payment_orders SET state='paid',paid_at=now() WHERE id=$1",[orderId]);

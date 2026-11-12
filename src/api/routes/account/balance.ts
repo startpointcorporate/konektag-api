@@ -19,9 +19,10 @@ export const GET: RouteHandler = async ({ request, locals }) => {
     const points = await kPointsBalance(partyId);
     const {rows:[pending]}=await pool.query(`SELECT COALESCE(sum(quantity_k),0)::text AS net FROM (
       SELECT CASE WHEN le.entry_side='credit' THEN le.amount ELSE -le.amount END AS quantity_k
-      FROM konektag.ledger_entries le JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+      FROM konektag.ledger_entries le LEFT JOIN konektag.financial_transactions ft ON ft.id=le.transaction_id
+      LEFT JOIN konektag.k_operations ko ON ko.id=le.k_operation_id
       WHERE le.party_id=$1 AND le.account_code='1000' AND le.currency='K'
-        AND le.gl_scope='GLOBAL_USER_GL' AND upper(ft.status) IN ('PENDING','PROCESSING')
+        AND le.gl_scope='GLOBAL_USER_GL' AND upper(COALESCE(ko.status,ft.status)) IN ('PENDING','PROCESSING')
       UNION ALL
       SELECT o.points_quantity::numeric AS quantity_k
       FROM konektag.api_payment_orders o
