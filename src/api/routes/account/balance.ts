@@ -26,7 +26,7 @@ export const GET: RouteHandler = async ({ request, locals }) => {
       SELECT (o.order_metadata #>> '{erpnextPointsK,quantityK}')::numeric AS quantity_k
       FROM konektag.api_payment_orders o
       LEFT JOIN LATERAL (SELECT a.state FROM konektag.payment_provider_attempts a
-        WHERE a.source_type='api_payment' AND a.source_id=o.id
+        WHERE a.source_type='api_payment' AND a.source_id::text=o.id::text
         ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
       WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
         AND o.order_metadata ? 'erpnextPointsK'
