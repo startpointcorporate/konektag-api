@@ -35,7 +35,8 @@ export const GET:RouteHandler=async({request,locals})=>{
     FROM konektag.ledger_entries other
     JOIN konektag.parties cp ON cp.id=other.party_id
     LEFT JOIN konektag.users u ON u.keycloak_id=cp.keycloak_id AND u.deleted_at IS NULL
-    WHERE other.transaction_id=le.transaction_id AND other.account_code='1000'
+    WHERE ((le.transaction_id IS NOT NULL AND other.transaction_id=le.transaction_id)
+      OR (le.k_operation_id IS NOT NULL AND other.k_operation_id=le.k_operation_id)) AND other.account_code='1000'
      AND other.party_id<>le.party_id AND other.entry_side<>le.entry_side
    ) peer ON true
    LEFT JOIN konektag.points_merchant_consumptions consumption ON consumption.k_operation_id=ko.id OR consumption.k_transaction_id=ft.id

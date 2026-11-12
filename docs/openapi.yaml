@@ -10205,12 +10205,12 @@ paths:
           content:
             application/json:
               schema: *a159
-        "500":
+        "409":
           description: Error or redirect from the migrated handler
           content:
             application/json:
               schema: *a159
-        "503":
+        "500":
           description: Error or redirect from the migrated handler
           content:
             application/json:
@@ -10227,6 +10227,7 @@ paths:
       x-error-codes:
         - Unauthorized
         - Forbidden
+        - USER_KYC_REQUIRED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true

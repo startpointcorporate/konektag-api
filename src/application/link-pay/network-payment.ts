@@ -12,7 +12,7 @@ type NetworkLink = NonNullable<Awaited<ReturnType<typeof networkLinkService.getB
 const reply = (body: unknown, status: number) => Response.json(body, { status });
 
 /**
- * Client confirmation of a network link. The approval is read again on the network site (a revoked
+ * Client confirmation of a network link. The approval is read again in the API repository (a revoked
  * beneficiary is never paid); the fee rule stays the one frozen at issuance. Debit, transaction,
  * webhook queue and link consumption commit together; webhooks are sent after the commit.
  */
@@ -56,7 +56,7 @@ export async function payNetworkLink(input: { link: NetworkLink; slug: string; u
   } finally {
     client.release();
   }
-  // Network first; the beneficiary is released by the network's acknowledgement. The worker retries.
+  // Merchant accounting integration is post-commit and retried independently of payment status.
   void pool.query(`SELECT id FROM konektag.link_pay_site_webhooks WHERE transaction_id = $1 AND status = 'pending'`,
     [result.transactionId]).then(({ rows }) => Promise.all(rows.map((row: any) => siteWebhookService.deliver(row.id))))
     .catch(() => undefined);

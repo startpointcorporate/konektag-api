@@ -7,12 +7,11 @@ import { resolvePointsOwner } from '../services/pay/points-wallet-service.ts';
 import { lockPointsOwner, reservePoints } from '../services/pay/points-reservation-service.ts';
 import { consumeReservedLinkPoints } from '../services/pay/link-k-consumption-service.ts';
 import { checkUserKycVerified } from '../services/user-kyc-gate-service.ts';
-import { splitAmount, type BeneficiaryTerms, type VerifiedInvoice } from './frappe-site-routing.ts';
+import { beneficiaryTerms, splitAmount, type BeneficiaryTerms, type VerifiedInvoice } from './frappe-site-routing.ts';
 import { enqueueSiteWebhooks } from './site-webhook-service.ts';
-import { enqueueNetworkOperation } from '../network-operations/network-operations.ts';
 
 /**
- * Network links: Link Pay for an invoice of a Frappe site, collected through its network site.
+ * Link Pay: merchant invoice in Frappe, network processing and ledger entirely in the API.
  * Stored in checkout_intents (collection_route = 'frappe_network', no merchant profile) so the payer
  * keeps the existing link page, resume and history; origin and frozen terms are in
  * link_pay_network_links. konektag.merchant_profiles is never read.
@@ -74,17 +73,6 @@ export const networkLinkService = {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
         [intent.id, params.originKey, params.site, terms.beneficiarySite, terms.networkSite, invoice.name, invoice.company,
          terms.name, terms.country, terms.currency, terms.feeMode, terms.feeRateBps, terms.approvedBy, terms.approvedAt, terms.termsHash]);
-      // The Network team sees the link from its issuance, payment pending.
-      await enqueueNetworkOperation(client, {
-        site: terms.networkSite, aggregateId: intent.id,
-        operation: {
-          key: `link-pay:${slug}`, type: 'link_pay', status: 'pending', eventKey: `link-pay:${slug}:issued`,
-          reference: slug, issuedAt: new Date().toISOString(), expiresAt: params.expiration.toISOString(),
-          currency: terms.currency, amount: amountMinor,
-          quantityK: valuation.quantityK, provider: 'points_k', beneficiarySite: terms.beneficiarySite,
-          beneficiaryName: terms.name, issuerSite: params.site, invoice: invoice.name,
-        },
-      });
       const { rows: [row] } = await client.query(`${LINK_SELECT} WHERE ci.id = $1`, [intent.id]);
       await client.query('COMMIT');
       return mapNetworkLink(row);
@@ -102,15 +90,13 @@ export const networkLinkService = {
   },
 
   /**
-   * Links of one issuing site for one invoice. A paid link shows its operation only once the network
-   * acknowledged the payment, so the beneficiary never books it before the network records it.
+   * Network confirmation is the completed ledger operation, independent of ERP delivery.
    */
   async listForSiteInvoice(site: string, invoice: string) {
     const { rows } = await pool.query(
       `${LINK_SELECT.replace('SELECT ci.*, nl.*', `SELECT ci.*, nl.*, t.id AS transaction_id, t.k_operation_id AS operation, t.paid_at,
               t.gross_minor, t.fee_minor, t.net_minor,
-              EXISTS (SELECT 1 FROM konektag.link_pay_site_webhooks w WHERE w.transaction_id = t.id
-                        AND 'network' = ANY(w.roles) AND w.status = 'delivered') AS network_confirmed`)}
+              EXISTS (SELECT 1 FROM konektag.k_operations k WHERE k.id=t.k_operation_id AND k.status='completed') AS network_confirmed`)}
        LEFT JOIN konektag.link_pay_network_transactions t ON t.checkout_intent_id = ci.id
        WHERE nl.issuer_site = $1 AND nl.invoice = $2 ORDER BY ci.created_at DESC`, [site, invoice]);
     return rows.map(row => ({
@@ -138,6 +124,8 @@ export const networkLinkService = {
     const { rows: [previous] } = await client.query(
       'SELECT * FROM konektag.link_pay_network_transactions WHERE checkout_intent_id = $1', [input.checkoutIntentId]);
     if (previous) return { kOperationId: previous.k_operation_id as string, transactionId: previous.id as string };
+    // Lock current API approval for this transaction; fee amounts remain frozen on the issued link.
+    await beneficiaryTerms(link.network_site, link.beneficiary_site, client);
     const partyId = await resolvePointsOwner(client, input.userId);
     await lockPointsOwner(client, partyId);
     const hold = await reservePoints(client, { partyId, operationKey: `LINK-${input.slug}`, quantity: input.quantityK,

@@ -8,7 +8,7 @@ import { networkLinkService } from '../../../../application/link-pay/network-lin
 /**
  * Link Pay for an invoice of an authenticated Frappe site. The site sends the invoice, itself as
  * beneficiary and its network site; the API reads the invoice on the site and the beneficiary's
- * approved collection terms on the network site. No merchant profile is involved.
+ * approved collection terms in its own repository. No merchant profile is involved.
  */
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 export const fail = (error: unknown) => {

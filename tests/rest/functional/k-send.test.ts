@@ -3,9 +3,7 @@ import {db,reset,sql,failure,consumed,writes,call,id,other,actor} from './databa
 const redis=vi.hoisted(()=>({verifyOtp:vi.fn(),checkRateLimit:vi.fn(),setOtp:vi.fn()}));
 vi.mock('../../../src/infrastructure/database/pool.ts',()=>({default:db,query:db.query,getClient:db.connect}));
 vi.mock('../../../src/infrastructure/adapters/redis-adapter.ts',()=>({redisAdapter:redis}));
-const eligibility=vi.hoisted(()=>({evaluate:vi.fn()}));
-vi.mock('../../../src/application/services/financial-eligibility-engine.ts',()=>({FinancialEligibilityEngine:class {evaluate=eligibility.evaluate;}}));
-beforeEach(()=>{reset();eligibility.evaluate.mockResolvedValue({decision:'ALLOWED',profile:{id:'profile-1',corridorId:'corridor-1'}});vi.stubEnv('DATA_ENCRYPTION_KEY',Buffer.alloc(32,7).toString('base64'));redis.checkRateLimit.mockResolvedValue(true);redis.verifyOtp.mockResolvedValue(true);});
+beforeEach(()=>{reset();vi.stubEnv('DATA_ENCRYPTION_KEY',Buffer.alloc(32,7).toString('base64'));redis.checkRateLimit.mockResolvedValue(true);redis.verifyOtp.mockResolvedValue(true);});
 const row={id,sender_user_id:actor,sender_keycloak_id:'kc-owner',recipient_user_id:other,recipient_keycloak_id:'kc-recipient',recipient_name:'Grace',origin_country:'FR',destination_country:'BJ',quantity_k:'10',status:'Quoted',created_at:'2026-01-01',operation_id:null,version:2};
 const dto={id,senderId:'kc-owner',recipientUserId:other,recipientName:'Grace',originCountry:'FR',destinationCountry:'BJ',quantityK:10,totalK:10,status:'Quoted',createdAt:'2026-01-01',operationId:null,totalCount:0};
 const recipient={id,owner_keycloak_id:'kc-owner',recipient_user_id:other,full_name:'Grace',is_active:true,version:2};
@@ -56,13 +54,13 @@ for(const [source,method,path] of routes)describe(`[REST BUSINESS ${method} ${pa
    it('refuses invalid OTP before acquiring wallets or crediting the recipient',async()=>{redis.verifyOtp.mockResolvedValue(false);sql(/SELECT \* FROM konektag.k_send_intents/,[row]);const r=await call(source,method,{authorizationId:other,otp:'000000'});expect(r.status).toBe(500);expect(await r.json()).toEqual({error:'K_SEND_OTP_INVALID'});expect(redis.verifyOtp).toHaveBeenCalledWith(`k-send:${actor}:${id}:${other}`,'000000');expect(writes()).toEqual([]);consumed();});
    it('executes the real OTP and K transfer services, writes balanced debit/credit and commits the notification',async()=>{
     sql(/SELECT \* FROM konektag.k_send_intents/,[row]);sql(/SELECT \* FROM konektag.k_send_intents/,[row],(_,q)=>expect(q).toContain('FOR UPDATE'));
+    sql(/SELECT u.state/,[{state:'KYC_VERIFIED',has_verified_kyc:true}]);sql(/SELECT u.state/,[{state:'KYC_VERIFIED',has_verified_kyc:true}]);
     for(const [user,party,kc] of [[actor,'party-a','kc-owner'],[other,'party-b','kc-recipient']]){sql(/SELECT id,keycloak_id,COALESCE/,[{id:user,keycloak_id:kc,display_name:user}],v=>expect(v).toEqual([user]));sql(/INSERT INTO konektag.parties/,[{id:party,keycloak_id:kc,is_active:true}],v=>expect(v).toEqual([kc,user]));}
     sql(/pg_advisory_xact_lock/,[],v=>expect(v).toEqual(['points-wallet:party-a']));sql(/pg_advisory_xact_lock/,[],v=>expect(v).toEqual(['points-wallet:party-b']));
-    sql(/FROM konektag.financial_transactions ft/);sql(/require_financial_account_active/,[],v=>expect(v).toEqual(['party-a']));sql(/konektag.points_balance/,[{balance:30,reserved:5,available:25}]);
-    sql(/INSERT INTO konektag.financial_transactions/,[{id:'transfer-1'}],v=>expect(v).toEqual([`k_send:${id}`,`k_send:${id}`,null,'corridor-1','profile-1']));
-    sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v.slice(1,5)).toEqual(['debit','party-a',10,`k_send:${id}`]));
-    sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v.slice(1,5)).toEqual(['credit','party-b',10,`k_send:${id}`]));
-    sql(/UPDATE konektag.financial_transactions/);
+    sql(/FROM konektag.k_operations/);sql(/require_financial_account_active/,[],v=>expect(v).toEqual(['party-a']));sql(/konektag.points_balance/,[{balance:30,reserved:5,available:25}]);
+    sql(/INSERT INTO konektag.k_operations/,[{id:'transfer-1'}],v=>expect(v).toEqual([`k_send:${id}`,'party-a','party-b',10]));
+    sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v).toEqual(['transfer-1','party-a','party-b',10,`k_send:${id}`]));
+    sql(/UPDATE konektag.k_operations/);
     sql(/UPDATE konektag.k_send_intents/,[{...row,status:'Funded',operation_id:'transfer-1'}],v=>expect(v).toEqual([id,2,`k-send-otp:${id}`,'transfer-1',0]));
     sql(/INSERT INTO konektag.notifications/,[],v=>{expect(v[0]).toBe('kc-recipient');expect(v[4]).toBe(`k-send-received:${id}`);});sql(/SELECT encrypted_data,locale,username/);
     const r=await call(source,method,{authorizationId:other,otp:'123456',senderId:'victim'});expect(r.status).toBe(200);expect(await r.json()).toEqual({...dto,status:'Funded',operationId:'transfer-1'});
@@ -76,13 +74,13 @@ describe('[REST BUSINESS POST /api/k/send/quote]',()=>{
  it.each([0,-2,1.5,'invalid'])('rejects quantity %s without issuing a quote',async quantityK=>{const r=await call('k/send/quote','POST',{quantityK});expect(r.status).toBe(400);expect(await r.json()).toEqual({error:'INVALID_K_SEND_QUANTITY'});expect(db.query).not.toHaveBeenCalled();});
 });
 
-describe('KON-80 transfer regulatory dimensions',()=>{
- it.each([['BLOCKED_NOT_CONFIGURED',503],['BLOCKED_KYC',403]])('returns %s without ledger writes',async(decision,status)=>{
-  eligibility.evaluate.mockResolvedValue({decision,profile:null});
+describe('API-only transfer authorization',()=>{
+ it('rejects unverified KYC without ledger writes or ERP profile lookup',async()=>{
   sql(/SELECT \* FROM konektag.k_send_intents/,[row]);
   sql(/SELECT \* FROM konektag.k_send_intents/,[row]);
+  sql(/SELECT u.state/,[{state:'COMPLETED',has_verified_kyc:false}]);
   const response=await call('k/send/[id]','POST',{authorizationId:other,otp:'123456'});
-  expect(response.status).toBe(status);expect(await response.json()).toEqual({error:'K_SEND_'+decision});
+  expect(response.status).toBe(403);expect(await response.json()).toEqual({error:'USER_KYC_REQUIRED'});
   expect(writes().some(([q]:any)=>String(q).includes('ledger_entries'))).toBe(false);
   expect(db.query.mock.calls.some(([q])=>q==='ROLLBACK')).toBe(true);consumed();
  });

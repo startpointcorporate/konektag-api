@@ -60,4 +60,10 @@ describe('network operations', () => {
     await expect(deliverNetworkOperation({ site: 'EUROPE', operation }, env, ack({}) as any)).rejects.toThrow('SITE_NOT_CONFIGURED');
     await expect(deliverNetworkOperation({ site: 'KONEKTAG_CG' }, env, ack({}) as any)).rejects.toThrow('NETWORK_OPERATION_PAYLOAD_INVALID');
   });
+  it('retires historical Link Pay network projections without contacting ERPNext',async()=>{
+    const fetch=vi.fn();
+    await expect(deliverNetworkOperation({site:'CONGO',operation:{key:'link-pay:x',eventKey:'link-pay:x:issued',type:'link_pay'}},{},fetch)).resolves.toBe('api_owned');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
 });

@@ -1,25 +1,12 @@
+import pool from '../../infrastructure/database/pool.ts';
 import crypto from 'node:crypto';
 import { z } from 'zod';
 import { frappeSite, FrappeSiteError, type FrappeSite } from '../marketplace-transactions/frappe-site.ts';
 import { countryCurrency } from '../services/country-currency-service.ts';
 
-/**
- * Link Pay issued from a Frappe site for one of its own invoices, collected through its network
- * (Réseau) site. The issuing site is the beneficiary: it authenticates as itself and names its
- * network; the API reads the invoice on the issuing site and the beneficiary's collection terms on
- * the network site. No konektag.merchant_profiles row is involved.
- *
- * LINK_PAY_FRAPPE_SITES (JSON, deployment configuration), one entry per Frappe site:
- *   { "CONGO":     { "tokenSha256": "<sha256 hex of the site token>", "webhookSecret": "<secret>", "network": true },
- *     "RESTODEMO": { "tokenSha256": "...", "webhookSecret": "..." } }
- * network: true allows the site to act as a network (Réseau). The site origin and the API service
- * token used to read it come from MARKETPLACE_FRAPPE_<SITE>_URL / _API_KEY / _API_SECRET.
- * A legacy "merchants" map (konektag-api#41) is accepted and ignored.
- *
- * Each link keeps its origin: origin_key = "frappe-site:<SITE>:<attempt key>" and invoice name.
- * Two sites with the same invoice number never share a link.
+/** Merchant Frappe authenticates invoice issuance. Network identifiers are API routing keys;
+ * they do not require an ERPNext origin or service account. Commercial terms live in the API.
  */
-
 const SITE_KEY = /^[A-Z][A-Z0-9_]{1,31}$/;
 const siteConfig = z.object({
   tokenSha256: z.string().regex(/^[a-f0-9]{64}$/),
@@ -32,7 +19,7 @@ const registry = z.record(z.string().regex(SITE_KEY), siteConfig);
 export type LinkPaySiteConfig = z.infer<typeof siteConfig>;
 export interface AuthenticatedSite { key: string; config: LinkPaySiteConfig }
 
-/** `missing` names the exact data a Frappe administrator must provide. */
+/** `missing` names the exact data the API or merchant integration operator must provide. */
 export class LinkPaySiteError extends Error {
   constructor(readonly code: string, readonly status: number, readonly missing: string[] = []) { super(code); }
 }
@@ -87,7 +74,7 @@ export function validateRouting(site: AuthenticatedSite, beneficiarySite: unknow
   if (beneficiarySite !== site.key) throw new LinkPaySiteError('BENEFICIARY_SITE_MISMATCH', 403);
   const sites = loadLinkPaySites(env);
   if (!sites[networkSite]?.network) throw new LinkPaySiteError('NETWORK_SITE_NOT_ALLOWED', 403);
-  const missing = [beneficiarySite, networkSite].filter(s => !siteWebhook(s, env))
+  const missing = [beneficiarySite].filter(s => !siteWebhook(s, env))
     .map(s => `LINK_PAY_FRAPPE_SITES.${s}.webhookSecret + MARKETPLACE_FRAPPE_${s}_URL`);
   if (missing.length) throw new LinkPaySiteError('SITE_WEBHOOK_NOT_CONFIGURED', 503, [...new Set(missing)]);
   return { beneficiarySite, networkSite };
@@ -120,7 +107,7 @@ export async function verifyInvoice(site: AuthenticatedSite, invoice: unknown,
   return { name: doc.name, company: doc.company, amountMajor: String(doc.outstanding_amount), currency: doc.currency };
 }
 
-/** Collection terms of a beneficiary, as approved on its network site. */
+/** API-owned approved collection terms; link issuance freezes the fee rule. */
 export interface BeneficiaryTerms {
   beneficiarySite: string; networkSite: string; name: string; country: string; currency: string;
   feeMode: 'PERCENTAGE' | 'EXEMPT'; feeRateBps: number;
@@ -129,14 +116,11 @@ export interface BeneficiaryTerms {
 
 const SHA256 = /^[a-f0-9]{64}$/;
 
-/**
- * Reads konektag_360.link_pay.network.beneficiary_terms on the network site and checks every term.
- * Nothing is presumed: no approval, no zero fee, no payout details for a third party.
- */
+/** Current approved terms from the API repository; never calls network ERPNext. */
 export async function beneficiaryTerms(networkSite: string, beneficiarySite: string,
-  siteClient: (key: string) => FrappeSite = frappeSite): Promise<BeneficiaryTerms> {
-  const raw: any = await siteCall(() => siteClient(networkSite).call('konektag_360.link_pay.network.beneficiary_terms',
-    { beneficiary_site: beneficiarySite }), 'BENEFICIARY_NOT_CONFIGURED', 'NETWORK_SITE_UNAVAILABLE');
+  db: Pick<import('pg').PoolClient, 'query'> = pool): Promise<BeneficiaryTerms> {
+  const { rows: [raw] } = await db.query(`SELECT * FROM konektag.link_pay_beneficiary_terms
+    WHERE network_site=$1 AND beneficiary_site=$2 FOR SHARE`, [networkSite, beneficiarySite]);
   if (!raw || typeof raw !== 'object' || raw.beneficiary_site !== beneficiarySite || raw.network_site !== networkSite)
     throw new LinkPaySiteError('BENEFICIARY_NOT_CONFIGURED', 404);
   const missing: string[] = [];
@@ -155,7 +139,7 @@ export async function beneficiaryTerms(networkSite: string, beneficiarySite: str
   if (missing.length) throw new LinkPaySiteError('BENEFICIARY_TERMS_INCOMPLETE', 409, missing);
   return { beneficiarySite, networkSite, name: raw.beneficiary_name.trim().slice(0, 140), country: country!.code,
     currency: country!.currency, feeMode: feeMode!, feeRateBps,
-    approvedBy: String(raw.approved_by).slice(0, 140), approvedAt: String(raw.approved_on), termsHash: raw.terms_hash };
+    approvedBy: String(raw.approved_by).slice(0, 140), approvedAt: new Date(raw.approved_on).toISOString(), termsHash: raw.terms_hash };
 }
 
 /** Fee in minor units, half up; the network keeps the fee and owes the rest. */

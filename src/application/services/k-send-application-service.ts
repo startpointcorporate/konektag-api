@@ -2,9 +2,8 @@ import type { KSendIntentRow } from '../../infrastructure/repositories/k-send-re
 import { KSendRepository } from '../../infrastructure/repositories/k-send-repository.ts';
 import { KSendBeneficiaryRepository } from '../../infrastructure/repositories/k-send-beneficiary-repository.ts';
 import pool from '../../infrastructure/database/pool.ts';
-import { ensureKParty } from './k-points-service.ts';
-import { FinancialEligibilityEngine } from './financial-eligibility-engine.ts';
-import { sendPointsK } from './pay/points-wallet-service.ts';
+import { ensureKParty, transferKPoints } from './k-points-service.ts';
+import { requireUserKycVerified } from './user-kyc-gate-service.ts';
 import { emailService } from './resend-service.ts';
 import { encryptionService } from '../../infrastructure/adapters/encryption-service.ts';
 
@@ -54,17 +53,15 @@ export const kSendService={
    if(!intent)throw new Error('K_SEND_NOT_FOUND');
    if(intent.status==='Funded'){await client.query('COMMIT');return dto(intent);}
    const quantityK=Number(intent.quantity_k);
-   const eligibility=await new FinancialEligibilityEngine(client).evaluate({
-    operation:'k_send',userId:intent.sender_user_id,keycloakId:intent.sender_keycloak_id,
-    countryOfOrigin:intent.origin_country,countryOfDestination:intent.destination_country,
-    amount:quantityK,currency:'K',klotId:null,rail:'internal',recipientUserId:intent.recipient_user_id,
-   });
-   if(eligibility.decision!=='ALLOWED'||!eligibility.profile)throw new Error(`K_SEND_${eligibility.decision}`);
-   const senderParty=await ensureKParty(client,intent.sender_user_id);
-   const recipientParty=await ensureKParty(client,intent.recipient_user_id);
-   const walletOperationId=await sendPointsK(client,{payerPartyId:senderParty.id,recipientPartyId:recipientParty.id,
-    quantity:quantityK,operationKey:`k_send:${intent.id}`,
-    corridorId:eligibility.profile.corridorId,regulatoryProfileId:eligibility.profile.id});
+   if(!['Draft','Quoted','PendingFunding'].includes(intent.status))throw new Error('K_SEND_STATE_CONFLICT');
+   if(!authorizationReference)throw new Error('K_SEND_AUTHORIZATION_REQUIRED');
+   await requireUserKycVerified(client,intent.sender_user_id);
+   await requireUserKycVerified(client,intent.recipient_user_id);
+   // Stable upsert order also prevents opposite-direction sends from deadlocking on parties.
+   const parties=new Map<string,Awaited<ReturnType<typeof ensureKParty>>>();
+   for(const userId of [intent.sender_user_id,intent.recipient_user_id].sort())parties.set(userId,await ensureKParty(client,userId));
+   const walletOperationId=await transferKPoints(client,{senderPartyId:parties.get(intent.sender_user_id)!.id,
+    recipientPartyId:parties.get(intent.recipient_user_id)!.id,quantityK,operationKey:`k_send:${intent.id}`});
    const completed=await repository.markFunded(intent.id,intent.version,{authorizationReference,walletOperationId,sendDepth:0});
    const eventKey=`k-send-received:${intent.id}`;
    await client.query(`INSERT INTO konektag.notifications(user_id,type,title,body,link,event_key)

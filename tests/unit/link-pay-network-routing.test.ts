@@ -42,14 +42,21 @@ describe('Link Pay network routing', () => {
       .toEqual(['SITE_WEBHOOK_NOT_CONFIGURED', ['LINK_PAY_FRAPPE_SITES.HOTELDEMO.webhookSecret + MARKETPLACE_FRAPPE_HOTELDEMO_URL']]);
   });
 
+  it('requires no network ERP URL or webhook secret', () => {
+    const apiOnly = { ...env, MARKETPLACE_FRAPPE_CONGO_URL: undefined, LINK_PAY_FRAPPE_SITES: JSON.stringify({
+      CONGO: { tokenSha256: sha(token), network: true }, RESTODEMO: { tokenSha256: sha(token), webhookSecret: 's'.repeat(32) },
+    }) };
+    expect(validateRouting({ key: 'RESTODEMO', config: {} as any }, 'RESTODEMO', 'CONGO', apiOnly)).toEqual({ beneficiarySite: 'RESTODEMO', networkSite: 'CONGO' });
+  });
+
   it('splits the fee half up in minor units, gross = fee + net', () => {
     expect(splitAmount(6500, 250)).toEqual({ gross: 6500, fee: 163, net: 6337 });
     expect(splitAmount(4000, 0)).toEqual({ gross: 4000, fee: 0, net: 4000 });
     expect(splitAmount(199, 250)).toEqual({ gross: 199, fee: 5, net: 194 });
   });
 
-  it('reads the terms on the network site and names each missing term', async () => {
-    const terms = (raw: any) => beneficiaryTerms('CONGO', 'RESTODEMO', () => ({ call: async () => raw }) as any)
+  it('reads approved API terms without a network ERP client and names each missing term', async () => {
+    const terms = (raw: any) => beneficiaryTerms('CONGO', 'RESTODEMO', { query: async () => ({ rows: [raw] }) } as any)
       .then(() => null, (e: LinkPaySiteError) => [e.code, e.missing]);
     const base = { beneficiary_site: 'RESTODEMO', network_site: 'CONGO', beneficiary_name: 'Resto', enabled: 1, approved: 1,
       approved_by: 'a@b', approved_on: '2026-11-10', terms_hash: 'a'.repeat(64), country: 'CG', fee_mode: 'Percentage',

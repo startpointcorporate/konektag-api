@@ -1,5 +1,4 @@
 import { requireFinancialAccountActive } from './wallet-integrity-service.ts';
-import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import pool from '../../infrastructure/database/pool.ts';
 type Database=Pick<PoolClient,'query'>;
@@ -27,19 +26,23 @@ export async function transferKPoints(db:Database,input:{senderPartyId:string;re
  const second=first===input.senderPartyId?input.recipientPartyId:input.senderPartyId;
  await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`points-wallet:${first}`]);
  await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`points-wallet:${second}`]);
- const {rows:[existing]}=await db.query(`SELECT operation_id,party_id,counterparty_party_id,quantity_k FROM konektag.k_wallet_entries WHERE source_type='k_send' AND source_id=$1 AND direction='debit' LIMIT 1`,[input.operationKey]);
+ const {rows:[existing]}=await db.query(`SELECT id,party_id,recipient_party_id,quantity,status FROM konektag.k_operations WHERE operation_key=$1`,[input.operationKey]);
  if(existing){
-  if(existing.party_id!==input.senderPartyId || existing.counterparty_party_id!==input.recipientPartyId || Number(existing.quantity_k)!==input.quantityK) throw new Error('K_SEND_IDEMPOTENCY_CONFLICT');
-  return existing.operation_id;
+  if(existing.party_id!==input.senderPartyId || existing.recipient_party_id!==input.recipientPartyId || Number(existing.quantity)!==input.quantityK || existing.status!=='completed') throw new Error('K_SEND_IDEMPOTENCY_CONFLICT');
+  return existing.id;
  }
  await requireFinancialAccountActive(db,input.senderPartyId);
  const balance=await kPointsBalance(input.senderPartyId,db);
  if(balance.available<input.quantityK)throw new Error('K_SEND_INSUFFICIENT');
- const operationId=randomUUID();
- await db.query(`INSERT INTO konektag.k_wallet_entries
-  (party_id,operation_id,operation_type,direction,quantity_k,counterparty_party_id,source_type,source_id)
-  VALUES($1,$3,'k_send','debit',$4,$2,'k_send',$5),
-        ($2,$3,'k_send','credit',$4,$1,'k_send',$5)`,
-  [input.senderPartyId,input.recipientPartyId,operationId,input.quantityK,input.operationKey]);
- return operationId;
+ const {rows:[operation]}=await db.query(`INSERT INTO konektag.k_operations
+  (operation_key,operation_type,party_id,recipient_party_id,quantity)
+  VALUES($1,'k_send',$2,$3,$4) RETURNING id`,
+  [input.operationKey,input.senderPartyId,input.recipientPartyId,input.quantityK]);
+ await db.query(`INSERT INTO konektag.ledger_entries
+  (k_operation_id,account_code,entry_type,entry_side,party_id,amount,currency,document_type,document_ref,operation_id,value_date)
+  VALUES($1,'1000','debit','debit',$2,$4,'K','k_send',$5,$5,CURRENT_DATE),
+        ($1,'1000','credit','credit',$3,$4,'K','k_send',$5,$5,CURRENT_DATE)`,
+  [operation.id,input.senderPartyId,input.recipientPartyId,input.quantityK,input.operationKey]);
+ await db.query(`UPDATE konektag.k_operations SET status='completed',completed_at=now() WHERE id=$1`,[operation.id]);
+ return operation.id;
 }
