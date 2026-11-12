@@ -54,9 +54,14 @@ Ordre des opérations :
 1. lire l'ordre gelé ;
 2. appeler predict-provider (pays = pays de l'ordre, opérateur choisi = opérateur prédit) ;
 3. lire active-conf : opérateur `OPERATIONAL`, `authType=PROVIDER_AUTH`, `minAmount`/`maxAmount` et `decimalsInAmount` respectés ;
-4. créer ou reprendre la tentative (téléphone stocké en SHA-256 uniquement) ;
+4. créer ou reprendre la tentative (téléphone stocké en SHA-256 uniquement), sous verrou de la ligne `api_payment_orders` : deux requêtes concurrentes ne créent jamais deux tentatives ;
 5. passer le checkout en `awaiting_mobile_money` ;
-6. créer le dépôt.
+6. marquer `depositRequested` (refus si la tentative a été libérée ou a expiré entre-temps), puis créer le dépôt.
+
+Compensation en cas de panne (revue PR #57) :
+- échec du verrouillage du checkout (exception, y compris après commit) ou checkout déjà payé : la tentative passe en `cancelled` et le checkout est rouvert, **seulement si aucune demande de dépôt n'a jamais été envoyée** (`depositRequested` absent). Une relance concurrente qui a déjà envoyé le dépôt n'est donc jamais libérée ;
+- HTTP 4xx de pawaPay sur `/v2/deposits` : refus certain, aucun dépôt n'existe. La tentative passe en `failed` et le checkout est rouvert (`422 PAWAPAY_DEPOSIT_REJECTED`) ;
+- délai dépassé, 5xx ou réponse illisible : issue incertaine. Lecture seule `GET /v2/deposits/{depositId}` : si le dépôt est trouvé, il est traité comme accepté ; sinon la tentative est conservée (`502 PAWAPAY_DEPOSIT_UNCONFIRMED {depositId}`) et une relance avec le même téléphone renvoie le même `depositId` (idempotence pawaPay). Elle n'est jamais libérée sur une supposition.
 
 Le PIN et l'approbation restent sur le téléphone, chez l'opérateur. Le statut final vient du callback signé ou de la réconciliation existante.
 
@@ -67,12 +72,14 @@ Le PIN et l'approbation restent sur le téléphone, chez l'opérateur. Le statut
 | `409 PHONE_NUMBER_COUNTRY_MISMATCH`, `PAWAPAY_PROVIDER_MISMATCH`, `PAWAPAY_PROVIDER_NOT_CONFIGURED`, `PAWAPAY_PROVIDER_UNAVAILABLE`, `PAWAPAY_PROVIDER_AUTH_UNSUPPORTED`, `PAWAPAY_AMOUNT_BELOW_MINIMUM`, `PAWAPAY_AMOUNT_ABOVE_MAXIMUM`, `PAWAPAY_AMOUNT_PRECISION_UNSUPPORTED`, `PAWAPAY_DIRECT_DEPOSIT_NOT_AVAILABLE` | refus avant toute tentative |
 | `409` « A payment attempt is still active » | autre téléphone, autre opérateur ou Payment Page déjà active |
 | `422 PAWAPAY_DEPOSIT_REJECTED {failureCode}` | rejet synchrone : la tentative passe en `failed` et le checkout est rouvert |
-| `502` / `503` | erreur pawaPay, ou configuration du corridor absente |
+| `502 PAWAPAY_DEPOSIT_UNCONFIRMED {depositId}` | issue incertaine : tentative conservée, relance idempotente avec le même téléphone |
+| `502` / `503` | autre erreur pawaPay, ou configuration du corridor absente |
 
 ## 5. Limites de la recette
 
-- Tests unitaires et de contrat uniquement : `fetch` et services injectés sont des mocks. **Aucun appel sandbox ni réel à pawaPay ou Stripe n'a été exécuté.**
-- `tests/integration/points-k-money.pg.ts` a été mis à jour (Liban Wire Transfer : aucun ordre ; USD reste une assertion technique sur une route CB). Ce fichier n'est exécuté ni en local, faute de PostgreSQL, ni en CI.
+- Tests unitaires et de contrat : `fetch` et services injectés sont des mocks. **Aucun appel sandbox ni réel à pawaPay ou Stripe n'a été exécuté.**
+- PostgreSQL réel jetable (`konektag_test`, PostgreSQL 18.6 local, 233 migrations appliquées) : `tests/integration/points-k-money.pg.ts` (7) et `tests/integration/points-k-direct-deposit.pg.ts` (10) passent. Ce dernier couvre la relance, la concurrence (même téléphone ×5, deux téléphones), le rejet `REJECTED`, le 4xx, la panne du verrouillage (avant et après commit) et l'issue incertaine. Le client pawaPay y est un stub injecté. Ces fichiers ne tournent pas en CI.
+- Contrat réel `active-conf` / `predict-provider` : `npx tsx scripts/recette/pawapay-v2-contract.ts` (sandbox uniquement, lecture seule, `/deposits` refusé par le script). Il faut une clé `*_PAWAPAY_SANDBOX` : sans cette clé, le script n'a pas été exécuté.
 - Les opérateurs `PREAUTH` et `REDIRECT_AUTH` sont refusés : aucun parcours de code d'autorisation ou de redirection n'est implémenté.
 - Le callback existant compare des montants entiers. Cela convient pour XAF, seule devise pawaPay acceptée par `getMobileMoneyOrder`.
 - Scénarios sandbox à exécuter en KON-72 :

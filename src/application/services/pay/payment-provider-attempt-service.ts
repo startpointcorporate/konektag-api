@@ -153,6 +153,8 @@ export const paymentProviderAttemptService = {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      // Serialise attempt creation on the order: FOR UPDATE on zero attempt rows locks nothing.
+      await client.query(`SELECT 1 FROM konektag.api_payment_orders WHERE id=$1::uuid FOR UPDATE`, [input.orderId]);
       const existing = await client.query<{ provider_reference:string; metadata:any }>(
         `SELECT provider_reference,metadata FROM konektag.payment_provider_attempts
          WHERE provider='pawapay' AND source_type='api_payment' AND source_id=$1
@@ -185,6 +187,8 @@ export const paymentProviderAttemptService = {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      // Serialise attempt creation on the order: FOR UPDATE on zero attempt rows locks nothing.
+      await client.query(`SELECT 1 FROM konektag.api_payment_orders WHERE id=$1::uuid FOR UPDATE`, [input.orderId]);
       const existing = await client.query<{ provider: string; provider_reference: string; metadata: any }>(
         `SELECT provider,provider_reference,metadata FROM konektag.payment_provider_attempts
          WHERE source_type='api_payment' AND source_id=$1
@@ -211,6 +215,31 @@ export const paymentProviderAttemptService = {
       return { depositId, created: true };
     } catch(error) { await client.query('ROLLBACK').catch(()=>undefined); throw error; }
     finally { client.release(); }
+  },
+  /**
+   * Marks that the deposit is about to be sent to pawaPay. Returns false when the attempt was
+   * released or expired meanwhile: the caller must then not contact pawaPay with this depositId.
+   */
+  async claimPawaPayDepositRequest(depositId: string): Promise<boolean> {
+    const result = await pool.query(
+      `UPDATE konektag.payment_provider_attempts
+       SET metadata=COALESCE(metadata,'{}'::jsonb)||jsonb_build_object('depositRequested',true),
+           updated_at=now(),version=version+1
+       WHERE provider='pawapay' AND provider_reference=$1 AND state IN ('pending','processing')
+         AND (expires_at IS NULL OR expires_at>now())`,[depositId]);
+    return (result.rowCount ?? 0) > 0;
+  },
+  /**
+   * Compensation when the checkout could not be locked: releases the attempt only while no
+   * deposit request was ever sent to pawaPay, so a concurrent retry that did send it is kept.
+   */
+  async releasePawaPayDirectDepositAttempt(depositId: string): Promise<boolean> {
+    const result = await pool.query(
+      `UPDATE konektag.payment_provider_attempts
+       SET state='cancelled',updated_at=now(),version=version+1
+       WHERE provider='pawapay' AND provider_reference=$1 AND state='pending'
+         AND COALESCE((metadata->>'depositRequested')::boolean,false)=false`,[depositId]);
+    return (result.rowCount ?? 0) > 0;
   },
   /** pawaPay synchronously REJECTED the deposit: it does not exist there and no callback will follow. */
   async markPawaPayDepositRejected(depositId: string, failureCode: string | null): Promise<void> {

@@ -14,6 +14,7 @@ function deps(overrides: { order?: any; providers?: any[]; deposit?: any; predic
     predictProvider: vi.fn(async () => { calls.push('predict'); return overrides.prediction ?? { country: 'COG', provider: 'MTN_MOMO_COG', phoneNumber: '242053456789' }; }),
     depositProviders: vi.fn(async () => { calls.push('active-conf'); return overrides.providers ?? [mtn]; }),
     createDeposit: vi.fn(async () => { calls.push('deposit'); return overrides.deposit ?? { status: 'ACCEPTED' }; }),
+    getDeposit: vi.fn(async () => { calls.push('lookup'); throw new PawaPayError('PawaPay deposit NOT_FOUND'); }),
   };
   const checkout: any = {
     getMobileMoneyOrder: vi.fn(async () => ({ id: 'order-1', currency: 'XAF', externalAmount: 8567, paymentCountry: 'COG',
@@ -23,6 +24,8 @@ function deps(overrides: { order?: any; providers?: any[]; deposit?: any; predic
   };
   const attempts: any = {
     createOrGetPawaPayDirectDepositAttempt: vi.fn(async () => { calls.push('attempt'); return { depositId: '00000000-0000-4000-8000-000000000009', created: true }; }),
+    claimPawaPayDepositRequest: vi.fn(async () => { calls.push('claim'); return true; }),
+    releasePawaPayDirectDepositAttempt: vi.fn(async () => { calls.push('release'); return true; }),
     markPawaPayDepositRejected: vi.fn(async () => { calls.push('rejected'); }),
     markPawaPayDepositObserved: vi.fn(async () => { calls.push('observed'); }),
     recordRechargeAccepted: vi.fn(async () => { calls.push('recharge'); }),
@@ -34,7 +37,7 @@ describe('Points K pawaPay v2 direct deposit', () => {
   it('locks the checkout, then sends the frozen ERPNext amount to the predicted operator', async () => {
     const d = deps();
     const result = await startPawaPayDirectDeposit('token', undefined, { phoneNumber: '+242 05 345 6789' }, d);
-    expect(d.calls).toEqual(['predict', 'active-conf', 'attempt', 'confirm', 'deposit', 'observed', 'recharge']);
+    expect(d.calls).toEqual(['predict', 'active-conf', 'attempt', 'confirm', 'claim', 'deposit', 'observed', 'recharge']);
     expect(d.client.predictProvider).toHaveBeenCalledWith('+242 05 345 6789', 'KTG_CG_PAWAPAY_SANDBOX');
     expect(d.client.depositProviders).toHaveBeenCalledWith('COG', 'XAF', 'KTG_CG_PAWAPAY_SANDBOX');
     expect(d.client.createDeposit).toHaveBeenCalledWith({ depositId: '00000000-0000-4000-8000-000000000009',
@@ -111,6 +114,81 @@ describe('Points K pawaPay v2 direct deposit', () => {
     const d = deps({ deposit: { status: 'DUPLICATE_IGNORED' } });
     await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d))
       .resolves.toMatchObject({ outcome: 'awaiting_mobile_money', status: 'DUPLICATE_IGNORED' });
+  });
+
+  describe('failure compensation', () => {
+    it('releases the attempt and reopens the checkout when the lock fails before any pawaPay call', async () => {
+      const d = deps();
+      d.checkout.confirmCheckout.mockImplementation(async () => { d.calls.push('confirm'); throw new Error('database unavailable'); });
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d)).rejects.toThrow('database unavailable');
+      expect(d.calls.slice(-3)).toEqual(['confirm', 'release', 'reopen']);
+      expect(d.attempts.releasePawaPayDirectDepositAttempt).toHaveBeenCalledWith('00000000-0000-4000-8000-000000000009');
+      expect(d.client.createDeposit).not.toHaveBeenCalled();
+    });
+
+    it('keeps the original error when reopening after a failed lock also fails', async () => {
+      const d = deps();
+      d.checkout.confirmCheckout.mockRejectedValue(new Error('lock failed'));
+      d.checkout.reopenAfterTerminalProviderAttempt.mockRejectedValue(new Error('reopen failed'));
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d)).rejects.toThrow('lock failed');
+    });
+
+    it('does not reopen when a concurrent retry already sent the deposit (release refused)', async () => {
+      const d = deps();
+      d.checkout.confirmCheckout.mockRejectedValue(new Error('lock failed'));
+      d.attempts.releasePawaPayDirectDepositAttempt.mockResolvedValue(false);
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d)).rejects.toThrow('lock failed');
+      expect(d.checkout.reopenAfterTerminalProviderAttempt).not.toHaveBeenCalled();
+    });
+
+    it('releases the unused attempt when the checkout is already paid', async () => {
+      const d = deps();
+      d.checkout.confirmCheckout.mockResolvedValue({ outcome: 'paid', order: { state: 'paid' } });
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d)).resolves.toMatchObject({ outcome: 'paid' });
+      expect(d.attempts.releasePawaPayDirectDepositAttempt).toHaveBeenCalled();
+      expect(d.client.createDeposit).not.toHaveBeenCalled();
+    });
+
+    it('never contacts pawaPay when the attempt was released or expired before the request', async () => {
+      const d = deps();
+      d.attempts.claimPawaPayDepositRequest.mockResolvedValue(false);
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d)).rejects.toThrow('no longer active');
+      expect(d.client.createDeposit).not.toHaveBeenCalled();
+    });
+
+    it('marks an HTTP 4xx refusal failed and reopens: no deposit exists at pawaPay', async () => {
+      const d = deps();
+      d.client.createDeposit.mockRejectedValue(new PawaPayError('PawaPay request failed (400)', 400, 'INVALID_PHONE_NUMBER'));
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d))
+        .rejects.toMatchObject({ code: 'PAWAPAY_DEPOSIT_REJECTED', status: 422, detail: { failureCode: 'INVALID_PHONE_NUMBER' } });
+      expect(d.attempts.markPawaPayDepositRejected).toHaveBeenCalledWith('00000000-0000-4000-8000-000000000009', 'INVALID_PHONE_NUMBER');
+      expect(d.checkout.reopenAfterTerminalProviderAttempt).toHaveBeenCalled();
+      expect(d.attempts.releasePawaPayDirectDepositAttempt).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['a timeout', new TypeError('fetch failed')],
+      ['a 5xx', new PawaPayError('PawaPay request failed (503)', 503)],
+      ['an unreadable response', new PawaPayError('Invalid PawaPay deposit initiation response')],
+    ])('keeps the attempt on %s when pawaPay does not know the deposit, for an idempotent retry', async (_, failure) => {
+      const d = deps();
+      d.client.createDeposit.mockRejectedValue(failure);
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d))
+        .rejects.toMatchObject({ code: 'PAWAPAY_DEPOSIT_UNCONFIRMED', status: 502, detail: { depositId: '00000000-0000-4000-8000-000000000009' } });
+      expect(d.client.getDeposit).toHaveBeenCalledWith('00000000-0000-4000-8000-000000000009', 'KTG_CG_PAWAPAY_SANDBOX');
+      expect(d.attempts.releasePawaPayDirectDepositAttempt).not.toHaveBeenCalled();
+      expect(d.attempts.markPawaPayDepositRejected).not.toHaveBeenCalled();
+      expect(d.checkout.reopenAfterTerminalProviderAttempt).not.toHaveBeenCalled();
+    });
+
+    it('treats an ambiguous failure as accepted when the read-only lookup finds the deposit', async () => {
+      const d = deps();
+      d.client.createDeposit.mockRejectedValue(new TypeError('fetch failed'));
+      d.client.getDeposit.mockResolvedValue({ depositId: '00000000-0000-4000-8000-000000000009', status: 'ACCEPTED' });
+      await expect(startPawaPayDirectDeposit('token', undefined, { phoneNumber: '242053456789' }, d))
+        .resolves.toMatchObject({ outcome: 'awaiting_mobile_money', status: 'ACCEPTED' });
+      expect(d.calls.slice(-2)).toEqual(['observed', 'recharge']);
+    });
   });
 
   it('lists only operators that can collect this checkout amount', async () => {

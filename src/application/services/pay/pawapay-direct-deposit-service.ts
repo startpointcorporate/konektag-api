@@ -89,15 +89,44 @@ export async function startPawaPayDirectDeposit(
     if (error instanceof PaymentProviderAttemptConflictError) throw new ApiPaymentConflictError(error.message);
     throw error;
   }
+  // Nothing was sent to pawaPay yet: release the attempt (unless a concurrent retry sent the deposit)
+  // and put the checkout back to pending, so a failed lock never blocks the payer until expiry.
+  const release = async () => {
+    if (await attempts.releasePawaPayDirectDepositAttempt(attempt.depositId)) {
+      await checkout.reopenAfterTerminalProviderAttempt(token).catch(() => undefined);
+    }
+  };
   // Lock the checkout on Mobile Money before the operator prompt is requested.
-  const confirmed = await checkout.confirmCheckout(token, 'mobile_money', payer);
-  if (confirmed.outcome === 'paid') return { outcome: 'paid' as const, depositId: attempt.depositId, state: confirmed.order.state };
+  let confirmed: Awaited<ReturnType<typeof checkout.confirmCheckout>>;
+  try { confirmed = await checkout.confirmCheckout(token, 'mobile_money', payer); }
+  catch (error) { await release(); throw error; }
+  if (confirmed.outcome === 'paid') {
+    await release();
+    return { outcome: 'paid' as const, depositId: attempt.depositId, state: confirmed.order.state };
+  }
+  if (!await attempts.claimPawaPayDepositRequest(attempt.depositId)) throw new ApiPaymentConflictError('The payment attempt is no longer active');
 
-  const result = await client.createDeposit({
-    depositId: attempt.depositId, phoneNumber: prediction.phoneNumber, provider: provider.provider,
-    amount, currency: order.currency, customerMessage: CUSTOMER_MESSAGE, clientReferenceId: order.id,
-    metadata: [{ paymentOrderId: order.id }], providerConfigurationKey: order.providerConfigurationKey,
-  });
+  let result: Awaited<ReturnType<typeof client.createDeposit>>;
+  try {
+    result = await client.createDeposit({
+      depositId: attempt.depositId, phoneNumber: prediction.phoneNumber, provider: provider.provider,
+      amount, currency: order.currency, customerMessage: CUSTOMER_MESSAGE, clientReferenceId: order.id,
+      metadata: [{ paymentOrderId: order.id }], providerConfigurationKey: order.providerConfigurationKey,
+    });
+  } catch (error) {
+    // An HTTP 4xx means pawaPay refused the request: no deposit exists and no callback will follow.
+    if (error instanceof PawaPayError && error.status !== null && error.status >= 400 && error.status < 500) {
+      const failureCode = error.failureCode ?? `HTTP_${error.status}`;
+      await attempts.markPawaPayDepositRejected(attempt.depositId, failureCode);
+      await checkout.reopenAfterTerminalProviderAttempt(token);
+      throw new PawaPayDirectDepositError('PAWAPAY_DEPOSIT_REJECTED', 422, { failureCode });
+    }
+    // Timeout, 5xx or unreadable response: the deposit may exist. Never release it on a guess;
+    // look it up (read-only) and otherwise keep the attempt so a retry resends the same depositId.
+    const found = await client.getDeposit(attempt.depositId, order.providerConfigurationKey).catch(() => null);
+    if (!found) throw new PawaPayDirectDepositError('PAWAPAY_DEPOSIT_UNCONFIRMED', 502, { depositId: attempt.depositId });
+    result = { status: 'ACCEPTED' };
+  }
   if (result.status === 'REJECTED') {
     await attempts.markPawaPayDepositRejected(attempt.depositId, result.failureCode);
     await checkout.reopenAfterTerminalProviderAttempt(token);
