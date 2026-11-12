@@ -1,7 +1,7 @@
 export type CountryCurrency = { code: string; name: string; currency: string };
 
 const COUNTRIES: readonly CountryCurrency[] = [
-  ['FR','France','EUR'],['LB','Liban','USD'],['BJ','Bénin','XOF'],['BF','Burkina Faso','XOF'],['CM','Cameroun','XAF'],
+  ['FR','France','EUR'],['BJ','Bénin','XOF'],['BF','Burkina Faso','XOF'],['CM','Cameroun','XAF'],
   ['CG','Congo-Brazzaville','XAF'],['CD','RDC','CDF'],['ET','Éthiopie','ETB'],['GA','Gabon','XAF'],
   ['GH','Ghana','GHS'],['CI',"Côte d'Ivoire",'XOF'],['KE','Kenya','KES'],['LS','Lesotho','LSL'],
   ['MW','Malawi','MWK'],['ML','Mali','XOF'],['NG','Nigeria','NGN'],['RW','Rwanda','RWF'],

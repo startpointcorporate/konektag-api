@@ -1,4 +1,4 @@
-import { currencyForCountry } from '../../../../application/services/operation-currency-service.ts';
+import { walletDisplayCurrencyForCountry } from '../../../../application/services/operation-currency-service.ts';
 import type { RouteHandler } from '../../../http';
 import pool from '../../../../infrastructure/database/pool.ts';
 import { resolvePointsOwner } from '../../../../application/services/pay/points-wallet-service.ts';
@@ -15,7 +15,7 @@ export const GET:RouteHandler=async({request,locals})=>{
   if(!Number.isSafeInteger(limit)||!Number.isSafeInteger(offset))return Response.json({error:'INVALID_PAGINATION'},{status:400});
   const {rows:[profile]}=await pool.query(`SELECT up.preferred_currency,u.country FROM konektag.users u
    LEFT JOIN konektag.user_preferences up ON up.user_id=u.id AND up.deleted_at IS NULL WHERE u.id=$1`,[user.id]);
-  const currency=(url.searchParams.get('currency')||profile?.preferred_currency||currencyForCountry(profile?.country)).trim().toUpperCase();
+  const currency=(url.searchParams.get('currency')||profile?.preferred_currency||walletDisplayCurrencyForCountry(profile?.country)).trim().toUpperCase();
   if(!exchangeRateService.isSupported(currency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
   const partyId=await resolvePointsOwner(pool as any,user.id);
   const {rows}=await pool.query(`WITH movements AS (

@@ -3,7 +3,7 @@ import type { RouteHandler } from '../../http';
 import { resolvePointsOwner } from '../../../application/services/pay/points-wallet-service.ts';
 import { kPointsBalance } from '../../../application/services/k-points-service.ts';
 import { exchangeRateService } from '../../../application/services/exchange-rate-service.ts';
-import { currencyForCountry } from '../../../application/services/operation-currency-service.ts';
+import { walletDisplayCurrencyForCountry } from '../../../application/services/operation-currency-service.ts';
 import pool from '../../../infrastructure/database/pool.ts';
 
 export const GET: RouteHandler = async ({ request, locals }) => {
@@ -13,7 +13,7 @@ export const GET: RouteHandler = async ({ request, locals }) => {
     const url = new URL(request.url);
     const {rows:[profile]}=await pool.query(`SELECT u.country,up.preferred_currency FROM konektag.users u
       LEFT JOIN konektag.user_preferences up ON up.user_id=u.id AND up.deleted_at IS NULL WHERE u.id=$1`,[user.id]);
-    const displayCurrency=(url.searchParams.get('currency')||profile?.preferred_currency||currencyForCountry(profile?.country)).toUpperCase();
+    const displayCurrency=(url.searchParams.get('currency')||profile?.preferred_currency||walletDisplayCurrencyForCountry(profile?.country)).toUpperCase();
     if(!exchangeRateService.isSupported(displayCurrency))return Response.json({error:'UNSUPPORTED_CURRENCY'},{status:400});
     const partyId = await resolvePointsOwner(pool as any, user.id);
     const points = await kPointsBalance(partyId);
