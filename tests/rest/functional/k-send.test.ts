@@ -3,7 +3,9 @@ import {db,reset,sql,failure,consumed,writes,call,id,other,actor} from './databa
 const redis=vi.hoisted(()=>({verifyOtp:vi.fn(),checkRateLimit:vi.fn(),setOtp:vi.fn()}));
 vi.mock('../../../src/infrastructure/database/pool.ts',()=>({default:db,query:db.query,getClient:db.connect}));
 vi.mock('../../../src/infrastructure/adapters/redis-adapter.ts',()=>({redisAdapter:redis}));
-beforeEach(()=>{reset();vi.stubEnv('DATA_ENCRYPTION_KEY',Buffer.alloc(32,7).toString('base64'));redis.checkRateLimit.mockResolvedValue(true);redis.verifyOtp.mockResolvedValue(true);});
+const eligibility=vi.hoisted(()=>({evaluate:vi.fn()}));
+vi.mock('../../../src/application/services/financial-eligibility-engine.ts',()=>({FinancialEligibilityEngine:class {evaluate=eligibility.evaluate;}}));
+beforeEach(()=>{reset();eligibility.evaluate.mockResolvedValue({decision:'ALLOWED',profile:{id:'profile-1',corridorId:'corridor-1'}});vi.stubEnv('DATA_ENCRYPTION_KEY',Buffer.alloc(32,7).toString('base64'));redis.checkRateLimit.mockResolvedValue(true);redis.verifyOtp.mockResolvedValue(true);});
 const row={id,sender_user_id:actor,sender_keycloak_id:'kc-owner',recipient_user_id:other,recipient_keycloak_id:'kc-recipient',recipient_name:'Grace',origin_country:'FR',destination_country:'BJ',quantity_k:'10',status:'Quoted',created_at:'2026-01-01',operation_id:null,version:2};
 const dto={id,senderId:'kc-owner',recipientUserId:other,recipientName:'Grace',originCountry:'FR',destinationCountry:'BJ',quantityK:10,totalK:10,status:'Quoted',createdAt:'2026-01-01',operationId:null,totalCount:0};
 const recipient={id,owner_keycloak_id:'kc-owner',recipient_user_id:other,full_name:'Grace',is_active:true,version:2};
@@ -57,7 +59,7 @@ for(const [source,method,path] of routes)describe(`[REST BUSINESS ${method} ${pa
     for(const [user,party,kc] of [[actor,'party-a','kc-owner'],[other,'party-b','kc-recipient']]){sql(/SELECT id,keycloak_id,COALESCE/,[{id:user,keycloak_id:kc,display_name:user}],v=>expect(v).toEqual([user]));sql(/INSERT INTO konektag.parties/,[{id:party,keycloak_id:kc,is_active:true}],v=>expect(v).toEqual([kc,user]));}
     sql(/pg_advisory_xact_lock/,[],v=>expect(v).toEqual(['points-wallet:party-a']));sql(/pg_advisory_xact_lock/,[],v=>expect(v).toEqual(['points-wallet:party-b']));
     sql(/FROM konektag.financial_transactions ft/);sql(/require_financial_account_active/,[],v=>expect(v).toEqual(['party-a']));sql(/konektag.points_balance/,[{balance:30,reserved:5,available:25}]);
-    sql(/INSERT INTO konektag.financial_transactions/,[{id:'transfer-1'}],v=>expect(v.slice(0,2)).toEqual([`k_send:${id}`,`k_send:${id}`]));
+    sql(/INSERT INTO konektag.financial_transactions/,[{id:'transfer-1'}],v=>expect(v).toEqual([`k_send:${id}`,`k_send:${id}`,null,'corridor-1','profile-1']));
     sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v.slice(1,5)).toEqual(['debit','party-a',10,`k_send:${id}`]));
     sql(/INSERT INTO konektag.ledger_entries/,[],v=>expect(v.slice(1,5)).toEqual(['credit','party-b',10,`k_send:${id}`]));
     sql(/UPDATE konektag.financial_transactions/);
@@ -72,4 +74,16 @@ for(const [source,method,path] of routes)describe(`[REST BUSINESS ${method} ${pa
 describe('[REST BUSINESS POST /api/k/send/quote]',()=>{
  it('quotes only whole positive K with a five-minute expiry and no currency conversion',async()=>{const before=Date.now();const body=await(await call('k/send/quote','POST',{quantityK:10,currency:'EUR'})).json();expect(body).toMatchObject({quantityK:10,totalK:10});expect(Object.keys(body).sort()).toEqual(['expiresAt','quantityK','totalK']);expect(Date.parse(body.expiresAt)).toBeGreaterThanOrEqual(before+300000);expect(db.query).not.toHaveBeenCalled();});
  it.each([0,-2,1.5,'invalid'])('rejects quantity %s without issuing a quote',async quantityK=>{const r=await call('k/send/quote','POST',{quantityK});expect(r.status).toBe(400);expect(await r.json()).toEqual({error:'INVALID_K_SEND_QUANTITY'});expect(db.query).not.toHaveBeenCalled();});
+});
+
+describe('KON-80 transfer regulatory dimensions',()=>{
+ it.each([['BLOCKED_NOT_CONFIGURED',503],['BLOCKED_KYC',403]])('returns %s without ledger writes',async(decision,status)=>{
+  eligibility.evaluate.mockResolvedValue({decision,profile:null});
+  sql(/SELECT \* FROM konektag.k_send_intents/,[row]);
+  sql(/SELECT \* FROM konektag.k_send_intents/,[row]);
+  const response=await call('k/send/[id]','POST',{authorizationId:other,otp:'123456'});
+  expect(response.status).toBe(status);expect(await response.json()).toEqual({error:'K_SEND_'+decision});
+  expect(writes().some(([q]:any)=>String(q).includes('ledger_entries'))).toBe(false);
+  expect(db.query.mock.calls.some(([q])=>q==='ROLLBACK')).toBe(true);consumed();
+ });
 });

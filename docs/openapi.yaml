@@ -10210,6 +10210,11 @@ paths:
           content:
             application/json:
               schema: *a159
+        "503":
+          description: Error or redirect from the migrated handler
+          content:
+            application/json:
+              schema: *a159
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.

@@ -3,6 +3,7 @@ import { KSendRepository } from '../../infrastructure/repositories/k-send-reposi
 import { KSendBeneficiaryRepository } from '../../infrastructure/repositories/k-send-beneficiary-repository.ts';
 import pool from '../../infrastructure/database/pool.ts';
 import { ensureKParty } from './k-points-service.ts';
+import { FinancialEligibilityEngine } from './financial-eligibility-engine.ts';
 import { sendPointsK } from './pay/points-wallet-service.ts';
 import { emailService } from './resend-service.ts';
 import { encryptionService } from '../../infrastructure/adapters/encryption-service.ts';
@@ -53,10 +54,17 @@ export const kSendService={
    if(!intent)throw new Error('K_SEND_NOT_FOUND');
    if(intent.status==='Funded'){await client.query('COMMIT');return dto(intent);}
    const quantityK=Number(intent.quantity_k);
+   const eligibility=await new FinancialEligibilityEngine(client).evaluate({
+    operation:'k_send',userId:intent.sender_user_id,keycloakId:intent.sender_keycloak_id,
+    countryOfOrigin:intent.origin_country,countryOfDestination:intent.destination_country,
+    amount:quantityK,currency:'K',klotId:null,rail:'internal',recipientUserId:intent.recipient_user_id,
+   });
+   if(eligibility.decision!=='ALLOWED'||!eligibility.profile)throw new Error(`K_SEND_${eligibility.decision}`);
    const senderParty=await ensureKParty(client,intent.sender_user_id);
    const recipientParty=await ensureKParty(client,intent.recipient_user_id);
    const walletOperationId=await sendPointsK(client,{payerPartyId:senderParty.id,recipientPartyId:recipientParty.id,
-    quantity:quantityK,operationKey:`k_send:${intent.id}`});
+    quantity:quantityK,operationKey:`k_send:${intent.id}`,
+    corridorId:eligibility.profile.corridorId,regulatoryProfileId:eligibility.profile.id});
    const completed=await repository.markFunded(intent.id,intent.version,{authorizationReference,walletOperationId,sendDepth:0});
    const eventKey=`k-send-received:${intent.id}`;
    await client.query(`INSERT INTO konektag.notifications(user_id,type,title,body,link,event_key)
