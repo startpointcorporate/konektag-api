@@ -1,7 +1,7 @@
 // KON-75 — read-only pawaPay v2 SANDBOX contract check. Never against live, never a deposit.
 //
-// pawaPay enforces an IP allowlist: run this only from a pod of the K3s cluster that shares the
-// API's egress (never from a workstation), otherwise a 403 proves nothing about the token.
+// Run from a pod sharing the API's permitted egress: a workstation 403 alone
+// does not identify the cause of the denial or prove a token problem.
 // It first prints the effective public egress IP of the running pod, then calls only
 // GET /v2/active-conf?country&operationType=DEPOSIT, GET /v2/public-key/http and
 // POST /v2/predict-provider (toolkit, no money movement) through the real adapter, and prints the
@@ -15,6 +15,7 @@
 // Run: npx tsx scripts/recette/pawapay-v2-contract.ts
 import { resolvePawaPayConfiguration } from '../../src/infrastructure/adapters/provider-configuration.ts';
 import { pawaPayClient } from '../../src/infrastructure/adapters/pawapay-client.ts';
+import { createPublicKey } from 'node:crypto';
 
 const key = process.env.PAWAPAY_CHECK_KEY ?? '';
 if (!/_PAWAPAY_SANDBOX$/.test(key)) { console.error('PAWAPAY_CHECK_KEY must be a *_PAWAPAY_SANDBOX configuration key'); process.exit(2); }
@@ -32,6 +33,8 @@ const { apiUrl } = resolvePawaPayConfiguration(key);
 if (new URL(apiUrl).host !== 'api.sandbox.pawapay.io') { console.error(`Refusing non-sandbox host ${new URL(apiUrl).host}`); process.exit(2); }
 const country = process.env.PAWAPAY_CHECK_COUNTRY ?? 'COG';
 const currency = process.env.PAWAPAY_CHECK_CURRENCY ?? 'XAF';
+const callbackUrl = process.env.PAWAPAY_CHECK_CALLBACK_URL
+  ?? `${(process.env.API_PUBLIC_URL ?? 'https://api.konektag.eu').replace(/\/$/, '')}/api/webhooks/pawapay/deposits`;
 const phone = process.env.PAWAPAY_CHECK_PHONE ?? '242053456789';
 const allowedIps = (process.env.PAWAPAY_CHECK_ALLOWED_IPS ?? '').split(',').map(ip => ip.trim()).filter(Boolean);
 
@@ -44,8 +47,9 @@ console.log(`egress IP (this pod): ${egressIp || 'UNKNOWN'}; allowlist match: ${
 const raw: Record<string, unknown> = {};
 globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
   const target = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
-  if (!['/v2/active-conf', '/v2/public-key/http', '/v2/predict-provider'].includes(target.pathname)) throw new Error(`Refused ${target.pathname}`);
-  const response = await realFetch(input, init);
+  if (target.origin !== 'https://api.sandbox.pawapay.io'
+    || !['/v2/active-conf', '/v2/public-key/http', '/v2/predict-provider'].includes(target.pathname)) throw new Error(`Refused ${target.pathname}`);
+  const response = await realFetch(input, { ...init, redirect: 'error' });
   raw[target.pathname] = await response.clone().json().catch(() => null);
   console.log(`${init?.method ?? 'GET'} ${target.pathname}${target.search} -> ${response.status}`);
   return response;
@@ -74,6 +78,14 @@ console.log('active-conf raw shape:', JSON.stringify(shape(raw['/v2/active-conf'
 console.log('active-conf parsed DEPOSIT providers:', JSON.stringify(providers, null, 2));
 const publicKeys = await step('/v2/public-key/http', () => pawaPayClient.publicKeys(key));
 console.log('public-key/http raw shape:', JSON.stringify(shape(raw['/v2/public-key/http'])));
+for (const publicKey of Array.isArray(publicKeys) ? publicKeys : []) {
+  try {
+    const parsed = createPublicKey(publicKey.key);
+    const valid = parsed.asymmetricKeyType === 'ec' && parsed.asymmetricKeyDetails?.namedCurve === 'prime256v1';
+    console.log('public-key/http key:', JSON.stringify({ keyId: publicKey.id, format: 'PEM/SPKI', curve: parsed.asymmetricKeyDetails?.namedCurve, valid }));
+    if (!valid) failures.push('public-key/http returned an unsupported signing key');
+  } catch { failures.push('public-key/http returned an invalid public key'); }
+}
 const prediction = await step('/v2/predict-provider', () => pawaPayClient.predictProvider(phone, key));
 console.log('predict-provider raw shape:', JSON.stringify(shape(raw['/v2/predict-provider'])));
 // The normalised number is never printed: only its format, judged on the raw response so a '+'
@@ -97,6 +109,9 @@ for (const entry of Array.isArray(conf?.countries) ? conf.countries.filter((c: a
       const deposit = row?.operationTypes?.DEPOSIT;
       const values = Object.fromEntries(depositFields.filter(f => deposit && f in deposit).map(f => [f, { type: typeof deposit[f], value: deposit[f] }]));
       console.log(`active-conf raw DEPOSIT ${provider?.provider}/${currency}: keys=${JSON.stringify(deposit ? Object.keys(deposit) : null)} values=${JSON.stringify(values)}`);
+      const callbackMatches = deposit?.callbackUrl === callbackUrl;
+      console.log(`active-conf DEPOSIT ${provider?.provider} callback URL matches Konektag: ${callbackMatches}`);
+      if (!callbackMatches) failures.push(`${provider?.provider}: configured deposit callback does not match Konektag`);
     }
   }
 }
