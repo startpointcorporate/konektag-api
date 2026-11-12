@@ -11,7 +11,7 @@ it('documents every exported REST operation without inventing routes',()=>{
     const operation=spec.paths[r.path][method.toLowerCase()];expect(operation).toBeDefined();ids.push(operation.operationId);
     for(const key of r.keys)expect(operation.parameters).toContainEqual(expect.objectContaining({name:key,in:'path',required:true}));
   }
-  expect(new Set(ids).size).toBe(416);
+  expect(new Set(ids).size).toBe(418);
 });
 
 it('documents Keycloak OAuth2 authorization code for Swagger without replacing existing schemes',()=>{

@@ -4,6 +4,7 @@ import { stringify } from 'yaml';
 import { records } from './routes.mjs';
 import { documentMarketplace } from './marketplace-openapi.mjs';
 import { documentTeam } from './team-openapi.mjs';
+import { documentWallet } from './wallet-openapi.mjs';
 const unique = values => [...new Set(values)];
 function visit(node,fn) { fn(node); ts.forEachChild(node,child=>visit(child,fn)); }
 function objectSchema(node) {
@@ -114,6 +115,7 @@ for(const record of records) {
 }
 documentMarketplace(paths);
 documentTeam(paths);
+documentWallet(paths);
 const spec={openapi:'3.1.0',info:{title:'Konektag API',version:'0.1.0',description:'REST contracts migrated from konetag@c25c1ac5d42d0e173b9dec28c950617d109d0530. YAML is the sole specification source; runtime JSON is generated at build time. Unconstrained schemas identify computed fields, not additional capabilities.'},servers:[{url:'/'}],components:{securitySchemes:{session:{type:'apiKey',in:'cookie',name:'konektag_access_token'},userApiKey:{type:'apiKey',in:'header',name:'Authorization',description:'Existing protocol: token <api-key>:<api-secret>. Account roles and scopes remain enforced.'},bearer:{type:'http',scheme:'bearer',description:'Route-specific merchant or internal bearer credential; not interchangeable with a user API key.'},keycloakOAuth:{type:'oauth2',description:'Keycloak user authentication via Authorization Code with PKCE S256; the authenticated user must exist in Konektag.',flows:{authorizationCode:{authorizationUrl:'https://login.konektag.eu/realms/konektag/protocol/openid-connect/auth',tokenUrl:'https://login.konektag.eu/realms/konektag/protocol/openid-connect/token',scopes:{}}}}}},paths};
 await writeFile('docs/openapi.yaml',stringify(spec,{lineWidth:120}));
 console.log(`Documented ${Object.keys(paths).length} paths and ${records.reduce((sum,r)=>sum+r.methods.length,0)} operations`);

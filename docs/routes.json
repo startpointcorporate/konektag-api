@@ -1786,6 +1786,17 @@
     "score": 303
   },
   {
+    "path": "/api/account/currency-preference",
+    "file": "src/api/routes/account/currency-preference.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "pattern": "^/api/account/currency-preference/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
     "path": "/api/account/history",
     "file": "src/api/routes/account/history/index.ts",
     "methods": [

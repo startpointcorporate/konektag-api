@@ -158,6 +158,7 @@ export const routes = [
   { path: "/api/webhooks/stripe/{configurationKey}", pattern: new RegExp("^/api/webhooks/stripe/([^/]+)/?$"), keys: ["configurationKey"], methods: ["POST"], load: () => import("./routes/webhooks/stripe/[configurationKey]") },
   { path: "/api/account/api-keys", pattern: new RegExp("^/api/account/api-keys/?$"), keys: [], methods: ["GET","POST"], load: () => import("./routes/account/api-keys/index") },
   { path: "/api/account/balance", pattern: new RegExp("^/api/account/balance/?$"), keys: [], methods: ["GET"], load: () => import("./routes/account/balance") },
+  { path: "/api/account/currency-preference", pattern: new RegExp("^/api/account/currency-preference/?$"), keys: [], methods: ["GET","PUT"], load: () => import("./routes/account/currency-preference") },
   { path: "/api/account/history", pattern: new RegExp("^/api/account/history/?$"), keys: [], methods: ["GET"], load: () => import("./routes/account/history/index") },
   { path: "/api/account/kyc-gate", pattern: new RegExp("^/api/account/kyc-gate/?$"), keys: [], methods: ["GET"], load: () => import("./routes/account/kyc-gate") },
   { path: "/api/account/payment-claims", pattern: new RegExp("^/api/account/payment-claims/?$"), keys: [], methods: ["GET","POST"], load: () => import("./routes/account/payment-claims/index") },
