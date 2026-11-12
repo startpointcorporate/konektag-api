@@ -58,7 +58,6 @@ export const GET:RouteHandler=async({request,locals})=>{
     WHERE a.source_type='api_payment' AND a.source_id::text=o.id::text
     ORDER BY a.created_at DESC,a.id DESC LIMIT 1) attempt ON true
    WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
-    AND o.order_metadata ? 'erpnextPointsK'
     AND o.points_quantity>0
     AND o.state IN ('pending','processing','awaiting_mobile_money','paid','failed','expired','cancelled')
     AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)

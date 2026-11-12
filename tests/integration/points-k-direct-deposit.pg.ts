@@ -205,7 +205,7 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
 
   it('keeps a paid PSP order visible until its ledger credit exists', async () => {
     const baseline=await walletReads();const {token,orderId}=await congoCheckout();
-    await pool.query("UPDATE konektag.api_payment_orders SET state='paid',paid_at=now() WHERE id=$1",[orderId]);
+    await pool.query("UPDATE konektag.api_payment_orders SET state='paid',paid_at=now(),order_metadata=order_metadata-'erpnextPointsK' WHERE id=$1",[orderId]);
     const reads=await walletReads();
     expect(reads.balance.points_balance).toBe(baseline.balance.points_balance);
     expect(reads.balance.points_pending_net).toBe(baseline.balance.points_pending_net+86);
