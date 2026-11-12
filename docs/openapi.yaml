@@ -11007,18 +11007,33 @@ paths:
             type: string
       responses:
         "200":
-          description: Response from the migrated handler
+          description: Checkout et preuve de crédit Points K distincte du statut PSP
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - state
+                  - pointsCreditStatus
                 properties:
-                  error:
-                    anyOf:
-                      - type: string
-                        const: Checkout not found
-                      - type: string
-                        const: Unable to load checkout
+                  state:
+                    type: string
+                    enum:
+                      - pending
+                      - processing
+                      - awaiting_mobile_money
+                      - paid
+                      - failed
+                      - expired
+                      - cancelled
+                  pointsCreditStatus:
+                    type: string
+                    enum:
+                      - pending
+                      - credited
+                      - not_applicable
+                    description: credited exige une acquisition achevée et une écriture crédit K confirmée dans le ledger; paid seul ne
+                      suffit pas.
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -11617,15 +11632,50 @@ paths:
       parameters: []
       responses:
         "200":
-          description: Response from the migrated handler
+          description: Préférence de devise
           content:
             application/json:
-              schema: &a179 {}
+              schema:
+                type: object
+                required:
+                  - currency
+                  - defaultCurrency
+                  - country
+                properties:
+                  currency: &a179
+                    type: string
+                    enum:
+                      - XOF
+                      - XAF
+                      - EUR
+                      - USD
+                      - LBP
+                      - AOA
+                      - CDF
+                      - GNF
+                  defaultCurrency:
+                    type: string
+                  country:
+                    type:
+                      - string
+                      - "null"
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a179
+              schema: {}
+        "503":
+          description: Préférence indisponible
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    const: CURRENCY_PREFERENCE_UNAVAILABLE
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -11637,6 +11687,7 @@ paths:
       x-source: src/api/routes/account/currency-preference.ts
       x-error-codes:
         - UNAUTHORIZED
+        - CURRENCY_PREFERENCE_UNAVAILABLE
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
     put:
       operationId: put__api_account_currency_preference
@@ -11648,20 +11699,37 @@ paths:
       parameters: []
       responses:
         "200":
-          description: Response from the migrated handler
+          description: Préférence de devise
           content:
             application/json:
-              schema: &a180 {}
+              schema:
+                type: object
+                required:
+                  - currency
+                properties:
+                  currency: *a179
         "400":
           description: Error or redirect from the migrated handler
           content:
             application/json:
-              schema: *a180
+              schema: &a180 {}
         "401":
           description: Error or redirect from the migrated handler
           content:
             application/json:
               schema: *a180
+        "503":
+          description: Préférence indisponible
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    const: CURRENCY_PREFERENCE_UNAVAILABLE
         default:
           description: Additional responses from authentication, authorization, KYC, idempotency or the shared application
             service. See x-source and x-error-codes.
@@ -11674,6 +11742,7 @@ paths:
       x-error-codes:
         - UNAUTHORIZED
         - UNSUPPORTED_CURRENCY
+        - CURRENCY_PREFERENCE_UNAVAILABLE
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
@@ -11754,6 +11823,8 @@ paths:
                           allOf:
                             - *a181
                             - type: object
+                              required:
+                                - amount
                               properties:
                                 amount:
                                   type: number

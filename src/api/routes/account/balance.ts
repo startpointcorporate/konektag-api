@@ -31,8 +31,8 @@ export const GET: RouteHandler = async ({ request, locals }) => {
       WHERE o.target_user_id=$2 AND o.order_purpose='wallet_recharge'
         AND o.order_metadata ? 'erpnextPointsK'
         AND o.points_quantity>0
-        AND o.state IN ('pending','processing','awaiting_mobile_money')
-        AND COALESCE(attempt.state,'pending') IN ('pending','processing')
+        AND o.state IN ('pending','processing','awaiting_mobile_money','paid')
+        AND (o.state='paid' OR COALESCE(attempt.state,'pending') IN ('pending','processing'))
         AND NOT EXISTS(SELECT 1 FROM konektag.ledger_entries le WHERE le.points_order_id=o.id)
     ) pending_movements`,[partyId,user.id]);
     const pendingK=Number(pending?.net??0);

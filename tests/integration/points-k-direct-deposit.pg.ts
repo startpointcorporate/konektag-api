@@ -29,8 +29,8 @@ const mtn = { provider: 'MTN_MOMO_COG', nameDisplayedToCustomer: 'MTN MoMo', cur
 let userId: string;
 beforeAll(async () => {
   userId = randomUUID();
-  await pool.query(`INSERT INTO konektag.users (id,keycloak_id,username,email_hash,encrypted_data)
-    VALUES ($1,$2,$3,$4,'\\x00')`, [userId, randomUUID(), `kon75-${userId.slice(0,8)}`, userId.replaceAll('-', '').padEnd(64, '0')]);
+  await pool.query(`INSERT INTO konektag.users (id,keycloak_id,username,email_hash,encrypted_data,country)
+    VALUES ($1,$2,$3,$4,'\\x00','CG')`, [userId, randomUUID(), `kon75-${userId.slice(0,8)}`, userId.replaceAll('-', '').padEnd(64, '0')]);
 });
 afterAll(async () => {
   // Completed financial entries are immutable. Destroy the throwaway database
@@ -163,6 +163,7 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
       [orderId, `pawapay:deposit:${first.depositId}:COMPLETED`]);
     expect(evidence).toEqual({ acquisitions: 1, credits: 1, events: 1 });
     expect(await orderState(orderId)).toMatchObject({ state: 'paid' });
+    expect(await apiPaymentCheckoutService.getPublicOrder(token)).toMatchObject({state:'paid',pointsCreditStatus:'credited'});
     const after = await walletReads();
     expect(after.balance.points_pending_net).toBe(baseline.balance.points_pending_net);
     expect(after.balance.points_balance).toBe(baseline.balance.points_balance + 86);
@@ -171,6 +172,18 @@ describe('Points K pawaPay direct deposit through real PostgreSQL', () => {
     ]);
     const { rows: [lot] } = await pool.query('SELECT economic_value FROM konektag.klots WHERE klot_ref=$1', [`KLOT-POINTS-${orderId}`]);
     expect(Number(lot.economic_value)).toBe(8567);
+  });
+
+  it('keeps a paid PSP order visible until its ledger credit exists', async () => {
+    const baseline=await walletReads();const {token,orderId}=await congoCheckout();
+    await pool.query("UPDATE konektag.api_payment_orders SET state='paid',paid_at=now() WHERE id=$1",[orderId]);
+    const reads=await walletReads();
+    expect(reads.balance.points_balance).toBe(baseline.balance.points_balance);
+    expect(reads.balance.points_pending_net).toBe(baseline.balance.points_pending_net+86);
+    expect(reads.history.items.filter((item:any)=>item.operationId===orderId)).toEqual([
+      expect.objectContaining({status:'PROCESSING',quantityK:86,value:expect.objectContaining({source:expect.any(String),date:expect.toBeOneOf([null,expect.any(String)])})})
+    ]);
+    expect(await apiPaymentCheckoutService.getPublicOrder(token)).toMatchObject({state:'paid',pointsCreditStatus:'pending'});
   });
 
   it('keeps failed and cancelled PSP orders visible without affecting either K balance', async () => {

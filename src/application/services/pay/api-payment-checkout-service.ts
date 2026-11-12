@@ -56,6 +56,7 @@ interface ApiPaymentRedirectUrls {
 }
 
 interface ApiPaymentOrderRow {
+  points_credited?: boolean;
   id: string;
   merchant_profile_id: string | null;
   order_purpose: ApiPaymentOrderPurpose;
@@ -407,6 +408,7 @@ function toPublicOrder(order: ApiPaymentOrderRow) {
     feeAmount: order.fee_amount,
     cashbackAmount: order.cashback_amount,
     totalAmount: order.total_amount,
+    pointsCreditStatus: order.order_purpose === 'wallet_recharge' ? (order.points_credited === true ? 'credited' as const : 'pending' as const) : 'not_applicable' as const,
     state: order.state,
     paymentMethod: order.payment_method,
     paymentCountry: order.payment_country,
@@ -881,7 +883,13 @@ export const apiPaymentCheckoutService = {
     try {
       await client.query('BEGIN');
       const { rows } = await client.query<ApiPaymentOrderRow>(
-        `SELECT o.*, mp.business_name AS merchant_name, mp.logo_url AS merchant_logo_url
+        `SELECT o.*, mp.business_name AS merchant_name, mp.logo_url AS merchant_logo_url,
+          EXISTS(SELECT 1 FROM konektag.points_acquisitions pa
+            JOIN konektag.financial_transactions ft ON ft.id=pa.transaction_id
+            JOIN konektag.ledger_entries le ON le.transaction_id=ft.id AND le.party_id=pa.party_id
+            WHERE pa.order_id=o.id AND pa.status='completed' AND ft.status IN ('completed','reversed')
+              AND le.account_code='1000' AND le.currency='K' AND le.gl_scope='GLOBAL_USER_GL'
+              AND le.entry_side='credit' AND le.amount=pa.quantity) AS points_credited
          FROM konektag.api_payment_orders o
          LEFT JOIN konektag.merchant_profiles mp ON mp.id = o.merchant_profile_id AND mp.deleted_at IS NULL
          WHERE o.checkout_token_hash = $1
