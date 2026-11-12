@@ -20,8 +20,8 @@ export const POST:RouteHandler=async({params,request,locals})=>{const user=local
  await kSendOtpService.verify({userId:user.id,sendId:id,authorizationId:body.authorizationId,otp:body.otp});
  return json(await kSendService.execute(id,`k-send-otp:${id}`));
 }catch(e){console.error('[api/k/send/:id]',e);const code=e instanceof Error?e.message:'K_SEND_FAILED';
- if(code==='K_SEND_BLOCKED_NOT_CONFIGURED')return json({error:code},503);
- if(code.startsWith('K_SEND_BLOCKED_'))return json({error:code},403);
+ if(code.startsWith('USER_KYC_REQUIRED:'))return json({error:'USER_KYC_REQUIRED'},403);
+ if(['K_SEND_STATE_CONFLICT','K_SEND_IDEMPOTENCY_CONFLICT','K_SEND_INSUFFICIENT'].includes(code))return json({error:code},409);
  return json({error:code},500);}};
 
 export const DELETE:RouteHandler=async({params,locals})=>{const user=locals.user;if(!user)return json({error:'Unauthorized'},401);

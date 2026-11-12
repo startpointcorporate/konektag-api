@@ -6,11 +6,8 @@ import {
 } from '../services/pay/api-payment-webhook-service.ts';
 import { siteWebhook } from './frappe-site-routing.ts';
 
-/**
- * Link Pay webhooks to Frappe sites. The network site is notified first; the beneficiary delivery
- * stays 'blocked' until the network acknowledges. When both roles are one site, one delivery carries
- * both. Signature, transport, SSRF checks and retry schedule are those of API payment webhooks.
- * event_key and (transaction, site) are unique: a replay never queues a second delivery.
+/** Signed, retryable merchant accounting integration. ERP delivery never defines payment status.
+ * event_key and (transaction, site) make enqueueing and worker retries idempotent.
  */
 
 type Db = Pick<PoolClient, 'query'>;
@@ -39,23 +36,13 @@ export function sitePayload(transaction: any, link: any, slug: string, roles: st
 /** In the payment transaction. */
 export async function enqueueSiteWebhooks(db: Db, input: { transaction: any; link: any; slug: string }) {
   const { transaction, link, slug } = input;
-  const same = link.beneficiary_site === link.network_site;
-  const networkRoles = same ? ['network', 'beneficiary'] : ['network'];
-  const { rows: [network] } = await db.query(
+  const { rows: [delivery] } = await db.query(
     `INSERT INTO konektag.link_pay_site_webhooks (transaction_id, target_site, roles, event_key, event_type, payload)
      VALUES ($1, $2, $3, $4, $5, $6::jsonb)
      ON CONFLICT (event_key) DO UPDATE SET updated_at = now() RETURNING id`,
-    [transaction.id, link.network_site, networkRoles, `link-pay:${transaction.id}:${link.network_site}`, LINK_PAY_EVENT,
-     JSON.stringify(sitePayload(transaction, link, slug, networkRoles))]);
-  if (!same) {
-    await db.query(
-      `INSERT INTO konektag.link_pay_site_webhooks (transaction_id, target_site, roles, depends_on, status, event_key, event_type, payload)
-       VALUES ($1, $2, $3, $4, 'blocked', $5, $6, $7::jsonb)
-       ON CONFLICT (event_key) DO NOTHING`,
-      [transaction.id, link.beneficiary_site, ['beneficiary'], network.id, `link-pay:${transaction.id}:${link.beneficiary_site}`,
-       LINK_PAY_EVENT, JSON.stringify(sitePayload(transaction, link, slug, ['beneficiary']))]);
-  }
-  return network.id as string;
+    [transaction.id, link.beneficiary_site, ['beneficiary'], `link-pay:${transaction.id}:${link.beneficiary_site}`, LINK_PAY_EVENT,
+     JSON.stringify(sitePayload(transaction, link, slug, ['beneficiary']))]);
+  return delivery.id as string;
 }
 
 /** The site must confirm the transaction and answer for every role it received. */
@@ -108,18 +95,14 @@ async function deliverClaimed(delivery: Delivery, env: NodeJS.ProcessEnv): Promi
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { rowCount } = await client.query(
+    await client.query(
       `UPDATE konektag.link_pay_site_webhooks
        SET status = 'delivered', response_status = $2, response_body = $3, delivered_at = now(), next_attempt_at = NULL,
            processing_started_at = NULL, processing_lease_id = NULL, last_error = NULL, updated_at = now()
        WHERE id = $1 AND status = 'processing' AND processing_lease_id = $4`,
       [delivery.id, response.status, response.body, delivery.processing_lease_id]);
-    // The network has the payment: release the beneficiary delivery.
-    const { rows } = rowCount ? await client.query(
-      `UPDATE konektag.link_pay_site_webhooks SET status = 'pending', next_attempt_at = now(), updated_at = now()
-       WHERE depends_on = $1 AND status = 'blocked' RETURNING id`, [delivery.id]) : { rows: [] };
     await client.query('COMMIT');
-    return rows.map((row: any) => row.id);
+    return [];
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);
     throw error;
@@ -131,7 +114,7 @@ async function deliverClaimed(delivery: Delivery, env: NodeJS.ProcessEnv): Promi
 const CLAIMED = `RETURNING d.id, d.transaction_id, d.target_site, d.roles, d.payload, d.attempts, d.processing_lease_id`;
 
 export const siteWebhookService = {
-  /** One delivery now, then whatever it released (the beneficiary after the network). */
+  /** Deliver merchant integration; failures are retried without touching the ledger. */
   async deliver(id: string, env: NodeJS.ProcessEnv = process.env): Promise<void> {
     let next = [id];
     while (next.length) {

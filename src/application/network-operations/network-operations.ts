@@ -4,8 +4,8 @@
  * Each notification is an outbox event (NetworkOperationChanged) written in the transaction that
  * changes the operation; the outbox worker sends it to the Frappe site of the Network team with that
  * site's service account (konektag_360.network_operations.record), with the existing retries.
- * - Link Pay: pending when the link is issued, on the link's network site. The payment itself reaches
- *   the same row through the existing Link Pay network webhook, then the merchant site.
+ * - Link Pay network processing is API-owned. Historical queued Link Pay projections are retired
+ *   without an ERP call; current links and payment facts stay in the API tables.
  * - Points K recharge (Stripe, PawaPay): pending when the provider accepted the request and gave its
  *   reference, then paid or failed from the verified webhook or the PawaPay reconciliation, on the
  *   Konektag site of the buyer's residence country (order_metadata.konektagSite).
@@ -100,6 +100,8 @@ export async function deliverNetworkOperation(payload: any, env: NodeJS.ProcessE
   const operation = payload?.operation as NetworkOperation | undefined;
   if (typeof site !== 'string' || !SITE_KEY.test(site) || !operation?.key || !operation.eventKey)
     throw new Error('NETWORK_OPERATION_PAYLOAD_INVALID');
+  // Historical Link Pay outbox messages are API-owned: retire them without network ERP calls.
+  if (operation.type === 'link_pay') return 'api_owned';
   const result = await frappeSite(site, env, fetchImpl).call('konektag_360.network_operations.record', { operation });
   if (result?.key !== operation.key || !RESULTS.has(result?.result)) throw new Error('NETWORK_OPERATION_NOT_ACKNOWLEDGED');
   return result.result as string;

@@ -21,6 +21,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgres://postgres@127.0.0.1:5432/konektag_test
+      NODE_ENV: development
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,7 +31,7 @@ jobs:
       - run: npm ci
       - run: node scripts/run-migrations.mjs
       - name: Verify Points K money, concurrency and settlement on disposable PostgreSQL
-        run: npx vitest run --config tests/integration/vitest.config.ts tests/integration/points-k-money.pg.ts tests/integration/points-k-direct-deposit.pg.ts
+        run: npx vitest run --config tests/integration/vitest.config.ts tests/integration/points-k-money.pg.ts tests/integration/points-k-direct-deposit.pg.ts tests/integration/internal-k-send.pg.ts tests/integration/link-pay-network.pg.ts
   rest-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
