@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 329,
-    "operations": 418,
-    "covered": 79,
-    "partial": 338,
+    "paths": 331,
+    "operations": 420,
+    "covered": 82,
+    "partial": 337,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 339,
-    "executedTests": 2979,
-    "passedTests": 2979
+    "businessUncovered": 338,
+    "executedTests": 3005,
+    "passedTests": 3005
   },
   "operations": [
     {
@@ -10099,6 +10099,67 @@
       ]
     },
     {
+      "operation": "GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders/{token}",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/[token].ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/marketplace-client-order.test.ts",
+          "name": "accepted client order link returns minimal order and a native Desk QR URL from trusted routing only",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-client-order.test.ts",
+          "name": "accepted client order link uses the same generic refusal for invalid/expired/nonaccepted/cancelled orders",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-client-order.test.ts",
+          "name": "accepted client order link rate limits and fails closed during infrastructure failure",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Accepted minimal order only; strips private customer fields; trusted native Desk URL; generic invalid/expired refusal; no-store/no-referrer/noindex; quotas and unavailable storage fail closed.",
+        "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-client-order.test.ts",
+        "tests/unit/marketplace-k360-contract.test.ts"
+      ],
+      "constraints": [
+        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+      ]
+    },
+    {
       "operation": "GET /api/public/team/{tenantId}/members",
       "domain": "public",
       "method": "GET",
@@ -18921,16 +18982,89 @@
       "method": "POST",
       "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
       "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
-      "status": "partial",
-      "businessStatus": "uncovered",
+      "status": "covered",
+      "businessStatus": "covered",
       "facets": [
         "auth",
+        "business",
+        "refusal",
         "transport"
       ],
       "levels": [
-        "contract"
+        "contract",
+        "unit"
       ],
       "tests": [
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes returns fresh quote after atomic PRICE_CHANGED refusal, never before replay",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes returns fresh quote after atomic ITEM_UNAVAILABLE refusal, never before replay",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for pickup and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for reservation and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for pickup before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for reservation before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes returns minimal zero/one/multiple lookup results with opaque selections",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes accepts reference lookup and refuses mixed or malformed criteria",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes creates pickup only when enabled and available",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes associates once and replays after token expiry, cache loss and later cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes renewed token for same reservation replays; different payload conflicts durably",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects wrong restaurant, tampered token, cancelled/ineligible reservation and bad mode combinations",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes fails new modes closed but preserves menu rollout without adapter",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes fails closed on Redis limiter and enforces lookup quota",
+          "level": "unit"
+        },
         {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/orders] preserves routing, parameters, query, cookies and raw body",
@@ -18943,16 +19077,20 @@
         }
       ],
       "assertions": [
+        "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal.",
+        "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/marketplace-k360-contract.test.ts",
+        "tests/unit/marketplace-order-modes.test.ts",
         "tests/unit/marketplace-transactions.test.ts"
       ],
       "constraints": [
-        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
       ]
     },
     {
@@ -19033,6 +19171,122 @@
       ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservations/lookup.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes returns fresh quote after atomic PRICE_CHANGED refusal, never before replay",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes returns fresh quote after atomic ITEM_UNAVAILABLE refusal, never before replay",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for pickup and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for reservation and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for pickup before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for reservation before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes returns minimal zero/one/multiple lookup results with opaque selections",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes accepts reference lookup and refuses mixed or malformed criteria",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes creates pickup only when enabled and available",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes associates once and replays after token expiry, cache loss and later cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes renewed token for same reservation replays; different payload conflicts durably",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects wrong restaurant, tampered token, cancelled/ineligible reservation and bad mode combinations",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes fails new modes closed but preserves menu rollout without adapter",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes fails closed on Redis limiter and enforces lookup quota",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal.",
+        "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-k360-contract.test.ts",
+        "tests/unit/marketplace-order-modes.test.ts"
+      ],
+      "constraints": [
+        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
       ]
     },
     {

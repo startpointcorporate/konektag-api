@@ -86,3 +86,30 @@ Aucune recette ne touche la production. Les références de test sont relevées 
 
 1. Restaurant : commander depuis la fiche, retrouver `ORD-…` dans Lumen, rejouer le même envoi (même clé) et vérifier qu'il n'existe qu'une commande `order_id = <clé>`. Modifier un prix dans Frappe, puis vérifier le `409 PRICE_CHANGED`.
 2. Hôtel : rechercher, réserver, retrouver `HR-…` dans Hospitality. Réserver la dernière chambre depuis le Desk entre la recherche et la validation, puis vérifier le `409 ROOM_UNAVAILABLE`.
+
+## Modes de commande et association à une réservation
+
+Les nouveaux clients envoient `orderMode: pickup | reservation` à `POST …/restaurant/orders`. Le mode réservation exige `reservationToken`, obtenu par `POST …/restaurant/reservations/lookup` avec exactement `{reference}` ou `{phone}` E.164. La décision produit accepte la recherche sans preuve de possession du téléphone ; une référence séquentielle n'est pas un secret. Les réponses sont limitées à référence/date/heure/convives et au jeton opaque de sélection.
+
+Le menu retourne `orderModes.pickup.{enabled,available}` et `orderModes.reservation.enabled`. `enabled` représente l'offre ; `available` inclut ouverture actuelle. L'adapter K360 applique les horaires généraux (intervalles multiples/overnight, fuseau site). Sans horaires, l'activation suffit. Aucun créneau dédié n'est ajouté. Sans adapter installé, menu conservé et options désactivées ; un corps historique sans mode continue l'ancien chemin.
+
+Les modes explicites passent exclusivement par `konektag_360.marketplace_orders.api.checkout` : prix revalidés serveur, association et création atomiques, clé unique et empreinte persistantes. Le jeton AES-GCM utilise la clé `DATA_ENCRYPTION_KEY` existante et expire après 15 minutes pour les nouvelles écritures. Il reste déchiffrable pour construire l'empreinte d'un rejeu durable après expiration/effacement du cache ; l'adapter interdit toute nouvelle création avec `selection_valid=false`. Changement de mode, réservation ou contenu sous même clé = conflit. Le rejeu relit le statut natif, sans rouvrir une commande annulée. Après refus prix/article, l'API joint un devis frais si le serveur de prix est disponible.
+
+### Validation marchand et lien client
+
+L'acceptation Desk est distincte du statut natif. Après acceptation, K360 génère un secret de partage 256 bits conservé chiffré (empreinte unique pour recherche), valable 7 jours. Les URLs `sms:` et WhatsApp permettent au marchand de partager depuis ses applications existantes ; aucun SMS automatique n'est envoyé.
+
+`GET …/restaurant/orders/{token}` retourne la commande acceptée minimale, sans coordonnées/nom/note du client. Le QR est une URL native `/app/pos-restaurant-order/{reference}` sur le site routé serveur ; elle utilise l'authentification Frappe et les droits POS habituels. Tokens invalides/expirés, commandes non acceptées/annulées/rejetées renvoient le même 404. Réponses `no-store`, `no-referrer`, `noindex` ; aucun journal applicatif ajouté. Les journaux d'accès de l'infrastructure doivent être vérifiés séparément avant usage réel : le token dans l'URL n'est pas automatiquement masqué par ces en-têtes.
+
+### Prérequis de release
+
+1. Livrer le patch additif K360 (champs/index/hooks/adapter), configurer `konektag_360_marketplace_order_users` avec le compte de service existant et ses droits POS. Sur restodemo, identité vérifiée en lecture seule : `api-konektag@restodemo.konektag.eu`.
+2. Configurer `konektag_marketplace_public_url` HTTPS côté Frappe pour la page Web ; activer explicitement `restaurant_pickup_enabled` sur l'établissement si offert. Défaut désactivé.
+3. Garder les credentials `MARKETPLACE_FRAPPE_*` et `DATA_ENCRYPTION_KEY` existants stables. Aucune migration PostgreSQL API ; ne pas changer la clé de chiffrement durant les reprises de commandes.
+4. Publier API puis Web après validation humaine du paquet. Aucune action production n'est effectuée par cette implémentation. La recette cible autorisée est en production avec données synthétiques dédiées, après autorisation de déploiement distincte.
+
+Tests de contrat interlangages : `tests/contracts/export-k360-order-fixture.py` exporte les réponses des vraies fonctions Python via leur harness de tests (base/POS simulés). `marketplace-k360-contract.test.ts` les consomme dans les routes HTTP API ; ceci ne remplace pas la recette sur site déployé.
+
+### Email facultatif et partage navigateur
+
+Le champ `customer.email` existant reste facultatif, normalisé trim/minuscules et validé avant toute création. L'API le transmet à checkout360 dans `customer` ; le patch K360 le conserve dans `k360_customer_email`, privé. Les DTO lookup/confirmation/lien client n'exposent jamais cette adresse. Après acceptation, le partage Desk peut ouvrir un `mailto:` prérempli dans l'application locale du marchand, en plus des liens SMS/WhatsApp ; aucun envoi email serveur ni nouveau fournisseur.

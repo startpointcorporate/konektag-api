@@ -1,8 +1,9 @@
+import { OrderModeError, placeModeOrder, readSelection } from '../../../../../../../application/marketplace-transactions/restaurant-modes.ts';
 import { z } from 'zod';
 import type { RequestContext } from '../../../../../../http';
 import { boundedRequest, capability, defaultDeps, IDEMPOTENCY_KEY, json, limited, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
 import { ReplayError, fingerprint, onceByKey } from '../../../../../../../application/marketplace-transactions/replay.ts';
-import { RestaurantError, placeOrder } from '../../../../../../../application/marketplace-transactions/restaurant-orders.ts';
+import { RestaurantError, placeOrder, quoteCart } from '../../../../../../../application/marketplace-transactions/restaurant-orders.ts';
 
 // Records a Lumen POS Restaurant Order once per Idempotency-Key.
 const cartLine = z.object({
@@ -19,11 +20,14 @@ const orderSchema = z.object({
     email: z.string().trim().toLowerCase().email().max(254).optional(),
   }).strict(),
   note: z.string().max(500).optional(),
+  orderMode: z.enum(['pickup', 'reservation']).optional(),
+  reservationToken: z.string().min(40).max(2048).optional(),
   // Honeypot, left empty by people.
   website: z.string().max(200).optional(),
 }).strict();
 
 export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise<Response> => {
+  let refreshQuote: (() => ReturnType<typeof quoteCart>) | undefined;
   try {
     deps ??= await defaultDeps();
     const slug = ctx.params.slug!;
@@ -39,19 +43,42 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     if (body === undefined) return json({ error: 'INVALID_JSON' }, 400);
     const parsed = orderSchema.safeParse(body);
     if (!parsed.success) return json({ error: 'INVALID_ORDER' }, 400);
-    const { website, ...input } = parsed.data;
+    const { website, orderMode, reservationToken, ...input } = parsed.data;
+    if ((orderMode === 'reservation') !== Boolean(reservationToken)) return json({ error: 'INVALID_ORDER' }, 400);
     if (website) return json({ error: 'INVALID_ORDER' }, 400); // never pretend a success
     const limit = await limited(deps, ctx, 'order', slug, input.customer.phone, 60, 6);
     if (limit === 'unavailable') return json({ error: 'TRANSACTIONS_UNAVAILABLE' }, 503);
     if (limit) return json({ error: 'TOO_MANY_REQUESTS' }, 429, { 'Retry-After': limit.retryAfter });
     const site = deps.site(cap.site);
-    const { result: r, replayed } = await onceByKey(deps.store(), `order:${cap.site}:${cap.posProfile}`, key, fingerprint({ slug, ...input }),
-      () => placeOrder(site, cap, key, input));
-    const recorded = JSON.stringify({ reference: r.reference, status: r.status, currency: r.currency, total: r.total, lines: r.lines, replayed });
+    refreshQuote = () => quoteCart(site, cap, input.lines, input.currency, deps!.now().toISOString().slice(0, 10));
+    const selection = orderMode === 'reservation' ? readSelection(deps, slug, cap, reservationToken!) : undefined;
+    const print = fingerprint({ slug, ...input, ...(orderMode ? { orderMode, reservationReference: selection?.reference ?? null } : {}) });
+    // Explicit modes rely on Frappe's unique durable request key. Cache reads
+    // must not hide a subsequent merchant cancellation, and expired selections
+    // still reach its replay check before any new-write eligibility check.
+    let r: Awaited<ReturnType<typeof placeOrder>> & { orderMode?: string; reservation?: unknown; replayed?: boolean };
+    let replayed: boolean;
+    if (orderMode) {
+      r = await placeModeOrder(site, slug, cap, key, print, input, orderMode, selection?.reference, selection?.valid ?? true);
+      replayed = r.replayed === true;
+    } else {
+      const cached = await onceByKey(deps.store(), `order:${cap.site}:${cap.posProfile}`, key, print, () => placeOrder(site, cap, key, input));
+      r = cached.result; replayed = cached.replayed;
+    }
+    const recorded = JSON.stringify({ reference: r.reference, status: r.status, currency: r.currency, total: r.total, lines: r.lines,
+      ...(orderMode ? { orderMode: r.orderMode, reservation: r.reservation } : {}), replayed });
     const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
     if (replayed) return new Response(recorded, { status: 200, headers });
     return new Response(recorded, { status: 201, headers });
   } catch (error) {
+    if (error instanceof OrderModeError) {
+      if (refreshQuote && ['PRICE_CHANGED', 'ITEM_UNAVAILABLE'].includes(error.code)) {
+        // Only after atomic refusal: never prevalidate a durable replay.
+        try { return json({ error: error.code, quote: await refreshQuote() }, 409); } catch { /* preserve the business refusal if refreshing is unavailable */ }
+      }
+      const status = error.code === 'TOO_MANY_REQUESTS' ? 429 : error.code === 'CAPABILITY_NOT_AVAILABLE' ? 404 : error.code === 'INVALID_RESERVATION_SELECTION' || error.code === 'INVALID_ORDER' ? 400 : ['IDEMPOTENCY_KEY_REUSED', 'CURRENCY_MISMATCH'].includes(error.code) ? 422 : 409;
+      return json({ error: error.code }, status, status === 429 ? { 'Retry-After': '60' } : {});
+    }
     const quote = error instanceof RestaurantError && error.quote ? { quote: error.quote } : {};
     if (error instanceof RestaurantError && error.code === 'PRICE_CHANGED') return json({ error: 'PRICE_CHANGED', ...quote }, 409);
     if (error instanceof RestaurantError && error.code === 'ITEM_UNAVAILABLE') return json({ error: 'ITEM_UNAVAILABLE', ...quote }, 409);
