@@ -2094,5 +2094,61 @@
       "Points K pawaPay direct deposit routes maps Error: PawaPay request failed (500) to its HTTP status",
       "Points K pawaPay direct deposit routes lists operators active for the checkout"
     ]
+  },
+  {
+    "file": "tests/unit/marketplace-order-modes.test.ts",
+    "operations": [
+      "POST /api/public/marketplace/merchants/{slug}/restaurant/orders",
+      "POST /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal."
+    ],
+    "constraints": [
+      "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+    ],
+    "sha256": "cafcaf653801ff3c9d0a4214f86e3f328cad82324eca1c588c737581b0f5c3e8",
+    "tests": [
+      "Marketplace explicit order modes returns fresh quote after atomic PRICE_CHANGED refusal, never before replay",
+      "Marketplace explicit order modes returns fresh quote after atomic ITEM_UNAVAILABLE refusal, never before replay",
+      "Marketplace explicit order modes returns minimal zero/one/multiple lookup results with opaque selections",
+      "Marketplace explicit order modes accepts reference lookup and refuses mixed or malformed criteria",
+      "Marketplace explicit order modes creates pickup only when enabled and available",
+      "Marketplace explicit order modes associates once and replays after token expiry, cache loss and later cancellation",
+      "Marketplace explicit order modes renewed token for same reservation replays; different payload conflicts durably",
+      "Marketplace explicit order modes rejects wrong restaurant, tampered token, cancelled/ineligible reservation and bad mode combinations",
+      "Marketplace explicit order modes fails new modes closed but preserves menu rollout without adapter",
+      "Marketplace explicit order modes fails closed on Redis limiter and enforces lookup quota"
+    ]
+  },
+  {
+    "file": "tests/unit/marketplace-client-order.test.ts",
+    "operations": [
+      "GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Accepted minimal order only; strips private customer fields; trusted native Desk URL; generic invalid/expired refusal; no-store/no-referrer/noindex; quotas and unavailable storage fail closed."
+    ],
+    "constraints": [
+      "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+    ],
+    "sha256": "11b6f75e6a033e7af407035f90fb465b1129bed51dce06dad6c88a0ec1013176",
+    "tests": [
+      "accepted client order link returns minimal order and a native Desk QR URL from trusted routing only",
+      "accepted client order link uses the same generic refusal for invalid/expired/nonaccepted/cancelled orders",
+      "accepted client order link rate limits and fails closed during infrastructure failure"
+    ]
   }
 ]

@@ -1,0 +1,84 @@
+{
+  "provenance": "Real K360 adapter functions, Frappe/native POS mocked by its unit-test harness; not a deployed integration test.",
+  "options": {
+    "orderModes": {
+      "pickup": {
+        "enabled": true,
+        "available": true
+      },
+      "reservation": {
+        "enabled": true
+      }
+    }
+  },
+  "lookup": {
+    "reservations": [
+      {
+        "reference": "RSV-1",
+        "date": "2026-11-15",
+        "time": "19:00",
+        "partySize": 2
+      }
+    ]
+  },
+  "pickup": {
+    "reference": "ORDER",
+    "status": "Open",
+    "currency": "XAF",
+    "total": 20.0,
+    "orderMode": "pickup",
+    "acceptanceStatus": "Pending",
+    "reservation": null,
+    "lines": [
+      {
+        "itemCode": "MEAL",
+        "itemName": "Meal",
+        "quantity": 2.0,
+        "unitPrice": 10.0,
+        "amount": 20.0
+      }
+    ],
+    "replayed": false
+  },
+  "reservation": {
+    "reference": "ORDER",
+    "status": "Open",
+    "currency": "XAF",
+    "total": 20.0,
+    "orderMode": "reservation",
+    "acceptanceStatus": "Pending",
+    "reservation": {
+      "reference": "RSV-1",
+      "date": "2026-11-15",
+      "time": "19:00",
+      "partySize": 2
+    },
+    "lines": [
+      {
+        "itemCode": "MEAL",
+        "itemName": "Meal",
+        "quantity": 2.0,
+        "unitPrice": 10.0,
+        "amount": 20.0
+      }
+    ],
+    "replayed": false
+  },
+  "client": {
+    "reference": "ORDER",
+    "status": "Open",
+    "acceptanceStatus": "Accepted",
+    "currency": "XAF",
+    "total": 20.0,
+    "merchantName": "Restaurant",
+    "lines": [
+      {
+        "itemCode": "MEAL",
+        "itemName": "Meal",
+        "quantity": 2.0,
+        "unitPrice": 10.0,
+        "amount": 20.0
+      }
+    ]
+  }
+}

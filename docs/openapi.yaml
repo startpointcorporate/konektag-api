@@ -32,6 +32,265 @@ components:
           tokenUrl: https://login.konektag.eu/realms/konektag/protocol/openid-connect/token
           scopes: {}
 paths:
+  /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup:
+    post:
+      operationId: post__api_public_marketplace_merchants_slug_restaurant_reservations_lookup
+      summary: POST /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup
+      tags:
+        - public
+      description: Rate-limited reference OR E.164 phone lookup, scoped to exact establishment/POS. No ownership verification.
+        Unknown, other establishment and ineligible references all yield an empty list. Max 20 eligible reservations. No
+        customer name, phone, note or products returned.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Minimal eligible selections; tokens are opaque authenticated ciphertext, valid for new writes for 15 minutes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        reference:
+                          type: string
+                        date:
+                          type: string
+                          format: date
+                        time:
+                          type: string
+                        partySize:
+                          type: integer
+                          minimum: 1
+                        token:
+                          type: string
+                      required:
+                        - reference
+                        - date
+                        - time
+                        - partySize
+                        - token
+                      additionalProperties: false
+                    maxItems: 20
+                required:
+                  - reservations
+                additionalProperties: false
+        "400":
+          description: INVALID_LOOKUP or INVALID_JSON.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: CAPABILITY_NOT_AVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "429":
+          description: TOO_MANY_REQUESTS.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "503":
+          description: TRANSACTIONS_UNAVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservations/lookup.ts
+      x-error-codes:
+        - UNSUPPORTED_MEDIA_TYPE
+        - PAYLOAD_TOO_LARGE
+        - INVALID_JSON
+        - INVALID_LOOKUP
+        - CAPABILITY_NOT_AVAILABLE
+        - TRANSACTIONS_UNAVAILABLE
+        - TOO_MANY_REQUESTS
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    reference:
+                      type: string
+                      minLength: 1
+                      maxLength: 140
+                  required:
+                    - reference
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    phone:
+                      type: string
+                      pattern: ^\+[1-9]\d{6,14}$
+                  required:
+                    - phone
+                  additionalProperties: false
+  /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}:
+    get:
+      operationId: get__api_public_marketplace_merchants_slug_restaurant_orders_token
+      summary: GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}
+      tags:
+        - public
+      description: Read-only accepted order via 256-bit opaque share token. Native merchant acceptance and 7-day token
+        validity are checked by K360. qrUrl points to the native authenticated Frappe Desk order on the
+        server-configured site. No personal customer data. Cache-Control no-store, Referrer-Policy no-referrer and
+        X-Robots-Tag noindex,nofollow.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{43}$
+      responses:
+        "200":
+          description: Accepted minimal order and native Desk QR URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  status:
+                    type: string
+                  acceptanceStatus:
+                    type: string
+                    const: Accepted
+                  currency:
+                    type: string
+                  total:
+                    type: number
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemCode:
+                          type: string
+                        itemName:
+                          type: string
+                        quantity:
+                          type: number
+                        unitPrice:
+                          type: number
+                        amount:
+                          type: number
+                      required:
+                        - itemCode
+                        - itemName
+                        - quantity
+                        - unitPrice
+                        - amount
+                      additionalProperties: false
+                  merchantName:
+                    type: string
+                  qrUrl:
+                    type: string
+                    format: uri
+                required:
+                  - reference
+                  - status
+                  - acceptanceStatus
+                  - currency
+                  - total
+                  - lines
+                  - merchantName
+                  - qrUrl
+                additionalProperties: false
+        "404":
+          description: ORDER_NOT_AVAILABLE, including invalid/expired/unaccepted/rejected/cancelled.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "429":
+          description: TOO_MANY_REQUESTS.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "503":
+          description: TRANSACTIONS_UNAVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/[token].ts
+      x-error-codes:
+        - ORDER_NOT_AVAILABLE
+        - TRANSACTIONS_UNAVAILABLE
+        - TOO_MANY_REQUESTS
+        - TOO_MANY_REQUESTS
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
   /api/pay/checkout/{token}/mobile-money/pawapay/deposit:
     post:
       operationId: post__api_pay_checkout_token_mobile_money_pawapay_deposit
@@ -513,7 +772,42 @@ paths:
             type: string
       responses:
         "200":
-          description: Response from the migrated handler
+          description: Live native menu and immediate order modes. Missing adapter disables explicit modes while retaining menu.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currency: {}
+                  sections: {}
+                  orderModes:
+                    type: object
+                    properties:
+                      pickup:
+                        type: object
+                        properties:
+                          enabled:
+                            type: boolean
+                          available:
+                            type: boolean
+                        required:
+                          - enabled
+                          - available
+                        additionalProperties: false
+                      reservation:
+                        type: object
+                        properties:
+                          enabled:
+                            type: boolean
+                        required:
+                          - enabled
+                        additionalProperties: false
+                    required:
+                      - pickup
+                      - reservation
+                    additionalProperties: false
+        "404":
+          description: Error or redirect from the migrated handler
           content:
             application/json:
               schema: &a5
@@ -521,11 +815,7 @@ paths:
                 properties:
                   currency: {}
                   sections: {}
-        "404":
-          description: Error or redirect from the migrated handler
-          content:
-            application/json:
-              schema: *a5
+                  orderModes: {}
         "503":
           description: Error or redirect from the migrated handler
           content:
@@ -546,9 +836,10 @@ paths:
       summary: POST /api/public/marketplace/merchants/{slug}/restaurant/orders
       tags:
         - public
-      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
-        responses and business rules. This path is public at the general middleware level; any handler-specific checks
-        still apply.
+      description: Legacy request without orderMode preserves native configured order path. Explicit pickup/reservation uses
+        atomic K360 checkout with a durable unique key and payload fingerprint. Reservation selection tokens expire for
+        new writes after 15 minutes; exact durable replays remain possible after expiry and cache loss. No ownership
+        verification is required by the accepted product decision.
       parameters:
         - name: slug
           in: path
@@ -569,7 +860,153 @@ paths:
             type: string
       responses:
         "200":
-          description: Response from the migrated handler
+          description: Durable replay (or unchanged legacy response without association fields).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  status:
+                    type: string
+                  currency:
+                    type: string
+                  total:
+                    type: number
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemCode:
+                          type: string
+                        itemName:
+                          type: string
+                        quantity:
+                          type: number
+                        unitPrice:
+                          type: number
+                        amount:
+                          type: number
+                      required:
+                        - itemCode
+                        - itemName
+                        - quantity
+                        - unitPrice
+                        - amount
+                      additionalProperties: false
+                  orderMode:
+                    type: string
+                    enum:
+                      - pickup
+                      - reservation
+                  reservation:
+                    anyOf:
+                      - type: object
+                        properties:
+                          reference:
+                            type: string
+                          date:
+                            type: string
+                            format: date
+                          time:
+                            type: string
+                          partySize:
+                            type: integer
+                            minimum: 1
+                        required:
+                          - reference
+                          - date
+                          - time
+                          - partySize
+                        additionalProperties: false
+                      - type: "null"
+                  replayed:
+                    type: boolean
+                required:
+                  - reference
+                  - status
+                  - currency
+                  - total
+                  - lines
+                  - replayed
+                additionalProperties: false
+        "201":
+          description: Recorded native order (legacy omits association fields).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  status:
+                    type: string
+                  currency:
+                    type: string
+                  total:
+                    type: number
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itemCode:
+                          type: string
+                        itemName:
+                          type: string
+                        quantity:
+                          type: number
+                        unitPrice:
+                          type: number
+                        amount:
+                          type: number
+                      required:
+                        - itemCode
+                        - itemName
+                        - quantity
+                        - unitPrice
+                        - amount
+                      additionalProperties: false
+                  orderMode:
+                    type: string
+                    enum:
+                      - pickup
+                      - reservation
+                  reservation:
+                    anyOf:
+                      - type: object
+                        properties:
+                          reference:
+                            type: string
+                          date:
+                            type: string
+                            format: date
+                          time:
+                            type: string
+                          partySize:
+                            type: integer
+                            minimum: 1
+                        required:
+                          - reference
+                          - date
+                          - time
+                          - partySize
+                        additionalProperties: false
+                      - type: "null"
+                  replayed:
+                    type: boolean
+                required:
+                  - reference
+                  - status
+                  - currency
+                  - total
+                  - lines
+                  - replayed
+                additionalProperties: false
+        "400":
+          description: Error or redirect from the migrated handler
           content:
             application/json:
               schema: &a6
@@ -581,26 +1018,24 @@ paths:
                   total: {}
                   lines: {}
                   replayed: {}
-        "201":
-          description: Response from the migrated handler
-          content:
-            application/json:
-              schema: *a6
-        "400":
-          description: Error or redirect from the migrated handler
-          content:
-            application/json:
-              schema: *a6
         "404":
           description: Error or redirect from the migrated handler
           content:
             application/json:
               schema: *a6
         "409":
-          description: Error or redirect from the migrated handler
+          description: PICKUP_UNAVAILABLE, RESERVATION_INELIGIBLE, RESERVATION_SELECTION_EXPIRED, PRICE_CHANGED, ITEM_UNAVAILABLE
+            or REQUEST_IN_PROGRESS.
           content:
             application/json:
-              schema: *a6
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
         "413":
           description: Error or redirect from the migrated handler
           content:
@@ -643,7 +1078,6 @@ paths:
         - CAPABILITY_NOT_AVAILABLE
         - INVALID_JSON
         - INVALID_ORDER
-        - INVALID_ORDER
         - TRANSACTIONS_UNAVAILABLE
         - TOO_MANY_REQUESTS
         - PRICE_CHANGED
@@ -653,6 +1087,10 @@ paths:
         - RESTAURANT_UNAVAILABLE
         - IDEMPOTENCY_KEY_REUSED
         - REQUEST_IN_PROGRESS
+        - PICKUP_UNAVAILABLE
+        - RESERVATION_INELIGIBLE
+        - RESERVATION_SELECTION_EXPIRED
+        - INVALID_RESERVATION_SELECTION
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
@@ -705,6 +1143,15 @@ paths:
                 note:
                   type: string
                   maxLength: 500
+                orderMode:
+                  type: string
+                  enum:
+                    - pickup
+                    - reservation
+                reservationToken:
+                  type: string
+                  minLength: 40
+                  maxLength: 2048
                 website:
                   type: string
                   maxLength: 200
