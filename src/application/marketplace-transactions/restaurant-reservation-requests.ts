@@ -32,11 +32,11 @@ export interface ReservationRequestInput {
   comment?: string;
 }
 
-export interface RecordedRequest { reference: string; status: string; replayed: boolean }
+export interface RecordedRequest { reference: string; status: string; replayed: boolean; ownerVerified?: boolean; state?: 'active' | 'terminal'; createdAt?: string; version?: string; snapshot?: unknown }
 
 export type ReservationErrorCode =
   | 'REQUESTS_CLOSED' | 'SLOT_UNAVAILABLE' | 'PARTY_SIZE_NOT_ACCEPTED' | 'INVALID_REQUEST'
-  | 'IDEMPOTENCY_KEY_REUSED' | 'TOO_MANY_REQUESTS' | 'REQUEST_NOT_RECORDED' | 'RESERVATIONS_UNAVAILABLE';
+  | 'IDEMPOTENCY_KEY_REUSED' | 'TOO_MANY_REQUESTS' | 'REQUEST_NOT_RECORDED' | 'RESERVATIONS_UNAVAILABLE' | 'ACTIVITY_NOT_FOUND' | 'MANAGEMENT_NOT_AVAILABLE';
 
 export class ReservationError extends Error {
   constructor(readonly code: ReservationErrorCode) { super(code); }
@@ -53,6 +53,8 @@ export const requestKeyOf = (idempotencyKey: string) =>
 // English. Anything else refused by the site is reported as refused, not as
 // a success or an outage.
 const RULES: [RegExp, ReservationErrorCode][] = [
+  [/\bACTIVITY_NOT_FOUND\b/, 'ACTIVITY_NOT_FOUND'],
+  [/\bMANAGEMENT_NOT_AVAILABLE\b/, 'MANAGEMENT_NOT_AVAILABLE'],
   [/Restaurant booking is unavailable|Online booking is not available|requires the native booking form/i, 'REQUESTS_CLOSED'],
   [/Request key already used/i, 'IDEMPOTENCY_KEY_REUSED'],
   [/Too many requests/i, 'TOO_MANY_REQUESTS'],
@@ -75,7 +77,7 @@ function refusal(error: FrappeSiteError): ReservationErrorCode {
 
 const STATUS = /^[A-Za-z][A-Za-z ]{0,29}$/;
 
-export async function submitReservationRequest(site: FrappePublicSite, slug: string, idempotencyKey: string, input: ReservationRequestInput): Promise<RecordedRequest> {
+export async function submitReservationRequest(site: FrappePublicSite, slug: string, idempotencyKey: string, input: ReservationRequestInput, ownerHash?: string): Promise<RecordedRequest> {
   let out: any;
   try {
     out = await site.call(SUBMIT, {
@@ -87,7 +89,7 @@ export async function submitReservationRequest(site: FrappePublicSite, slug: str
       reservation_time: input.time + ':00',
       guests: input.partySize,
       note: input.comment ?? '',
-      website: '',
+      website: '', ...(ownerHash ? { owner_hash: ownerHash } : {}),
     });
   } catch (error) {
     if (error instanceof FrappeSiteError) {
@@ -101,5 +103,6 @@ export async function submitReservationRequest(site: FrappePublicSite, slug: str
   // Honeypot or unexpected answer: never present it as a recorded request.
   if (typeof out?.reference !== 'string' || !out.reference || out.reference.length > 140 || typeof out.status !== 'string' || !STATUS.test(out.status))
     throw new ReservationError('REQUEST_NOT_RECORDED');
-  return { reference: out.reference, status: out.status, replayed: out.reused === true };
+  return { reference: out.reference, status: out.status, replayed: out.reused === true,
+    ...(out.ownerVerified === true ? { ownerVerified: true, state: out.state, createdAt: out.createdAt, version: out.version, snapshot: out.snapshot } : {}) };
 }

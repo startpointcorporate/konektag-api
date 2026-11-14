@@ -1,3 +1,5 @@
+import { mutateBrowserActivity } from '../../../../../../../application/marketplace-transactions/browser-mutations.ts';
+import { BrowserManagementError, ManagementKeySchema, creationActivity, ownerHash } from '../../../../../../../application/marketplace-transactions/browser-management.ts';
 import { z } from 'zod';
 import type { RequestContext } from '../../../../../../http';
 import { boundedRequest, defaultDeps, IDEMPOTENCY_KEY, json, limited, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
@@ -21,6 +23,7 @@ const requestSchema = z.object({
   comment: z.string().trim().max(500).optional(),
   // Honeypot, left empty by people.
   website: z.string().max(200).optional(),
+  managementKey: ManagementKeySchema.optional(),
 }).strict();
 
 export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise<Response> => {
@@ -43,7 +46,7 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     if (body === undefined) return json({ error: 'INVALID_JSON' }, 400);
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) return json({ error: 'INVALID_REQUEST' }, 400);
-    const { website, comment, ...rest } = parsed.data;
+    const { website, comment, managementKey, ...rest } = parsed.data;
     if (website) return json({ error: 'INVALID_REQUEST' }, 400); // never pretend a success
     const site = deps.publicSite(cap.site);
     // The establishment is published by that site and no other: a visitor's
@@ -55,8 +58,10 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     const limit = await limited(deps, ctx, 'reservation-request', slug, rest.phone, 30, 5);
     if (limit === 'unavailable') return json({ error: 'TRANSACTIONS_UNAVAILABLE' }, 503);
     if (limit) return json({ error: 'TOO_MANY_REQUESTS' }, 429, { 'Retry-After': limit.retryAfter });
-    const r = await submitReservationRequest(site, slug, key, { ...rest, ...(comment ? { comment } : {}) });
-    const recorded = JSON.stringify({ reference: r.reference, status: r.status, replayed: r.replayed });
+    const managementOwner = managementKey ? ownerHash(slug, cap, 'reservation', managementKey) : undefined;
+    const r = await submitReservationRequest(site, slug, key, { ...rest, ...(comment ? { comment } : {}) }, managementOwner);
+    const activity = managementOwner ? creationActivity(deps, slug, cap, 'reservation', managementOwner, r) : undefined;
+    const recorded = JSON.stringify({ reference: r.reference, status: r.status, replayed: r.replayed, ...(activity ? { managementToken: activity.managementToken, activity } : {}) });
     const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
     if (r.replayed) return new Response(recorded, { status: 200, headers });
     return new Response(recorded, { status: 201, headers });
@@ -73,3 +78,5 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     return json({ error: down.error }, 503, down.headers);
   }
 };
+
+export const PATCH = (ctx: RequestContext, deps?: TransactionDeps): Promise<Response> => mutateBrowserActivity(ctx, 'reservation', deps);
