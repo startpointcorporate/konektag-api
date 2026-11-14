@@ -53,6 +53,29 @@ describe('Marketplace explicit order modes', () => {
     const res=await order(context('orders',{...body,orderMode:'pickup'}),t.deps);
     expect(res.status).toBe(409);expect(await res.json()).toEqual({error:code,quote});expect(t.saved.size).toBe(0);expect(spy).toHaveBeenCalledTimes(1);
   });
+  it.each(['pickup', 'reservation'])('forwards optional email privately for %s and accepts omission', async (mode) => {
+    for (const email of [undefined, '  CLIENT@Example.test  ']) {
+      const t = setup();
+      const input = { ...body, customer: { ...body.customer, ...(email ? { email } : {}) }, orderMode: mode,
+        ...(mode === 'reservation' ? { reservationToken: t.token() } : {}) };
+      const res = await order(context('orders', input), t.deps);
+      expect(res.status).toBe(201);
+      const args = t.call.mock.calls.find(([method]) => method.endsWith('.checkout'))![1];
+      if (email) expect(args.customer.email).toBe('client@example.test');
+      else expect(args.customer).not.toHaveProperty('email');
+      const out = await res.json();
+      expect(out).not.toHaveProperty('customer'); expect(out).not.toHaveProperty('email');
+      expect(JSON.stringify(out)).not.toContain('client@example.test');
+    }
+  });
+  it.each(['pickup', 'reservation'])('rejects invalid optional email for %s before writing', async (mode) => {
+    for (const email of ['invalid', '', 'x\r\nBcc: victim@example.test', 'a'.repeat(255) + '@example.test']) {
+      const t = setup();
+      const res = await order(context('orders', { ...body, customer: { ...body.customer, email }, orderMode: mode,
+        ...(mode === 'reservation' ? { reservationToken: t.token() } : {}) }), t.deps);
+      expect(res.status).toBe(400); expect(t.call).not.toHaveBeenCalled(); expect(t.saved.size).toBe(0);
+    }
+  });
   it('returns minimal zero/one/multiple lookup results with opaque selections', async () => {
     const t=setup();
     for (const rows of [[],[summary],[summary,{...summary,reference:'RSV-2026-00002'}]]) {

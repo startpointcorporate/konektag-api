@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 338,
-    "executedTests": 3000,
-    "passedTests": 3000
+    "executedTests": 3005,
+    "passedTests": 3005
   },
   "operations": [
     {
@@ -10145,6 +10145,7 @@
       ],
       "assertions": [
         "Accepted minimal order only; strips private customer fields; trusted native Desk URL; generic invalid/expired refusal; no-store/no-referrer/noindex; quotas and unavailable storage fail closed.",
+        "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -19006,6 +19007,26 @@
         },
         {
           "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for pickup and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for reservation and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for pickup before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for reservation before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
           "name": "Marketplace explicit order modes returns minimal zero/one/multiple lookup results with opaque selections",
           "level": "unit"
         },
@@ -19057,6 +19078,7 @@
       ],
       "assertions": [
         "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal.",
+        "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -19182,6 +19204,26 @@
         },
         {
           "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for pickup and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes forwards optional email privately for reservation and accepts omission",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for pickup before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
+          "name": "Marketplace explicit order modes rejects invalid optional email for reservation before writing",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-modes.test.ts",
           "name": "Marketplace explicit order modes returns minimal zero/one/multiple lookup results with opaque selections",
           "level": "unit"
         },
@@ -19233,6 +19275,7 @@
       ],
       "assertions": [
         "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal.",
+        "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",

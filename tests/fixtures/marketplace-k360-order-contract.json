@@ -1,5 +1,6 @@
 {
   "provenance": "Real K360 adapter functions, Frappe/native POS mocked by its unit-test harness; not a deployed integration test.",
+  "optionalEmailVerified": true,
   "options": {
     "orderModes": {
       "pickup": {

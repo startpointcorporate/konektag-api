@@ -11,11 +11,12 @@ import type { TransactionDeps } from '../../src/application/marketplace-transact
 // This checks DTO serialization across languages, not a deployed integration.
 const fixture=JSON.parse(readFileSync(new URL('../fixtures/marketplace-k360-order-contract.json',import.meta.url),'utf8'));
 const cap={site:'RESTO',posProfile:'POS',orderType:'Takeaway' as const,channel:'Konektag'};
+const seenCustomers: any[] = [];
 const site={key:'RESTO',host:'restodemo.example',call:async(method:string,args:any)=>{
  if(method.endsWith('.options'))return fixture.options;
  if(method.endsWith('.lookup'))return fixture.lookup;
  if(method.endsWith('.client_order'))return fixture.client;
- if(method.endsWith('.checkout'))return fixture[args.order_mode];
+ if(method.endsWith('.checkout')){seenCustomers.push(args.customer);return fixture[args.order_mode];}
  throw new Error('Unexpected adapter method');
 }} as unknown as FrappeSite;
 const deps:TransactionDeps={env:{DATA_ENCRYPTION_KEY:Buffer.alloc(32,5).toString('base64'),MARKETPLACE_TRANSACTION_MERCHANTS:JSON.stringify({restaurant:{restaurant:cap}})},now:()=>new Date('2026-11-14T10:00Z'),site:()=>site,publicSite:()=>{throw new Error();},store:()=>({checkRateLimit:async()=>true} as any),profiles:()=>({bySlug:async()=>({establishment_id:'est',source_site:site.host,slug:'restaurant',publication_version:1,status:'Published',snapshot:{},capabilities:['restaurant'],delivered_at:new Date()})})};
@@ -30,6 +31,18 @@ describe('actual K360 adapter DTO contract',()=>{
   const body={currency:'XAF',lines:[{itemCode:'MEAL',quantity:2,unitPrice:10}],customer:{name:'Client Test',phone:'+242069123456'},orderMode:mode,...(mode==='reservation'?{reservationToken:issueSelection(deps,'restaurant',cap,'RSV-1')}:{})};
   const res=await checkout(ctx('orders',body),deps);expect(res.status).toBe(201);
   const out=await res.json();expect(out.orderMode).toBe(mode);expect(out.total).toBe(20);expect(out.reservation).toEqual(fixture[mode].reservation);
+ });
+ it('accepts valid/absent email through the native contract and refuses invalid email before adapter',async()=>{
+  expect(fixture.optionalEmailVerified).toBe(true);
+  for(const email of [undefined,'  CLIENT@Example.test  ']){
+   const res=await checkout(ctx('orders',{currency:'XAF',lines:[{itemCode:'MEAL',quantity:2,unitPrice:10}],customer:{name:'Client Test',phone:'+242069123456',...(email?{email}:{})},orderMode:'pickup'}),deps);
+   expect(res.status).toBe(201);const sent=seenCustomers.at(-1);
+   if(email)expect(sent.email).toBe('client@example.test');else expect(sent).not.toHaveProperty('email');
+   expect(JSON.stringify(await res.json())).not.toContain('client@example.test');
+  }
+  const count=seenCustomers.length;
+  const res=await checkout(ctx('orders',{currency:'XAF',lines:[{itemCode:'MEAL',quantity:2,unitPrice:10}],customer:{name:'Client Test',phone:'+242069123456',email:'invalid'},orderMode:'pickup'}),deps);
+  expect(res.status).toBe(400);expect(seenCustomers.length).toBe(count);
  });
  it('accepts native public accepted-order JSON and adds trusted QR URL',async()=>{
   const res=await clientOrder(ctx('client'),deps);expect(res.status).toBe(200);

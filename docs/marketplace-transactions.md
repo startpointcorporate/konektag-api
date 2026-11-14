@@ -109,3 +109,7 @@ L'acceptation Desk est distincte du statut natif. Après acceptation, K360 gén�
 4. Publier API puis Web après validation humaine du paquet. Aucune action production n'est effectuée par cette implémentation. La recette cible autorisée est en production avec données synthétiques dédiées, après autorisation de déploiement distincte.
 
 Tests de contrat interlangages : `tests/contracts/export-k360-order-fixture.py` exporte les réponses des vraies fonctions Python via leur harness de tests (base/POS simulés). `marketplace-k360-contract.test.ts` les consomme dans les routes HTTP API ; ceci ne remplace pas la recette sur site déployé.
+
+### Email facultatif et partage navigateur
+
+Le champ `customer.email` existant reste facultatif, normalisé trim/minuscules et validé avant toute création. L'API le transmet à checkout360 dans `customer` ; le patch K360 le conserve dans `k360_customer_email`, privé. Les DTO lookup/confirmation/lien client n'exposent jamais cette adresse. Après acceptation, le partage Desk peut ouvrir un `mailto:` prérempli dans l'application locale du marchand, en plus des liens SMS/WhatsApp ; aucun envoi email serveur ni nouveau fournisseur.

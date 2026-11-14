@@ -2108,15 +2108,20 @@
       "refusal"
     ],
     "assertions": [
-      "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal."
+      "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal.",
+      "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs."
     ],
     "constraints": [
       "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
     ],
-    "sha256": "cafcaf653801ff3c9d0a4214f86e3f328cad82324eca1c588c737581b0f5c3e8",
+    "sha256": "a3fecc1331e0eefe14abb217855802c6b7201754e7db7c7953ffdea407eb38a0",
     "tests": [
       "Marketplace explicit order modes returns fresh quote after atomic PRICE_CHANGED refusal, never before replay",
       "Marketplace explicit order modes returns fresh quote after atomic ITEM_UNAVAILABLE refusal, never before replay",
+      "Marketplace explicit order modes forwards optional email privately for pickup and accepts omission",
+      "Marketplace explicit order modes forwards optional email privately for reservation and accepts omission",
+      "Marketplace explicit order modes rejects invalid optional email for pickup before writing",
+      "Marketplace explicit order modes rejects invalid optional email for reservation before writing",
       "Marketplace explicit order modes returns minimal zero/one/multiple lookup results with opaque selections",
       "Marketplace explicit order modes accepts reference lookup and refuses mixed or malformed criteria",
       "Marketplace explicit order modes creates pickup only when enabled and available",
@@ -2139,12 +2144,13 @@
       "refusal"
     ],
     "assertions": [
-      "Accepted minimal order only; strips private customer fields; trusted native Desk URL; generic invalid/expired refusal; no-store/no-referrer/noindex; quotas and unavailable storage fail closed."
+      "Accepted minimal order only; strips private customer fields; trusted native Desk URL; generic invalid/expired refusal; no-store/no-referrer/noindex; quotas and unavailable storage fail closed.",
+      "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs."
     ],
     "constraints": [
       "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
     ],
-    "sha256": "11b6f75e6a033e7af407035f90fb465b1129bed51dce06dad6c88a0ec1013176",
+    "sha256": "5e2b609ff1ff44f98b715f5b5e1fcf7ed59863058148d402f5b21b5aa0f75747",
     "tests": [
       "accepted client order link returns minimal order and a native Desk QR URL from trusted routing only",
       "accepted client order link uses the same generic refusal for invalid/expired/nonaccepted/cancelled orders",
