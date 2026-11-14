@@ -2,6 +2,7 @@ import ts from 'typescript';
 import { readFile, writeFile } from 'node:fs/promises';
 import { stringify } from 'yaml';
 import { records } from './routes.mjs';
+import { documentRestaurantTracking } from './restaurant-tracking-openapi.mjs';
 import { documentRestaurantModes } from './restaurant-modes-openapi.mjs';
 import { documentMarketplace } from './marketplace-openapi.mjs';
 import { documentTeam } from './team-openapi.mjs';
@@ -117,6 +118,7 @@ for(const record of records) {
 }
 documentMarketplace(paths);
 documentRestaurantModes(paths);
+documentRestaurantTracking(paths);
 documentTeam(paths);
 documentWallet(paths);
 documentPointsKWebContracts(paths);

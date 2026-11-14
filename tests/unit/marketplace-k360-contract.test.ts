@@ -4,7 +4,8 @@ import { createContext } from '../../src/api/http.ts';
 import { GET as clientOrder } from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/[token].ts';
 import { POST as lookup } from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservations/lookup.ts';
 import { POST as checkout } from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts';
-import { orderModes, issueSelection } from '../../src/application/marketplace-transactions/restaurant-modes.ts';
+import { POST as orderLookup } from '../../src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/lookup.ts';
+import { orderModes, issueSelection, issueTracking } from '../../src/application/marketplace-transactions/restaurant-modes.ts';
 import type { FrappeSite } from '../../src/application/marketplace-transactions/frappe-site.ts';
 import type { TransactionDeps } from '../../src/application/marketplace-transactions/http-handlers.ts';
 // Exported by actual K360 Python functions with its DB/native POS unit harness.
@@ -15,6 +16,8 @@ const seenCustomers: any[] = [];
 const site={key:'RESTO',host:'restodemo.example',call:async(method:string,args:any)=>{
  if(method.endsWith('.options'))return fixture.options;
  if(method.endsWith('.lookup'))return fixture.lookup;
+ if(method.endsWith('.order_lookup'))return fixture.orderLookup;
+ if(method.endsWith('.tracking_order'))return fixture.tracking;
  if(method.endsWith('.client_order'))return fixture.client;
  if(method.endsWith('.checkout')){seenCustomers.push(args.customer);return fixture[args.order_mode];}
  throw new Error('Unexpected adapter method');
@@ -43,6 +46,13 @@ describe('actual K360 adapter DTO contract',()=>{
   const count=seenCustomers.length;
   const res=await checkout(ctx('orders',{currency:'XAF',lines:[{itemCode:'MEAL',quantity:2,unitPrice:10}],customer:{name:'Client Test',phone:'+242069123456',email:'invalid'},orderMode:'pickup'}),deps);
   expect(res.status).toBe(400);expect(seenCustomers.length).toBe(count);
+ });
+ it('accepts real Python order lookup and tracking state without public contacts',async()=>{
+  const res=await orderLookup(ctx('lookup',{reference:'ORDER'}),deps);expect(res.status).toBe(200);const result=await res.json();
+  expect(result.orders[0].reference).toBe('ORDER');expect(result.orders[0].trackingStatus).toBe(fixture.orderLookup.orders[0].trackingStatus);
+  const request=ctx('tracking');request.params.token=issueTracking(deps,'restaurant',cap,'ORDER');
+  const tracking=await clientOrder(request,deps);expect(tracking.status).toBe(200);const out=await tracking.json();
+  expect(out.trackingStatus).toBe(fixture.tracking.trackingStatus);expect(out.createdAt).toBe(fixture.tracking.createdAt);expect(JSON.stringify(out)).not.toContain('client@example.test');
  });
  it('accepts native public accepted-order JSON and adds trusted QR URL',async()=>{
   const res=await clientOrder(ctx('client'),deps);expect(res.status).toBe(200);

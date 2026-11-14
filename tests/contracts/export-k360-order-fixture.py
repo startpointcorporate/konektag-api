@@ -43,9 +43,14 @@ try:
         t.order.k360_acceptance_status='Accepted'
         t.order.k360_share_expires=datetime(2026,11,20)
         t.f.db.get_value.return_value='ORDER'
+        t.f.get_all.return_value=[]
         client=t.api.client_order('restaurant','POS','a'*43)
+        t.f.get_all.side_effect=[[t.order],[]]
+        order_lookup=t.api.order_lookup('restaurant','POS',reference='ORDER')
+        t.f.get_all.side_effect=None
+        tracked=t.api.tracking_order('restaurant','POS','ORDER')
         assert 'client@example.test' not in json.dumps(client)
-    output={'provenance': 'Real K360 adapter functions, Frappe/native POS mocked by its unit-test harness; not a deployed integration test.', 'optionalEmailVerified': True, 'options': options, 'lookup': lookup, 'pickup': pickup, 'reservation': associated, 'client': client}
+    output={'provenance': 'Real K360 adapter functions, Frappe/native POS mocked by its unit-test harness; not a deployed integration test.', 'optionalEmailVerified': True, 'options': options, 'lookup': lookup, 'pickup': pickup, 'reservation': associated, 'client': client, 'orderLookup': order_lookup, 'tracking': tracked}
     print(json.dumps(output, indent=2))
 finally:
     t.tearDown()

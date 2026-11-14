@@ -73,3 +73,19 @@ export async function placeModeOrder(site: FrappeSite, slug: string, cap: Restau
   if (parsed.orderMode !== mode || (mode === 'reservation' ? parsed.reservation?.reference !== reference : parsed.reservation !== null)) throw new Error('Invalid recorded association');
   return parsed;
 }
+
+export const ORDER_TRACKING_TTL_MS = 24 * 60 * 60_000;
+const trackingTokenSchema = selectionSchema.extend({ purpose: z.literal('marketplace-order-tracking-v1') });
+export class TrackingUnavailable extends Error { constructor() { super('ORDER_NOT_AVAILABLE'); } }
+export function issueTracking(deps: Pick<TransactionDeps, 'env' | 'now'>, slug: string, cap: RestaurantCapability, reference: string) {
+  return codec(deps.env).encrypt(JSON.stringify({ purpose: 'marketplace-order-tracking-v1', slug, site: cap.site, posProfile: cap.posProfile, reference, expires: deps.now().getTime() + ORDER_TRACKING_TTL_MS })).toString('base64url');
+}
+export function readTracking(deps: Pick<TransactionDeps, 'env' | 'now'>, slug: string, cap: RestaurantCapability, token: string) {
+  const encryption = codec(deps.env);
+  try {
+    if (!/^[A-Za-z0-9_-]{44,2048}$/.test(token)) throw new Error();
+    const value = trackingTokenSchema.parse(JSON.parse(encryption.decrypt(Buffer.from(token, 'base64url'))));
+    if (value.slug !== slug || value.site !== cap.site || value.posProfile !== cap.posProfile || value.expires <= deps.now().getTime()) throw new Error();
+    return value.reference;
+  } catch { throw new TrackingUnavailable(); }
+}

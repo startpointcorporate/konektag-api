@@ -32,6 +32,183 @@ components:
           tokenUrl: https://login.konektag.eu/realms/konektag/protocol/openid-connect/token
           scopes: {}
 paths:
+  /api/public/marketplace/merchants/{slug}/restaurant/orders/lookup:
+    post:
+      operationId: post__api_public_marketplace_merchants_slug_restaurant_orders_lookup
+      summary: POST /api/public/marketplace/merchants/{slug}/restaurant/orders/lookup
+      tags:
+        - public
+      description: Find up to20 native Marketplace orders by exactly one reference, E.164 phone or optional customer email.
+        Exact merchant/POS and nonempty K360 request key required; Pending, rejected and cancelled orders remain
+        visible. Minimal summaries without contacts, customer names, notes or products. Rate limited; no ownership
+        verification. Unknown/other establishment yields empty list.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Newest orders first; opaque context-scoped tracking tokens expire24h after issue.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    maxItems: 20
+                    items:
+                      type: object
+                      properties:
+                        reference:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        orderMode:
+                          type: string
+                          enum:
+                            - pickup
+                            - reservation
+                        currency:
+                          type: string
+                        total:
+                          type: number
+                        status:
+                          type: string
+                          enum:
+                            - Open
+                            - Closed
+                            - Cancelled
+                            - Merged
+                        acceptanceStatus:
+                          type: string
+                          enum:
+                            - Pending
+                            - Accepted
+                            - Rejected
+                        trackingStatus:
+                          type: string
+                          enum:
+                            - Pending
+                            - Accepted
+                            - Preparing
+                            - Ready
+                            - Completed
+                            - Cancelled
+                        token:
+                          type: string
+                      required:
+                        - reference
+                        - createdAt
+                        - orderMode
+                        - currency
+                        - total
+                        - status
+                        - acceptanceStatus
+                        - trackingStatus
+                        - token
+                      additionalProperties: false
+                required:
+                  - orders
+                additionalProperties: false
+        "400":
+          description: INVALID_LOOKUP or INVALID_JSON.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: CAPABILITY_NOT_AVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "429":
+          description: TOO_MANY_REQUESTS.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "503":
+          description: TRANSACTIONS_UNAVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/lookup.ts
+      x-error-codes:
+        - UNSUPPORTED_MEDIA_TYPE
+        - PAYLOAD_TOO_LARGE
+        - INVALID_JSON
+        - INVALID_LOOKUP
+        - CAPABILITY_NOT_AVAILABLE
+        - TRANSACTIONS_UNAVAILABLE
+        - TOO_MANY_REQUESTS
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    reference:
+                      type: string
+                      minLength: 1
+                      maxLength: 140
+                  required:
+                    - reference
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    phone:
+                      type: string
+                      pattern: ^\+[1-9]\d{6,14}$
+                  required:
+                    - phone
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      maxLength: 254
+                  required:
+                    - email
+                  additionalProperties: false
   /api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup:
     post:
       operationId: post__api_public_marketplace_merchants_slug_restaurant_reservations_lookup
@@ -178,7 +355,11 @@ paths:
       description: Read-only accepted order via 256-bit opaque share token. Native merchant acceptance and 7-day token
         validity are checked by K360. qrUrl points to the native authenticated Frappe Desk order on the
         server-configured site. No personal customer data. Cache-Control no-store, Referrer-Policy no-referrer and
-        X-Robots-Tag noindex,nofollow.
+        X-Robots-Tag noindex,nofollow. Also accepts AES-GCM tracking tokens purpose marketplace-order-tracking-v1, bound
+        to exact slug/site/POS/order and24h expiry. Tracking tokens show Pending and cancelled orders;
+        native43-character share secrets remain Accepted-only. trackingStatus derives live kitchen ticket state; native
+        Closed with active kitchen tickets is not prematurely Completed. qrUrl is null before acceptance or after
+        cancellation. No polling implied.
       parameters:
         - name: slug
           in: path
@@ -190,63 +371,161 @@ paths:
           required: true
           schema:
             type: string
-            pattern: ^[A-Za-z0-9_-]{43}$
+            pattern: ^[A-Za-z0-9_-]{43,2048}$
       responses:
         "200":
-          description: Accepted minimal order and native Desk QR URL.
+          description: Minimal accepted share view or current native tracking view, without personal customer data.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  reference:
-                    type: string
-                  status:
-                    type: string
-                  acceptanceStatus:
-                    type: string
-                    const: Accepted
-                  currency:
-                    type: string
-                  total:
-                    type: number
-                  lines:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        itemCode:
-                          type: string
-                        itemName:
-                          type: string
-                        quantity:
-                          type: number
-                        unitPrice:
-                          type: number
-                        amount:
-                          type: number
-                      required:
-                        - itemCode
-                        - itemName
-                        - quantity
-                        - unitPrice
-                        - amount
-                      additionalProperties: false
-                  merchantName:
-                    type: string
-                  qrUrl:
-                    type: string
-                    format: uri
-                required:
-                  - reference
-                  - status
-                  - acceptanceStatus
-                  - currency
-                  - total
-                  - lines
-                  - merchantName
-                  - qrUrl
-                additionalProperties: false
+                anyOf:
+                  - type: object
+                    properties:
+                      reference:
+                        type: string
+                      status:
+                        type: string
+                      acceptanceStatus:
+                        type: string
+                        const: Accepted
+                      currency:
+                        type: string
+                      total:
+                        type: number
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            itemCode:
+                              type: string
+                            itemName:
+                              type: string
+                            quantity:
+                              type: number
+                            unitPrice:
+                              type: number
+                            amount:
+                              type: number
+                          required:
+                            - itemCode
+                            - itemName
+                            - quantity
+                            - unitPrice
+                            - amount
+                          additionalProperties: false
+                      merchantName:
+                        type: string
+                      qrUrl:
+                        type: string
+                        format: uri
+                      trackingStatus:
+                        type: string
+                        enum:
+                          - Pending
+                          - Accepted
+                          - Preparing
+                          - Ready
+                          - Completed
+                          - Cancelled
+                      createdAt:
+                        type: string
+                        format: date-time
+                      orderMode:
+                        type: string
+                        enum:
+                          - pickup
+                          - reservation
+                    required:
+                      - reference
+                      - status
+                      - acceptanceStatus
+                      - currency
+                      - total
+                      - lines
+                      - merchantName
+                      - qrUrl
+                    additionalProperties: false
+                  - type: object
+                    properties:
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      orderMode:
+                        type: string
+                        enum:
+                          - pickup
+                          - reservation
+                      currency:
+                        type: string
+                      total:
+                        type: number
+                      status:
+                        type: string
+                        enum:
+                          - Open
+                          - Closed
+                          - Cancelled
+                          - Merged
+                      acceptanceStatus:
+                        type: string
+                        enum:
+                          - Pending
+                          - Accepted
+                          - Rejected
+                      trackingStatus:
+                        type: string
+                        enum:
+                          - Pending
+                          - Accepted
+                          - Preparing
+                          - Ready
+                          - Completed
+                          - Cancelled
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            itemCode:
+                              type: string
+                            itemName:
+                              type: string
+                            quantity:
+                              type: number
+                            unitPrice:
+                              type: number
+                            amount:
+                              type: number
+                          required:
+                            - itemCode
+                            - itemName
+                            - quantity
+                            - unitPrice
+                            - amount
+                          additionalProperties: false
+                      merchantName:
+                        type: string
+                      qrUrl:
+                        anyOf:
+                          - type: string
+                            format: uri
+                          - type: "null"
+                    required:
+                      - reference
+                      - createdAt
+                      - orderMode
+                      - currency
+                      - total
+                      - status
+                      - acceptanceStatus
+                      - trackingStatus
+                      - lines
+                      - merchantName
+                      - qrUrl
+                    additionalProperties: false
         "404":
           description: ORDER_NOT_AVAILABLE, including invalid/expired/unaccepted/rejected/cancelled.
           content:
@@ -924,6 +1203,10 @@ paths:
                       - type: "null"
                   replayed:
                     type: boolean
+                  trackingToken:
+                    type: string
+                    description: Opaque encrypted tracking capability, issued immediately for explicit modes and exact replays. Valid24h,
+                      scope includes merchant/site/POS/order; never a reservation selection proof.
                 required:
                   - reference
                   - status
@@ -997,6 +1280,10 @@ paths:
                       - type: "null"
                   replayed:
                     type: boolean
+                  trackingToken:
+                    type: string
+                    description: Opaque encrypted tracking capability, issued immediately for explicit modes and exact replays. Valid24h,
+                      scope includes merchant/site/POS/order; never a reservation selection proof.
                 required:
                   - reference
                   - status
