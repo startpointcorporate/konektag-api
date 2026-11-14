@@ -12,7 +12,7 @@ const summarySchema = z.object({ reference: z.string().min(1).max(140), date: z.
 export type ReservationSummary = z.infer<typeof summarySchema>;
 export interface OrderModes { pickup: { enabled: boolean; available: boolean }; reservation: { enabled: boolean } }
 export class OrderModeError extends Error {
-  constructor(readonly code: 'PICKUP_UNAVAILABLE' | 'RESERVATION_INELIGIBLE' | 'RESERVATION_SELECTION_EXPIRED' | 'INVALID_RESERVATION_SELECTION' | 'IDEMPOTENCY_KEY_REUSED' | 'INVALID_ORDER' | 'PRICE_CHANGED' | 'ITEM_UNAVAILABLE' | 'CURRENCY_MISMATCH' | 'INVALID_LOOKUP' | 'CAPABILITY_NOT_AVAILABLE' | 'TOO_MANY_REQUESTS') { super(code); }
+  constructor(readonly code: 'PICKUP_UNAVAILABLE' | 'RESERVATION_INELIGIBLE' | 'RESERVATION_SELECTION_EXPIRED' | 'INVALID_RESERVATION_SELECTION' | 'IDEMPOTENCY_KEY_REUSED' | 'INVALID_ORDER' | 'PRICE_CHANGED' | 'ITEM_UNAVAILABLE' | 'CURRENCY_MISMATCH' | 'INVALID_LOOKUP' | 'CAPABILITY_NOT_AVAILABLE' | 'TOO_MANY_REQUESTS' | 'ACTIVITY_NOT_FOUND' | 'MANAGEMENT_NOT_AVAILABLE') { super(code); }
 }
 function codec(env: NodeJS.ProcessEnv) {
   const key = Buffer.from(env.DATA_ENCRYPTION_KEY ?? '', 'base64');
@@ -49,27 +49,27 @@ export async function lookupReservations(site: FrappeSite, slug: string, cap: Re
 export function durableOrderKey(slug: string, cap: RestaurantCapability, key: string) {
   return createHash('sha256').update(JSON.stringify([slug, cap.site, cap.posProfile, cap.channel, key])).digest('hex');
 }
-const errorCodes = ['PICKUP_UNAVAILABLE', 'RESERVATION_INELIGIBLE', 'RESERVATION_SELECTION_EXPIRED', 'IDEMPOTENCY_KEY_REUSED', 'INVALID_ORDER', 'PRICE_CHANGED', 'ITEM_UNAVAILABLE', 'CURRENCY_MISMATCH', 'INVALID_LOOKUP', 'CAPABILITY_NOT_AVAILABLE', 'TOO_MANY_REQUESTS'] as const;
+const errorCodes = ['PICKUP_UNAVAILABLE', 'RESERVATION_INELIGIBLE', 'RESERVATION_SELECTION_EXPIRED', 'IDEMPOTENCY_KEY_REUSED', 'INVALID_ORDER', 'PRICE_CHANGED', 'ITEM_UNAVAILABLE', 'CURRENCY_MISMATCH', 'INVALID_LOOKUP', 'CAPABILITY_NOT_AVAILABLE', 'TOO_MANY_REQUESTS', 'ACTIVITY_NOT_FOUND', 'MANAGEMENT_NOT_AVAILABLE'] as const;
 function throwBusinessError(error: unknown): void {
   if (error instanceof FrappeSiteError && error.code === 'SITE_REJECTED') {
     for (const code of errorCodes) if (new RegExp('\\b' + code + '\\b').test(error.serverMessage ?? '')) throw new OrderModeError(code);
   }
 }
-export async function placeModeOrder(site: FrappeSite, slug: string, cap: RestaurantCapability, key: string, print: string, input: OrderInput, mode: 'pickup' | 'reservation', reference: string | undefined, valid: boolean): Promise<RecordedOrder & { orderMode: 'pickup' | 'reservation'; reservation: ReservationSummary | null; replayed?: boolean }> {
+export async function placeModeOrder(site: FrappeSite, slug: string, cap: RestaurantCapability, key: string, print: string, input: OrderInput, mode: 'pickup' | 'reservation', reference: string | undefined, valid: boolean, ownerHash?: string): Promise<RecordedOrder & { orderMode: 'pickup' | 'reservation'; reservation: ReservationSummary | null; replayed?: boolean; ownerVerified?: boolean; state?: 'active' | 'terminal'; createdAt?: string; version?: string; snapshot?: unknown }> {
   let value: any;
   try {
     value = await site.call(MODULE + 'checkout', {
       slug, pos_profile: cap.posProfile, request_key: durableOrderKey(slug, cap, key), request_fingerprint: print,
       order_mode: mode, reservation_reference: reference ?? '', selection_valid: valid, channel: cap.channel,
       currency: input.currency, lines: input.lines.map(l => ({ item_code: l.itemCode, qty: l.quantity, price: l.unitPrice })),
-      customer: input.customer, note: input.note ?? '',
+      customer: input.customer, note: input.note ?? '', ...(ownerHash ? { owner_hash: ownerHash } : {}),
     });
   } catch (error) {
     throwBusinessError(error);
     throw error;
   }
   if (value?.error && errorCodes.includes(value.error)) throw new OrderModeError(value.error);
-  const parsed = z.object({ reference: z.string().min(1).max(140), status: z.string().max(40), currency: z.string().regex(/^[A-Z]{3}$/), total: z.number().finite().nonnegative(), lines: z.array(z.object({ itemCode: z.string(), itemName: z.string(), quantity: z.number().positive(), unitPrice: z.number().nonnegative(), amount: z.number().nonnegative() })), orderMode: z.enum(['pickup', 'reservation']), reservation: summarySchema.nullable(), replayed: z.boolean().optional() }).parse(value);
+  const parsed = z.object({ reference: z.string().min(1).max(140), status: z.string().max(40), currency: z.string().regex(/^[A-Z]{3}$/), total: z.number().finite().nonnegative(), lines: z.array(z.object({ itemCode: z.string(), itemName: z.string(), quantity: z.number().positive(), unitPrice: z.number().nonnegative(), amount: z.number().nonnegative() })), orderMode: z.enum(['pickup', 'reservation']), reservation: summarySchema.nullable(), replayed: z.boolean().optional(), ownerVerified: z.boolean().optional(), state: z.enum(['active','terminal']).optional(), createdAt: z.string().optional(), version: z.string().optional(), snapshot: z.unknown().optional() }).parse(value);
   if (parsed.orderMode !== mode || (mode === 'reservation' ? parsed.reservation?.reference !== reference : parsed.reservation !== null)) throw new Error('Invalid recorded association');
   return parsed;
 }

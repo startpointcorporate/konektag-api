@@ -1,3 +1,5 @@
+import { mutateBrowserActivity } from '../../../../../../../application/marketplace-transactions/browser-mutations.ts';
+import { BrowserManagementError, ManagementKeySchema, creationActivity, ownerHash } from '../../../../../../../application/marketplace-transactions/browser-management.ts';
 import { issueTracking, OrderModeError, placeModeOrder, readSelection } from '../../../../../../../application/marketplace-transactions/restaurant-modes.ts';
 import { z } from 'zod';
 import type { RequestContext } from '../../../../../../http';
@@ -22,6 +24,7 @@ const orderSchema = z.object({
   note: z.string().max(500).optional(),
   orderMode: z.enum(['pickup', 'reservation']).optional(),
   reservationToken: z.string().min(40).max(2048).optional(),
+  managementKey: ManagementKeySchema.optional(),
   // Honeypot, left empty by people.
   website: z.string().max(200).optional(),
 }).strict();
@@ -43,7 +46,8 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     if (body === undefined) return json({ error: 'INVALID_JSON' }, 400);
     const parsed = orderSchema.safeParse(body);
     if (!parsed.success) return json({ error: 'INVALID_ORDER' }, 400);
-    const { website, orderMode, reservationToken, ...input } = parsed.data;
+    const { website, orderMode, reservationToken, managementKey, ...input } = parsed.data;
+    if (managementKey && !orderMode) return json({ error: 'INVALID_ORDER' }, 400);
     if ((orderMode === 'reservation') !== Boolean(reservationToken)) return json({ error: 'INVALID_ORDER' }, 400);
     if (website) return json({ error: 'INVALID_ORDER' }, 400); // never pretend a success
     const limit = await limited(deps, ctx, 'order', slug, input.customer.phone, 60, 6);
@@ -51,32 +55,35 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     if (limit) return json({ error: 'TOO_MANY_REQUESTS' }, 429, { 'Retry-After': limit.retryAfter });
     const site = deps.site(cap.site);
     refreshQuote = () => quoteCart(site, cap, input.lines, input.currency, deps!.now().toISOString().slice(0, 10));
+    const managementOwner = managementKey ? ownerHash(slug, cap, 'order', managementKey) : undefined;
     const selection = orderMode === 'reservation' ? readSelection(deps, slug, cap, reservationToken!) : undefined;
     const print = fingerprint({ slug, ...input, ...(orderMode ? { orderMode, reservationReference: selection?.reference ?? null } : {}) });
     // Explicit modes rely on Frappe's unique durable request key. Cache reads
     // must not hide a subsequent merchant cancellation, and expired selections
     // still reach its replay check before any new-write eligibility check.
-    let r: Awaited<ReturnType<typeof placeOrder>> & { orderMode?: string; reservation?: unknown; replayed?: boolean };
+    let r: Awaited<ReturnType<typeof placeOrder>> & { orderMode?: string; reservation?: unknown; replayed?: boolean; ownerVerified?: boolean; state?: 'active' | 'terminal'; createdAt?: string; version?: string; snapshot?: unknown };
     let replayed: boolean;
     if (orderMode) {
-      r = await placeModeOrder(site, slug, cap, key, print, input, orderMode, selection?.reference, selection?.valid ?? true);
+      r = await placeModeOrder(site, slug, cap, key, print, input, orderMode, selection?.reference, selection?.valid ?? true, managementOwner);
       replayed = r.replayed === true;
     } else {
       const cached = await onceByKey(deps.store(), `order:${cap.site}:${cap.posProfile}`, key, print, () => placeOrder(site, cap, key, input));
       r = cached.result; replayed = cached.replayed;
     }
+    const activity = managementOwner ? creationActivity(deps, slug, cap, 'order', managementOwner, r) : undefined;
     const recorded = JSON.stringify({ reference: r.reference, status: r.status, currency: r.currency, total: r.total, lines: r.lines,
-      ...(orderMode ? { orderMode: r.orderMode, reservation: r.reservation, trackingToken: issueTracking(deps, slug, cap, r.reference) } : {}), replayed });
+      ...(orderMode ? { orderMode: r.orderMode, reservation: r.reservation, trackingToken: issueTracking(deps, slug, cap, r.reference) } : {}), ...(activity ? { managementToken: activity.managementToken, activity } : {}), replayed });
     const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
     if (replayed) return new Response(recorded, { status: 200, headers });
     return new Response(recorded, { status: 201, headers });
   } catch (error) {
+    if (error instanceof BrowserManagementError) return json({ error: error.code }, error.status);
     if (error instanceof OrderModeError) {
       if (refreshQuote && ['PRICE_CHANGED', 'ITEM_UNAVAILABLE'].includes(error.code)) {
         // Only after atomic refusal: never prevalidate a durable replay.
         try { return json({ error: error.code, quote: await refreshQuote() }, 409); } catch { /* preserve the business refusal if refreshing is unavailable */ }
       }
-      const status = error.code === 'TOO_MANY_REQUESTS' ? 429 : error.code === 'CAPABILITY_NOT_AVAILABLE' ? 404 : error.code === 'INVALID_RESERVATION_SELECTION' || error.code === 'INVALID_ORDER' ? 400 : ['IDEMPOTENCY_KEY_REUSED', 'CURRENCY_MISMATCH'].includes(error.code) ? 422 : 409;
+      const status = error.code === 'TOO_MANY_REQUESTS' ? 429 : ['CAPABILITY_NOT_AVAILABLE', 'ACTIVITY_NOT_FOUND'].includes(error.code) ? 404 : error.code === 'INVALID_RESERVATION_SELECTION' || error.code === 'INVALID_ORDER' ? 400 : ['IDEMPOTENCY_KEY_REUSED', 'CURRENCY_MISMATCH'].includes(error.code) ? 422 : 409;
       return json({ error: error.code }, status, status === 429 ? { 'Retry-After': '60' } : {});
     }
     const quote = error instanceof RestaurantError && error.quote ? { quote: error.quote } : {};
@@ -91,3 +98,5 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
     return json({ error: down.error }, 503, down.headers);
   }
 };
+
+export const PATCH = (ctx: RequestContext, deps?: TransactionDeps): Promise<Response> => mutateBrowserActivity(ctx, 'order', deps);

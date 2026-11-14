@@ -121,6 +121,18 @@
     "score": 607
   },
   {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/browser-activities",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/browser-activities.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/browser-activities/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 607
+  },
+  {
     "path": "/api/public/marketplace/merchants/{slug}/restaurant/menu",
     "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/menu.ts",
     "methods": [
@@ -136,7 +148,8 @@
     "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
     "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
     "methods": [
-      "POST"
+      "POST",
+      "PATCH"
     ],
     "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/orders/?$",
     "keys": [
@@ -160,7 +173,8 @@
     "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
     "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
     "methods": [
-      "POST"
+      "POST",
+      "PATCH"
     ],
     "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/reservation-requests/?$",
     "keys": [

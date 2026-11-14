@@ -1034,6 +1034,380 @@ paths:
       x-error-codes:
         - CAPABILITY_NOT_AVAILABLE
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/public/marketplace/merchants/{slug}/restaurant/browser-activities:
+    post:
+      operationId: post__api_public_marketplace_merchants_slug_restaurant_browser_activities
+      summary: POST /api/public/marketplace/merchants/{slug}/restaurant/browser-activities
+      tags:
+        - public
+      description: Restore up to20 browser-owned active records, max10reservations and10orders, in one native RPC. Accept a
+        management proof or a pending creation key/secret after response loss. Expired genuine management proofs may be
+        reconciled against the immutable native owner hash; renew90days only if active and expired/within7days.
+        Otherwise return the SAME management token to avoid cross-tab storage loops. Terminal records return a summary
+        without renewed management rights. Lookup/selection/tracking/share tokens never grant management. No contact
+        payload is persisted by the browser.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: content-type
+          in: header
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Original input indices preserved. Active creator states, terminal summaries, not_found proofs or unresolved
+            pending attempts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                          minimum: 0
+                          maximum: 19
+                        state:
+                          type: string
+                          enum:
+                            - active
+                            - terminal
+                            - not_found
+                            - pending
+                        type:
+                          type: string
+                          enum:
+                            - order
+                            - reservation
+                        reference:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        version:
+                          type: string
+                          minLength: 1
+                          maxLength: 128
+                          description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                        snapshot:
+                          anyOf:
+                            - type: object
+                              properties:
+                                reference:
+                                  type: string
+                                date:
+                                  type: string
+                                  format: date
+                                time:
+                                  type: string
+                                partySize:
+                                  type: integer
+                                  minimum: 1
+                                status:
+                                  type: string
+                                canCancel:
+                                  type: boolean
+                                canAssociate:
+                                  type: boolean
+                                customer:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                      maxLength: 140
+                                    phone:
+                                      type: string
+                                      maxLength: 40
+                                    email:
+                                      type: string
+                                      maxLength: 254
+                                  required:
+                                    - name
+                                    - phone
+                                  additionalProperties: false
+                                note:
+                                  type: string
+                              required:
+                                - reference
+                                - date
+                                - time
+                                - partySize
+                                - status
+                                - canCancel
+                                - canAssociate
+                              additionalProperties: false
+                            - type: object
+                              properties:
+                                reference:
+                                  type: string
+                                status:
+                                  type: string
+                                  enum:
+                                    - Open
+                                    - Closed
+                                    - Cancelled
+                                    - Merged
+                                acceptanceStatus:
+                                  type: string
+                                  enum:
+                                    - Pending
+                                    - Accepted
+                                    - Rejected
+                                trackingStatus:
+                                  type: string
+                                  enum:
+                                    - Pending
+                                    - Accepted
+                                    - Preparing
+                                    - Ready
+                                    - Completed
+                                    - Cancelled
+                                createdAt:
+                                  type: string
+                                  format: date-time
+                                orderMode:
+                                  type: string
+                                  enum:
+                                    - pickup
+                                    - reservation
+                                currency:
+                                  type: string
+                                total:
+                                  type: number
+                                lines:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      itemCode:
+                                        type: string
+                                      itemName:
+                                        type: string
+                                      quantity:
+                                        type: number
+                                      unitPrice:
+                                        type: number
+                                      amount:
+                                        type: number
+                                    required:
+                                      - itemCode
+                                      - itemName
+                                      - quantity
+                                      - unitPrice
+                                      - amount
+                                    additionalProperties: false
+                                canEdit:
+                                  type: boolean
+                                customer:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                      maxLength: 140
+                                    phone:
+                                      type: string
+                                      maxLength: 40
+                                    email:
+                                      type: string
+                                      maxLength: 254
+                                  required:
+                                    - name
+                                    - phone
+                                  additionalProperties: false
+                                note:
+                                  type: string
+                                reservation:
+                                  anyOf:
+                                    - type: object
+                                      properties:
+                                        reference:
+                                          type: string
+                                        date:
+                                          type: string
+                                          format: date
+                                        time:
+                                          type: string
+                                        partySize:
+                                          type: integer
+                                          minimum: 1
+                                      required:
+                                        - reference
+                                        - date
+                                        - time
+                                        - partySize
+                                      additionalProperties: false
+                                    - type: "null"
+                                merchantName:
+                                  type: string
+                              required:
+                                - reference
+                                - status
+                                - acceptanceStatus
+                                - trackingStatus
+                                - orderMode
+                                - currency
+                                - total
+                                - lines
+                                - canEdit
+                              additionalProperties: false
+                          description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                            persistent browser collections.
+                        managementToken:
+                          type: string
+                          minLength: 44
+                          maxLength: 2048
+                          description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                            put in a shared URL.
+                        trackingToken:
+                          type: string
+                        reservationToken:
+                          type: string
+                      required:
+                        - index
+                        - state
+                        - type
+                      additionalProperties: false
+                    maxItems: 20
+                required:
+                  - activities
+                additionalProperties: false
+        "400":
+          description: INVALID_REQUEST or INVALID_JSON.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: CAPABILITY_NOT_AVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "429":
+          description: TOO_MANY_REQUESTS; retain browser proof.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "503":
+          description: TRANSACTIONS_UNAVAILABLE; retain browser proof.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/browser-activities.ts
+      x-error-codes:
+        - UNSUPPORTED_MEDIA_TYPE
+        - PAYLOAD_TOO_LARGE
+        - INVALID_JSON
+        - INVALID_REQUEST
+        - CAPABILITY_NOT_AVAILABLE
+        - TRANSACTIONS_UNAVAILABLE
+        - TOO_MANY_REQUESTS
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                activities:
+                  type: array
+                  maxItems: 20
+                  items:
+                    oneOf:
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                              - order
+                              - reservation
+                          managementToken:
+                            type: string
+                            minLength: 44
+                            maxLength: 2048
+                            description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                              put in a shared URL.
+                        required:
+                          - type
+                          - managementToken
+                        additionalProperties: false
+                      - type: object
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                              - order
+                              - reservation
+                          idempotencyKey:
+                            type: string
+                            pattern: ^[A-Za-z0-9_-]{16,100}$
+                          managementKey:
+                            type: string
+                            pattern: ^[A-Za-z0-9_-]{43}$
+                            description: Browser-generated256bit secret persisted before creating. Only its scoped hash reaches Frappe; never
+                              late-claim a previous unowned record.
+                        required:
+                          - type
+                          - idempotencyKey
+                          - managementKey
+                        additionalProperties: false
+                  allOf:
+                    - contains:
+                        type: object
+                        properties:
+                          type:
+                            const: order
+                        required:
+                          - type
+                      minContains: 0
+                      maxContains: 10
+                    - contains:
+                        type: object
+                        properties:
+                          type:
+                            const: reservation
+                        required:
+                          - type
+                      minContains: 0
+                      maxContains: 10
+              required:
+                - activities
+              additionalProperties: false
   /api/public/marketplace/merchants/{slug}/restaurant/menu:
     get:
       operationId: get__api_public_marketplace_merchants_slug_restaurant_menu
@@ -1118,7 +1492,10 @@ paths:
       description: Legacy request without orderMode preserves native configured order path. Explicit pickup/reservation uses
         atomic K360 checkout with a durable unique key and payload fingerprint. Reservation selection tokens expire for
         new writes after 15 minutes; exact durable replays remain possible after expiry and cache loss. No ownership
-        verification is required by the accepted product decision.
+        verification is required by the accepted product decision. Optional creator managementKey is stored as a native
+        owner hash atomically on first creation, never on a late claim. Native ownership must be explicitly verified
+        before a management token is issued. An order managementKey requires an explicit orderMode; legacy bodies
+        without it are preserved.
       parameters:
         - name: slug
           in: path
@@ -1207,6 +1584,219 @@ paths:
                     type: string
                     description: Opaque encrypted tracking capability, issued immediately for explicit modes and exact replays. Valid24h,
                       scope includes merchant/site/POS/order; never a reservation selection proof.
+                  managementToken:
+                    type: string
+                    minLength: 44
+                    maxLength: 2048
+                    description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                      put in a shared URL.
+                  activity:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        minimum: 0
+                        maximum: 19
+                      state:
+                        type: string
+                        enum:
+                          - active
+                          - terminal
+                          - not_found
+                          - pending
+                      type:
+                        type: string
+                        enum:
+                          - order
+                          - reservation
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+                        minLength: 1
+                        maxLength: 128
+                        description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                      snapshot:
+                        anyOf:
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              time:
+                                type: string
+                              partySize:
+                                type: integer
+                                minimum: 1
+                              status:
+                                type: string
+                              canCancel:
+                                type: boolean
+                              canAssociate:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                            required:
+                              - reference
+                              - date
+                              - time
+                              - partySize
+                              - status
+                              - canCancel
+                              - canAssociate
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - Open
+                                  - Closed
+                                  - Cancelled
+                                  - Merged
+                              acceptanceStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Rejected
+                              trackingStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Preparing
+                                  - Ready
+                                  - Completed
+                                  - Cancelled
+                              createdAt:
+                                type: string
+                                format: date-time
+                              orderMode:
+                                type: string
+                                enum:
+                                  - pickup
+                                  - reservation
+                              currency:
+                                type: string
+                              total:
+                                type: number
+                              lines:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    itemCode:
+                                      type: string
+                                    itemName:
+                                      type: string
+                                    quantity:
+                                      type: number
+                                    unitPrice:
+                                      type: number
+                                    amount:
+                                      type: number
+                                  required:
+                                    - itemCode
+                                    - itemName
+                                    - quantity
+                                    - unitPrice
+                                    - amount
+                                  additionalProperties: false
+                              canEdit:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                              reservation:
+                                anyOf:
+                                  - type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                      date:
+                                        type: string
+                                        format: date
+                                      time:
+                                        type: string
+                                      partySize:
+                                        type: integer
+                                        minimum: 1
+                                    required:
+                                      - reference
+                                      - date
+                                      - time
+                                      - partySize
+                                    additionalProperties: false
+                                  - type: "null"
+                              merchantName:
+                                type: string
+                            required:
+                              - reference
+                              - status
+                              - acceptanceStatus
+                              - trackingStatus
+                              - orderMode
+                              - currency
+                              - total
+                              - lines
+                              - canEdit
+                            additionalProperties: false
+                        description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                          persistent browser collections.
+                      managementToken:
+                        type: string
+                        minLength: 44
+                        maxLength: 2048
+                        description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                          put in a shared URL.
+                      trackingToken:
+                        type: string
+                      reservationToken:
+                        type: string
+                    required:
+                      - index
+                      - state
+                      - type
+                    additionalProperties: false
                 required:
                   - reference
                   - status
@@ -1284,6 +1874,219 @@ paths:
                     type: string
                     description: Opaque encrypted tracking capability, issued immediately for explicit modes and exact replays. Valid24h,
                       scope includes merchant/site/POS/order; never a reservation selection proof.
+                  managementToken:
+                    type: string
+                    minLength: 44
+                    maxLength: 2048
+                    description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                      put in a shared URL.
+                  activity:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        minimum: 0
+                        maximum: 19
+                      state:
+                        type: string
+                        enum:
+                          - active
+                          - terminal
+                          - not_found
+                          - pending
+                      type:
+                        type: string
+                        enum:
+                          - order
+                          - reservation
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+                        minLength: 1
+                        maxLength: 128
+                        description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                      snapshot:
+                        anyOf:
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              time:
+                                type: string
+                              partySize:
+                                type: integer
+                                minimum: 1
+                              status:
+                                type: string
+                              canCancel:
+                                type: boolean
+                              canAssociate:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                            required:
+                              - reference
+                              - date
+                              - time
+                              - partySize
+                              - status
+                              - canCancel
+                              - canAssociate
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - Open
+                                  - Closed
+                                  - Cancelled
+                                  - Merged
+                              acceptanceStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Rejected
+                              trackingStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Preparing
+                                  - Ready
+                                  - Completed
+                                  - Cancelled
+                              createdAt:
+                                type: string
+                                format: date-time
+                              orderMode:
+                                type: string
+                                enum:
+                                  - pickup
+                                  - reservation
+                              currency:
+                                type: string
+                              total:
+                                type: number
+                              lines:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    itemCode:
+                                      type: string
+                                    itemName:
+                                      type: string
+                                    quantity:
+                                      type: number
+                                    unitPrice:
+                                      type: number
+                                    amount:
+                                      type: number
+                                  required:
+                                    - itemCode
+                                    - itemName
+                                    - quantity
+                                    - unitPrice
+                                    - amount
+                                  additionalProperties: false
+                              canEdit:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                              reservation:
+                                anyOf:
+                                  - type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                      date:
+                                        type: string
+                                        format: date
+                                      time:
+                                        type: string
+                                      partySize:
+                                        type: integer
+                                        minimum: 1
+                                    required:
+                                      - reference
+                                      - date
+                                      - time
+                                      - partySize
+                                    additionalProperties: false
+                                  - type: "null"
+                              merchantName:
+                                type: string
+                            required:
+                              - reference
+                              - status
+                              - acceptanceStatus
+                              - trackingStatus
+                              - orderMode
+                              - currency
+                              - total
+                              - lines
+                              - canEdit
+                            additionalProperties: false
+                        description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                          persistent browser collections.
+                      managementToken:
+                        type: string
+                        minLength: 44
+                        maxLength: 2048
+                        description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                          put in a shared URL.
+                      trackingToken:
+                        type: string
+                      reservationToken:
+                        type: string
+                    required:
+                      - index
+                      - state
+                      - type
+                    additionalProperties: false
                 required:
                   - reference
                   - status
@@ -1439,12 +2242,422 @@ paths:
                   type: string
                   minLength: 40
                   maxLength: 2048
+                managementKey:
+                  type: string
+                  pattern: ^[A-Za-z0-9_-]{43}$
+                  description: Browser-generated256bit secret persisted before creating. Only its scoped hash reaches Frappe; never
+                    late-claim a previous unowned record.
                 website:
                   type: string
                   maxLength: 200
               required:
                 - currency
                 - lines
+    patch:
+      operationId: patch__api_public_marketplace_merchants_slug_restaurant_orders
+      summary: PATCH /api/public/marketplace/merchants/{slug}/restaurant/orders
+      tags:
+        - public
+      description: Creator edit only native Open/Pending with no ticket (evenNew/Cancelled), invoice, bill or processing
+        marker. Mode/reservation link are immutable. Current native locks and exact expectedVersion coordinate with
+        merchant acceptance/kitchen/payment. Fresh quote follows atomic price/item refusal. Requires fresh creator
+        capability and idempotency key. Exact last mutation replays without reapplying; changed payload under same key
+        refuses422, older revision refuses409. Expired creator proof may be reconciled first, never used directly to
+        mutate.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{16,100}$
+      responses:
+        "200":
+          description: Current creator activity and whether this exact mutation was replayed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activity:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        minimum: 0
+                        maximum: 19
+                      state:
+                        type: string
+                        enum:
+                          - active
+                          - terminal
+                          - not_found
+                          - pending
+                      type:
+                        type: string
+                        enum:
+                          - order
+                          - reservation
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+                        minLength: 1
+                        maxLength: 128
+                        description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                      snapshot:
+                        anyOf:
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              time:
+                                type: string
+                              partySize:
+                                type: integer
+                                minimum: 1
+                              status:
+                                type: string
+                              canCancel:
+                                type: boolean
+                              canAssociate:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                            required:
+                              - reference
+                              - date
+                              - time
+                              - partySize
+                              - status
+                              - canCancel
+                              - canAssociate
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - Open
+                                  - Closed
+                                  - Cancelled
+                                  - Merged
+                              acceptanceStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Rejected
+                              trackingStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Preparing
+                                  - Ready
+                                  - Completed
+                                  - Cancelled
+                              createdAt:
+                                type: string
+                                format: date-time
+                              orderMode:
+                                type: string
+                                enum:
+                                  - pickup
+                                  - reservation
+                              currency:
+                                type: string
+                              total:
+                                type: number
+                              lines:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    itemCode:
+                                      type: string
+                                    itemName:
+                                      type: string
+                                    quantity:
+                                      type: number
+                                    unitPrice:
+                                      type: number
+                                    amount:
+                                      type: number
+                                  required:
+                                    - itemCode
+                                    - itemName
+                                    - quantity
+                                    - unitPrice
+                                    - amount
+                                  additionalProperties: false
+                              canEdit:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                              reservation:
+                                anyOf:
+                                  - type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                      date:
+                                        type: string
+                                        format: date
+                                      time:
+                                        type: string
+                                      partySize:
+                                        type: integer
+                                        minimum: 1
+                                    required:
+                                      - reference
+                                      - date
+                                      - time
+                                      - partySize
+                                    additionalProperties: false
+                                  - type: "null"
+                              merchantName:
+                                type: string
+                            required:
+                              - reference
+                              - status
+                              - acceptanceStatus
+                              - trackingStatus
+                              - orderMode
+                              - currency
+                              - total
+                              - lines
+                              - canEdit
+                            additionalProperties: false
+                        description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                          persistent browser collections.
+                      managementToken:
+                        type: string
+                        minLength: 44
+                        maxLength: 2048
+                        description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                          put in a shared URL.
+                      trackingToken:
+                        type: string
+                      reservationToken:
+                        type: string
+                    required:
+                      - index
+                      - state
+                      - type
+                    additionalProperties: false
+                  replayed:
+                    type: boolean
+                required:
+                  - activity
+                  - replayed
+                additionalProperties: false
+        "400":
+          description: INVALID_REQUEST.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: ACTIVITY_NOT_FOUND or CAPABILITY_NOT_AVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "409":
+          description: VERSION_CONFLICT, RESERVATION_NOT_CANCELLABLE, ORDER_NOT_EDITABLE or price/item refusal with optional fresh
+            quote.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "410":
+          description: MANAGEMENT_TOKEN_EXPIRED; reconcile before a new mutation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "422":
+          description: IDEMPOTENCY_KEY_REUSED or CURRENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "429":
+          description: TOO_MANY_REQUESTS.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "503":
+          description: TRANSACTIONS_UNAVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts
+      x-error-codes: []
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                managementToken:
+                  type: string
+                  minLength: 44
+                  maxLength: 2048
+                  description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                    put in a shared URL.
+                expectedVersion:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                  description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                currency:
+                  type: string
+                  pattern: ^[A-Z]{3}$
+                lines:
+                  type: array
+                  minItems: 1
+                  maxItems: 40
+                  items:
+                    type: object
+                    properties:
+                      itemCode:
+                        type: string
+                        minLength: 1
+                        maxLength: 140
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        maximum: 50
+                      unitPrice:
+                        type: number
+                        minimum: 0
+                        maximum: 100000000
+                    required:
+                      - itemCode
+                      - quantity
+                      - unitPrice
+                    additionalProperties: false
+                customer:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      minLength: 2
+                      maxLength: 120
+                    phone:
+                      type: string
+                      pattern: ^\+[1-9]\d{6,14}$
+                    email:
+                      type: string
+                      format: email
+                      maxLength: 254
+                  required:
+                    - name
+                    - phone
+                  additionalProperties: false
+                note:
+                  type: string
+                  maxLength: 500
+              required:
+                - managementToken
+                - expectedVersion
+                - currency
+                - lines
+              additionalProperties: false
   /api/public/marketplace/merchants/{slug}/restaurant/quote:
     post:
       operationId: post__api_public_marketplace_merchants_slug_restaurant_quote
@@ -1571,7 +2784,9 @@ paths:
         - public
       description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
         responses and business rules. This path is public at the general middleware level; any handler-specific checks
-        still apply.
+        still apply. Optional creator managementKey is stored as a native owner hash atomically on first creation, never
+        on a late claim. Native ownership must be explicitly verified before a management token is issued. An order
+        managementKey requires an explicit orderMode; legacy bodies without it are preserved.
       parameters:
         - name: slug
           in: path
@@ -1592,7 +2807,469 @@ paths:
             type: string
       responses:
         "200":
-          description: Response from the migrated handler
+          description: Current native booking status and optional verified creator activity.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  status:
+                    type: string
+                  replayed:
+                    type: boolean
+                  managementToken:
+                    type: string
+                    minLength: 44
+                    maxLength: 2048
+                    description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                      put in a shared URL.
+                  activity:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        minimum: 0
+                        maximum: 19
+                      state:
+                        type: string
+                        enum:
+                          - active
+                          - terminal
+                          - not_found
+                          - pending
+                      type:
+                        type: string
+                        enum:
+                          - order
+                          - reservation
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+                        minLength: 1
+                        maxLength: 128
+                        description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                      snapshot:
+                        anyOf:
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              time:
+                                type: string
+                              partySize:
+                                type: integer
+                                minimum: 1
+                              status:
+                                type: string
+                              canCancel:
+                                type: boolean
+                              canAssociate:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                            required:
+                              - reference
+                              - date
+                              - time
+                              - partySize
+                              - status
+                              - canCancel
+                              - canAssociate
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - Open
+                                  - Closed
+                                  - Cancelled
+                                  - Merged
+                              acceptanceStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Rejected
+                              trackingStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Preparing
+                                  - Ready
+                                  - Completed
+                                  - Cancelled
+                              createdAt:
+                                type: string
+                                format: date-time
+                              orderMode:
+                                type: string
+                                enum:
+                                  - pickup
+                                  - reservation
+                              currency:
+                                type: string
+                              total:
+                                type: number
+                              lines:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    itemCode:
+                                      type: string
+                                    itemName:
+                                      type: string
+                                    quantity:
+                                      type: number
+                                    unitPrice:
+                                      type: number
+                                    amount:
+                                      type: number
+                                  required:
+                                    - itemCode
+                                    - itemName
+                                    - quantity
+                                    - unitPrice
+                                    - amount
+                                  additionalProperties: false
+                              canEdit:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                              reservation:
+                                anyOf:
+                                  - type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                      date:
+                                        type: string
+                                        format: date
+                                      time:
+                                        type: string
+                                      partySize:
+                                        type: integer
+                                        minimum: 1
+                                    required:
+                                      - reference
+                                      - date
+                                      - time
+                                      - partySize
+                                    additionalProperties: false
+                                  - type: "null"
+                              merchantName:
+                                type: string
+                            required:
+                              - reference
+                              - status
+                              - acceptanceStatus
+                              - trackingStatus
+                              - orderMode
+                              - currency
+                              - total
+                              - lines
+                              - canEdit
+                            additionalProperties: false
+                        description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                          persistent browser collections.
+                      managementToken:
+                        type: string
+                        minLength: 44
+                        maxLength: 2048
+                        description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                          put in a shared URL.
+                      trackingToken:
+                        type: string
+                      reservationToken:
+                        type: string
+                    required:
+                      - index
+                      - state
+                      - type
+                    additionalProperties: false
+                required:
+                  - reference
+                  - status
+                  - replayed
+                additionalProperties: false
+        "201":
+          description: Current native booking status and optional verified creator activity.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reference:
+                    type: string
+                  status:
+                    type: string
+                  replayed:
+                    type: boolean
+                  managementToken:
+                    type: string
+                    minLength: 44
+                    maxLength: 2048
+                    description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                      put in a shared URL.
+                  activity:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        minimum: 0
+                        maximum: 19
+                      state:
+                        type: string
+                        enum:
+                          - active
+                          - terminal
+                          - not_found
+                          - pending
+                      type:
+                        type: string
+                        enum:
+                          - order
+                          - reservation
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+                        minLength: 1
+                        maxLength: 128
+                        description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                      snapshot:
+                        anyOf:
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              time:
+                                type: string
+                              partySize:
+                                type: integer
+                                minimum: 1
+                              status:
+                                type: string
+                              canCancel:
+                                type: boolean
+                              canAssociate:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                            required:
+                              - reference
+                              - date
+                              - time
+                              - partySize
+                              - status
+                              - canCancel
+                              - canAssociate
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - Open
+                                  - Closed
+                                  - Cancelled
+                                  - Merged
+                              acceptanceStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Rejected
+                              trackingStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Preparing
+                                  - Ready
+                                  - Completed
+                                  - Cancelled
+                              createdAt:
+                                type: string
+                                format: date-time
+                              orderMode:
+                                type: string
+                                enum:
+                                  - pickup
+                                  - reservation
+                              currency:
+                                type: string
+                              total:
+                                type: number
+                              lines:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    itemCode:
+                                      type: string
+                                    itemName:
+                                      type: string
+                                    quantity:
+                                      type: number
+                                    unitPrice:
+                                      type: number
+                                    amount:
+                                      type: number
+                                  required:
+                                    - itemCode
+                                    - itemName
+                                    - quantity
+                                    - unitPrice
+                                    - amount
+                                  additionalProperties: false
+                              canEdit:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                              reservation:
+                                anyOf:
+                                  - type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                      date:
+                                        type: string
+                                        format: date
+                                      time:
+                                        type: string
+                                      partySize:
+                                        type: integer
+                                        minimum: 1
+                                    required:
+                                      - reference
+                                      - date
+                                      - time
+                                      - partySize
+                                    additionalProperties: false
+                                  - type: "null"
+                              merchantName:
+                                type: string
+                            required:
+                              - reference
+                              - status
+                              - acceptanceStatus
+                              - trackingStatus
+                              - orderMode
+                              - currency
+                              - total
+                              - lines
+                              - canEdit
+                            additionalProperties: false
+                        description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                          persistent browser collections.
+                      managementToken:
+                        type: string
+                        minLength: 44
+                        maxLength: 2048
+                        description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                          put in a shared URL.
+                      trackingToken:
+                        type: string
+                      reservationToken:
+                        type: string
+                    required:
+                      - index
+                      - state
+                      - type
+                    additionalProperties: false
+                required:
+                  - reference
+                  - status
+                  - replayed
+                additionalProperties: false
+        "400":
+          description: Error or redirect from the migrated handler
           content:
             application/json:
               schema: &a8
@@ -1601,16 +3278,6 @@ paths:
                   reference: {}
                   status: {}
                   replayed: {}
-        "201":
-          description: Response from the migrated handler
-          content:
-            application/json:
-              schema: *a8
-        "400":
-          description: Error or redirect from the migrated handler
-          content:
-            application/json:
-              schema: *a8
         "404":
           description: Error or redirect from the migrated handler
           content:
@@ -1704,12 +3371,374 @@ paths:
                 website:
                   type: string
                   maxLength: 200
+                managementKey:
+                  type: string
+                  pattern: ^[A-Za-z0-9_-]{43}$
+                  description: Browser-generated256bit secret persisted before creating. Only its scoped hash reaches Frappe; never
+                    late-claim a previous unowned record.
               required:
                 - name
                 - phone
                 - date
                 - time
                 - partySize
+    patch:
+      operationId: patch__api_public_marketplace_merchants_slug_restaurant_reservation_requests
+      summary: PATCH /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests
+      tags:
+        - public
+      description: Creator cancellation only native Requested, including past-time Requested. Confirmation or state/version
+        races are refused. Never delete a reservation or implicitly cancel its orders. Requires fresh creator capability
+        and idempotency key. Exact last mutation replays without reapplying; changed payload under same key refuses422,
+        older revision refuses409. Expired creator proof may be reconciled first, never used directly to mutate.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{16,100}$
+      responses:
+        "200":
+          description: Current creator activity and whether this exact mutation was replayed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activity:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        minimum: 0
+                        maximum: 19
+                      state:
+                        type: string
+                        enum:
+                          - active
+                          - terminal
+                          - not_found
+                          - pending
+                      type:
+                        type: string
+                        enum:
+                          - order
+                          - reservation
+                      reference:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      version:
+                        type: string
+                        minLength: 1
+                        maxLength: 128
+                        description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                      snapshot:
+                        anyOf:
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              time:
+                                type: string
+                              partySize:
+                                type: integer
+                                minimum: 1
+                              status:
+                                type: string
+                              canCancel:
+                                type: boolean
+                              canAssociate:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                            required:
+                              - reference
+                              - date
+                              - time
+                              - partySize
+                              - status
+                              - canCancel
+                              - canAssociate
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              reference:
+                                type: string
+                              status:
+                                type: string
+                                enum:
+                                  - Open
+                                  - Closed
+                                  - Cancelled
+                                  - Merged
+                              acceptanceStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Rejected
+                              trackingStatus:
+                                type: string
+                                enum:
+                                  - Pending
+                                  - Accepted
+                                  - Preparing
+                                  - Ready
+                                  - Completed
+                                  - Cancelled
+                              createdAt:
+                                type: string
+                                format: date-time
+                              orderMode:
+                                type: string
+                                enum:
+                                  - pickup
+                                  - reservation
+                              currency:
+                                type: string
+                              total:
+                                type: number
+                              lines:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    itemCode:
+                                      type: string
+                                    itemName:
+                                      type: string
+                                    quantity:
+                                      type: number
+                                    unitPrice:
+                                      type: number
+                                    amount:
+                                      type: number
+                                  required:
+                                    - itemCode
+                                    - itemName
+                                    - quantity
+                                    - unitPrice
+                                    - amount
+                                  additionalProperties: false
+                              canEdit:
+                                type: boolean
+                              customer:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maxLength: 140
+                                  phone:
+                                    type: string
+                                    maxLength: 40
+                                  email:
+                                    type: string
+                                    maxLength: 254
+                                required:
+                                  - name
+                                  - phone
+                                additionalProperties: false
+                              note:
+                                type: string
+                              reservation:
+                                anyOf:
+                                  - type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                      date:
+                                        type: string
+                                        format: date
+                                      time:
+                                        type: string
+                                      partySize:
+                                        type: integer
+                                        minimum: 1
+                                    required:
+                                      - reference
+                                      - date
+                                      - time
+                                      - partySize
+                                    additionalProperties: false
+                                  - type: "null"
+                              merchantName:
+                                type: string
+                            required:
+                              - reference
+                              - status
+                              - acceptanceStatus
+                              - trackingStatus
+                              - orderMode
+                              - currency
+                              - total
+                              - lines
+                              - canEdit
+                            additionalProperties: false
+                        description: Private creator-authorized state only; contacts are never added to public lookup/tracking DTOs or
+                          persistent browser collections.
+                      managementToken:
+                        type: string
+                        minLength: 44
+                        maxLength: 2048
+                        description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                          put in a shared URL.
+                      trackingToken:
+                        type: string
+                      reservationToken:
+                        type: string
+                    required:
+                      - index
+                      - state
+                      - type
+                    additionalProperties: false
+                  replayed:
+                    type: boolean
+                required:
+                  - activity
+                  - replayed
+                additionalProperties: false
+        "400":
+          description: INVALID_REQUEST.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "404":
+          description: ACTIVITY_NOT_FOUND or CAPABILITY_NOT_AVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "409":
+          description: VERSION_CONFLICT, RESERVATION_NOT_CANCELLABLE, ORDER_NOT_EDITABLE or price/item refusal with optional fresh
+            quote.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "410":
+          description: MANAGEMENT_TOKEN_EXPIRED; reconcile before a new mutation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "422":
+          description: IDEMPOTENCY_KEY_REUSED or CURRENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "429":
+          description: TOO_MANY_REQUESTS.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+        "503":
+          description: TRANSACTIONS_UNAVAILABLE.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                  - error
+                additionalProperties: false
+      security: []
+      x-source: src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts
+      x-error-codes: []
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                managementToken:
+                  type: string
+                  minLength: 44
+                  maxLength: 2048
+                  description: Opaque AES-GCM creator capability, distinct purpose from all lookup, selection and tracking proofs. Never
+                    put in a shared URL.
+                expectedVersion:
+                  type: string
+                  minLength: 1
+                  maxLength: 128
+                  description: Exact native revision, preserving all six microseconds. Never round-trip through JavaScript Date.
+                action:
+                  type: string
+                  const: cancel
+              required:
+                - managementToken
+                - expectedVersion
+                - action
+              additionalProperties: false
   /api/admin/merchants/{id}/kyb/contract:
     get:
       operationId: get__api_admin_merchants_id_kyb_contract

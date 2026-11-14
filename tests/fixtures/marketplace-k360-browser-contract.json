@@ -1,0 +1,199 @@
+{
+  "provenance": "Actual K360 management functions; DB/native mutations simulated by its unit harness, not production evidence.",
+  "ownerHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "orderCreation": {
+    "reference": "ORDER",
+    "status": "Open",
+    "currency": "XAF",
+    "total": 20.0,
+    "orderMode": "pickup",
+    "acceptanceStatus": "Pending",
+    "reservation": null,
+    "lines": [
+      {
+        "itemCode": "MEAL",
+        "itemName": "Meal",
+        "quantity": 2.0,
+        "unitPrice": 10.0,
+        "amount": 20.0
+      }
+    ],
+    "replayed": false,
+    "state": "active",
+    "type": "order",
+    "createdAt": "2026-11-14T12:00:00.000001+01:00",
+    "version": "2026-11-14 12:00:00.123456",
+    "snapshot": {
+      "reference": "ORDER",
+      "createdAt": "2026-11-14T12:00:00.000001+01:00",
+      "orderMode": "pickup",
+      "currency": "XAF",
+      "total": 20.0,
+      "status": "Open",
+      "acceptanceStatus": "Pending",
+      "trackingStatus": "Pending",
+      "canEdit": true,
+      "reservation": null,
+      "lines": [
+        {
+          "itemCode": "MEAL",
+          "itemName": "Meal",
+          "quantity": 2.0,
+          "unitPrice": 10.0,
+          "amount": 20.0
+        }
+      ],
+      "customer": {
+        "name": "Client",
+        "phone": "+242069123456",
+        "email": ""
+      },
+      "note": ""
+    },
+    "ownerVerified": true
+  },
+  "reservationCreation": {
+    "reference": "RSV-1",
+    "status": "Requested",
+    "reused": false,
+    "state": "active",
+    "type": "reservation",
+    "createdAt": "2026-11-14T12:00:00.000001+01:00",
+    "version": "2026-11-14 12:00:00.123456",
+    "snapshot": {
+      "reference": "RSV-1",
+      "date": "2026-11-15",
+      "time": "19:00",
+      "partySize": 2,
+      "status": "Requested",
+      "canCancel": true,
+      "canAssociate": false,
+      "customer": {
+        "name": "Client Test",
+        "phone": "+12025550130"
+      },
+      "note": ""
+    },
+    "ownerVerified": true
+  },
+  "batch": {
+    "activities": [
+      {
+        "state": "active",
+        "type": "order",
+        "reference": "ORDER",
+        "createdAt": "2026-11-14T12:00:00.000001+01:00",
+        "version": "2026-11-14 12:00:00.123456",
+        "snapshot": {
+          "reference": "ORDER",
+          "createdAt": "2026-11-14T12:00:00.000001+01:00",
+          "orderMode": "pickup",
+          "currency": "XAF",
+          "total": 20.0,
+          "status": "Open",
+          "acceptanceStatus": "Pending",
+          "trackingStatus": "Pending",
+          "canEdit": true,
+          "reservation": null,
+          "lines": [
+            {
+              "itemCode": "MEAL",
+              "itemName": "Meal",
+              "quantity": 2.0,
+              "unitPrice": 10.0,
+              "amount": 20.0
+            }
+          ],
+          "customer": {
+            "name": "Client",
+            "phone": "+242069123456",
+            "email": ""
+          },
+          "note": ""
+        },
+        "ownerVerified": true,
+        "index": 1
+      },
+      {
+        "state": "active",
+        "type": "reservation",
+        "reference": "RSV-1",
+        "createdAt": "2026-11-14T12:00:00.000001+01:00",
+        "version": "2026-11-14 12:00:00.123456",
+        "snapshot": {
+          "reference": "RSV-1",
+          "date": "2026-11-15",
+          "time": "19:00",
+          "partySize": 2,
+          "status": "Requested",
+          "canCancel": true,
+          "canAssociate": false,
+          "customer": {
+            "name": "Client Test",
+            "phone": "+12025550130"
+          },
+          "note": ""
+        },
+        "ownerVerified": true,
+        "index": 3
+      }
+    ]
+  },
+  "updated": {
+    "state": "active",
+    "type": "order",
+    "reference": "ORDER",
+    "createdAt": "2026-11-14T12:00:00.000001+01:00",
+    "version": "2026-11-14 12:00:00.123456",
+    "snapshot": {
+      "reference": "ORDER",
+      "createdAt": "2026-11-14T12:00:00.000001+01:00",
+      "orderMode": "pickup",
+      "currency": "XAF",
+      "total": 20.0,
+      "status": "Open",
+      "acceptanceStatus": "Pending",
+      "trackingStatus": "Pending",
+      "canEdit": true,
+      "reservation": null,
+      "lines": [
+        {
+          "itemCode": "MEAL",
+          "itemName": "Meal",
+          "quantity": 2.0,
+          "unitPrice": 10.0,
+          "amount": 20.0
+        }
+      ],
+      "customer": {
+        "name": "Client",
+        "phone": "+242069123456",
+        "email": ""
+      },
+      "note": "Updated"
+    },
+    "ownerVerified": true
+  },
+  "cancelled": {
+    "state": "terminal",
+    "type": "reservation",
+    "reference": "RSV-1",
+    "createdAt": "2026-11-14T12:00:00.000001+01:00",
+    "version": "2026-11-14 12:00:00.123456",
+    "snapshot": {
+      "reference": "RSV-1",
+      "date": "2026-11-15",
+      "time": "19:00",
+      "partySize": 2,
+      "status": "Cancelled",
+      "canCancel": false,
+      "canAssociate": false,
+      "customer": {
+        "name": "Client Test",
+        "phone": "+12025550130"
+      },
+      "note": ""
+    },
+    "ownerVerified": true
+  }
+}
