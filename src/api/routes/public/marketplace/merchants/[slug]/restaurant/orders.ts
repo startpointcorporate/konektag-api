@@ -1,4 +1,4 @@
-import { OrderModeError, placeModeOrder, readSelection } from '../../../../../../../application/marketplace-transactions/restaurant-modes.ts';
+import { issueTracking, OrderModeError, placeModeOrder, readSelection } from '../../../../../../../application/marketplace-transactions/restaurant-modes.ts';
 import { z } from 'zod';
 import type { RequestContext } from '../../../../../../http';
 import { boundedRequest, capability, defaultDeps, IDEMPOTENCY_KEY, json, limited, unavailable, type TransactionDeps } from '../../../../../../../application/marketplace-transactions/http-handlers.ts';
@@ -66,7 +66,7 @@ export const POST = async (ctx: RequestContext, deps?: TransactionDeps): Promise
       r = cached.result; replayed = cached.replayed;
     }
     const recorded = JSON.stringify({ reference: r.reference, status: r.status, currency: r.currency, total: r.total, lines: r.lines,
-      ...(orderMode ? { orderMode: r.orderMode, reservation: r.reservation } : {}), replayed });
+      ...(orderMode ? { orderMode: r.orderMode, reservation: r.reservation, trackingToken: issueTracking(deps, slug, cap, r.reference) } : {}), replayed });
     const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
     if (replayed) return new Response(recorded, { status: 200, headers });
     return new Response(recorded, { status: 201, headers });

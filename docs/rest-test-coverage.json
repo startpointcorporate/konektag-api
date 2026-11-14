@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 331,
-    "operations": 420,
-    "covered": 82,
+    "paths": 332,
+    "operations": 421,
+    "covered": 83,
     "partial": 337,
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 338,
-    "executedTests": 3005,
-    "passedTests": 3005
+    "executedTests": 3023,
+    "passedTests": 3023
   },
   "operations": [
     {
@@ -10133,6 +10133,81 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking returns zero/one/multiple orders without exposing contact details",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking rejects invalid/mixed criteria before the adapter",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Pending state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Accepted state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Preparing state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Ready state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Completed state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Cancelled state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking rejects expired/wrong restaurant/POS/purpose tracking proofs before reading native order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking preserves Accepted-only native share links while exposing enriched tracking fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking issues tracking proof on explicit checkout immediately before acceptance",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking maps scope-not-found, adapter quotas and limiter outage safely",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -10146,6 +10221,7 @@
       "assertions": [
         "Accepted minimal order only; strips private customer fields; trusted native Desk URL; generic invalid/expired refusal; no-store/no-referrer/noindex; quotas and unavailable storage fail closed.",
         "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
+        "Three exact lookup variants, normalization, zero/one/multiple results and minimal public DTO; context/purpose/expiry tracking proofs; state Pending through preparation/ready/completed/cancelled; immediate checkout tracking proof; Accepted-only share link preserved; quota and outage refusals.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -10153,10 +10229,12 @@
       ],
       "candidates": [
         "tests/unit/marketplace-client-order.test.ts",
-        "tests/unit/marketplace-k360-contract.test.ts"
+        "tests/unit/marketplace-k360-contract.test.ts",
+        "tests/unit/marketplace-order-tracking.test.ts"
       ],
       "constraints": [
-        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records.",
+        "Kitchen state persistence and SQL are simulated here; separate real-adapter DTO fixture and K360 mapping tests exist. Final production synthetic-record recette is coordinated after all three applications are deployed."
       ]
     },
     {
@@ -19066,6 +19144,81 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking returns zero/one/multiple orders without exposing contact details",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking rejects invalid/mixed criteria before the adapter",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Pending state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Accepted state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Preparing state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Ready state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Completed state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Cancelled state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking rejects expired/wrong restaurant/POS/purpose tracking proofs before reading native order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking preserves Accepted-only native share links while exposing enriched tracking fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking issues tracking proof on explicit checkout immediately before acceptance",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking maps scope-not-found, adapter quotas and limiter outage safely",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/orders] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -19079,6 +19232,7 @@
       "assertions": [
         "Public minimal lookup, strict variants and quotas; explicit pickup and reservation writes; opaque context-scoped selections; replay after expiry/cache loss/cancellation, stable renewed proof, changed-payload refusal; fresh quote after atomic price refusal.",
         "Optional email accepts absence, normalizes valid input, rejects malformed input before adapter write and stays excluded from public DTOs.",
+        "Three exact lookup variants, normalization, zero/one/multiple results and minimal public DTO; context/purpose/expiry tracking proofs; state Pending through preparation/ready/completed/cancelled; immediate checkout tracking proof; Accepted-only share link preserved; quota and outage refusals.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -19087,10 +19241,132 @@
       "candidates": [
         "tests/unit/marketplace-k360-contract.test.ts",
         "tests/unit/marketplace-order-modes.test.ts",
+        "tests/unit/marketplace-order-tracking.test.ts",
         "tests/unit/marketplace-transactions.test.ts"
       ],
       "constraints": [
-        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+        "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records.",
+        "Kitchen state persistence and SQL are simulated here; separate real-adapter DTO fixture and K360 mapping tests exist. Final production synthetic-record recette is coordinated after all three applications are deployed."
+      ]
+    },
+    {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/orders/lookup",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders/lookup",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/lookup.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking looks up undefined minimally with an opaque token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking returns zero/one/multiple orders without exposing contact details",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking rejects invalid/mixed criteria before the adapter",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Pending state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Accepted state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Preparing state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Ready state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Completed state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking shows real Cancelled state from the tracking adapter without PII",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking rejects expired/wrong restaurant/POS/purpose tracking proofs before reading native order",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking preserves Accepted-only native share links while exposing enriched tracking fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking issues tracking proof on explicit checkout immediately before acceptance",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/marketplace-order-tracking.test.ts",
+          "name": "Marketplace order tracking maps scope-not-found, adapter quotas and limiter outage safely",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/orders/lookup] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/orders/lookup] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Three exact lookup variants, normalization, zero/one/multiple results and minimal public DTO; context/purpose/expiry tracking proofs; state Pending through preparation/ready/completed/cancelled; immediate checkout tracking proof; Accepted-only share link preserved; quota and outage refusals.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-k360-contract.test.ts",
+        "tests/unit/marketplace-order-tracking.test.ts"
+      ],
+      "constraints": [
+        "Kitchen state persistence and SQL are simulated here; separate real-adapter DTO fixture and K360 mapping tests exist. Final production synthetic-record recette is coordinated after all three applications are deployed."
       ]
     },
     {

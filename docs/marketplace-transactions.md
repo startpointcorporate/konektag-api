@@ -113,3 +113,11 @@ Tests de contrat interlangages : `tests/contracts/export-k360-order-fixture.py` 
 ### Email facultatif et partage navigateur
 
 Le champ `customer.email` existant reste facultatif, normalisé trim/minuscules et validé avant toute création. L'API le transmet à checkout360 dans `customer` ; le patch K360 le conserve dans `k360_customer_email`, privé. Les DTO lookup/confirmation/lien client n'exposent jamais cette adresse. Après acceptation, le partage Desk peut ouvrir un `mailto:` prérempli dans l'application locale du marchand, en plus des liens SMS/WhatsApp ; aucun envoi email serveur ni nouveau fournisseur.
+
+### Suivi dès la création
+
+`POST …/restaurant/orders/lookup` retrouve les commandes Marketplace natives par exactement un numéro de commande, téléphone E.164 ou email facultatif. L'autorité360 limite au POS de l'établissement et aux commandes avec clé K360 ; résultats les plus récents d'abord, maximum20. Les listes ne contiennent que référence, date, modes, total/devise et états, jamais les coordonnées ou commentaires. Les choix produit permettent la recherche sans preuve de possession du contact ; les quotas ne remplacent pas cette preuve.
+
+Chaque résultat et confirmation de commande explicite fournit un token opaque de suivi AES-GCM24h, purpose distinct `marketplace-order-tracking-v1`, scoped slug/site/POS/commande. Le GET existant `…/restaurant/orders/{token}` accepte ce token dès Pending et conserve l'annulation/rejet visibles. Les secrets natifs de partage43caractères restent Accepted-only7jours, sans affaiblissement de leur politique. QR natif masqué avant acceptation ou après annulation. Expiration du token de suivi invite à rechercher à nouveau ; actualisation manuelle, sans polling.
+
+`trackingStatus` expose la progression réelle POS Kitchen Ticket via `source_order` : Pending/Accepted/Preparing/Ready/Completed/Cancelled. New/Preparing cuisine => Preparing ; tous tickets restants Ready/Done avec Ready => Ready ; tous Done => Completed ; Closed sans tickets => Completed ; Cancelled/Merged natif ou Rejected => Cancelled. Closed avec tickets actifs conserve la progression cuisine. `status` natif et `acceptanceStatus` restent séparés ; rien n'est persisté dans un nouveau modèle de suivi.

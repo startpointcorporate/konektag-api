@@ -2156,5 +2156,43 @@
       "accepted client order link uses the same generic refusal for invalid/expired/nonaccepted/cancelled orders",
       "accepted client order link rate limits and fails closed during infrastructure failure"
     ]
+  },
+  {
+    "file": "tests/unit/marketplace-order-tracking.test.ts",
+    "operations": [
+      "POST /api/public/marketplace/merchants/{slug}/restaurant/orders/lookup",
+      "GET /api/public/marketplace/merchants/{slug}/restaurant/orders/{token}",
+      "POST /api/public/marketplace/merchants/{slug}/restaurant/orders"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Three exact lookup variants, normalization, zero/one/multiple results and minimal public DTO; context/purpose/expiry tracking proofs; state Pending through preparation/ready/completed/cancelled; immediate checkout tracking proof; Accepted-only share link preserved; quota and outage refusals."
+    ],
+    "constraints": [
+      "Kitchen state persistence and SQL are simulated here; separate real-adapter DTO fixture and K360 mapping tests exist. Final production synthetic-record recette is coordinated after all three applications are deployed."
+    ],
+    "sha256": "bfb26e1238b4cb6623b6f2d7b98524a5ae491b2a7ce8eaefe19c537a1d359c5c",
+    "tests": [
+      "Marketplace order tracking looks up undefined minimally with an opaque token",
+      "Marketplace order tracking looks up undefined minimally with an opaque token",
+      "Marketplace order tracking looks up undefined minimally with an opaque token",
+      "Marketplace order tracking returns zero/one/multiple orders without exposing contact details",
+      "Marketplace order tracking rejects invalid/mixed criteria before the adapter",
+      "Marketplace order tracking shows real Pending state from the tracking adapter without PII",
+      "Marketplace order tracking shows real Accepted state from the tracking adapter without PII",
+      "Marketplace order tracking shows real Preparing state from the tracking adapter without PII",
+      "Marketplace order tracking shows real Ready state from the tracking adapter without PII",
+      "Marketplace order tracking shows real Completed state from the tracking adapter without PII",
+      "Marketplace order tracking shows real Cancelled state from the tracking adapter without PII",
+      "Marketplace order tracking rejects expired/wrong restaurant/POS/purpose tracking proofs before reading native order",
+      "Marketplace order tracking preserves Accepted-only native share links while exposing enriched tracking fields",
+      "Marketplace order tracking issues tracking proof on explicit checkout immediately before acceptance",
+      "Marketplace order tracking maps scope-not-found, adapter quotas and limiter outage safely"
+    ]
   }
 ]

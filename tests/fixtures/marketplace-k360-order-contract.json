@@ -67,10 +67,47 @@
   },
   "client": {
     "reference": "ORDER",
-    "status": "Open",
-    "acceptanceStatus": "Accepted",
+    "createdAt": "2026-11-14T12:00:00+01:00",
+    "orderMode": "reservation",
     "currency": "XAF",
     "total": 20.0,
+    "status": "Open",
+    "acceptanceStatus": "Accepted",
+    "trackingStatus": "Accepted",
+    "merchantName": "Restaurant",
+    "lines": [
+      {
+        "itemCode": "MEAL",
+        "itemName": "Meal",
+        "quantity": 2.0,
+        "unitPrice": 10.0,
+        "amount": 20.0
+      }
+    ]
+  },
+  "orderLookup": {
+    "orders": [
+      {
+        "reference": "ORDER",
+        "createdAt": "2026-11-14T12:00:00+01:00",
+        "orderMode": "reservation",
+        "currency": "XAF",
+        "total": 20.0,
+        "status": "Open",
+        "acceptanceStatus": "Accepted",
+        "trackingStatus": "Accepted"
+      }
+    ]
+  },
+  "tracking": {
+    "reference": "ORDER",
+    "createdAt": "2026-11-14T12:00:00+01:00",
+    "orderMode": "reservation",
+    "currency": "XAF",
+    "total": 20.0,
+    "status": "Open",
+    "acceptanceStatus": "Accepted",
+    "trackingStatus": "Accepted",
     "merchantName": "Restaurant",
     "lines": [
       {

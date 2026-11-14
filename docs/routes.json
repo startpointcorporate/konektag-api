@@ -1,5 +1,17 @@
 [
   {
+    "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders/lookup",
+    "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders/lookup.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/marketplace/merchants/([^/]+)/restaurant/orders/lookup/?$",
+    "keys": [
+      "slug"
+    ],
+    "score": 708
+  },
+  {
     "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservations/lookup",
     "file": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservations/lookup.ts",
     "methods": [
