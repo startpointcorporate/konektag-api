@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 332,
-    "operations": 421,
+    "paths": 333,
+    "operations": 424,
     "covered": 83,
-    "partial": 337,
+    "partial": 340,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 338,
-    "executedTests": 3023,
-    "passedTests": 3023
+    "businessUncovered": 341,
+    "executedTests": 3051,
+    "passedTests": 3051
   },
   "operations": [
     {
@@ -11251,6 +11251,90 @@
       "constraints": []
     },
     {
+      "operation": "PATCH /api/public/marketplace/merchants/{slug}/restaurant/orders",
+      "domain": "public",
+      "method": "PATCH",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/orders",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/orders.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT PATCH /api/public/marketplace/merchants/{slug}/restaurant/orders] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH PATCH /api/public/marketplace/merchants/{slug}/restaurant/orders] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-browser-k360-contract.test.ts",
+        "tests/unit/marketplace-browser-management.test.ts",
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "PATCH /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+      "domain": "public",
+      "method": "PATCH",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/reservation-requests",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/reservation-requests.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT PATCH /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH PATCH /api/public/marketplace/merchants/{slug}/restaurant/reservation-requests] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-browser-k360-contract.test.ts",
+        "tests/unit/marketplace-browser-management.test.ts",
+        "tests/unit/marketplace-transactions.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "POST /api/account/api-keys",
       "domain": "account",
       "method": "POST",
@@ -19055,6 +19139,47 @@
       ]
     },
     {
+      "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/browser-activities",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/marketplace/merchants/{slug}/restaurant/browser-activities",
+      "source": "src/api/routes/public/marketplace/merchants/[slug]/restaurant/browser-activities.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/marketplace/merchants/{slug}/restaurant/browser-activities] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/marketplace/merchants/{slug}/restaurant/browser-activities] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/marketplace-browser-k360-contract.test.ts",
+        "tests/unit/marketplace-browser-management.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
       "operation": "POST /api/public/marketplace/merchants/{slug}/restaurant/orders",
       "domain": "public",
       "method": "POST",
@@ -19239,6 +19364,7 @@
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/marketplace-browser-management.test.ts",
         "tests/unit/marketplace-k360-contract.test.ts",
         "tests/unit/marketplace-order-modes.test.ts",
         "tests/unit/marketplace-order-tracking.test.ts",
@@ -19443,6 +19569,7 @@
         "no database or handler execution"
       ],
       "candidates": [
+        "tests/unit/marketplace-browser-management.test.ts",
         "tests/unit/marketplace-transactions.test.ts"
       ],
       "constraints": [
