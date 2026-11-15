@@ -118,7 +118,7 @@ beforeEach(async () => {
 const key = () => crypto.randomBytes(32).toString('hex');
 
 describe('Link Pay network collection on PostgreSQL', () => {
-  it('merchant site: one link per attempt, debit once, merchant notified without network ERP', async () => {
+  it('merchant site: one link per attempt, debit once, merchant and network independently notified', async () => {
     const name = 'ACC-SINV-' + key().slice(0, 8);
     sites.RESTODEMO.invoices[name] = invoice(name, 6500);
     const attempt = key();
@@ -139,7 +139,7 @@ describe('Link Pay network collection on PostgreSQL', () => {
     await settle();
     const [tx] = (await pool.query(`SELECT * FROM konektag.link_pay_network_transactions WHERE invoice=$1`, [name])).rows;
     expect(tx).toMatchObject({ currency: 'XAF', gross_minor: '6500', fee_minor: '163', net_minor: '6337', third_party: true });
-    expect(sites.CONGO.received).toEqual([]);
+    expect(sites.CONGO.received.map(p => p.roles)).toEqual([['network']]);
     expect(sites.RESTODEMO.received.map(p => p.roles)).toEqual([['beneficiary']]);
     expect(sites.RESTODEMO.received[0]).toMatchObject({ transactionId: tx.id, operationId: tx.k_operation_id, invoice: name,
       grossAmount: 6500, feeAmount: 163, netAmount: 6337 });
@@ -152,13 +152,13 @@ describe('Link Pay network collection on PostgreSQL', () => {
     expect(await count(`SELECT count(*) n FROM konektag.link_pay_network_transactions WHERE invoice=$1`, [name])).toBe(1);
     expect(await count(`SELECT count(*) n FROM konektag.k_operations k JOIN konektag.parties p ON p.id=k.party_id
       WHERE k.party_id IN ($1, $2)`, [payer.party, other.party])).toBe(1);
-    expect(await count(`SELECT count(*) n FROM konektag.link_pay_site_webhooks WHERE transaction_id=$1`, [tx.id])).toBe(1);
-    expect(sites.CONGO.received.length + sites.RESTODEMO.received.length).toBe(1);
+    expect(await count(`SELECT count(*) n FROM konektag.link_pay_site_webhooks WHERE transaction_id=$1`, [tx.id])).toBe(2);
+    expect(sites.CONGO.received.length + sites.RESTODEMO.received.length).toBe(2);
     const listed = await (await list(ctx('RESTODEMO', { query: '?invoice=' + encodeURIComponent(name) }))).json();
     expect(listed.links[0]).toMatchObject({ status: 'Used', operationId: tx.k_operation_id, transactionId: tx.id });
   });
 
-  it('360°: Congo is network and beneficiary, one merchant accounting webhook, nothing owed', async () => {
+  it('360°: Congo is network and beneficiary, one combined notification, nothing owed', async () => {
     const name = 'ACC-SINV-' + key().slice(0, 8);
     sites.CONGO.invoices[name] = invoice(name, 4000);
     const { link } = await (await create('CONGO', name, key())).json();
@@ -167,7 +167,7 @@ describe('Link Pay network collection on PostgreSQL', () => {
     await settle();
     const [tx] = (await pool.query(`SELECT * FROM konektag.link_pay_network_transactions WHERE invoice=$1`, [name])).rows;
     expect(tx).toMatchObject({ gross_minor: '4000', fee_minor: '0', net_minor: '4000', third_party: false });
-    expect(sites.CONGO.received.map(p => p.roles)).toEqual([['beneficiary']]);
+    expect(sites.CONGO.received.map(p => p.roles)).toEqual([['network', 'beneficiary']]);
     expect(sites.RESTODEMO.received).toEqual([]);
   });
 
@@ -204,7 +204,7 @@ describe('Link Pay network collection on PostgreSQL', () => {
     const payer=await user('retry',100000);
     const response=await payAs(payer,link.name);expect(response.status).toBe(201);await settle();
     const [tx]=(await pool.query('SELECT * FROM konektag.link_pay_network_transactions WHERE invoice=$1',[name])).rows;
-    const state=async()=>(await pool.query('SELECT status,attempts FROM konektag.link_pay_site_webhooks WHERE transaction_id=$1',[tx.id])).rows[0];
+    const state=async()=>(await pool.query('SELECT status,attempts FROM konektag.link_pay_site_webhooks WHERE transaction_id=$1 AND target_site='RESTODEMO'',[tx.id])).rows[0];
     expect((await state()).status).toBe('failed');
     const listed=await(await list(ctx('RESTODEMO',{query:'?invoice='+name}))).json();
     expect(listed.links[0]).toMatchObject({operationId:tx.k_operation_id,status:'Used'});
@@ -224,15 +224,15 @@ describe('Link Pay network collection on PostgreSQL', () => {
 
   it('upgrades historical blocked deliveries only after completed ledger proof; replay is harmless',async()=>{
     const name='ACC-SINV-'+key().slice(0,8);sites.RESTODEMO.invoices[name]=invoice(name,1000);
-    const {link}=await(await create('RESTODEMO',name,key())).json();sites.RESTODEMO.mode='down';
+    const {link}=await(await create('RESTODEMO',name,key())).json();sites.RESTODEMO.mode='down';sites.CONGO.mode='down';
     expect((await payAs(await user('legacy-migration',100000),link.name)).status).toBe(201);await settle();
     const [tx]=(await pool.query('SELECT * FROM konektag.link_pay_network_transactions WHERE invoice=$1',[name])).rows;
     const {readFile}=await import('node:fs/promises');
     const migration=await readFile('src/lib/infrastructure/database/migrations/239_link_pay_api_boundary.sql','utf8');
     const repair=migration.slice(migration.indexOf('-- Preserve old delivery history;'),migration.indexOf('COMMIT;'));
-    const {rows:[network]}=await pool.query(`INSERT INTO konektag.link_pay_site_webhooks
-     (transaction_id,target_site,roles,event_key,event_type,payload,status,next_attempt_at)
-     VALUES($1,'CONGO',ARRAY['network'],$2,'link_pay.payment.succeeded','{}','failed',now()) RETURNING id`,[tx.id,'legacy-network:'+tx.id]);
+    const {rows:[network]}=await pool.query(`UPDATE konektag.link_pay_site_webhooks
+     SET event_key=$2,payload='{}',status='failed',next_attempt_at=now()
+     WHERE transaction_id=$1 AND target_site='CONGO' RETURNING id`,[tx.id,'legacy-network:'+tx.id]);
     await pool.query(`UPDATE konektag.link_pay_site_webhooks SET status='blocked',depends_on=$2
      WHERE transaction_id=$1 AND target_site='RESTODEMO'`,[tx.id,network.id]);
     // A pending K operation cannot release merchant accounting. This is a rolled-back fixture only.
