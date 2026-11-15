@@ -21,7 +21,7 @@ GET avec `sourceAttempt` et `posProfile` retrouve le lien et sa preuve de transa
 
 ## Validation proportionnée
 
-12 tests ciblés réussis dans quatre fichiers : 8 nouveaux cas source/route/révocation et 4 cas existants du canal historique retiré. TypeScript et build réussis. Aucun paiement réel, aucune fixture métier en production et aucune campagne élargie. La CI obligatoire habituelle reste inchangée.
+13 tests ciblés réussis dans quatre fichiers : 9 nouveaux cas source/route/révocation/refus avant débit et 4 cas existants du canal historique retiré. TypeScript et build réussis. Aucun paiement réel, aucune fixture métier en production et aucune campagne élargie. La CI obligatoire habituelle reste inchangée.
 
 ## Dépendances de mise en service
 
