@@ -25,7 +25,7 @@ export function sitePayload(transaction: any, link: any, slug: string, roles: st
     paidAt: new Date(transaction.paid_at).toISOString(),
     invoice: link.invoice, invoiceCompany: link.invoice_company,
     ...(link.collection_source_type === 'restaurant_order' ? { sourceType: 'restaurant_order',
-      sourceAttempt: link.collection_source.attempt, posProfile: link.collection_source.posProfile,
+      sourceAttempt: link.collection_source.attempt, posProfile: link.collection_source.posProfile, sourceClaim: slug,
       sourceFingerprint: link.collection_source.fingerprint } : {}),
     issuerSite: link.issuer_site, beneficiarySite: link.beneficiary_site, networkSite: link.network_site,
     beneficiaryName: link.beneficiary_name, thirdParty: link.beneficiary_site !== link.network_site,
