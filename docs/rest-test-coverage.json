@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "summary": {
     "paths": 333,
-    "operations": 424,
+    "operations": 425,
     "covered": 83,
-    "partial": 340,
+    "partial": 341,
     "blocked": 1,
     "uncovered": 0,
-    "businessUncovered": 341,
-    "executedTests": 3051,
-    "passedTests": 3051
+    "businessUncovered": 342,
+    "executedTests": 3062,
+    "passedTests": 3062
   },
   "operations": [
     {
@@ -637,6 +637,46 @@
         "tests/rest/favorites.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "DELETE /api/integrations/frappe/payment-links",
+      "domain": "integrations",
+      "method": "DELETE",
+      "path": "/api/integrations/frappe/payment-links",
+      "source": "src/api/routes/integrations/frappe/payment-links.ts",
+      "status": "partial",
+      "businessStatus": "uncovered",
+      "facets": [
+        "auth",
+        "transport"
+      ],
+      "levels": [
+        "contract"
+      ],
+      "tests": [
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST TRANSPORT DELETE /api/integrations/frappe/payment-links] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "integrations [REST AUTH DELETE /api/integrations/frappe/payment-links] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/link-pay-frappe-source-route.test.ts"
+      ],
+      "constraints": [
+        "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
     },
     {
       "operation": "DELETE /api/k/send/{id}",
@@ -14761,7 +14801,9 @@
         "credential refusal",
         "no database or handler execution"
       ],
-      "candidates": [],
+      "candidates": [
+        "tests/unit/link-pay-frappe-source-route.test.ts"
+      ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
       ]

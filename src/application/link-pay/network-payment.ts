@@ -4,6 +4,8 @@ import { beginPrincipalAttempt, completePrincipalAttempt } from '../services/pri
 import { paymentLinkService } from '../services/payment-link-service.ts';
 import { checkUserKycVerified } from '../services/user-kyc-gate-service.ts';
 import { beneficiaryTerms, LinkPaySiteError } from './frappe-site-routing.ts';
+import { majorToMinor } from '../services/pay/money-unit.ts';
+import { claimRestaurantSource } from './restaurant-source.ts';
 import { networkLinkService } from './network-link-service.ts';
 import { siteWebhookService } from './site-webhook-service.ts';
 import { sendLinkPaymentReceipt } from '../services/link-payment-receipt-service.ts';
@@ -42,6 +44,14 @@ export async function payNetworkLink(input: { link: NetworkLink; slug: string; u
       await client.query('ROLLBACK');
       return reply({ error: 'Lien deja utilise' }, 409);
     }
+    if (link.source) {
+      const claimed = await claimRestaurantSource(link.origin.site, link.source, slug);
+      if (claimed.currency !== link.currency || claimed.order !== link.reference
+        || !Number.isFinite(Number(claimed.amountMajor))) throw new LinkPaySiteError('SOURCE_NOT_COLLECTABLE', 409);
+      // Compare minor units using the same currency rules as issuance.
+      if (majorToMinor(claimed.amountMajor, claimed.currency) !== link.amount)
+        throw new LinkPaySiteError('SOURCE_NOT_COLLECTABLE', 409);
+    }
     result = await networkLinkService.pay(client, { slug, checkoutIntentId: link.checkoutIntentId, userId: user.id,
       amountMinor: link.amount, quantityK: link.quantityK, currency: link.currency });
     if (!await paymentLinkService.complete(slug, { payerUserId: user.id, payerIdentity: input.payerIdentity,
@@ -52,6 +62,7 @@ export async function payNetworkLink(input: { link: NetworkLink; slug: string; u
     await client.query('COMMIT');
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);
+    if (error instanceof LinkPaySiteError) return reply({ error: error.code }, error.status);
     throw error;
   } finally {
     client.release();

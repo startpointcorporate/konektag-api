@@ -8654,14 +8654,25 @@ paths:
       summary: POST /api/integrations/frappe/payment-links
       tags:
         - integrations
-      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
-        responses and business rules. This path is public at the general middleware level; any handler-specific checks
-        still apply.
+      description: Authenticated Frappe site integration. Site token authentication is required even though general session
+        middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice
+        collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.
       parameters:
         - name: x-idempotency-key
           in: header
           schema:
             type: string
+        - name: X-Konektag-Frappe-Site
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Konektag-Frappe-Token
+          in: header
+          required: true
+          schema:
+            type: string
+            writeOnly: true
       responses:
         "201":
           description: Response from the migrated handler
@@ -8680,25 +8691,98 @@ paths:
       x-source: src/api/routes/integrations/frappe/payment-links.ts
       x-error-codes:
         - INVALID_IDEMPOTENCY_KEY
+        - SOURCE_TYPE_INVALID
+        - SOURCE_REFERENCE_INVALID
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
       requestBody:
         required: true
         content:
           application/json:
-            schema: {}
+            schema:
+              oneOf:
+                - type: object
+                  additionalProperties: false
+                  required:
+                    - sourceType
+                    - sourceAttempt
+                    - posProfile
+                    - beneficiarySite
+                    - networkSite
+                  properties:
+                    sourceType:
+                      const: restaurant_order
+                    sourceAttempt:
+                      type: string
+                      format: uuid
+                    posProfile:
+                      type: string
+                      minLength: 1
+                      maxLength: 140
+                    beneficiarySite:
+                      type: string
+                    networkSite:
+                      type: string
+                    description:
+                      type: string
+                      maxLength: 200
+                - type: object
+                  required:
+                    - invoice
+                    - beneficiarySite
+                    - networkSite
+                  properties:
+                    sourceType:
+                      const: invoice
+                    invoice:
+                      type: string
+                    beneficiarySite:
+                      type: string
+                    networkSite:
+                      type: string
+                    description:
+                      type: string
     get:
       operationId: get__api_integrations_frappe_payment_links
       summary: GET /api/integrations/frappe/payment-links
       tags:
         - integrations
-      description: Existing Konektag operation. Handler and shared services preserve validation, authorization, error
-        responses and business rules. This path is public at the general middleware level; any handler-specific checks
-        still apply.
+      description: Authenticated Frappe site integration. Site token authentication is required even though general session
+        middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice
+        collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.
       parameters:
+        - name: sourceAttempt
+          in: query
+          schema:
+            type: string
+        - name: posProfile
+          in: query
+          schema:
+            type: string
         - name: invoice
           in: query
           schema:
             type: string
+        - name: X-Konektag-Frappe-Site
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Konektag-Frappe-Token
+          in: header
+          required: true
+          schema:
+            type: string
+            writeOnly: true
+        - name: sourceAttempt
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: posProfile
+          in: query
+          schema:
+            type: string
+          description: Required with sourceAttempt; invoice is the alternative legacy filter.
       responses:
         "200":
           description: Response from the migrated handler
@@ -8716,8 +8800,57 @@ paths:
       security: []
       x-source: src/api/routes/integrations/frappe/payment-links.ts
       x-error-codes:
+        - SOURCE_REFERENCE_INVALID
         - INVOICE_REFERENCE_INVALID
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+    delete:
+      operationId: delete__api_integrations_frappe_payment_links
+      summary: DELETE /api/integrations/frappe/payment-links
+      tags:
+        - integrations
+      description: Authenticated Frappe site integration. Site token authentication is required even though general session
+        middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice
+        collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.
+      parameters:
+        - name: X-Konektag-Frappe-Site
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Konektag-Frappe-Token
+          in: header
+          required: true
+          schema:
+            type: string
+            writeOnly: true
+      responses:
+        "200":
+          description: Unpaid collection revoked and native attempt acknowledged as cancelled.
+        "409":
+          description: Collection processing/paid, or native cancellation refused. Keep the source frozen.
+        "503":
+          description: Uncertain remote outcome. Keep the source frozen and retry reconciliation.
+      security: []
+      x-source: src/api/routes/integrations/frappe/payment-links.ts
+      x-error-codes: []
+      x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sourceAttempt
+                - posProfile
+              properties:
+                sourceAttempt:
+                  type: string
+                  format: uuid
+                posProfile:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
   /api/internal/erp/account-access:
     post:
       operationId: post__api_internal_erp_account_access

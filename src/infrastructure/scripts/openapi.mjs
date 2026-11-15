@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { documentLinkPaySources } from './link-pay-source-openapi.mjs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { stringify } from 'yaml';
 import { records } from './routes.mjs';
@@ -117,6 +118,7 @@ for(const record of records) {
     paths[record.path][method.toLowerCase()]=op;
   }
 }
+documentLinkPaySources(paths);
 documentMarketplace(paths);
 documentRestaurantModes(paths);
 documentRestaurantTracking(paths);
