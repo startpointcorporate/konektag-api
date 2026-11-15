@@ -1032,7 +1032,8 @@
     "file": "src/api/routes/integrations/frappe/payment-links.ts",
     "methods": [
       "POST",
-      "GET"
+      "GET",
+      "DELETE"
     ],
     "pattern": "^/api/integrations/frappe/payment-links/?$",
     "keys": [],

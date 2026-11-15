@@ -8,6 +8,8 @@ import { lockPointsOwner, reservePoints } from '../services/pay/points-reservati
 import { consumeReservedLinkPoints } from '../services/pay/link-k-consumption-service.ts';
 import { checkUserKycVerified } from '../services/user-kyc-gate-service.ts';
 import { beneficiaryTerms, splitAmount, type BeneficiaryTerms, type VerifiedInvoice } from './frappe-site-routing.ts';
+import { RestaurantSourceSchema, verifyRestaurantSource, releaseRestaurantSource, type RestaurantSource } from './restaurant-source.ts';
+import { LinkPaySiteError } from './frappe-site-routing.ts';
 import { enqueueSiteWebhooks } from './site-webhook-service.ts';
 
 /**
@@ -32,6 +34,7 @@ export function mapNetworkLink(row: any) {
     network: { site: row.network_site },
     fee: { mode: row.fee_mode, rateBps: Number(row.fee_rate_bps) },
     origin: { site: row.issuer_site, invoice: row.invoice },
+    ...(row.collection_source_type === 'restaurant_order' ? { sourceType: 'restaurant_order' as const, sourceAttempt: row.collection_source?.attempt } : {}),
   };
 }
 
@@ -41,20 +44,37 @@ const LINK_SELECT = `SELECT ci.*, nl.* FROM konektag.checkout_intents ci
 export const networkLinkService = {
   /** One link per origin key; a replay of the key returns it, a different invoice or amount is refused. */
   async create(params: { site: string; originKey: string; invoice: VerifiedInvoice; terms: BeneficiaryTerms;
-    description: string; expiration: Date }) {
+    description: string; expiration: Date; source?: RestaurantSource }) {
     const { invoice, terms } = params;
     if (invoice.currency !== terms.currency) throw new Error('INVOICE_CURRENCY_MISMATCH');
     const amountMinor = majorToMinor(invoice.amountMajor, terms.currency);
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      if (params.source) await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))',
+        [`link-pay-source:${params.site}:${params.source.attempt}`]);
       await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [params.originKey]);
       const { rows: [existing] } = await client.query(`${LINK_SELECT} WHERE nl.origin_key = $1`, [params.originKey]);
       if (existing) {
         await client.query('COMMIT');
-        if (Number(existing.amount) !== amountMinor || existing.currency !== terms.currency || existing.invoice !== invoice.name)
+        if (Number(existing.amount) !== amountMinor || existing.currency !== terms.currency || existing.invoice !== invoice.name
+          || (params.source ? existing.collection_source?.attempt !== params.source.attempt
+            || existing.collection_source?.posProfile !== params.source.posProfile
+            || existing.collection_source?.fingerprint !== params.source.fingerprint : existing.collection_source_type !== 'invoice'))
           throw new Error('IDEMPOTENCY_KEY_REUSED');
         return mapNetworkLink(existing);
+      }
+      if (params.source) {
+        const verified = await verifyRestaurantSource(params.site, params.source.attempt, params.source.posProfile);
+        if (verified.state !== 'Prepared' || verified.source.fingerprint !== params.source.fingerprint
+          || verified.invoice.amountMajor !== invoice.amountMajor || verified.invoice.currency !== invoice.currency
+          || verified.invoice.name !== invoice.name || verified.expiration.getTime() <= Date.now()
+          || verified.expiration.getTime() > Date.now() + 7 * 86400000
+          || verified.expiration.getTime() !== params.expiration.getTime())
+          throw new LinkPaySiteError('SOURCE_NOT_COLLECTABLE', 409);
+        const { rows: [other] } = await client.query(`${LINK_SELECT} WHERE nl.issuer_site=$1
+          AND nl.collection_source_type='restaurant_order' AND nl.collection_source->>'attempt'=$2`, [params.site, params.source.attempt]);
+        if (other) throw new Error('IDEMPOTENCY_KEY_REUSED');
       }
       const valuation = await valuePointsK({ sourceCurrency: terms.currency, sourceAmountMinor: amountMinor, context: 'payment_link' });
       const slug = crypto.randomBytes(8).toString('hex');
@@ -69,10 +89,11 @@ export const networkLinkService = {
       await client.query(
         `INSERT INTO konektag.link_pay_network_links
            (checkout_intent_id, origin_key, issuer_site, beneficiary_site, network_site, invoice, invoice_company,
-            beneficiary_name, country, currency, fee_mode, fee_rate_bps, approved_by, approved_at, terms_hash)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+            beneficiary_name, country, currency, fee_mode, fee_rate_bps, approved_by, approved_at, terms_hash, collection_source_type, collection_source)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17::jsonb)`,
         [intent.id, params.originKey, params.site, terms.beneficiarySite, terms.networkSite, invoice.name, invoice.company,
-         terms.name, terms.country, terms.currency, terms.feeMode, terms.feeRateBps, terms.approvedBy, terms.approvedAt, terms.termsHash]);
+         terms.name, terms.country, terms.currency, terms.feeMode, terms.feeRateBps, terms.approvedBy, terms.approvedAt, terms.termsHash,
+         params.source ? 'restaurant_order' : 'invoice', params.source ? JSON.stringify(params.source) : null]);
       const { rows: [row] } = await client.query(`${LINK_SELECT} WHERE ci.id = $1`, [intent.id]);
       await client.query('COMMIT');
       return mapNetworkLink(row);
@@ -86,7 +107,46 @@ export const networkLinkService = {
 
   async getBySlug(slug: string, db: Db = pool) {
     const { rows: [row] } = await db.query(`${LINK_SELECT} WHERE ci.public_id = $1 AND ci.source_type = 'payment_link'`, [slug]);
-    return row ? { ...mapNetworkLink(row), checkoutIntentId: row.checkout_intent_id as string, valuation: row.quote_valuation } : null;
+    return row ? { ...mapNetworkLink(row), checkoutIntentId: row.checkout_intent_id as string, valuation: row.quote_valuation,
+      source: row.collection_source_type === 'restaurant_order' ? RestaurantSourceSchema.parse(row.collection_source) : null } : null;
+  },
+
+  async listForSource(site: string, attempt: string, posProfile: string) {
+    const { rows } = await pool.query(
+      `${LINK_SELECT.replace('SELECT ci.*, nl.*', `SELECT ci.*, nl.*, t.id AS transaction_id, t.k_operation_id AS operation, t.paid_at,
+          t.gross_minor, t.fee_minor, t.net_minor,
+          EXISTS (SELECT 1 FROM konektag.k_operations k WHERE k.id=t.k_operation_id AND k.status='completed') AS network_confirmed`)}
+       LEFT JOIN konektag.link_pay_network_transactions t ON t.checkout_intent_id=ci.id
+       WHERE nl.issuer_site=$1 AND nl.collection_source_type='restaurant_order'
+       AND nl.collection_source->>'attempt'=$2 AND nl.collection_source->>'posProfile'=$3`, [site, attempt, posProfile]);
+    return rows.map(row => ({ ...mapNetworkLink(row), transactionId: row.transaction_id || null,
+      operationId: row.network_confirmed ? row.operation : null,
+      paidAt: row.network_confirmed ? row.paid_at : null,
+      split: row.transaction_id ? { gross: Number(row.gross_minor), fee: Number(row.fee_minor), net: Number(row.net_minor) } : null }));
+  },
+
+  /** Revoke and source release share the same source lock as issuance; never unlock a paid link. */
+  async revokeSource(site: string, attempt: string, posProfile: string) {
+    const parsed = RestaurantSourceSchema.pick({ attempt: true, posProfile: true }).safeParse({ attempt, posProfile });
+    if (!parsed.success) throw new LinkPaySiteError('SOURCE_REFERENCE_INVALID', 400);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`link-pay-source:${site}:${attempt}`]);
+      const { rows: [row] } = await client.query(`${LINK_SELECT} WHERE nl.issuer_site=$1
+        AND nl.collection_source_type='restaurant_order' AND nl.collection_source->>'attempt'=$2 FOR UPDATE OF ci`, [site, attempt]);
+      if (row && row.collection_source?.posProfile !== posProfile) throw new LinkPaySiteError('SOURCE_NOT_FOUND', 404);
+      if (row && !['ISSUED', 'EXPIRED'].includes(row.status)) throw new LinkPaySiteError('LINK_NOT_REVOCABLE', 409);
+      if (row) await client.query(`UPDATE konektag.checkout_intents SET status='EXPIRED',updated_at=now(),version=version+1 WHERE id=$1`, [row.checkout_intent_id]);
+      // No Frappe lock may be held by the caller while it calls this endpoint.
+      const released = await releaseRestaurantSource(site, parsed.data, row?.public_id ?? '');
+      if (released.state !== 'Cancelled') throw new LinkPaySiteError('SOURCE_NOT_REVOCABLE', 409);
+      await client.query('COMMIT');
+      return { revoked: true };
+    } catch (error) {
+      await client.query('ROLLBACK').catch(() => undefined);
+      throw error;
+    } finally { client.release(); }
   },
 
   /**
