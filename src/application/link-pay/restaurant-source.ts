@@ -7,6 +7,7 @@ export const RestaurantSourceSchema = z.object({
   attempt: reference,
   posProfile: z.string().min(1).max(140),
   fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
+  collectorSite: z.string().regex(/^[A-Z][A-Z0-9_]{1,31}$/).optional(),
 }).strict();
 export type RestaurantSource = z.infer<typeof RestaurantSourceSchema>;
 const snapshot = RestaurantSourceSchema.extend({

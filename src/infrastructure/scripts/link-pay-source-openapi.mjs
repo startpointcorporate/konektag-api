@@ -9,7 +9,7 @@ export function documentLinkPaySources(paths) {
   for (const method of ['post','get','delete']) {
     const operation = path[method]; if (!operation) continue;
     operation.parameters = [...(operation.parameters || []).filter(p => !siteHeaders.some(h => h.name.toLowerCase() === p.name?.toLowerCase())), ...structuredClone(siteHeaders)];
-    operation.description = 'Authenticated Frappe site integration. Site token authentication is required even though general session middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.';
+    operation.description = 'Authenticated Frappe site integration. Site token authentication is required even though general session middleware permits this path. Restaurant sources are verified on the originating site and frozen; an exact server POS-to-collector mapping may reuse its existing Exempt0 collector while proof callbacks return to the originating site; invoice collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.';
   }
   const source = { type: 'object', additionalProperties: false,
     required: ['sourceType','sourceAttempt','posProfile','beneficiarySite','networkSite'], properties: {

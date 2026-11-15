@@ -1,7 +1,7 @@
 import type { RouteHandler } from '../../../http';
 import { PointsKValuationError } from '../../../../application/services/points-k-valuation-service.ts';
 import {
-  authenticateSite, beneficiaryTerms, LinkPaySiteError, originKey, validateRouting, verifyInvoice,
+  authenticateSite, beneficiaryTerms, LinkPaySiteError, originKey, validateRouting, validateRestaurantRouting, verifyInvoice,
 } from '../../../../application/link-pay/frappe-site-routing.ts';
 import { verifyRestaurantSource } from '../../../../application/link-pay/restaurant-source.ts';
 import { networkLinkService } from '../../../../application/link-pay/network-link-service.ts';
@@ -27,7 +27,9 @@ export const POST: RouteHandler = async ({ request }) => {
     const attemptKey = request.headers.get('x-idempotency-key') || '';
     if (!/^[a-f0-9]{64}$/.test(attemptKey)) return json({ error: 'INVALID_IDEMPOTENCY_KEY' }, 400);
     const body = await request.json().catch(() => null);
-    const routing = validateRouting(site, body?.beneficiarySite, body?.networkSite);
+    const routing = body?.sourceType === 'restaurant_order'
+      ? validateRestaurantRouting(site, body.posProfile, body.beneficiarySite, body.networkSite)
+      : validateRouting(site, body?.beneficiarySite, body?.networkSite);
     if (body?.sourceType !== undefined && !['invoice', 'restaurant_order'].includes(body.sourceType))
       return json({ error: 'SOURCE_TYPE_INVALID' }, 400);
     if (body?.sourceType === 'restaurant_order' && body?.invoice !== undefined)
@@ -36,11 +38,14 @@ export const POST: RouteHandler = async ({ request }) => {
       ? await verifyRestaurantSource(site.key, body.sourceAttempt, body.posProfile) : null;
     const invoice = restaurant?.invoice ?? await verifyInvoice(site, body?.invoice);
     const terms = await beneficiaryTerms(routing.networkSite, routing.beneficiarySite);
+    if (restaurant && (terms.feeMode !== 'EXEMPT' || terms.feeRateBps !== 0))
+      throw new LinkPaySiteError('RESTAURANT_COLLECTION_FEES_NOT_ZERO', 409);
     const description = typeof body?.description === 'string' && body.description.trim()
       ? body.description.trim().slice(0, 200) : 'Facture ' + invoice.name;
     const link = await networkLinkService.create({ site: site.key, originKey: originKey(site.key, attemptKey),
       invoice, terms, description, expiration: restaurant?.expiration ?? new Date(Date.now() + 7 * 86400000),
-      ...(restaurant ? { source: restaurant.source } : {}) });
+      ...(restaurant ? { source: { ...restaurant.source,
+        ...(routing.beneficiarySite !== site.key ? { collectorSite: routing.beneficiarySite } : {}) } } : {}) });
     return json({ link, url: `/pay/l/${link.url_slug}` }, 201);
   } catch (error) {
     return fail(error);

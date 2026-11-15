@@ -12,6 +12,7 @@ const siteConfig = z.object({
   tokenSha256: z.string().regex(/^[a-f0-9]{64}$/),
   webhookSecret: z.string().min(32).max(256).optional(),
   network: z.boolean().optional(),
+  restaurantCollectors: z.record(z.string().min(1).max(140), z.string().regex(SITE_KEY)).optional(),
   merchants: z.record(z.string(), z.unknown()).optional(),
 }).strict();
 const registry = z.record(z.string().regex(SITE_KEY), siteConfig);
@@ -62,8 +63,8 @@ export function siteWebhook(site: string, env: NodeJS.ProcessEnv = process.env):
 }
 
 /** The issuing site names itself as beneficiary and an allowlisted network site. */
-export function validateRouting(site: AuthenticatedSite, beneficiarySite: unknown, networkSite: unknown,
-  env: NodeJS.ProcessEnv = process.env) {
+function routing(site: AuthenticatedSite, beneficiarySite: unknown, networkSite: unknown,
+  env: NodeJS.ProcessEnv, expectedBeneficiary: string) {
   if (beneficiarySite === undefined && networkSite === undefined)
     throw new LinkPaySiteError('LINK_PAY_CONTRACT_OUTDATED', 400, ['beneficiarySite', 'networkSite']);
   if (typeof beneficiarySite !== 'string' || !SITE_KEY.test(beneficiarySite))
@@ -71,13 +72,36 @@ export function validateRouting(site: AuthenticatedSite, beneficiarySite: unknow
   if (typeof networkSite !== 'string' || !SITE_KEY.test(networkSite))
     throw new LinkPaySiteError('NETWORK_SITE_INVALID', 400, ['networkSite']);
   // The invoice is read on, and settled by, the site that issues the link.
-  if (beneficiarySite !== site.key) throw new LinkPaySiteError('BENEFICIARY_SITE_MISMATCH', 403);
+  if (beneficiarySite !== expectedBeneficiary) throw new LinkPaySiteError('BENEFICIARY_SITE_MISMATCH', 403);
   const sites = loadLinkPaySites(env);
   if (!sites[networkSite]?.network) throw new LinkPaySiteError('NETWORK_SITE_NOT_ALLOWED', 403);
-  const missing = [beneficiarySite].filter(s => !siteWebhook(s, env))
+  const missing = [site.key].filter(s => !siteWebhook(s, env))
     .map(s => `LINK_PAY_FRAPPE_SITES.${s}.webhookSecret + MARKETPLACE_FRAPPE_${s}_URL`);
   if (missing.length) throw new LinkPaySiteError('SITE_WEBHOOK_NOT_CONFIGURED', 503, [...new Set(missing)]);
   return { beneficiarySite, networkSite };
+}
+
+/** Invoice identities retain the original issuer=beneficiary rule. */
+export function validateRouting(site: AuthenticatedSite, beneficiarySite: unknown, networkSite: unknown,
+  env: NodeJS.ProcessEnv = process.env) {
+  return routing(site, beneficiarySite, networkSite, env, site.key);
+}
+
+/** A restaurant collector is an exact server-configured POS entitlement, never a browser choice. */
+export function validateRestaurantRouting(site: AuthenticatedSite, posProfile: unknown,
+  beneficiarySite: unknown, networkSite: unknown, env: NodeJS.ProcessEnv = process.env) {
+  if (typeof posProfile !== 'string' || !posProfile || posProfile.length > 140)
+    throw new LinkPaySiteError('SOURCE_REFERENCE_INVALID', 400);
+  const expected = site.config.restaurantCollectors?.[posProfile];
+  // Existing self-issued restaurant links remain supported. Cross-site collection must be explicit.
+  if (beneficiarySite !== site.key && !expected) throw new LinkPaySiteError('RESTAURANT_COLLECTOR_NOT_ALLOWED', 403);
+  return routing(site, beneficiarySite, networkSite, env, expected ?? site.key);
+}
+
+export function validateStoredRestaurantCollector(issuer: string, posProfile: string, collector: string) {
+  const config = loadLinkPaySites()[issuer];
+  if (!config || (config.restaurantCollectors?.[posProfile] ?? issuer) !== collector)
+    throw new LinkPaySiteError('RESTAURANT_COLLECTOR_NOT_ALLOWED', 403);
 }
 
 export interface VerifiedInvoice { name: string; company: string; amountMajor: string; currency: string }
