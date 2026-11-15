@@ -27,7 +27,7 @@ GET avec `sourceAttempt` et `posProfile` retrouve le lien et sa preuve de transa
 
 Livrer la migration API avant d’activer les contrôles natifs. Les trois RPC service nécessitent l’allowlist DemoGuard exacte, authentification service et POS lié. `webhook.receive` nécessite son chemin exact et une signature validée nativement avant traitement. Toute incertitude conserve le gel.
 
-RESTODEMO n’est pas prêt pour encaissement : lecture seule confirme aucune entrée RESTODEMO dans LINK_PAY_FRAPPE_SITES (seulement CONGO), aucune ligne commerciale API pour ce bénéficiaire ; côté Frappe aucun token site, aucune entreprise et aucun identifiant utilisateur du canal historique configurés. L’URL technique Marketplace existe. Aucun bénéficiaire approuvé ni frais n’a été inventé. Le code peut être livré mais la collecte reste désactivée jusqu’au provisionnement approuvé.
+La configuration technique locale RESTODEMO était absente ; cela ne démontre pas une absence d’accord commercial. La collecte globale existante CONGO→CONGO est approuvée/enabled, Exempt0. Le restaurant dispose déjà d’un Customer et de l’abonnement K360-DEMO-VALIDATION-restodemo sur Congo. La correction réutilise ce collecteur, sans nouveau bénéficiaire ni duplication d’approbation : issuer/POS RESTODEMO/Restaurant démo, collector/network CONGO, callback sur issuer RESTODEMO. Les autres frais, notamment recharges, restent hors périmètre et inchangés.
 
 Les factures historiques conservent leur contrat antérieur. Cette extension sécurise les sources restaurant ; elle ne réécrit pas la concurrence historique entre plusieurs liens de factures indépendants et un encaissement externe.
 
@@ -36,3 +36,9 @@ Les factures historiques conservent leur contrat antérieur. Cette extension sé
 Issue70 et PR71. La migration240 a été appliquée seule en production via le propriétaire PostgreSQL, sous verrou officiel772946131 et transaction ; précédent239/checksum vérifiés. SHA256240 : `3b38cf5ca14a72a6cf75d70f74f69ed622076a1e2912078e67ff545ac59dd113`. Deux colonnes et index unique présents après application. Le rôle runtime API n’a reçu aucun droit DDL.
 
 La CI a validé SQL240 sur PostgreSQL jetable et 3062 assertions (3057 réussies,5 expected-fail préexistantes). Les comptes inventaire et les rapports de couverture ont été actualisés pour425 opérations ; couverture générée depuis l’artefact réel de CI43691263528, seuls préfixes de chemins normalisés, sans rejouer la suite manuellement.
+
+## Correction de routage central
+
+La configuration API `restaurantCollectors` lie exactement le POS authentifié à son collecteur. Une tentative ne peut ni choisir un autre collecteur, ni étendre cette règle à une facture historique. Le claim revalide ce rattachement avant débit ; les sources restaurant exigent Exempt0. La migration241 additive ne relâche issuer=beneficiary que pour une source restaurant portant explicitement son collectorSite. Le callback rejoint l’issuer/POS, tandis que la transaction financière conserve CONGO comme bénéficiaire.
+
+Provisionnement purement technique : identité RESTODEMO et HMAC propres, même secret registry partagé par API/outbox, clés natives transmises via fichier privé600. La ligne commerciale CONGO, son approbation et ses frais ne sont pas modifiés.

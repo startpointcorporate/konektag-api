@@ -3,7 +3,7 @@ import { PointsKValuationSchema } from '../../domain/points-k-valuation.ts';
 import { beginPrincipalAttempt, completePrincipalAttempt } from '../services/principal-idempotency-service.ts';
 import { paymentLinkService } from '../services/payment-link-service.ts';
 import { checkUserKycVerified } from '../services/user-kyc-gate-service.ts';
-import { beneficiaryTerms, LinkPaySiteError } from './frappe-site-routing.ts';
+import { beneficiaryTerms, LinkPaySiteError, validateStoredRestaurantCollector } from './frappe-site-routing.ts';
 import { majorToMinor } from '../services/pay/money-unit.ts';
 import { claimRestaurantSource } from './restaurant-source.ts';
 import { networkLinkService } from './network-link-service.ts';
@@ -45,6 +45,7 @@ export async function payNetworkLink(input: { link: NetworkLink; slug: string; u
       return reply({ error: 'Lien deja utilise' }, 409);
     }
     if (link.source) {
+      validateStoredRestaurantCollector(link.origin.site, link.source.posProfile, link.beneficiary.site);
       const claimed = await claimRestaurantSource(link.origin.site, link.source, slug);
       if (claimed.currency !== link.currency || claimed.order !== link.reference
         || !Number.isFinite(Number(claimed.amountMajor))) throw new LinkPaySiteError('SOURCE_NOT_COLLECTABLE', 409);

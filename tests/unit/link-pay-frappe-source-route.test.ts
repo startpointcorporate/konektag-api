@@ -3,8 +3,9 @@ vi.mock('../../src/infrastructure/database/pool.ts', () => ({ default: { query: 
 const mocks = vi.hoisted(() => ({ invoice: vi.fn(), restaurant: vi.fn(), create: vi.fn(), revoke: vi.fn() }));
 vi.mock('../../src/application/link-pay/frappe-site-routing.ts', async original => ({
   ...await original<any>(), authenticateSite: () => ({ key: 'RESTODEMO' }),
+  validateRestaurantRouting: () => ({ networkSite: 'CONGO', beneficiarySite: 'RESTODEMO' }),
   validateRouting: () => ({ networkSite: 'CONGO', beneficiarySite: 'RESTODEMO' }),
-  beneficiaryTerms: async () => ({ currency: 'XAF' }), verifyInvoice: mocks.invoice,
+  beneficiaryTerms: async () => ({ currency: 'XAF', feeMode: 'EXEMPT', feeRateBps: 0 }), verifyInvoice: mocks.invoice,
 }));
 vi.mock('../../src/application/link-pay/restaurant-source.ts', () => ({ verifyRestaurantSource: mocks.restaurant }));
 vi.mock('../../src/application/link-pay/network-link-service.ts', () => ({ networkLinkService: { create: mocks.create, revokeSource: mocks.revoke } }));

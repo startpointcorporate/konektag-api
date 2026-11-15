@@ -8655,8 +8655,10 @@ paths:
       tags:
         - integrations
       description: Authenticated Frappe site integration. Site token authentication is required even though general session
-        middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice
-        collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.
+        middleware permits this path. Restaurant sources are verified on the originating site and frozen; an exact
+        server POS-to-collector mapping may reuse its existing Exempt0 collector while proof callbacks return to the
+        originating site; invoice collections preserve the existing non-POS Sales Invoice contract. No client amount is
+        trusted.
       parameters:
         - name: x-idempotency-key
           in: header
@@ -8747,8 +8749,10 @@ paths:
       tags:
         - integrations
       description: Authenticated Frappe site integration. Site token authentication is required even though general session
-        middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice
-        collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.
+        middleware permits this path. Restaurant sources are verified on the originating site and frozen; an exact
+        server POS-to-collector mapping may reuse its existing Exempt0 collector while proof callbacks return to the
+        originating site; invoice collections preserve the existing non-POS Sales Invoice contract. No client amount is
+        trusted.
       parameters:
         - name: sourceAttempt
           in: query
@@ -8809,8 +8813,10 @@ paths:
       tags:
         - integrations
       description: Authenticated Frappe site integration. Site token authentication is required even though general session
-        middleware permits this path. Restaurant sources are verified on the originating site and frozen; invoice
-        collections preserve the existing non-POS Sales Invoice contract. No client amount is trusted.
+        middleware permits this path. Restaurant sources are verified on the originating site and frozen; an exact
+        server POS-to-collector mapping may reuse its existing Exempt0 collector while proof callbacks return to the
+        originating site; invoice collections preserve the existing non-POS Sales Invoice contract. No client amount is
+        trusted.
       parameters:
         - name: X-Konektag-Frappe-Site
           in: header

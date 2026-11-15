@@ -43,7 +43,8 @@ export async function enqueueSiteWebhooks(db: Db, input: { transaction: any; lin
     `INSERT INTO konektag.link_pay_site_webhooks (transaction_id, target_site, roles, event_key, event_type, payload)
      VALUES ($1, $2, $3, $4, $5, $6::jsonb)
      ON CONFLICT (event_key) DO UPDATE SET updated_at = now() RETURNING id`,
-    [transaction.id, link.beneficiary_site, ['beneficiary'], `link-pay:${transaction.id}:${link.beneficiary_site}`, LINK_PAY_EVENT,
+    [transaction.id, link.collection_source_type === 'restaurant_order' ? link.issuer_site : link.beneficiary_site, ['beneficiary'],
+     `link-pay:${transaction.id}:${link.collection_source_type === 'restaurant_order' ? link.issuer_site : link.beneficiary_site}`, LINK_PAY_EVENT,
      JSON.stringify(sitePayload(transaction, link, slug, ['beneficiary']))]);
   return delivery.id as string;
 }

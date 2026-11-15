@@ -60,7 +60,8 @@ export const networkLinkService = {
         if (Number(existing.amount) !== amountMinor || existing.currency !== terms.currency || existing.invoice !== invoice.name
           || (params.source ? existing.collection_source?.attempt !== params.source.attempt
             || existing.collection_source?.posProfile !== params.source.posProfile
-            || existing.collection_source?.fingerprint !== params.source.fingerprint : existing.collection_source_type !== 'invoice'))
+            || existing.collection_source?.fingerprint !== params.source.fingerprint
+            || (existing.collection_source?.collectorSite ?? params.site) !== (params.source.collectorSite ?? params.site) : existing.collection_source_type !== 'invoice'))
           throw new Error('IDEMPOTENCY_KEY_REUSED');
         return mapNetworkLink(existing);
       }

@@ -6,7 +6,7 @@ vi.mock('../../src/application/link-pay/restaurant-source.ts', async original =>
   ...await original<any>(), releaseRestaurantSource: mocks.release, claimRestaurantSource: mocks.claimSource,
 }));
 vi.mock('../../src/application/link-pay/frappe-site-routing.ts', async original => ({
-  ...await original<any>(), beneficiaryTerms: async () => ({}),
+  ...await original<any>(), beneficiaryTerms: async () => ({}), validateStoredRestaurantCollector: () => undefined,
 }));
 vi.mock('../../src/application/services/user-kyc-gate-service.ts', () => ({ checkUserKycVerified: async () => ({ verified: true }) }));
 vi.mock('../../src/application/services/principal-idempotency-service.ts', () => ({ beginPrincipalAttempt: async () => ({ id: 'attempt' }), completePrincipalAttempt: vi.fn() }));
