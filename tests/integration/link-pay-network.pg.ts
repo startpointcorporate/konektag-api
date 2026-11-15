@@ -204,7 +204,7 @@ describe('Link Pay network collection on PostgreSQL', () => {
     const payer=await user('retry',100000);
     const response=await payAs(payer,link.name);expect(response.status).toBe(201);await settle();
     const [tx]=(await pool.query('SELECT * FROM konektag.link_pay_network_transactions WHERE invoice=$1',[name])).rows;
-    const state=async()=>(await pool.query('SELECT status,attempts FROM konektag.link_pay_site_webhooks WHERE transaction_id=$1 AND target_site='RESTODEMO'',[tx.id])).rows[0];
+    const state=async()=>(await pool.query("SELECT status,attempts FROM konektag.link_pay_site_webhooks WHERE transaction_id=$1 AND target_site='RESTODEMO'",[tx.id])).rows[0];
     expect((await state()).status).toBe('failed');
     const listed=await(await list(ctx('RESTODEMO',{query:'?invoice='+name}))).json();
     expect(listed.links[0]).toMatchObject({operationId:tx.k_operation_id,status:'Used'});
