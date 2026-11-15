@@ -36,17 +36,26 @@ export function sitePayload(transaction: any, link: any, slug: string, roles: st
   };
 }
 
-/** In the payment transaction. */
+/** Payment commit queues merchant confirmation and informational network notification independently.
+ * Delivery acknowledgements never gate the ledger or the other site's confirmation.
+ */
 export async function enqueueSiteWebhooks(db: Db, input: { transaction: any; link: any; slug: string }) {
   const { transaction, link, slug } = input;
-  const { rows: [delivery] } = await db.query(
-    `INSERT INTO konektag.link_pay_site_webhooks (transaction_id, target_site, roles, event_key, event_type, payload)
-     VALUES ($1, $2, $3, $4, $5, $6::jsonb)
-     ON CONFLICT (event_key) DO UPDATE SET updated_at = now() RETURNING id`,
-    [transaction.id, link.collection_source_type === 'restaurant_order' ? link.issuer_site : link.beneficiary_site, ['beneficiary'],
-     `link-pay:${transaction.id}:${link.collection_source_type === 'restaurant_order' ? link.issuer_site : link.beneficiary_site}`, LINK_PAY_EVENT,
-     JSON.stringify(sitePayload(transaction, link, slug, ['beneficiary']))]);
-  return delivery.id as string;
+  const merchantSite = link.collection_source_type === 'restaurant_order' ? link.issuer_site : link.beneficiary_site;
+  const targets = new Map<string, string[]>();
+  targets.set(merchantSite, merchantSite === link.network_site ? ['network', 'beneficiary'] : ['beneficiary']);
+  if (merchantSite !== link.network_site) targets.set(link.network_site, ['network']);
+  let merchantDelivery: string | undefined;
+  for (const [site, roles] of targets) {
+    const { rows: [delivery] } = await db.query(
+      `INSERT INTO konektag.link_pay_site_webhooks (transaction_id, target_site, roles, event_key, event_type, payload)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+       ON CONFLICT (event_key) DO UPDATE SET updated_at = now() RETURNING id`,
+      [transaction.id, site, roles, `link-pay:${transaction.id}:${site}`, LINK_PAY_EVENT,
+       JSON.stringify(sitePayload(transaction, link, slug, roles))]);
+    if (site === merchantSite) merchantDelivery = delivery.id;
+  }
+  return merchantDelivery as string;
 }
 
 /** The site must confirm the transaction and answer for every role it received. */

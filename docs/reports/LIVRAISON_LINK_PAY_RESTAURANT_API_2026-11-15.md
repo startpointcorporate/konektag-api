@@ -42,3 +42,11 @@ La CI a validé SQL240 sur PostgreSQL jetable et 3062 assertions (3057 réussies
 La configuration API `restaurantCollectors` lie exactement le POS authentifié à son collecteur. Une tentative ne peut ni choisir un autre collecteur, ni étendre cette règle à une facture historique. Le claim revalide ce rattachement avant débit ; les sources restaurant exigent Exempt0. La migration241 additive ne relâche issuer=beneficiary que pour une source restaurant portant explicitement son collectorSite. Le callback rejoint l’issuer/POS, tandis que la transaction financière conserve CONGO comme bénéficiaire.
 
 Provisionnement purement technique : identité RESTODEMO et HMAC propres, même secret registry partagé par API/outbox, clés natives transmises via fichier privé600. La ligne commerciale CONGO, son approbation et ses frais ne sont pas modifiés.
+
+## Notification explicite du réseau local
+
+Le flux confirmé est : marchand→API→lien partagé→paiement client→débit ledger client et preuve au marchand→information du réseau local. `beneficiary_site` décrit le rattachement de collecte ; ce champ n’exécute aucun virement vers un wallet CONGO. Le paiement courant consomme une seule fois les Points K du client (débit1000 client/créditK_ISSUANCE) et ne crée aucun crédit wallet marchand/réseau supplémentaire.
+
+Le même commit crée maintenant une livraison au marchand et une notification réseau indépendante. RESTODEMO et CONGO ont deux événements idempotents par transaction/site, sans dépendance d’accusé. Lorsque marchand et réseau sont le même site, un seul événement porte les deux rôles pour éviter les doublons. Les retries et erreurs de transport ne modifient jamais le ledger ni le statut payé. Aucun événement historique n’est rejoué automatiquement.
+
+Le récepteur CONGO existant est prêt : HMAC, origine, siteCONGO et trois schémas nécessaires présents, bénéficiaire de projection CONGO existant. `network.record_transaction` et `network_operations.apply` sont des projections informatives idempotentes ; aucune Payment Entry/GL ni consommation financière supplémentaire. Aucun frais ni condition commerciale modifiés. La validation utilise uniquement la CI obligatoire et le packaging, sans campagne fonctionnelle ou paiement réel en production.

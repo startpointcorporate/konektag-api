@@ -12,11 +12,10 @@ for Points K purchases. This change does not modify PSP credentials, purchase ro
 - Link Pay resolves its current approved terms in `link_pay_beneficiary_terms` and locks the reference
   during payment. The issued link keeps its frozen fees. No network ERPNext read or acknowledgment
   participates in confirmation. Confirmation requires the completed K operation and transaction.
-- Only the merchant accounting webhook is queued, atomically with payment. Signed delivery,
+- The merchant confirmation and informational local-network notification are queued independently, atomically with payment. A shared site receives one event carrying both roles; separate sites receive independent events. Neither acknowledgement gates the ledger or the other confirmation. Signed delivery,
   processing leases, backoff, dead letters and the authenticated redelivery endpoint are reused.
   Delivery failure never changes the ledger or the payment response/status.
-- A network routing key may remain in `LINK_PAY_FRAPPE_SITES` for compatibility; it needs no ERP URL,
-  service account or webhook secret. Merchant invoice authentication and webhook settings remain.
+- A network routing key may remain in `LINK_PAY_FRAPPE_SITES` for compatibility; notification requires its existing ERP URL and webhook secret; no network service account participates in payment confirmation. Merchant invoice authentication and webhook settings remain.
 
 ## Release order and existing data
 
