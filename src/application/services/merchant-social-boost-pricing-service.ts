@@ -1,5 +1,5 @@
 import countries from 'i18n-iso-countries';
-import {boostMerchantCurrency,boostBillingProfiles} from './merchant-social-boost-price-resolver.ts';
+import {boostMerchantCurrency,boostBillingProfiles,boostBillingFrappeSite} from './merchant-social-boost-price-resolver.ts';
 import pool from '../../infrastructure/database/pool.ts';
 import {visibilityAdmin,VisibilityError} from './visibility-shared.ts';
 import {isPostizPlatform} from './postiz-connections.ts';
@@ -30,8 +30,8 @@ export async function saveBoostPricingMapping(actor:string,input:Record<string,u
   const entities=(await boostBillingProfiles()).filter((row:any)=>row.company===billingCompany);
   if(entities.length!==1)throw new VisibilityError('BOOST_ERP_COMPANY_UNRESOLVED',422);
   const currency=boostMerchantCurrency(entities[0].country_code);
-  const {erpnext}=await import('../../infrastructure/adapters/erpnext-adapter.ts');
-  const [item,list]=await Promise.all([erpnext.get('Item',erpnextItemCode),erpnext.get('Price List',priceList)]);
+  const site=await boostBillingFrappeSite(billingCompany);
+  const [item,list]=await Promise.all([site.get('Item',erpnextItemCode),site.get('Price List',priceList)]);
   if(item.disabled||Number(item.is_stock_item)!==0||!item.item_defaults?.some((row:any)=>row.company===billingCompany))
     throw new VisibilityError('BOOST_ITEM_COMPANY_MISMATCH',422);
   if(!list.enabled||!list.selling||list.currency!==currency)throw new VisibilityError('BOOST_PRICE_CURRENCY_MISMATCH',422);

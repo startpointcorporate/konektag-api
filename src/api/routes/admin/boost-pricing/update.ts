@@ -1,7 +1,7 @@
 import type {RouteHandler} from '../../../http';
 import pool from '../../../../infrastructure/database/pool.ts';
 import {visibilityHttp,visibilityActor,visibilityAdmin,visibilityBody,VisibilityError} from '../../../../application/services/visibility-shared.ts';
-import {boostBillingProfiles,boostMerchantCurrency,resolveBoostCpm} from '../../../../application/services/merchant-social-boost-price-resolver.ts';
+import {boostBillingFrappeSite,boostBillingProfiles,boostMerchantCurrency,resolveBoostCpm} from '../../../../application/services/merchant-social-boost-price-resolver.ts';
 import {majorToMinor,minorDecimal} from '../../../../application/services/pay/money-unit.ts';
 
 const required=(value:unknown,max:number,name:string)=>{
@@ -37,22 +37,21 @@ export const POST:RouteHandler=({locals,request})=>visibilityHttp(async()=>{
       WHERE channel=$1 AND target_country=$2 AND billing_company=$3 AND is_active=TRUE`,[channel,country,company]);
     if(rows.length!==1)throw new VisibilityError('BOOST_PRICE_NOT_CONFIGURED',409);
     const mapping=rows[0];
-    const current=await resolveBoostCpm(channel,country,{company,currency},db);
+    const site=await boostBillingFrappeSite(company,db);
+    const current=await resolveBoostCpm(channel,country,{company,currency},db,{site});
     if(current.cpmMinor!==expectedMinor)throw new VisibilityError('CPM_PRICE_CHANGED',409);
-    const {erpnext}=await import('../../../../infrastructure/adapters/erpnext-adapter.ts');
-    const prices=await erpnext.listAdvanced('Item Price',{
-      filters:{item_code:mapping.erpnext_item_code,price_list:mapping.price_list,currency},
-      fields:['name','modified','price_list_rate'],limit:2
-    });
+    const prices=await site.list('Item Price',[
+      ['item_code','=',mapping.erpnext_item_code],['price_list','=',mapping.price_list],['currency','=',currency],
+    ],['name','modified','price_list_rate'],2);
     if(prices.length!==1)throw new VisibilityError('BOOST_PRICE_AMBIGUOUS_OR_MISSING',409);
     const record=prices[0];
     if(majorToMinor(String(record.price_list_rate),currency)!==expectedMinor)throw new VisibilityError('CPM_PRICE_CHANGED',409);
     // Re-read immediately before writing. ERPNext REST has no atomic compare-and-swap.
-    const latest=await erpnext.get('Item Price',record.name);
+    const latest=await site.get('Item Price',record.name);
     if(latest.modified!==record.modified||majorToMinor(String(latest.price_list_rate),currency)!==expectedMinor)
       throw new VisibilityError('CPM_PRICE_CHANGED',409);
-    await erpnext.update('Item Price',record.name,{price_list_rate:Number(minorDecimal(newMinor,currency))});
-    const verified=await resolveBoostCpm(channel,country,{company,currency},db);
+    await site.update('Item Price',record.name,{price_list_rate:Number(minorDecimal(newMinor,currency))});
+    const verified=await resolveBoostCpm(channel,country,{company,currency},db,{site});
     if(verified.cpmMinor!==newMinor)throw new VisibilityError('CPM_UPDATE_VERIFICATION_FAILED',503);
     console.info('[boost-pricing] CPM updated',{actor,channel,target_country:country,billing_company:company,item_price:record.name});
     return {updated:true,channel,target_country:country,billing_company:company,currency,
