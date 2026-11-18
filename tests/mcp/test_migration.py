@@ -43,7 +43,10 @@ def test_oauth_discovery_and_unauthenticated_transport(service, tmp_path):
               'OAUTH_JWKS_URI':'https://identity.example.invalid/jwks',
               'OAUTH_ISSUER':'https://identity.example.invalid', 'OAUTH_AUDIENCE':'test',
               'OAUTH_CLIENT_ID':'local-test', 'OAUTH_CLIENT_SECRET':'local-test-only-not-a-real-secret',
-              'FRAPPE_URL':'https://erp.example.invalid', 'FRAPPE_API_KEY':'local-test', 'FRAPPE_API_SECRET':'local-test',
+              **{f'MARKETPLACE_FRAPPE_{site}_URL':'https://erp.example.invalid' for site in ('EUROPE','KONEKTAG_CG','LIBAN')},
+              **{f'MARKETPLACE_FRAPPE_{site}_API_KEY':'local-test' for site in ('EUROPE','KONEKTAG_CG','LIBAN')},
+              **{f'MARKETPLACE_FRAPPE_{site}_API_SECRET':'local-test' for site in ('EUROPE','KONEKTAG_CG','LIBAN')},
+              'KONEKTAG_URL':'https://api.example.invalid', 'KONEKTAG_API_KEY':'local-test', 'KONEKTAG_API_SECRET':'local-test',
               'M365_CLIENT_ID':'local-test', 'M365_TENANT_ID':'local-test', 'M365_MAILBOX':'test@example.invalid'}
     with (tmp_path/'startup.log').open('w+') as log:
         process = subprocess.Popen([sys.executable,'server.py'],cwd=ROOT/'src/mcp'/service,env=config,stdout=log,stderr=log)

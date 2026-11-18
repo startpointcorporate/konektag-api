@@ -2,295 +2,295 @@
   {
     "service": "mcp",
     "name": "digital_audit_list",
-    "signature": "max_records: int=500, status: str | None=None, source: str | None='KONEKTAG Website'",
+    "signature": "site: str, max_records: int=500, status: str | None=None, source: str | None='KONEKTAG Website'",
     "description": "Liste les demandes d'audit digital enregistrées dans ERPNext (lecture seule).\n\ncomplete=false signifie que la pagination a atteint le plafond ;\nne jamais conclure à une absence de demandes sans couverture complète.",
-    "ast_sha256": "7200954045d22e3664e478cfb585d79464fe63461add28bf29db4006af59144e"
+    "ast_sha256": "b71908e11fee469937cd7ac40d2f284d6c22200f12f7c6cfb8fe8d423fd5daa3"
   },
   {
     "service": "mcp",
     "name": "digital_audit_get",
-    "signature": "audit_id: str",
+    "signature": "site: str, audit_id: str",
     "description": "Lit une demande Digital Audit et son Contact associé, en lecture seule.",
-    "ast_sha256": "ffe972d3548fd93e34607212025aefe68ba5fffc1e02978136f8753dfa3e431d"
+    "ast_sha256": "1ee59db18c314e4aebecf205d5d2c2ac5ee399cd67ddca9e0955c586def9210d"
   },
   {
     "service": "mcp",
     "name": "digital_audit_audit",
-    "signature": "max_records: int=1000, source: str | None='KONEKTAG Website'",
+    "signature": "site: str, max_records: int=1000, source: str | None='KONEKTAG Website'",
     "description": "Synthèse par statut des demandes du site ; indique toute couverture partielle.",
-    "ast_sha256": "c49c568693390a3ad8829c4ec36e635369c899ee9a331c425cd2eaee891c5e71"
+    "ast_sha256": "d350c1f1f6b858aed4364e5c52c9ed8928688e0021bf78e89174ddd92538ab31"
   },
   {
     "service": "mcp",
     "name": "crm_list_leads",
-    "signature": "max_records: int=500",
+    "signature": "site: str, max_records: int=500",
     "description": "Liste paginée des Leads. complete=false si le plafond est atteint.",
-    "ast_sha256": "7a51c502eecb07e367c457849a9f7983a3305e15eef592437d8ff5cb5473eb5c"
+    "ast_sha256": "a49acdbacb15954951164b23e601d1b387bf37b78c20a99ddd2a48f1b0537196"
   },
   {
     "service": "mcp",
     "name": "crm_get_lead",
-    "signature": "lead_id: str",
+    "signature": "site: str, lead_id: str",
     "description": "Lit une fiche Lead réelle par son identifiant ERPNext.",
-    "ast_sha256": "a4cdadcf977749bc41f4a0402680a6f1cbac6598cf9de57271a7e77464eb16ca"
+    "ast_sha256": "ae7e1d7041f3dc8d4f61f9870beee81f059726a56a4e9c91d49b8b8d5bca8352"
   },
   {
     "service": "mcp",
     "name": "erp_list_companies",
-    "signature": "max_records: int=500",
+    "signature": "site: str, max_records: int=500",
     "description": "Liste les sociétés ERPNext avec pays, devise, abréviation et société parente.",
-    "ast_sha256": "f077be3310dabd740273dc079789c65914a35bc565f039aae3c68c81005a2e01"
+    "ast_sha256": "652187ffecabb65f7bf96e252728926a2cf6ac9c94e49dd35c38a55b128a763a"
   },
   {
     "service": "mcp",
     "name": "erp_create_company",
-    "signature": "company_name: str, abbr: str, country: str, default_currency: str, parent_company: str | None=None, is_group: bool=False, confirm: bool=False",
+    "signature": "site: str, company_name: str, abbr: str, country: str, default_currency: str, parent_company: str | None=None, is_group: bool=False, confirm: bool=False",
     "description": "Crée une société ERPNext après confirmation explicite des paramètres.\n\nLa création ERPNext déclenche la génération de comptes et d'autres valeurs\ncomptables par défaut. Confirmer uniquement après validation du nom légal,\nde l'abréviation, du pays, de la devise et du rattachement éventuel.",
-    "ast_sha256": "2cb54ab260dc1f9e0d97f4d2a44b01673ee200bc0b483c442e88d172bea9975e"
+    "ast_sha256": "8deaa1b646236d75145ee48d32a0ecf871c8363321df15ef768537b8bbe41d0a"
   },
   {
     "service": "mcp",
     "name": "erp_list_items",
-    "signature": "company: str, max_records: int=100",
+    "signature": "site: str, company: str, max_records: int=100",
     "description": "Liste les articles ERPNext configurés pour une société via Item Defaults.",
-    "ast_sha256": "76e3a941d556f2deb4a2cfa583021612359c8f27bf2a32df9bde74c0d64f5381"
+    "ast_sha256": "ab688ad6c237a849cbdd3e9bf7e3c33f619574f4db3347092c9d0eb262e40c6c"
   },
   {
     "service": "mcp",
     "name": "erp_get_item",
-    "signature": "company: str, item_code: str",
+    "signature": "site: str, company: str, item_code: str",
     "description": "Lit un article et ses paramètres propres à la société demandée.",
-    "ast_sha256": "e414c51daf80a31c7f1fc2413bde6eac6edde4a46d9d3102f811246e10edca67"
+    "ast_sha256": "9169621f2a9cebd84de4e3618c412c158f44fa98448c07316155d38d429d4a3b"
   },
   {
     "service": "mcp",
     "name": "erp_create_item",
-    "signature": "company: str, item_code: str, item_name: str, item_group: str, stock_uom: str, is_stock_item: bool, description: str | None=None, is_sales_item: bool=True, is_purchase_item: bool=True, confirm: bool=False",
+    "signature": "site: str, company: str, item_code: str, item_name: str, item_group: str, stock_uom: str, is_stock_item: bool, description: str | None=None, is_sales_item: bool=True, is_purchase_item: bool=True, confirm: bool=False",
     "description": "Crée un article ERPNext et son Item Default pour la société demandée.\n\nLes données principales d'Item sont partagées entre sociétés. La création\najoute le rattachement à la société dans Item Defaults.",
-    "ast_sha256": "779bdb9346d0bf39a5dc79996e2074089608506f0a23aa9f92b74f9eaec864ab"
+    "ast_sha256": "6adc4030e0a6c0fb4555058e7a2ab9eb792cae48686ae8e071518a04aafbb6f7"
   },
   {
     "service": "mcp",
     "name": "erp_update_item",
-    "signature": "company: str, item_code: str, changes: dict, company_defaults_changes: dict, expected_modified: str, confirm: bool=False",
+    "signature": "site: str, company: str, item_code: str, changes: dict, company_defaults_changes: dict, expected_modified: str, confirm: bool=False",
     "description": "Modifie un article après validation et relecture récente.\n\nLe paramètre changes modifie des champs partagés par toutes les sociétés.\nLe paramètre company_defaults_changes ne touche qu'aux Item Defaults de la société.",
-    "ast_sha256": "888aecc34d7936792b19a1f510c171c7c971a1c0db2479a58d65fdefd269ceec"
+    "ast_sha256": "25dad4bfbc2400b299b5541486f918d9249e849da015f816ca0b6a766ed880ee"
   },
   {
     "service": "mcp",
     "name": "crm_search_leads",
-    "signature": "company_name: str",
+    "signature": "site: str, company_name: str",
     "description": "Cherche un prospect dans company_name et lead_name (jamais company).",
-    "ast_sha256": "b049864c6f401b4a6c1a74532690f97d78d701bf21bfd02c9e7ba4d42ca79f3d"
+    "ast_sha256": "8a278d079cd28c26d3ea0b0f1f86fcf9a4b076753b4fe1a2fbc192c9470fb0c4"
   },
   {
     "service": "mcp",
     "name": "crm_list_contacts",
-    "signature": "max_records: int=500",
+    "signature": "site: str, max_records: int=500",
     "description": "Liste les Contacts accessibles, sans inventer de relation Lead-Contact.",
-    "ast_sha256": "15655d61ee5da8f0da34ab6aa5d7c517549ee2d2a9ea8982ef19fd9e016c4591"
+    "ast_sha256": "4b6c488e60408262f118d8683095c3e22e939f21b928b830830d2eb4b0579118"
   },
   {
     "service": "mcp",
     "name": "crm_search_contacts",
-    "signature": "email: str | None=None, phone: str | None=None, name: str | None=None",
+    "signature": "site: str, email: str | None=None, phone: str | None=None, name: str | None=None",
     "description": "Recherche Contacts par email, téléphone ou nom ; correspondance de nom seule = ambiguë.",
-    "ast_sha256": "6adeaa44dabc4a00f773941225d6879ca39ccc76ddc5c8e663aa9adf77aa4b6d"
+    "ast_sha256": "081ec26eaf78383678d39b6af8d09a4d67b3997e7cf0eb361db0b5ab431e7d8f"
   },
   {
     "service": "mcp",
     "name": "crm_get_contact",
-    "signature": "contact_id: str",
+    "signature": "site: str, contact_id: str",
     "description": "Lit une fiche Contact ERPNext et ses coordonnées.",
-    "ast_sha256": "d0dc4b5e751313f04a3768560218ccb76a06e913121bf58cf362da2163918f56"
+    "ast_sha256": "2b1b213b821b68d2e4e3e5e1ccd11afda89424b06490c51329b9e0f4db4363a9"
   },
   {
     "service": "mcp",
     "name": "crm_create_contact",
-    "signature": "first_name: str, last_name: str | None=None, email: str | None=None, phone: str | None=None, confirm: bool=False",
+    "signature": "site: str, first_name: str, last_name: str | None=None, email: str | None=None, phone: str | None=None, confirm: bool=False",
     "description": "Crée un Contact uniquement après validation ; bloque les doublons Contacts/Leads.",
-    "ast_sha256": "78a4581e4696c7d804907f83706e7017e63e6ff4ec3737a6c4d4ca35c55dc3af"
+    "ast_sha256": "a1c93d4cd4d3637529f1284bcf7839ff9dba8151f2f66f166e04b23d756f3c00"
   },
   {
     "service": "mcp",
     "name": "crm_update_contact",
-    "signature": "contact_id: str, changes: dict, expected_modified: str, confirm: bool=False",
+    "signature": "site: str, contact_id: str, changes: dict, expected_modified: str, confirm: bool=False",
     "description": "Enrichit un Contact après validation, contrôle de version et anti-doublons.",
-    "ast_sha256": "8f48e2d8e860d3cbeda31779c230e6aafee404e15a4cb8320889f6a41547e1cf"
+    "ast_sha256": "2d8d85237041febb862619839bd6ff406dc121f1a0fa89e35b46fbf525018953"
   },
   {
     "service": "mcp",
     "name": "crm_audit",
-    "signature": "max_records: int=500",
+    "signature": "site: str, max_records: int=500",
     "description": "Répartition vérifiable par étape commerciale et présence d'email sur Lead.",
-    "ast_sha256": "1d4de0e6d8846ba06fdf1a1480ba408ace2a5e240dbaac46fb25a61c273daf62"
+    "ast_sha256": "451d9f06702bf23dd5324e114eff0c947aa9f94e538a748b6366d17db9390cb8"
   },
   {
     "service": "mcp",
     "name": "postiz_list_posts",
     "signature": "start_date: str, end_date: str",
     "description": "Publications Postiz : dates ISO UTC, intervalle maximum 31 jours.\n\nLes posts publiés directement sur les réseaux peuvent être absents.\nL'exhaustivité de la réponse n'est pas garantie.",
-    "ast_sha256": "adccadf45f7bc6871179702061e3cc4bd4990a76eedac7107eb8d5f6bb5c3548"
+    "ast_sha256": "d648f9cf788fa82222c3f1df74e5fe759b626dfb2799b1bed413f1e851302c07"
   },
   {
     "service": "mcp",
     "name": "postiz_platform_analytics",
     "signature": "integration_id: str, days: int",
     "description": "Statistiques brutes d'une intégration actuelle, sur 1 à 90 jours.\n\nUne métrique absente est indisponible ; aucune conversion n'est déduite.",
-    "ast_sha256": "b803f2772784402c1c10c77681f77be6b72d8a383feb465a1a9d831b1ffac395"
+    "ast_sha256": "f0f47b2dd49ba471f2a455c3fe982dc58eaf0826f55db6bd353dfc09b4bc4787"
   },
   {
     "service": "mcp",
     "name": "postiz_post_analytics",
     "signature": "post_id: str, days: int",
     "description": "Statistiques brutes d'un post Postiz, sur 1 à 90 jours.",
-    "ast_sha256": "7acf9949aa4672f67e89c6fb0d5bda8dbfc0e942075a9c96e1c90e43df9e289a"
+    "ast_sha256": "a908511124d555dbaf035ad54890baaf43ed24a3e1e4bf3d4bb3dd83bc7c349a"
   },
   {
     "service": "mcp",
     "name": "crm_update_lead",
-    "signature": "lead_id: str, changes: dict, expected_modified: str, confirm: bool=False",
+    "signature": "site: str, lead_id: str, changes: dict, expected_modified: str, confirm: bool=False",
     "description": "Met à jour un Lead après validation humaine explicite.\n\nÀ appeler UNIQUEMENT après présentation et approbation des champs exacts.\nNe crée pas de Lead. Ne modifie pas lead_owner. Ne transmet pas d'email.",
-    "ast_sha256": "6883d8c5e2dc46b1c0a1729188dd70db26f9fa0f6ddba11e753d1933843a5527"
+    "ast_sha256": "836511bb856ea214dbe42411d4162a2e50c45f61dc7cdf1ef897d5c4512fa057"
   },
   {
     "service": "mcp",
     "name": "crm_create_lead",
-    "signature": "company_name: str, lead_name: str, lead_owner: str | None=None, email_id: str | None=None, custom_axis: str | None=None, custom_commercial_stage: str='À qualifier', custom_next_action: str | None=None, custom_next_action_date: str | None=None, custom_activity_summary: str | None=None, confirm: bool=False",
+    "signature": "site: str, company_name: str, lead_name: str, lead_owner: str | None=None, email_id: str | None=None, custom_axis: str | None=None, custom_commercial_stage: str='À qualifier', custom_next_action: str | None=None, custom_next_action_date: str | None=None, custom_activity_summary: str | None=None, confirm: bool=False",
     "description": "Crée un Lead ERPNext après validation humaine explicite.\n\nRechercher le prospect avant de demander la création. confirm=true obligatoire.\nNe jamais inventer d'email, de contact ou de commercial responsable.\nRetourne l'identifiant ERPNext réel après relecture.",
-    "ast_sha256": "d733ed341e0524d9ab02ffd03c56e173c129d4a2ff8a725debce262ed1a5524c"
+    "ast_sha256": "86345d42f53677ab126415bf4271091f58bebb3a02d18796ad709e7e20c00b42"
   },
   {
     "service": "mcp",
     "name": "boost_cpm_list",
     "signature": "channel: str | None=None, target_country: str | None=None, billing_company: str | None=None",
     "description": "Liste les mappings CPM Konektag par canal, pays cible et société, en lecture seule.",
-    "ast_sha256": "a05349438e0fe4acb942458828c2aea34a3227799b2a7f4a23abcc31db5d0db0"
+    "ast_sha256": "e13e9c9fedf4671d301bcbee91bc6ba712f4a14013d3fddae3d97ba6e9d985f8"
   },
   {
     "service": "mcp",
     "name": "boost_cpm_get",
     "signature": "channel: str, target_country: str, billing_company: str",
     "description": "Lit le mapping exact, sans prétendre avoir vérifié le tarif ERPNext.",
-    "ast_sha256": "2e4cb586b0f738a0606b8583f1fa58bcad973c9190a95237a4efcefc1b7698a1"
+    "ast_sha256": "16002920303b6413fbae4d6dfe2230d398aa048ea0b4bf5908e796218c227814"
   },
   {
     "service": "mcp",
     "name": "boost_cpm_prices",
     "signature": "channel: str, target_country: str, billing_company: str | None=None",
     "description": "Liste les CPM réels ERPNext par pays cible et canal, pour une ou toutes les sociétés.\n\nLecture par le résolveur métier Konektag ; indique la devise, le prix\net un statut explicite lorsque le tarif n'est pas vérifiable.",
-    "ast_sha256": "3d6dabe53512053fa20512aa57de9745849fe46ebbfde861d06cbf6629faaa73"
+    "ast_sha256": "b6b953e54411fa84553866fbcd2972455e97cd1cfb08bc51d9af8bee3bac3cdc"
   },
   {
     "service": "mcp",
     "name": "boost_cpm_update",
     "signature": "channel: str, target_country: str, billing_company: str, expected_cpm: str, new_cpm: str, confirm: bool=False",
     "description": "Modifie le CPM ERPNext après confirmation explicite de l'ancien et du nouveau prix.\n\nToujours appeler boost_cpm_prices et présenter les montants à l'utilisateur\navant d'envoyer confirm=true. La devise est déterminée par le backend.",
-    "ast_sha256": "519df2a0a0df59752d1aedef9abaeadca929f3bc5d6435da2338bb423fe9afb6"
+    "ast_sha256": "332fe50493eaac9397eb28c08d50d91f07e23414cf568762c450ef200ebc08d6"
   },
   {
     "service": "mcp",
     "name": "boost_cpm_audit",
     "signature": "",
     "description": "Audite les clés de mapping et indique explicitement les vérifications indisponibles.",
-    "ast_sha256": "7149e5672da9a39a85016464e3c3c0b94edce6cdc59b5995f3014b75a2c36987"
+    "ast_sha256": "5f8d390bd167a5751a68b062693f9e4572eee4161e0cdb903849f3ddb3efdd41"
   },
   {
     "service": "mcp-m365",
     "name": "email_received",
     "signature": "top: int=20",
     "description": "Lire les messages recus de la boite Konektag.",
-    "ast_sha256": "a79a989158c47560e6117a99b46a265a9ee3bdfc7d89349ecad4bccfa16755fd"
+    "ast_sha256": "133189d3bb889b9c5861c982be386323ba3f999fce2debf71d4b5fd67ee432e6"
   },
   {
     "service": "mcp-m365",
     "name": "email_sent",
     "signature": "top: int=20",
     "description": "Lire les messages deja envoyes depuis la boite Konektag.",
-    "ast_sha256": "e450675f877d3f4a35b73a4ad8796fa2910ee1aaad4d53691964761b078aa7ef"
+    "ast_sha256": "b6df0415f0d512dd79d6f959d7be0ab8df637313917bef7b421c6acb89100a1f"
   },
   {
     "service": "mcp-m365",
     "name": "email_read",
     "signature": "message_id: str",
     "description": "Lire le contenu d'un email existant par son identifiant Graph.",
-    "ast_sha256": "809712a99ba6a2d5b55f5b191eddc06ecf71bac696fd7f9c0eb4322ba631ab0d"
+    "ast_sha256": "fcc3d402cefc14ecc0cac6954f4bd55697ceffddf9df08a30b21dc91ef94f921"
   },
   {
     "service": "mcp-m365",
     "name": "email_send",
     "signature": "to: list[str], subject: str, body: str, confirm: bool=False",
     "description": "Envoyer un email uniquement apres validation explicite du destinataire, sujet et contenu.",
-    "ast_sha256": "1db1dac40f554b1155273abb801d29dee305904cf44fd2c2f67eb65a4375d0af"
+    "ast_sha256": "f24ddc32298a3bf2403245b4833c19dd1bb2909555c1dfa5b6dea576b9e6f53f"
   },
   {
     "service": "mcp-m365",
     "name": "calendar_list",
     "signature": "start_iso: str, end_iso: str, top: int=30",
     "description": "Lire les evenements sur un intervalle ISO 8601 avec fuseau.",
-    "ast_sha256": "bde5b550b6a5cfa5ad3112a0dadac0c08f0347b0f9e6f33a1b06f2c23b0489ba"
+    "ast_sha256": "7b9e05300ea86ac1358b090018c84d27935e19ba2139b5aed6de40c076053bab"
   },
   {
     "service": "mcp-m365",
     "name": "calendar_create",
     "signature": "subject: str, start_local: str, end_local: str, timezone: str='Romance Standard Time', body: str='', attendees: list[str] | None=None, confirm: bool=False",
     "description": "Creer un evenement apres validation explicite ; dates locales sans offset, fuseau Windows Graph.",
-    "ast_sha256": "4b8274c06c4418dc8d3891735febdaeea6a9a5f98efa7df9a644e6f833b4453f"
+    "ast_sha256": "9e073ff09c71f874bd6e3e4872c00e97101229841dc61364a3497eac218aee71"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_accounts",
     "signature": "",
     "description": "List connected Unipile accounts and statuses (read only).",
-    "ast_sha256": "60d5a754efb685d9a523a043e750ffce6f7e2f87f950647b5fa908225e3561e3"
+    "ast_sha256": "dd8519e06fa4e4c73ea1e17fc43b66565184d176826f25679c3e5d1676775d35"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_linkedin_search",
     "signature": "keywords: str, limit: int=10",
     "description": "Search LinkedIn people, including profiles outside direct connections; read-only.",
-    "ast_sha256": "de021ea6a8c7c295a0fa541fc64eb7943eebe18a0f9bf96901429bd733633036"
+    "ast_sha256": "7bcb3c164e59742b9daafbc90a369d4d18409158b7f912df00ce16ba543ef2f1"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_chats",
     "signature": "limit: int=10, account_id: str='', cursor: str=''",
     "description": "List chats; may include personal chats. Does not send or sync anything.",
-    "ast_sha256": "cd92c977dfc8ef8579466b6208185ad0786f66dcc720837ab64df45debea9d30"
+    "ast_sha256": "8ca2a698ef321a966179e37bb6b1b5d4b273f5cb3994e518bf42738c0df1d9e9"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_chat_messages",
     "signature": "chat_id: str, limit: int=10, cursor: str=''",
     "description": "Read messages of a specified chat. No messages are sent.",
-    "ast_sha256": "eed1d6653fde34fe4c0f42ba2faaf712bfe281fb7815dd9184820f6cf640d108"
+    "ast_sha256": "7e19a5c5b4ed4b7675676bc617bc93bfbccf3e55820d27e102ea998c9b7cc19d"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_user_profile",
     "signature": "identifier: str, account_id: str=''",
     "description": "Read a public/accessible profile to resolve its provider_id.",
-    "ast_sha256": "de7b8e96717fc0efe733403d0de66e37d20db4e5f32b4447a8d7d633cda1fc78"
+    "ast_sha256": "272578272c92f7c990eb53e6c6b85e4d51f520053546fca336edf94dde56ae01"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_invite_user",
     "signature": "provider_id: str, message: str='', account_id: str='', confirmed: bool=False",
     "description": "Send one LinkedIn connection invitation only after explicit approval.",
-    "ast_sha256": "054c8a1ec00a68408af6e1983a59720d651d7e9b25f576a216655310170244cc"
+    "ast_sha256": "c28c9e1cb8e1134dee043e748d4545456762e3cbb8b598e4a0ac7f82267a9b7f"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_send_message",
     "signature": "chat_id: str, text: str, account_id: str='', confirmed: bool=False",
     "description": "Send one message to an existing chat after explicit approval.",
-    "ast_sha256": "bf590c66cce3204b95e7631d1244930a5a3287be0faa7a1e5e3452403471d868"
+    "ast_sha256": "8ea4dc4c1341f4674ff236f308af5b49818a967689784262c3a942ed3e82f5a2"
   },
   {
     "service": "mcp-unipile",
     "name": "unipile_start_chat",
     "signature": "provider_id: str, text: str, account_id: str='', confirmed: bool=False",
     "description": "Start one new chat only when provider permissions allow it and after approval.",
-    "ast_sha256": "e45aed1d0cff75ab00183e291830fd348084b373a3e130c5cfcbef46c224ac29"
+    "ast_sha256": "c270b992d40322b104bb5df64e310f810662564becf1c25dccd49e04079a094d"
   }
 ]

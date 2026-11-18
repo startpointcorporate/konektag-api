@@ -9,10 +9,10 @@ from erpnext_client import ERPClient
 
 @pytest.fixture
 def client(monkeypatch):
-    monkeypatch.setenv("FRAPPE_URL", "https://erp.example.invalid")
-    monkeypatch.setenv("FRAPPE_API_KEY", "test")
-    monkeypatch.setenv("FRAPPE_API_SECRET", "test")
-    client = ERPClient()
+    monkeypatch.setenv("MARKETPLACE_FRAPPE_EUROPE_URL", "https://erp.example.invalid")
+    monkeypatch.setenv("MARKETPLACE_FRAPPE_EUROPE_API_KEY", "test")
+    monkeypatch.setenv("MARKETPLACE_FRAPPE_EUROPE_API_SECRET", "test")
+    client = ERPClient("EUROPE")
     client.list = AsyncMock(return_value={"records": [], "complete": True})
     client.get = AsyncMock(return_value={"name": "CRM-LEAD-1", "company_name": "Acme",
                                          "modified": "v1", "custom_activity_summary": "History"})
@@ -22,8 +22,8 @@ def client(monkeypatch):
 
 
 @pytest.mark.parametrize("tool,args", [
-    ("crm_create_lead", {"company_name": "Acme", "lead_name": "Acme"}),
-    ("crm_update_lead", {"lead_id": "CRM-LEAD-1", "changes": {}, "expected_modified": "v1"}),
+    ("crm_create_lead", {"site": "EUROPE", "company_name": "Acme", "lead_name": "Acme"}),
+    ("crm_update_lead", {"site": "EUROPE", "lead_id": "CRM-LEAD-1", "changes": {}, "expected_modified": "v1"}),
 ])
 def test_explicit_confirmation(server_module, monkeypatch, tool, args):
     constructor = AsyncMock()

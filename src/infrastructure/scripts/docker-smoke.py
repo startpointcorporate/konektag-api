@@ -22,8 +22,12 @@ try:
             'OAUTH_JWKS_URI': 'https://identity.example.invalid/jwks',
             'OAUTH_ISSUER': 'https://identity.example.invalid', 'OAUTH_AUDIENCE': 'test',
             'OAUTH_CLIENT_ID': 'test', 'OAUTH_CLIENT_SECRET': 'local-test-only',
-            'FRAPPE_URL': 'https://erp.example.invalid', 'FRAPPE_API_KEY': 'test',
-            'FRAPPE_API_SECRET': 'test', 'M365_CLIENT_ID': 'test',
+            **{f'MARKETPLACE_FRAPPE_{site}_URL': 'https://erp.example.invalid' for site in ('EUROPE','KONEKTAG_CG','LIBAN')},
+            **{f'MARKETPLACE_FRAPPE_{site}_API_KEY': 'test' for site in ('EUROPE','KONEKTAG_CG','LIBAN')},
+            **{f'MARKETPLACE_FRAPPE_{site}_API_SECRET': 'test' for site in ('EUROPE','KONEKTAG_CG','LIBAN')},
+            'KONEKTAG_URL': 'https://api.example.invalid', 'KONEKTAG_API_KEY': 'test',
+            'KONEKTAG_API_SECRET': 'test',
+            'M365_CLIENT_ID': 'test',
             'M365_TENANT_ID': 'test', 'M365_MAILBOX': 'test@example.invalid'}
         args = ['run', '-d', '--network', 'none']
         for key, value in env.items():

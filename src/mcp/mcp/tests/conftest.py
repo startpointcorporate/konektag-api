@@ -20,10 +20,12 @@ def server_module(monkeypatch, tmp_path):
         return original(directory=tmp_path / "oauth")
 
     monkeypatch.setattr(disk, "DiskStore", local_store)
-    for key in ["FRAPPE_URL", "FRAPPE_API_KEY", "FRAPPE_API_SECRET", "MCP_PUBLIC_URL",
+    frappe_keys = [f"MARKETPLACE_FRAPPE_{site}_{suffix}" for site in ("EUROPE", "KONEKTAG_CG", "LIBAN")
+                   for suffix in ("URL", "API_KEY", "API_SECRET")]
+    for key in frappe_keys + ["MCP_PUBLIC_URL", "KONEKTAG_URL", "KONEKTAG_API_KEY", "KONEKTAG_API_SECRET",
                 "OAUTH_AUTHORIZE_URL", "OAUTH_TOKEN_URL", "OAUTH_CLIENT_ID",
                 "OAUTH_CLIENT_SECRET", "OAUTH_JWKS_URI", "OAUTH_ISSUER", "OAUTH_AUDIENCE"]:
-        monkeypatch.setenv(key, "https://example.invalid" if "URL" in key or
+        monkeypatch.setenv(key, "https://example.invalid" if key.endswith("_URL") or
                            key in ["OAUTH_JWKS_URI", "OAUTH_ISSUER"] else "test")
     sys.modules.pop("server", None)
     server = importlib.import_module("server")

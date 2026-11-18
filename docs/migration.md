@@ -31,7 +31,9 @@ Les autres connecteurs MCP Python sont les implémentations existantes. Leur ré
 
 ## ERPNext multi-sites
 
-Le source fournit des configurations `ERPNEXT_URL` et `FRAPPE_URL` et un contexte d'entité légale. Il ne définit pas un aiguillage explicite entre trois sites indépendants Congo/Europe/Liban. Ce routage **reste à définir** pour les opérations qui doivent traverser ces sites. Aucun regroupement des trois sites en sociétés d'une même instance n'a été introduit. Les outils historiques acceptant une Company conservent ce contrat dans le site configuré, sans changer de site implicitement.
+Le MCP ERPNext expose désormais un sélecteur obligatoire de clé de site parmi `EUROPE`, `KONEKTAG_CG` et `LIBAN`. Il lit les profils `MARKETPLACE_FRAPPE_<SITE>_{URL,API_KEY,API_SECRET}` déjà définis par le contrat central, sans recopier le mapping pays/société de `src/application/shared/konektag-site.ts`. Une clé invalide ou incomplète échoue explicitement, sans fallback. Les opérations Item vérifient toujours que la Company existe et que son Item Default appartient au site sélectionné. Le pays publicitaire n'est jamais accepté comme sélecteur ERP.
+
+Le CPM reste entièrement derrière `CPMClient → KonektagClient → /api/admin/boost-pricing*` et utilise `KONEKTAG_URL`; le MCP n'écrit jamais directement `Item Price`. Digital Audit renvoie le site sélectionné sur les succès et distingue explicitement un DocType absent d'une route 404 invalide.
 
 Avant de déployer, associer chaque processus à ses accès existants et valider les cas multi-sites avec leur contexte métier. Aucun test n'a écrit sur ERPNext.
 
