@@ -1,16 +1,21 @@
 import {beforeEach,describe,expect,it,vi} from 'vitest';
-const mocks=vi.hoisted(()=>({query:vi.fn(),get:vi.fn(),list:vi.fn(),admin:vi.fn(),manager:vi.fn()}));
+const mocks=vi.hoisted(()=>({query:vi.fn(),get:vi.fn(),list:vi.fn(),update:vi.fn(),admin:vi.fn(),manager:vi.fn(),route:vi.fn(),site:vi.fn()}));
 vi.mock('../../src/infrastructure/database/pool.ts',()=>({default:{query:mocks.query}}));
-vi.mock('../../src/infrastructure/adapters/erpnext-adapter.ts',()=>({erpnext:{get:mocks.get,listAdvanced:mocks.list}}));
+vi.mock('../../src/application/shared/konektag-site.ts',()=>({
+ resolveKonektagSite:mocks.route,
+ konektagFrappeSite:mocks.site,
+}));
 vi.mock('../../src/application/services/visibility-shared.ts',()=>({visibilityAdmin:mocks.admin,visibilityManager:mocks.manager,VisibilityError:class extends Error{constructor(code:string){super(code);}}}));
 vi.mock('../../src/application/services/postiz-connections.ts',()=>({isPostizPlatform:(v:string)=>/^[a-z][a-z0-9_-]*$/.test(v)}));
-import {boostBillingContext,boostMerchantCurrency,resolveBoostCpm} from '../../src/application/services/merchant-social-boost-price-resolver.ts';
+import {boostBillingContext,boostMerchantCurrency,resolveBoostCpm as resolveBoostCpmWithRouting} from '../../src/application/services/merchant-social-boost-price-resolver.ts';
 import {saveBoostPricingMapping} from '../../src/application/services/merchant-social-boost-pricing-service.ts';
 import {listSocialBoostTargetCountries} from '../../src/application/services/merchant-social-boost-service.ts';
 import {currencyForMerchantCountry} from '../../src/application/services/country-currency-service.ts';
 const billings=[['FR','Konektag France','EUR'],['CG','Konektag Congo','XAF'],['LB','Konektag Liban','USD']];
 const targets=['FR','BE','DE','ES','IT','CG','CM','GA','TD','CF','GQ','LB'];
 let mapping:any,item:any,list:any,prices:any[];
+const resolveBoostCpm=(channel:string,target:string,context:{company:string;currency:string})=>
+ resolveBoostCpmWithRouting(channel,target,context,undefined,{site:{get:mocks.get,list:mocks.list,update:mocks.update} as any});
 beforeEach(()=>{
  vi.clearAllMocks();
  mapping={erpnext_item_code:'KTG-BOOST-FACEBOOK-FR',price_list:'KTG-CPM-CG-EUR',target_country_name:'Congo'};
@@ -18,6 +23,8 @@ beforeEach(()=>{
  list={enabled:1,selling:1,currency:'EUR'};
  prices=[{name:'IP',price_list_rate:3.12,currency:'EUR',selling:1,uom:'Nos'}];
  mocks.query.mockImplementation(async(sql:string)=>({rows:sql.includes('SELECT DISTINCT billing_company')?[{company:'Konektag France',country_code:'FR'}]:sql.includes('INSERT INTO')?[mapping]:[mapping]}));
+ mocks.route.mockImplementation(async(country:string)=>({paymentCountry:country,site:{FR:'EUROPE',CG:'KONEKTAG_CG',LB:'LIBAN'}[country]}));
+ mocks.site.mockReturnValue({get:mocks.get,list:mocks.list,update:mocks.update});
  mocks.get.mockImplementation(async(dt:string)=>dt==='Item'?item:list);mocks.list.mockImplementation(async()=>prices);
 });
 describe('CPM selection across billing companies and target countries',()=>{
@@ -29,12 +36,28 @@ describe('CPM selection across billing companies and target countries',()=>{
    const result=await resolveBoostCpm(channel,target,context);
    expect(context).toEqual({country:merchant,company,currency});
    expect(mocks.query.mock.calls[1][1]).toEqual([channel,target,company]);
-   expect(mocks.list).toHaveBeenCalledWith('Item Price',expect.objectContaining({filters:{item_code:`KTG-BOOST-${channel.toUpperCase()}-${merchant}`,price_list:`KTG-CPM-${target}-${currency}`,currency},limit:2}));
+   expect(mocks.list).toHaveBeenCalledWith('Item Price',[
+    ['item_code','=',`KTG-BOOST-${channel.toUpperCase()}-${merchant}`],['currency','=',currency],['price_list','=',`KTG-CPM-${target}-${currency}`],
+   ],expect.any(Array),2);
    expect(result.cpmMinor).toBe(currency==='XAF'?1800:312);
   });
  }
+ it.each(billings)('routes %s billing to its own allowlisted Frappe host',async(merchant,company,currency)=>{
+  mocks.query.mockResolvedValueOnce({rows:[mapping]}).mockResolvedValueOnce({rows:[{company,country_code:merchant}]});
+  item.item_defaults=[{company}];list.currency=currency;prices[0].currency=currency;prices[0].price_list_rate=currency==='XAF'?1800:3.12;
+  await resolveBoostCpmWithRouting('facebook','CG',{company,currency});
+  expect(mocks.route).toHaveBeenCalledWith(merchant,expect.objectContaining({database:expect.anything()}));
+  expect(mocks.site).toHaveBeenCalledWith(expect.objectContaining({site:{FR:'EUROPE',CG:'KONEKTAG_CG',LB:'LIBAN'}[merchant]}),undefined,undefined);
+ });
+ it('fails closed when the billing site is unavailable, without a global fallback',async()=>{
+  mocks.query.mockResolvedValueOnce({rows:[mapping]}).mockResolvedValueOnce({rows:[{company:'Konektag France',country_code:'FR'}]});
+  mocks.route.mockRejectedValueOnce(new Error('site unavailable'));
+  await expect(resolveBoostCpmWithRouting('facebook','CG',{company:'Konektag France',currency:'EUR'})).rejects.toThrow('BOOST_ERP_SITE_UNAVAILABLE');
+  expect(mocks.site).not.toHaveBeenCalled();
+ });
  it('rejects an unconfigured billing profile for Lebanon',async()=>{mocks.query.mockResolvedValue({rows:[]});await expect(boostBillingContext('LB')).rejects.toThrow('BOOST_ERP_COMPANY_UNRESOLVED');});
  it('leaves shared financial country/currency rules unchanged',()=>{expect(boostMerchantCurrency('Liban')).toBe('USD');expect(()=>currencyForMerchantCountry('LB')).toThrow('COUNTRY_UNSUPPORTED');});
+ it('rejects a missing price instead of falling back',async()=>{prices=[];await expect(resolveBoostCpm('facebook','CG',{company:'Konektag France',currency:'EUR'})).rejects.toThrow('BOOST_PRICE_AMBIGUOUS_OR_MISSING');});
  it('rejects ambiguous prices instead of selecting the first',async()=>{prices.push({...prices[0],name:'IP2'});await expect(resolveBoostCpm('facebook','CG',{company:'Konektag France',currency:'EUR'})).rejects.toThrow('BOOST_PRICE_AMBIGUOUS_OR_MISSING');});
  it('rejects an item assigned to the wrong company',async()=>{item.item_defaults=[{company:'Konektag Congo'}];await expect(resolveBoostCpm('facebook','CG',{company:'Konektag France',currency:'EUR'})).rejects.toThrow('BOOST_ITEM_COMPANY_MISMATCH');});
  it('rejects a list in the wrong currency',async()=>{list.currency='XAF';await expect(resolveBoostCpm('facebook','CG',{company:'Konektag France',currency:'EUR'})).rejects.toThrow('BOOST_PRICE_CURRENCY_MISMATCH');});
@@ -47,6 +70,7 @@ describe('admin company-scoped mapping',()=>{
  it('upserts only the selected billing company',async()=>{await saveBoostPricingMapping('actor',input);expect(mocks.admin).toHaveBeenCalledWith('actor');expect(mocks.query).toHaveBeenLastCalledWith(expect.stringContaining('ON CONFLICT(channel,target_country,billing_company)'),['facebook','CG','Congo','KTG-BOOST-FACEBOOK-FR','KTG-CPM-CG-EUR',true,'actor','Konektag France']);});
  it('rejects a syntactically valid but non-ISO country',async()=>{await expect(saveBoostPricingMapping('actor',{...input,targetCountry:'ZZ'})).rejects.toThrow('INVALID_TARGET_COUNTRY');});
  it('requires an explicit billing company',async()=>{await expect(saveBoostPricingMapping('actor',{...input,billingCompany:''})).rejects.toThrow('INVALID_BILLING_COMPANY');});
+ it('rejects an actor without admin permission before any Frappe access',async()=>{mocks.admin.mockRejectedValueOnce(new Error('FORBIDDEN'));await expect(saveBoostPricingMapping('actor',input)).rejects.toThrow('FORBIDDEN');expect(mocks.site).not.toHaveBeenCalled();});
 });
 
 describe('target country visibility',()=>{
