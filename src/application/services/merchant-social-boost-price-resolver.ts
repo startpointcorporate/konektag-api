@@ -3,6 +3,8 @@ import {countryCode,currencyForMerchantCountry} from './country-currency-service
 import {exchangeRateService} from './exchange-rate-service.ts';
 import {majorToMinor,convertMinor} from './pay/money-unit.ts';
 import {VisibilityError} from './visibility-shared.ts';
+import {konektagFrappeSite,resolveKonektagSite} from '../shared/konektag-site.ts';
+import type {FrappeSite} from '../marketplace-transactions/frappe-site.ts';
 
 // Lebanon's approved USD configuration applies only to boosts, not to other products.
 export function boostMerchantCountry(value:unknown){
@@ -27,17 +29,28 @@ export async function boostBillingContext(country:unknown,db:any=pool){
   if(rows.length!==1)throw new VisibilityError('BOOST_ERP_COMPANY_UNRESOLVED',503);
   return {country:code,currency,company:String(rows[0].company)};
 }
-export async function resolveBoostCpm(channel:string,targetCountry:string,context:{company:string;currency:string},db:any=pool){
+/** Resolve Frappe only from the configured billing company. The advertising
+ * target is deliberately absent from this API and can never select a site. */
+export async function boostBillingFrappeSite(company:string,db:any=pool,deps:{env?:NodeJS.ProcessEnv;fetchImpl?:typeof fetch}={}):Promise<FrappeSite>{
+  const profiles=(await boostBillingProfiles(db)).filter((row:any)=>row.company===company);
+  if(profiles.length!==1)throw new VisibilityError('BOOST_ERP_COMPANY_UNRESOLVED',503);
+  try{
+    const route=await resolveKonektagSite(String(profiles[0].country_code),{database:db,env:deps.env});
+    return konektagFrappeSite(route,deps.env,deps.fetchImpl);
+  }catch{throw new VisibilityError('BOOST_ERP_SITE_UNAVAILABLE',503);}
+}
+export async function resolveBoostCpm(channel:string,targetCountry:string,context:{company:string;currency:string},db:any=pool,deps:{site?:FrappeSite}={}){
   const {rows}=await db.query(`SELECT channel,target_country,target_country_name,erpnext_item_code,price_list,billing_company
     FROM konektag.merchant_social_boost_pricing
     WHERE channel=$1 AND target_country=$2 AND billing_company=$3 AND is_active=TRUE`,[channel,targetCountry,context.company]);
   if(rows.length!==1)throw new VisibilityError('BOOST_PRICE_NOT_CONFIGURED',503);
   const mapping=rows[0];
-  const {erpnext}=await import('../../infrastructure/adapters/erpnext-adapter.ts');
+  const site=deps.site??await boostBillingFrappeSite(context.company,db);
   const [item,list,prices]=await Promise.all([
-    erpnext.get('Item',mapping.erpnext_item_code),erpnext.get('Price List',mapping.price_list),
-    erpnext.listAdvanced('Item Price',{filters:{item_code:mapping.erpnext_item_code,currency:context.currency,price_list:mapping.price_list},
-      fields:['name','price_list_rate','currency','uom','customer','supplier','batch_no','packing_unit','valid_from','valid_upto','selling'],limit:2}),
+    site.get('Item',mapping.erpnext_item_code),site.get('Price List',mapping.price_list),
+    site.list('Item Price',[
+      ['item_code','=',mapping.erpnext_item_code],['currency','=',context.currency],['price_list','=',mapping.price_list],
+    ],['name','price_list_rate','currency','uom','customer','supplier','batch_no','packing_unit','valid_from','valid_upto','selling'],2),
   ]);
   if(item.disabled||Number(item.is_stock_item)!==0||!item.item_defaults?.some((row:any)=>row.company===context.company))
     throw new VisibilityError('BOOST_ITEM_COMPANY_MISMATCH',503);
