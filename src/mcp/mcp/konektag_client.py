@@ -14,7 +14,7 @@ class KonektagClient:
         parts = urlsplit(origin)
         if (parts.scheme != "https" or not parts.hostname or parts.username or parts.password
                 or parts.path or parts.query or parts.fragment):
-            raise RuntimeError("KONEKTAG_API_URL_INVALID")
+            raise RuntimeError("KONEKTAG_URL_INVALID")
         self.origin = origin
         self.key = os.getenv("KONEKTAG_API_KEY", "")
         self.secret = os.getenv("KONEKTAG_API_SECRET", "")

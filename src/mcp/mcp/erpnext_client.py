@@ -1,9 +1,28 @@
 """Client REST Frappe, lecture seule, avec pagination et bornes de sécurité."""
 import os
 import re
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 import httpx
+
+FRAPPE_SITES = ("EUROPE", "KONEKTAG_CG", "LIBAN")
+
+
+def _site_config(site):
+    site = str(site or "").strip().upper()
+    if site not in FRAPPE_SITES:
+        raise ValueError("Site Frappe invalide; utiliser EUROPE, KONEKTAG_CG ou LIBAN")
+    prefix = "MARKETPLACE_FRAPPE_" + site
+    missing = [name for name in ("URL", "API_KEY", "API_SECRET")
+               if not os.environ.get(prefix + "_" + name)]
+    if missing:
+        raise RuntimeError("FRAPPE_SITE_NOT_CONFIGURED:" + site)
+    url = os.environ[prefix + "_URL"].rstrip("/")
+    parts = urlsplit(url)
+    if (parts.scheme != "https" or not parts.hostname or parts.username or parts.password
+            or parts.path or parts.query or parts.fragment):
+        raise RuntimeError("FRAPPE_SITE_URL_INVALID:" + site)
+    return site, url, os.environ[prefix + "_API_KEY"] + ":" + os.environ[prefix + "_API_SECRET"]
 
 FIELDS = {
     "Lead": ["name","lead_name","company_name","status","lead_owner","email_id",
@@ -17,12 +36,8 @@ FIELDS = {
 }
 
 class ERPClient:
-    def __init__(self):
-        url = os.environ["FRAPPE_URL"].rstrip("/")
-        if not url.startswith("https://"):
-            raise RuntimeError("FRAPPE_URL doit utiliser HTTPS")
-        self.base = url
-        self.token = os.environ["FRAPPE_API_KEY"] + ":" + os.environ["FRAPPE_API_SECRET"]
+    def __init__(self, site):
+        self.site, self.base, self.token = _site_config(site)
 
     async def request(self, path, params=None, *, method="GET", payload=None):
         async with httpx.AsyncClient(timeout=25, follow_redirects=False) as client:
@@ -69,6 +84,20 @@ class ERPClient:
             raise RuntimeError("Fiche Frappe invalide")
         return {k: record.get(k) for k in FIELDS[doctype]}
 
+    def _digital_audit_error(self, error):
+        if not isinstance(error, httpx.HTTPStatusError) or error.response.status_code != 404:
+            return error
+        try:
+            payload = error.response.json()
+        except ValueError:
+            payload = {}
+        marker = " ".join(str(payload.get(key, "")) for key in
+                          ("exc_type", "exception", "message", "_server_messages"))
+        code = ("DIGITAL_AUDIT_DOCTYPE_ABSENT" if
+                any(value in marker for value in ("DoesNotExistError", "DocType", "Digital Audit"))
+                else "DIGITAL_AUDIT_ROUTE_INVALID")
+        return RuntimeError(f"{code}:{self.site}")
+
 
     async def digital_audit_list(self, max_records=500, status=None, source="KONEKTAG Website"):
         """Liste les demandes d'audit, bornée et paginée ; aucune écriture."""
@@ -79,15 +108,22 @@ class ERPClient:
         filters = []
         if status: filters.append(["Digital Audit", "status", "=", status])
         if source: filters.append(["Digital Audit", "source", "=", source])
-        return await self.list("Digital Audit", max_records=max_records, filters=filters)
+        try:
+            result = await self.list("Digital Audit", max_records=max_records, filters=filters)
+        except httpx.HTTPStatusError as error:
+            raise self._digital_audit_error(error) from error
+        return {"site": self.site, "status": "AVAILABLE", **result}
 
     async def digital_audit_get(self, audit_id):
         """Lit une demande identifiée et son Contact lié, sans mutation."""
         if not isinstance(audit_id, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,140}", audit_id):
             raise ValueError("Identifiant d'audit invalide")
-        audit = await self.get("Digital Audit", audit_id)
+        try:
+            audit = await self.get("Digital Audit", audit_id)
+        except httpx.HTTPStatusError as error:
+            raise self._digital_audit_error(error) from error
         contact = await self.get("Contact", audit["contact"]) if audit.get("contact") else None
-        return {"audit": audit, "contact": contact}
+        return {"site": self.site, "status": "AVAILABLE", "audit": audit, "contact": contact}
 
     async def digital_audit_audit(self, max_records=1000, source="KONEKTAG Website"):
         """Comptage des statuts ; ne prétend pas être exhaustif si plafond atteint."""
@@ -96,7 +132,7 @@ class ERPClient:
         for record in data["records"]:
             status = record.get("status") or "NON_RENSEIGNE"
             counts[status] = counts.get(status, 0) + 1
-        return {"source": source, "total": data["returned"], "by_status": counts,
+        return {"site": self.site, "status": "AVAILABLE", "source": source, "total": data["returned"], "by_status": counts,
                 "complete": data["complete"], "max_records": max_records,
                 "note": "Si complete=false, les totaux sont partiels."}
 

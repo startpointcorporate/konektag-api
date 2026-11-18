@@ -11,16 +11,18 @@ from fastmcp import FastMCP
 from fastmcp.server.auth import OAuthProxy
 from fastmcp.server.auth.providers.jwt import JWTVerifier
 
-from erpnext_client import ERPClient
+from erpnext_client import ERPClient, FRAPPE_SITES
 from postiz_client import PostizClient
 from cpm_client import CPMClient
 
 REQUIRED = [
-    "FRAPPE_URL", "FRAPPE_API_KEY", "FRAPPE_API_SECRET",
     "MCP_PUBLIC_URL", "OAUTH_AUTHORIZE_URL", "OAUTH_TOKEN_URL",
     "OAUTH_CLIENT_ID", "OAUTH_CLIENT_SECRET", "OAUTH_JWKS_URI",
-    "OAUTH_ISSUER", "OAUTH_AUDIENCE",
+    "OAUTH_ISSUER", "OAUTH_AUDIENCE", "KONEKTAG_URL",
+    "KONEKTAG_API_KEY", "KONEKTAG_API_SECRET",
 ]
+for _site in FRAPPE_SITES:
+    REQUIRED.extend(f"MARKETPLACE_FRAPPE_{_site}_{suffix}" for suffix in ("URL", "API_KEY", "API_SECRET"))
 missing = [key for key in REQUIRED if not os.environ.get(key)]
 if missing:
     raise RuntimeError("Configuration manquante : " + ", ".join(missing))
@@ -64,47 +66,48 @@ if _public_path:
                              methods=["GET", "OPTIONS"])(_route.endpoint)
 
 @mcp.tool()
-async def digital_audit_list(max_records: int = 500, status: str | None = None,
+async def digital_audit_list(site: str, max_records: int = 500, status: str | None = None,
                              source: str | None = "KONEKTAG Website") -> dict:
     """Liste les demandes d'audit digital enregistrées dans ERPNext (lecture seule).
 
     complete=false signifie que la pagination a atteint le plafond ;
     ne jamais conclure à une absence de demandes sans couverture complète.
     """
-    return await ERPClient().digital_audit_list(max_records=max_records, status=status, source=source)
+    return await ERPClient(site).digital_audit_list(max_records=max_records, status=status, source=source)
 
 
 @mcp.tool()
-async def digital_audit_get(audit_id: str) -> dict:
+async def digital_audit_get(site: str, audit_id: str) -> dict:
     """Lit une demande Digital Audit et son Contact associé, en lecture seule."""
-    return await ERPClient().digital_audit_get(audit_id)
+    return await ERPClient(site).digital_audit_get(audit_id)
 
 
 @mcp.tool()
-async def digital_audit_audit(max_records: int = 1000,
+async def digital_audit_audit(site: str, max_records: int = 1000,
                               source: str | None = "KONEKTAG Website") -> dict:
     """Synthèse par statut des demandes du site ; indique toute couverture partielle."""
-    return await ERPClient().digital_audit_audit(max_records=max_records, source=source)
+    return await ERPClient(site).digital_audit_audit(max_records=max_records, source=source)
 
 
 @mcp.tool()
-async def crm_list_leads(max_records: int = 500) -> dict:
+async def crm_list_leads(site: str, max_records: int = 500) -> dict:
     """Liste paginée des Leads. complete=false si le plafond est atteint."""
-    return await ERPClient().list("Lead", max_records=max_records)
+    return await ERPClient(site).list("Lead", max_records=max_records)
 
 @mcp.tool()
-async def crm_get_lead(lead_id: str) -> dict:
+async def crm_get_lead(site: str, lead_id: str) -> dict:
     """Lit une fiche Lead réelle par son identifiant ERPNext."""
-    return await ERPClient().get("Lead", lead_id)
+    return await ERPClient(site).get("Lead", lead_id)
 
 @mcp.tool()
-async def erp_list_companies(max_records: int = 500) -> dict:
+async def erp_list_companies(site: str, max_records: int = 500) -> dict:
     """Liste les sociétés ERPNext avec pays, devise, abréviation et société parente."""
-    return await ERPClient().list_companies(max_records=max_records)
+    return await ERPClient(site).list_companies(max_records=max_records)
 
 
 @mcp.tool()
 async def erp_create_company(
+    site: str,
     company_name: str,
     abbr: str,
     country: str,
@@ -121,7 +124,7 @@ async def erp_create_company(
     """
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().create_company(
+    return await ERPClient(site).create_company(
         company_name=company_name, abbr=abbr, country=country,
         default_currency=default_currency, parent_company=parent_company,
         is_group=is_group,
@@ -129,19 +132,20 @@ async def erp_create_company(
 
 
 @mcp.tool()
-async def erp_list_items(company: str, max_records: int = 100) -> dict:
+async def erp_list_items(site: str, company: str, max_records: int = 100) -> dict:
     """Liste les articles ERPNext configurés pour une société via Item Defaults."""
-    return await ERPClient().list_items(company, max_records=max_records)
+    return await ERPClient(site).list_items(company, max_records=max_records)
 
 
 @mcp.tool()
-async def erp_get_item(company: str, item_code: str) -> dict:
+async def erp_get_item(site: str, company: str, item_code: str) -> dict:
     """Lit un article et ses paramètres propres à la société demandée."""
-    return await ERPClient().get_item(company, item_code)
+    return await ERPClient(site).get_item(company, item_code)
 
 
 @mcp.tool()
 async def erp_create_item(
+    site: str,
     company: str,
     item_code: str,
     item_name: str,
@@ -160,7 +164,7 @@ async def erp_create_item(
     """
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().create_item(
+    return await ERPClient(site).create_item(
         company=company, item_code=item_code, item_name=item_name,
         item_group=item_group, stock_uom=stock_uom,
         is_stock_item=is_stock_item, description=description,
@@ -170,6 +174,7 @@ async def erp_create_item(
 
 @mcp.tool()
 async def erp_update_item(
+    site: str,
     company: str,
     item_code: str,
     changes: dict,
@@ -184,7 +189,7 @@ async def erp_update_item(
     """
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().update_item(
+    return await ERPClient(site).update_item(
         company=company, item_code=item_code, changes=changes,
         company_defaults_changes=company_defaults_changes,
         expected_modified=expected_modified,
@@ -192,52 +197,52 @@ async def erp_update_item(
 
 
 @mcp.tool()
-async def crm_search_leads(company_name: str) -> dict:
+async def crm_search_leads(site: str, company_name: str) -> dict:
     """Cherche un prospect dans company_name et lead_name (jamais company)."""
-    return await ERPClient().search_leads(company_name)
+    return await ERPClient(site).search_leads(company_name)
 
 @mcp.tool()
-async def crm_list_contacts(max_records: int = 500) -> dict:
+async def crm_list_contacts(site: str, max_records: int = 500) -> dict:
     """Liste les Contacts accessibles, sans inventer de relation Lead-Contact."""
-    return await ERPClient().list("Contact", max_records=max_records)
+    return await ERPClient(site).list("Contact", max_records=max_records)
 
 
 @mcp.tool()
-async def crm_search_contacts(email: str | None = None, phone: str | None = None,
+async def crm_search_contacts(site: str, email: str | None = None, phone: str | None = None,
                               name: str | None = None) -> dict:
     """Recherche Contacts par email, téléphone ou nom ; correspondance de nom seule = ambiguë."""
-    return await ERPClient().search_contacts(email=email, phone=phone, name=name)
+    return await ERPClient(site).search_contacts(email=email, phone=phone, name=name)
 
 
 @mcp.tool()
-async def crm_get_contact(contact_id: str) -> dict:
+async def crm_get_contact(site: str, contact_id: str) -> dict:
     """Lit une fiche Contact ERPNext et ses coordonnées."""
-    return await ERPClient().get("Contact", contact_id)
+    return await ERPClient(site).get("Contact", contact_id)
 
 
 @mcp.tool()
-async def crm_create_contact(first_name: str, last_name: str | None = None,
+async def crm_create_contact(site: str, first_name: str, last_name: str | None = None,
                              email: str | None = None, phone: str | None = None,
                              confirm: bool = False) -> dict:
     """Crée un Contact uniquement après validation ; bloque les doublons Contacts/Leads."""
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().create_contact(first_name, last_name, email, phone)
+    return await ERPClient(site).create_contact(first_name, last_name, email, phone)
 
 
 @mcp.tool()
-async def crm_update_contact(contact_id: str, changes: dict, expected_modified: str,
+async def crm_update_contact(site: str, contact_id: str, changes: dict, expected_modified: str,
                              confirm: bool = False) -> dict:
     """Enrichit un Contact après validation, contrôle de version et anti-doublons."""
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().update_contact(contact_id, changes, expected_modified)
+    return await ERPClient(site).update_contact(contact_id, changes, expected_modified)
 
 
 @mcp.tool()
-async def crm_audit(max_records: int = 500) -> dict:
+async def crm_audit(site: str, max_records: int = 500) -> dict:
     """Répartition vérifiable par étape commerciale et présence d'email sur Lead."""
-    extracted = await ERPClient().list("Lead", max_records=max_records)
+    extracted = await ERPClient(site).list("Lead", max_records=max_records)
     leads = extracted["records"]
     stages = Counter((r.get("custom_commercial_stage") or "Étape non renseignée") for r in leads)
     emails = Counter(
@@ -282,6 +287,7 @@ async def postiz_post_analytics(post_id: str, days: int) -> dict:
 
 @mcp.tool()
 async def crm_update_lead(
+    site: str,
     lead_id: str,
     changes: dict,
     expected_modified: str,
@@ -294,11 +300,12 @@ async def crm_update_lead(
     """
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().update_lead(lead_id, changes, expected_modified)
+    return await ERPClient(site).update_lead(lead_id, changes, expected_modified)
 
 
 @mcp.tool()
 async def crm_create_lead(
+    site: str,
     company_name: str,
     lead_name: str,
     lead_owner: str | None = None,
@@ -318,7 +325,7 @@ async def crm_create_lead(
     """
     if confirm is not True:
         raise PermissionError("Validation explicite requise : confirm=true")
-    return await ERPClient().create_lead(
+    return await ERPClient(site).create_lead(
         company_name=company_name, lead_name=lead_name, lead_owner=lead_owner,
         email_id=email_id, custom_axis=custom_axis,
         custom_commercial_stage=custom_commercial_stage,

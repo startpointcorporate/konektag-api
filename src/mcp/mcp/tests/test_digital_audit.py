@@ -3,6 +3,7 @@ import asyncio
 import os
 import sys
 import unittest
+import httpx
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
@@ -12,9 +13,9 @@ from erpnext_client import ERPClient, FIELDS
 
 class DigitalAuditTests(unittest.TestCase):
     def setUp(self):
-        env = {"FRAPPE_URL": "https://example.invalid", "FRAPPE_API_KEY": "test", "FRAPPE_API_SECRET": "test"}
+        env = {"MARKETPLACE_FRAPPE_EUROPE_URL": "https://example.invalid", "MARKETPLACE_FRAPPE_EUROPE_API_KEY": "test", "MARKETPLACE_FRAPPE_EUROPE_API_SECRET": "test"}
         with patch.dict(os.environ, env):
-            self.client = ERPClient()
+            self.client = ERPClient("EUROPE")
 
     def test_fields_include_audit(self):
         self.assertIn("Digital Audit", FIELDS)
@@ -38,6 +39,23 @@ class DigitalAuditTests(unittest.TestCase):
     def test_get_rejects_invalid_id(self):
         with self.assertRaises(ValueError):
             asyncio.run(self.client.digital_audit_get("../../bad"))
+
+    def test_absent_doctype_has_explicit_status(self):
+        request = httpx.Request("GET", "https://example.invalid/api/resource/Digital%20Audit")
+        response = httpx.Response(404, request=request,
+                                  json={"exc_type": "DoesNotExistError", "message": "DocType Digital Audit"})
+        self.client.list = AsyncMock(side_effect=httpx.HTTPStatusError("not found", request=request,
+                                                                      response=response))
+        with self.assertRaisesRegex(RuntimeError, "DIGITAL_AUDIT_DOCTYPE_ABSENT:EUROPE"):
+            asyncio.run(self.client.digital_audit_list())
+
+    def test_invalid_route_has_explicit_status(self):
+        request = httpx.Request("GET", "https://example.invalid/api/resource/Digital%20Audit")
+        response = httpx.Response(404, request=request, text="proxy route not found")
+        self.client.list = AsyncMock(side_effect=httpx.HTTPStatusError("not found", request=request,
+                                                                      response=response))
+        with self.assertRaisesRegex(RuntimeError, "DIGITAL_AUDIT_ROUTE_INVALID:EUROPE"):
+            asyncio.run(self.client.digital_audit_list())
 
 
 if __name__ == "__main__":
