@@ -12,6 +12,11 @@ LB → LB → konektag-lb → LIBAN       (liban.erp.konektag.eu,  api-lebanon@k
 Le résolveur partagé est `src/application/shared/konektag-site.ts`. Le navigateur n'envoie qu'un pays ; il ne choisit
 jamais un site. Il n'y a aucun repli : une règle ou un site manquant renvoie une erreur explicite.
 
+Le contrat générique `resolveFrappeSite` accepte exactement un sélecteur : `{ country }` pour les appels historiques,
+ou `{ siteId }` pour un site enregistré. Fournir les deux (ou aucun) renvoie `400 SITE_SELECTOR_INVALID`. `siteId` est
+un alias public stable, jamais une URL, une clé `MARKETPLACE_FRAPPE_*` ou un secret. Un site inconnu ou désactivé est
+indistinguable côté HTTP (`404`) ; une origine, une identité, un tenant ou un scope non autorisé renvoie `403`.
+
 | Code | HTTP | Cause |
 |---|---|---|
 | `RESIDENCE_COUNTRY_INVALID` | 422 | pays absent ou illisible |
@@ -19,6 +24,9 @@ jamais un site. Il n'y a aucun repli : une règle ou un site manquant renvoie un
 | `COUNTRY_RULE_AMBIGUOUS` | 503 | plusieurs règles actives |
 | `COUNTRY_RULE_OUTSIDE_KONEKTAG` | 503 | la règle ne mène pas à FR, CG ou LB |
 | `KONEKTAG_SITE_NOT_CONFIGURED` | 503 | slug sans `site`, ou site sans URL / identifiants |
+| `SITE_SELECTOR_INVALID` | 400 | `country` et `siteId` absents, simultanés ou mal formés |
+| `SITE_ACCESS_FORBIDDEN` | 403 | tenant, identité, origine ou scope sans droit |
+| `SITE_NOT_FOUND` / `SITE_DISABLED` | 404 | alias absent ou désactivé |
 
 Le paiement préfixe ces codes par `PAYMENT_CONTEXT_` (par exemple `PAYMENT_CONTEXT_KONEKTAG_SITE_NOT_CONFIGURED`).
 Chaque appel routé écrit une ligne `[konektag-site] {"flow":…,"residenceCountry":…,"paymentCountry":…,"slug":…,"site":…}`.
@@ -48,6 +56,35 @@ exigé par le site, `KONEKTAG_MEETING_<FR|CG|LB>_DEFAULT_AXIS`.
 
 `ERPNEXT_CG_*`, `ERPNEXT_FR_*` et `ERPNEXT_LB_*` ne sont plus lus : les supprimer du Secret `konektag-api-env`
 une fois les sites EUROPE et LIBAN configurés.
+
+### Registre multi-tenant
+
+`KONEKTAG_FRAPPE_SITE_REGISTRY` est un tableau JSON validé au démarrage de chaque résolution explicite. Ajouter un
+client ne demande pas de code métier : ajouter son entrée et ses trois variables serveur `MARKETPLACE_FRAPPE_<SITE>_*`.
+
+```json
+[
+  {
+    "tenantId": "rocher-des-ages",
+    "frappeSiteId": "rocher-des-ages",
+    "country": "FR",
+    "kind": "CUSTOMER",
+    "enabled": true,
+    "site": "ROCHER_DES_AGES",
+    "allowedOrigins": ["https://rocherdesages.fr"],
+    "authorizedIdentities": ["rda-worker"],
+    "allowedScopes": ["catalog:read", "booking:write"],
+    "publicScopes": ["catalog:read"]
+  }
+]
+```
+
+`kind` vaut `KONEKTAG` ou `CUSTOMER`. `tenantId` exprime le propriétaire et reste indépendant de `country`.
+`site` est la clé interne du secret et ne doit jamais être sérialisée vers le navigateur. Un appel anonyme doit fournir
+un scope présent dans `publicScopes` et, s'il envoie une origine, celle-ci doit être dans `allowedOrigins`. Un appel
+authentifié doit appartenir au tenant ou présenter une identité explicitement autorisée, et son opération doit être
+présente dans `allowedScopes`. Cette validation applicative
+est obligatoire même lorsque CORS accepte l'origine.
 
 ## Règles de pays (migration 231)
 
