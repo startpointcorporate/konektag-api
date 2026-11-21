@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 339,
-    "operations": 431,
-    "covered": 89,
+    "paths": 344,
+    "operations": 436,
+    "covered": 94,
     "partial": 341,
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 342,
-    "executedTests": 3151,
-    "passedTests": 3151
+    "executedTests": 3167,
+    "passedTests": 3167
   },
   "operations": [
     {
@@ -9863,6 +9863,82 @@
       "constraints": []
     },
     {
+      "operation": "GET /api/public/bookings/availability",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/bookings/availability",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/bookings/availability] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/bookings/availability] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+      ]
+    },
+    {
       "operation": "GET /api/public/boost-cpm",
       "domain": "public",
       "method": "GET",
@@ -10647,6 +10723,82 @@
       "constraints": [
         "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records.",
         "Kitchen state persistence and SQL are simulated here; separate real-adapter DTO fixture and K360 mapping tests exist. Final production synthetic-record recette is coordinated after all three applications are deployed."
+      ]
+    },
+    {
+      "operation": "GET /api/public/quotations/{name}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/quotations/{name}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/quotations/{name}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/quotations/{name}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
       ]
     },
     {
@@ -11661,6 +11813,82 @@
         "tests/unit/merchant-product-patch.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "PATCH /api/public/bookings/{name}",
+      "domain": "public",
+      "method": "PATCH",
+      "path": "/api/public/bookings/{name}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT PATCH /api/public/bookings/{name}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH PATCH /api/public/bookings/{name}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+      ]
     },
     {
       "operation": "PATCH /api/public/marketplace/merchants/{slug}/restaurant/orders",
@@ -19321,6 +19549,82 @@
       "constraints": []
     },
     {
+      "operation": "POST /api/public/bookings",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/bookings",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/bookings] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/bookings] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+      ]
+    },
+    {
       "operation": "POST /api/public/boost-estimate",
       "domain": "public",
       "method": "POST",
@@ -20880,6 +21184,82 @@
       ],
       "constraints": [
         "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+      ]
+    },
+    {
+      "operation": "POST /api/public/quotations",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/quotations",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/quotations] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/quotations] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
       ]
     },
     {

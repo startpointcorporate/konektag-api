@@ -2250,6 +2250,42 @@
     ]
   },
   {
+    "file": "tests/unit/public-commerce.test.ts",
+    "operations": [
+      "GET /api/public/bookings/availability",
+      "POST /api/public/bookings",
+      "PATCH /api/public/bookings/{name}",
+      "POST /api/public/quotations",
+      "GET /api/public/quotations/{name}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal",
+      "security"
+    ],
+    "assertions": [
+      "availability calls the exact ABM method and returns aggregate booleans without identities",
+      "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+      "booking cancellation rejects a forged capability before any Frappe mutation",
+      "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+      "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected"
+    ],
+    "constraints": [
+      "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+    ],
+    "sha256": "a3ba7ad50f20bf32f0f0cbf0af6b97d2d7555921746bc6b4b89f4339b13b7bdc",
+    "tests": [
+      "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+      "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+      "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+      "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+      "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+      "public Quotation and Booking façade rejects all browser totals as unknown fields"
+    ]
+  },
+  {
     "file": "tests/unit/public-website-catalog.test.ts",
     "operations": [
       "GET /api/public/catalog/items",
