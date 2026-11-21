@@ -23,7 +23,7 @@ export type Filter = [string, string, unknown];
 export interface FrappeSite {
   readonly key: string;
   readonly host: string;
-  list(doctype: string, filters: Filter[], fields: string[], limit?: number): Promise<any[]>;
+  list(doctype: string, filters: Filter[], fields: string[], limit?: number, orderBy?: string): Promise<any[]>;
   get(doctype: string, name: string): Promise<any>;
   insert(doctype: string, doc: Record<string, unknown>): Promise<any>;
   update(doctype: string, name: string, doc: Record<string, unknown>): Promise<any>;
@@ -96,6 +96,7 @@ function transport(base: URL, authorization: string | null, fetchImpl: typeof fe
 }
 
 const METHOD = /^[a-z_][a-z0-9_.]+$/;
+const ORDER_BY = /^[a-z_][a-z0-9_]* (asc|desc)$/;
 
 /**
  * Guest calls to whitelisted public methods of a site (allow_guest), with no
@@ -131,8 +132,12 @@ export function frappeSite(key: string, env: NodeJS.ProcessEnv = process.env, fe
   return {
     key,
     host: base.hostname,
-    list: (doctype, filters, fields, limit = 500) => {
+    list: (doctype, filters, fields, limit = 500, orderBy) => {
       const q = new URLSearchParams({ filters: JSON.stringify(filters), fields: JSON.stringify(fields), limit_page_length: String(limit) });
+      if (orderBy !== undefined) {
+        if (!ORDER_BY.test(orderBy)) throw new FrappeSiteError('SITE_NOT_CONFIGURED');
+        q.set('order_by', orderBy);
+      }
       return run('GET', resource(doctype) + '?' + q);
     },
     get: (doctype, name) => run('GET', resource(doctype) + '/' + encodeURIComponent(name)),

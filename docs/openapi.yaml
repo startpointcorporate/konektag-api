@@ -4418,6 +4418,473 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/forms/optin/confirm:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/optin/confirm.ts
+      x-error-codes:
+        - BAD_JSON
+        - BAD_FIELDS
+        - CONFIRMATION_NOT_FOUND
+        - REQUEST_IN_PROGRESS
+        - RATE_LIMITED
+        - OPTIN_UNAVAILABLE
+        - SITE_NOT_FOUND
+        - SITE_ACCESS_FORBIDDEN
+        - KONEKTAG_SITE_NOT_CONFIGURED
+        - SERVICE_UNAVAILABLE
+      operationId: confirmPublicOptin
+      summary: Confirm a double opt-in
+      description: "Creates the Email Group Member inactive, attaches the consent proof (Comment konektag-consent-proof/1:
+        text, version, SHA-256, requestedAt/confirmedAt UTC, site, origin, page, campaign, pseudonymised peers, HMAC
+        signature), then activates it. Repeating the call succeeds with unsubscribeToken null: only the first
+        confirmation hands out the capability."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  pattern: ^[A-Za-z0-9_-]{43}$
+      responses:
+        "200":
+          description: Subscribed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                  - list
+                  - unsubscribeToken
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  status:
+                    type: string
+                    const: SUBSCRIBED
+                  list:
+                    type: string
+                  unsubscribeToken:
+                    type:
+                      - string
+                      - "null"
+                    description: Permanent signed capability for /optin/unsubscribe, returned by the first confirmation only; contains no
+                      e-mail address.
+        "400":
+          description: Invalid token format
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - BAD_FIELDS
+        "403":
+          description: Registry site no longer publishes optin:write
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+        "404":
+          description: Unknown or expired token
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CONFIRMATION_NOT_FOUND
+                      - SITE_NOT_FOUND
+        "409":
+          description: Concurrent confirmation
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - REQUEST_IN_PROGRESS
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Frappe, site configuration or store unavailable; the member is not active
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_UNAVAILABLE
+                      - KONEKTAG_SITE_NOT_CONFIGURED
+                      - SERVICE_UNAVAILABLE
+  /api/public/forms/optin/unsubscribe:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/optin/unsubscribe.ts
+      x-error-codes:
+        - BAD_JSON
+        - UNSUBSCRIBE_TOKEN_INVALID
+        - RATE_LIMITED
+        - OPTIN_UNAVAILABLE
+        - SITE_NOT_FOUND
+        - SITE_ACCESS_FORBIDDEN
+        - KONEKTAG_SITE_NOT_CONFIGURED
+        - SERVICE_UNAVAILABLE
+      operationId: unsubscribePublicOptin
+      summary: Withdraw consent
+      description: Sets unsubscribed on the Email Group Member named by the signed token, then records the withdrawal.
+        Idempotent; a deleted member answers UNSUBSCRIBED. POST only, so mail link scanners cannot unsubscribe.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  maxLength: 1024
+      responses:
+        "200":
+          description: Unsubscribed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  status:
+                    type: string
+                    const: UNSUBSCRIBED
+        "400":
+          description: Forged, tampered or mismatched token
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - UNSUBSCRIBE_TOKEN_INVALID
+        "403":
+          description: Registry site no longer publishes optin:write
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+        "404":
+          description: Tenant no longer owns the site, or the site is disabled
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Frappe or site configuration unavailable
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_UNAVAILABLE
+                      - KONEKTAG_SITE_NOT_CONFIGURED
+                      - SERVICE_UNAVAILABLE
   /api/public/team/{tenantId}/members/{memberSlug}:
     get:
       tags: &a50
@@ -6647,6 +7114,515 @@ paths:
         - LINK_NOT_AVAILABLE
         - LINK_PAY_RESUME_FAILED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/public/catalog/items/{ref}:
+    get:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public catalogue contract.
+      operationId: getPublicCatalogItem
+      summary: Public sheet of a catalogue entry
+      description: "Marketing sheet of one public Item: plain-text description, allowlisted characteristics and variant
+        attributes, every public price (current and upcoming), gallery of public photos, videos and virtual tours
+        (Frappe public files or external links attached to the Item), and konektag-abm resources selling it."
+      parameters:
+        - name: ref
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 140
+          description: ERPNext item code or public slug.
+        - name: site
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+            maxLength: 160
+          description: Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs
+            catalog:read in its publicScopes. Exclusive with country.
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Residence country routed to its Konektag site (FR/CG/LB rules). Exclusive with site.
+        - name: currency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Z]{3}$
+          description: Only prices in this currency.
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+          description: When sent, must be in allowedOrigins of the registry entry (403 otherwise).
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public sheet.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: public, max-age=60, stale-while-revalidate=120
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  site:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+                      kind:
+                        type: string
+                        enum:
+                          - KONEKTAG
+                          - CUSTOMER
+                    required:
+                      - id
+                      - kind
+                    additionalProperties: false
+                  item:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: ERPNext item code
+                      slug:
+                        type: string
+                      name:
+                        type: string
+                      group:
+                        type:
+                          - string
+                          - "null"
+                      shortDescription:
+                        type:
+                          - string
+                          - "null"
+                      cover:
+                        oneOf:
+                          - type: object
+                            properties:
+                              id:
+                                type: string
+                              kind:
+                                type: string
+                                enum:
+                                  - IMAGE
+                                  - VIDEO
+                                  - VIRTUAL_TOUR
+                              source:
+                                type: string
+                                enum:
+                                  - FRAPPE_FILE
+                                  - EXTERNAL_LINK
+                              url:
+                                type: string
+                                format: uri
+                                description: Public /files/ URL of the Frappe site or external https link. Private files are never returned.
+                              mimeType:
+                                type:
+                                  - string
+                                  - "null"
+                              provider:
+                                type:
+                                  - string
+                                  - "null"
+                              isCover:
+                                type: boolean
+                            required:
+                              - id
+                              - kind
+                              - source
+                              - url
+                              - mimeType
+                              - provider
+                              - isCover
+                            additionalProperties: false
+                          - type: "null"
+                      price:
+                        oneOf:
+                          - type: object
+                            properties:
+                              status:
+                                type: string
+                                const: PRICED
+                              from:
+                                type: object
+                                properties:
+                                  priceList:
+                                    type: string
+                                  currency:
+                                    type: string
+                                    pattern: ^[A-Z]{3}$
+                                  amount:
+                                    type: number
+                                    exclusiveMinimum: 0
+                                    description: ERPNext Price List rate in the currency unit (taxes excluded from this projection; computed by ERPNext on
+                                      the quotation).
+                                  uom:
+                                    type:
+                                      - string
+                                      - "null"
+                                  validFrom:
+                                    type:
+                                      - string
+                                      - "null"
+                                    format: date
+                                  validUpto:
+                                    type:
+                                      - string
+                                      - "null"
+                                    format: date
+                                  current:
+                                    type: boolean
+                                    description: false for a rate that only starts after today.
+                                required:
+                                  - priceList
+                                  - currency
+                                  - amount
+                                  - uom
+                                  - validFrom
+                                  - validUpto
+                                  - current
+                                additionalProperties: false
+                            required:
+                              - status
+                              - from
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              status:
+                                type: string
+                                const: NOT_PRICED
+                              from:
+                                type: "null"
+                            required:
+                              - status
+                              - from
+                            additionalProperties: false
+                        description: "NOT_PRICED when no current public rate exists. A missing rate is never reported as 0: a rate <= 0 is
+                          treated as absent."
+                      mediaCount:
+                        type: object
+                        properties:
+                          images:
+                            type: integer
+                            minimum: 0
+                          videos:
+                            type: integer
+                            minimum: 0
+                          virtualTours:
+                            type: integer
+                            minimum: 0
+                        required:
+                          - images
+                          - videos
+                          - virtualTours
+                        additionalProperties: false
+                      description:
+                        type:
+                          - string
+                          - "null"
+                      variantOf:
+                        type:
+                          - string
+                          - "null"
+                      characteristics:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            label:
+                              type:
+                                - string
+                                - "null"
+                            value:
+                              type:
+                                - string
+                                - number
+                                - boolean
+                          required:
+                            - key
+                            - label
+                            - value
+                          additionalProperties: false
+                      prices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            priceList:
+                              type: string
+                            currency:
+                              type: string
+                              pattern: ^[A-Z]{3}$
+                            amount:
+                              type: number
+                              exclusiveMinimum: 0
+                              description: ERPNext Price List rate in the currency unit (taxes excluded from this projection; computed by ERPNext on
+                                the quotation).
+                            uom:
+                              type:
+                                - string
+                                - "null"
+                            validFrom:
+                              type:
+                                - string
+                                - "null"
+                              format: date
+                            validUpto:
+                              type:
+                                - string
+                                - "null"
+                              format: date
+                            current:
+                              type: boolean
+                              description: false for a rate that only starts after today.
+                          required:
+                            - priceList
+                            - currency
+                            - amount
+                            - uom
+                            - validFrom
+                            - validUpto
+                            - current
+                          additionalProperties: false
+                      media:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            kind:
+                              type: string
+                              enum:
+                                - IMAGE
+                                - VIDEO
+                                - VIRTUAL_TOUR
+                            source:
+                              type: string
+                              enum:
+                                - FRAPPE_FILE
+                                - EXTERNAL_LINK
+                            url:
+                              type: string
+                              format: uri
+                              description: Public /files/ URL of the Frappe site or external https link. Private files are never returned.
+                            mimeType:
+                              type:
+                                - string
+                                - "null"
+                            provider:
+                              type:
+                                - string
+                                - "null"
+                            isCover:
+                              type: boolean
+                          required:
+                            - id
+                            - kind
+                            - source
+                            - url
+                            - mimeType
+                            - provider
+                            - isCover
+                          additionalProperties: false
+                      resources:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum:
+                              - AVAILABLE
+                              - NOT_CONFIGURED
+                              - NOT_INSTALLED
+                              - UNAVAILABLE
+                            description: "konektag-abm link state: NOT_INSTALLED when the app is absent from the site."
+                          resources:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                  enum:
+                                    - SPACE
+                                    - EQUIPMENT
+                                capacity:
+                                  type:
+                                    - integer
+                                    - "null"
+                              required:
+                                - id
+                                - name
+                                - type
+                                - capacity
+                              additionalProperties: false
+                        required:
+                          - status
+                          - resources
+                        additionalProperties: false
+                    required:
+                      - id
+                      - slug
+                      - name
+                      - group
+                      - shortDescription
+                      - cover
+                      - price
+                      - mediaCount
+                      - description
+                      - variantOf
+                      - characteristics
+                      - prices
+                      - media
+                      - resources
+                    additionalProperties: false
+                required:
+                  - site
+                  - item
+                additionalProperties: false
+        "304":
+          description: "Not modified: the If-None-Match entity tag is current."
+          headers:
+            ETag:
+              schema:
+                type: string
+        "400":
+          description: site and country are both missing, both present, or malformed (KON-107 selector).
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin not allowed, or catalog:read not public for this site.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+        "404":
+          description: Unknown or disabled site, or unknown Item; unpublished, disabled and internal Items are indistinguishable
+            from absent ones.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+                      - ITEM_NOT_FOUND
+        "422":
+          description: Invalid reference, currency or country.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - INVALID_PARAMETERS
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "503":
+          description: Site routing, configuration or Frappe unavailable. Frappe messages are never forwarded.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+            Retry-After:
+              schema:
+                type: integer
+                const: 30
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - CATALOG_UNAVAILABLE
+                      - SITE_ROUTING_UNAVAILABLE
+      x-source: src/api/routes/public/catalog/items/[ref].ts
+      x-error-codes:
+        - SITE_SELECTOR_INVALID
+        - SITE_ACCESS_FORBIDDEN
+        - SITE_NOT_FOUND
+        - ITEM_NOT_FOUND
+        - INVALID_PARAMETERS
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - CATALOG_UNAVAILABLE
+        - SITE_ROUTING_UNAVAILABLE
   /api/public/marketplace/merchants/{slug}:
     get:
       operationId: get__api_public_marketplace_merchants_slug
@@ -10706,6 +11682,1257 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/bookings/availability:
+    get:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public Selling/ABM façade; Frappe credentials never leave the server.
+      operationId: getPublicBookingAvailability
+      summary: Aggregated ABM resource availability
+      parameters:
+        - name: site
+          in: query
+          schema:
+            type: string
+          description: Public id in the closed site registry; exclusive with country.
+        - name: country
+          in: query
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Konektag country route; exclusive with site.
+        - name: Origin
+          in: header
+          schema:
+            type: string
+          description: Checked against allowedOrigins for registry sites.
+        - name: resource
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: startsAt
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endsAt
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: quantity
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 1
+      responses:
+        "200":
+          description: Aggregate availability without booking identities.
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Origin, scope or signed visitor capability rejected.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Unknown, disabled or unpublished site.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "422":
+          description: Invalid input or business validation rejected by ERPNext/ABM.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "503":
+          description: Site unavailable, not configured, or feature not installed (FEATURE_UNAVAILABLE).
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+  /api/public/catalog/items:
+    get:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public catalogue contract.
+      operationId: listPublicCatalogItems
+      summary: Public catalogue of a site
+      description: Sellable, enabled, non-template ERPNext Items of the resolved site, restricted by its PUBLIC_CATALOG_SITES
+        entry (Item Groups, publication field). Prices come from the configured public selling Price Lists, excluding
+        customer and batch rates and expired periods. Internal reference Items and every non-allowlisted field
+        (accounts, valuation, purchase, stock, owner) are never exposed. Sorted by group, name, code; cached 60 s
+        server-side.
+      parameters:
+        - name: site
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+            maxLength: 160
+          description: Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs
+            catalog:read in its publicScopes. Exclusive with country.
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Residence country routed to its Konektag site (FR/CG/LB rules). Exclusive with site.
+        - name: currency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Z]{3}$
+          description: Only prices in this currency.
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+          description: When sent, must be in allowedOrigins of the registry entry (403 otherwise).
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: group
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 140
+          description: Exact ERPNext Item Group.
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+          description: Case- and accent-insensitive search in name, code and description.
+        - name: priced
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - "true"
+              - "false"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 24
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 200
+          description: Opaque nextCursor of the previous page.
+      responses:
+        "200":
+          description: One page of the public catalogue; groups and total describe the filtered catalogue.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: public, max-age=60, stale-while-revalidate=120
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  site:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+                      kind:
+                        type: string
+                        enum:
+                          - KONEKTAG
+                          - CUSTOMER
+                    required:
+                      - id
+                      - kind
+                    additionalProperties: false
+                  priceLists:
+                    type: array
+                    items:
+                      type: string
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        count:
+                          type: integer
+                          minimum: 1
+                      required:
+                        - name
+                        - count
+                      additionalProperties: false
+                  total:
+                    type: integer
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: ERPNext item code
+                        slug:
+                          type: string
+                        name:
+                          type: string
+                        group:
+                          type:
+                            - string
+                            - "null"
+                        shortDescription:
+                          type:
+                            - string
+                            - "null"
+                        cover:
+                          oneOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: string
+                                kind:
+                                  type: string
+                                  enum:
+                                    - IMAGE
+                                    - VIDEO
+                                    - VIRTUAL_TOUR
+                                source:
+                                  type: string
+                                  enum:
+                                    - FRAPPE_FILE
+                                    - EXTERNAL_LINK
+                                url:
+                                  type: string
+                                  format: uri
+                                  description: Public /files/ URL of the Frappe site or external https link. Private files are never returned.
+                                mimeType:
+                                  type:
+                                    - string
+                                    - "null"
+                                provider:
+                                  type:
+                                    - string
+                                    - "null"
+                                isCover:
+                                  type: boolean
+                              required:
+                                - id
+                                - kind
+                                - source
+                                - url
+                                - mimeType
+                                - provider
+                                - isCover
+                              additionalProperties: false
+                            - type: "null"
+                        price:
+                          oneOf:
+                            - type: object
+                              properties:
+                                status:
+                                  type: string
+                                  const: PRICED
+                                from:
+                                  type: object
+                                  properties:
+                                    priceList:
+                                      type: string
+                                    currency:
+                                      type: string
+                                      pattern: ^[A-Z]{3}$
+                                    amount:
+                                      type: number
+                                      exclusiveMinimum: 0
+                                      description: ERPNext Price List rate in the currency unit (taxes excluded from this projection; computed by ERPNext on
+                                        the quotation).
+                                    uom:
+                                      type:
+                                        - string
+                                        - "null"
+                                    validFrom:
+                                      type:
+                                        - string
+                                        - "null"
+                                      format: date
+                                    validUpto:
+                                      type:
+                                        - string
+                                        - "null"
+                                      format: date
+                                    current:
+                                      type: boolean
+                                      description: false for a rate that only starts after today.
+                                  required:
+                                    - priceList
+                                    - currency
+                                    - amount
+                                    - uom
+                                    - validFrom
+                                    - validUpto
+                                    - current
+                                  additionalProperties: false
+                              required:
+                                - status
+                                - from
+                              additionalProperties: false
+                            - type: object
+                              properties:
+                                status:
+                                  type: string
+                                  const: NOT_PRICED
+                                from:
+                                  type: "null"
+                              required:
+                                - status
+                                - from
+                              additionalProperties: false
+                          description: "NOT_PRICED when no current public rate exists. A missing rate is never reported as 0: a rate <= 0 is
+                            treated as absent."
+                        mediaCount:
+                          type: object
+                          properties:
+                            images:
+                              type: integer
+                              minimum: 0
+                            videos:
+                              type: integer
+                              minimum: 0
+                            virtualTours:
+                              type: integer
+                              minimum: 0
+                          required:
+                            - images
+                            - videos
+                            - virtualTours
+                          additionalProperties: false
+                      required:
+                        - id
+                        - slug
+                        - name
+                        - group
+                        - shortDescription
+                        - cover
+                        - price
+                        - mediaCount
+                      additionalProperties: false
+                  nextCursor:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - site
+                  - priceLists
+                  - groups
+                  - total
+                  - items
+                  - nextCursor
+                additionalProperties: false
+        "304":
+          description: "Not modified: the If-None-Match entity tag is current."
+          headers:
+            ETag:
+              schema:
+                type: string
+        "400":
+          description: site and country are both missing, both present, or malformed (KON-107 selector).
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin not allowed, or catalog:read not public for this site.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+        "404":
+          description: Unknown or disabled site, or a site that does not publish its catalogue (indistinguishable).
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+        "422":
+          description: Invalid filter, limit, cursor or country.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - INVALID_PARAMETERS
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "503":
+          description: Site routing, configuration or Frappe unavailable. Frappe messages are never forwarded.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+            Retry-After:
+              schema:
+                type: integer
+                const: 30
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - CATALOG_UNAVAILABLE
+                      - SITE_ROUTING_UNAVAILABLE
+      x-source: src/api/routes/public/catalog/items/index.ts
+      x-error-codes:
+        - SITE_SELECTOR_INVALID
+        - SITE_ACCESS_FORBIDDEN
+        - SITE_NOT_FOUND
+        - INVALID_PARAMETERS
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - CATALOG_UNAVAILABLE
+        - SITE_ROUTING_UNAVAILABLE
+  /api/public/forms/contact:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/contact.ts
+      x-error-codes:
+        - BAD_JSON
+        - BAD_FIELDS
+        - SPAM_REJECTED
+        - BAD_IDEMPOTENCY_KEY
+        - IDEMPOTENCY_KEY_REUSED
+        - REQUEST_IN_PROGRESS
+        - INVALID_VERIFICATION
+        - VERIFICATION_UNAVAILABLE
+        - RATE_LIMITED
+        - CRM_REJECTED
+        - CRM_UNAVAILABLE
+        - SERVICE_UNAVAILABLE
+        - SITE_SELECTOR_CONFLICT
+        - SITE_SELECTOR_REQUIRED
+        - SITE_SELECTOR_INVALID
+        - SITE_NOT_FOUND
+        - SITE_ACCESS_FORBIDDEN
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - COUNTRY_RULE_AMBIGUOUS
+        - COUNTRY_RULE_OUTSIDE_KONEKTAG
+        - KONEKTAG_SITE_NOT_CONFIGURED
+      operationId: submitPublicContact
+      summary: Contact form of an authorised site
+      description: "sales/general: Lead found by email (oldest) or created, plus a received Communication on it. support:
+        Issue with raised_by. Never subscribes the visitor and sends no e-mail. The reference is opaque and is written
+        in the Frappe subject. A replay of the same submission (or of the same Idempotency-Key) answers 200 with the
+        first reference."
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{8,128}$
+        - name: Origin
+          in: header
+          schema:
+            type: string
+          description: Checked against the site registry when the site defines allowed origins.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - intent
+                - name
+                - email
+                - message
+              properties:
+                siteId:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_-]{1,63}$
+                  description: frappeSiteId of the KON-107 site registry (lowercase id). Exclusive with country. The entry must be
+                    enabled, publish contact:write or optin:write in publicScopes and list the browser Origin in
+                    allowedOrigins; never a Frappe URL.
+                country:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: Residence country (ISO code or French/English name) routed to the Konektag entity FR/CG/LB. Exclusive with
+                    siteId.
+                intent:
+                  type: string
+                  enum:
+                    - sales
+                    - support
+                    - general
+                locale:
+                  type: string
+                  enum:
+                    - fr
+                    - en
+                  default: fr
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 140
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                phone:
+                  type: string
+                  pattern: ^[0-9 +_\-,.*#()]{0,20}$
+                  description: Characters accepted by the Frappe Phone field.
+                company:
+                  type: string
+                  maxLength: 140
+                subject:
+                  type: string
+                  maxLength: 200
+                message:
+                  type: string
+                  minLength: 3
+                  maxLength: 5000
+                sourceUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                campaign:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    source:
+                      type: string
+                      maxLength: 140
+                    medium:
+                      type: string
+                      maxLength: 140
+                    name:
+                      type: string
+                      maxLength: 140
+                  description: UTM values; written to the Lead only when the UTM record already exists on the site.
+                website:
+                  type: string
+                  maxLength: 200
+                  description: "Honeypot: must stay empty."
+                turnstileToken:
+                  type: string
+                  maxLength: 2048
+                  description: Optional Cloudflare Turnstile token (action public-contact or public-optin).
+      responses:
+        "200":
+          description: Replay of an already recorded request
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - reference
+                  - replayed
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  reference:
+                    type: string
+                  replayed:
+                    type: boolean
+                    const: true
+        "201":
+          description: Request recorded
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - reference
+                  - replayed
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  reference:
+                    type: string
+                    pattern: ^WEB-[2-9A-HJ-NP-Z]{10}$
+                  replayed:
+                    type: boolean
+                    const: false
+        "400":
+          description: Invalid request
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - BAD_FIELDS
+                      - SPAM_REJECTED
+                      - BAD_IDEMPOTENCY_KEY
+                      - SITE_SELECTOR_CONFLICT
+                      - SITE_SELECTOR_REQUIRED
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin, site scope or verification refused
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+                      - INVALID_VERIFICATION
+        "404":
+          description: Unknown or disabled site
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+        "409":
+          description: Concurrent or conflicting replay
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - IDEMPOTENCY_KEY_REUSED
+                      - REQUEST_IN_PROGRESS
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "422":
+          description: Country not served
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Site, CRM or configuration unavailable
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CRM_REJECTED
+                      - CRM_UNAVAILABLE
+                      - SERVICE_UNAVAILABLE
+                      - VERIFICATION_UNAVAILABLE
+                      - COUNTRY_RULE_AMBIGUOUS
+                      - COUNTRY_RULE_OUTSIDE_KONEKTAG
+                      - KONEKTAG_SITE_NOT_CONFIGURED
+  /api/public/forms/optin:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/optin/index.ts
+      x-error-codes:
+        - BAD_JSON
+        - BAD_FIELDS
+        - SPAM_REJECTED
+        - OPTIN_LIST_NOT_FOUND
+        - CONSENT_VERSION_UNKNOWN
+        - CONFIRMATION_URL_NOT_ALLOWED
+        - INVALID_VERIFICATION
+        - VERIFICATION_UNAVAILABLE
+        - RATE_LIMITED
+        - OPTIN_LIST_UNAVAILABLE
+        - OPTIN_UNAVAILABLE
+        - CONFIRMATION_EMAIL_UNAVAILABLE
+        - SERVICE_UNAVAILABLE
+        - SITE_SELECTOR_CONFLICT
+        - SITE_SELECTOR_REQUIRED
+        - SITE_SELECTOR_INVALID
+        - SITE_NOT_FOUND
+        - SITE_ACCESS_FORBIDDEN
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - COUNTRY_RULE_AMBIGUOUS
+        - COUNTRY_RULE_OUTSIDE_KONEKTAG
+        - KONEKTAG_SITE_NOT_CONFIGURED
+      operationId: requestPublicOptin
+      summary: Explicit marketing consent (double opt-in)
+      description: "Sends a confirmation e-mail with a single-use link (72 h) to confirmationUrl#token=… (fragment: the page
+        reads it and posts it to /optin/confirm after a user click); nothing is written to Frappe before confirmation.
+        list is a public key configured per tenant (PUBLIC_OPTIN_LISTS) with its Email Group and its versioned consent
+        texts; neither comes from the browser. With TURNSTILE_SECRET_KEY configured, turnstileToken is mandatory. The
+        answer is the same whether or not the address is already subscribed."
+      parameters:
+        - name: Origin
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - list
+                - email
+                - consent
+                - confirmationUrl
+              properties:
+                siteId:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_-]{1,63}$
+                  description: frappeSiteId of the KON-107 site registry (lowercase id). Exclusive with country. The entry must be
+                    enabled, publish contact:write or optin:write in publicScopes and list the browser Origin in
+                    allowedOrigins; never a Frappe URL.
+                country:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: Residence country (ISO code or French/English name) routed to the Konektag entity FR/CG/LB. Exclusive with
+                    siteId.
+                list:
+                  type: string
+                  pattern: ^[a-z0-9][a-z0-9-]{0,63}$
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                locale:
+                  type: string
+                  enum:
+                    - fr
+                    - en
+                  default: fr
+                consent:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - accepted
+                    - textVersion
+                  properties:
+                    accepted:
+                      type: boolean
+                      const: true
+                      description: The visitor ticked an unticked checkbox.
+                    textVersion:
+                      type: string
+                      minLength: 1
+                      maxLength: 64
+                      description: Version of the consent text shown; the text itself is configured server-side for the list and written to
+                        the proof.
+                confirmationUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                  description: Page of the site that posts the token to /optin/confirm; its origin must be allowed for the tenant.
+                sourceUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                campaign:
+                  type: string
+                  maxLength: 140
+                website:
+                  type: string
+                  maxLength: 200
+                  description: "Honeypot: must stay empty."
+                turnstileToken:
+                  type: string
+                  maxLength: 2048
+                  description: Optional Cloudflare Turnstile token (action public-contact or public-optin).
+      responses:
+        "202":
+          description: Confirmation e-mail sent (or address already subscribed)
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  status:
+                    type: string
+                    const: CONFIRMATION_SENT
+        "400":
+          description: Invalid request or missing explicit consent
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - BAD_FIELDS
+                      - SPAM_REJECTED
+                      - SITE_SELECTOR_CONFLICT
+                      - SITE_SELECTOR_REQUIRED
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin, confirmation page or verification refused
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CONFIRMATION_URL_NOT_ALLOWED
+                      - SITE_ACCESS_FORBIDDEN
+                      - INVALID_VERIFICATION
+        "404":
+          description: Unknown list or site
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_LIST_NOT_FOUND
+                      - SITE_NOT_FOUND
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "422":
+          description: Unknown consent text version or country not served
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CONSENT_VERSION_UNKNOWN
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Email Group absent, Frappe, e-mail or configuration unavailable
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_LIST_UNAVAILABLE
+                      - OPTIN_UNAVAILABLE
+                      - CONFIRMATION_EMAIL_UNAVAILABLE
+                      - SERVICE_UNAVAILABLE
+                      - VERIFICATION_UNAVAILABLE
+                      - COUNTRY_RULE_AMBIGUOUS
+                      - COUNTRY_RULE_OUTSIDE_KONEKTAG
+                      - KONEKTAG_SITE_NOT_CONFIGURED
   /api/public/marketplace/facets:
     get:
       operationId: get__api_public_marketplace_facets
@@ -14134,6 +16361,221 @@ paths:
                     - rejected
               required:
                 - status
+  /api/public/bookings/{name}:
+    patch:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public Selling/ABM façade; Frappe credentials never leave the server.
+      operationId: changePublicBooking
+      summary: Reschedule or cancel a visitor booking
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: site
+          in: query
+          schema:
+            type: string
+          description: Public id in the closed site registry; exclusive with country.
+        - name: country
+          in: query
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Konektag country route; exclusive with site.
+        - name: Origin
+          in: header
+          schema:
+            type: string
+          description: Checked against allowedOrigins for registry sites.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+                - accessToken
+              properties:
+                action:
+                  type: string
+                  enum:
+                    - RESCHEDULE
+                    - CANCEL
+                accessToken:
+                  type: string
+                startsAt:
+                  type: string
+                  format: date-time
+                endsAt:
+                  type: string
+                  format: date-time
+                resource:
+                  type: string
+                reason:
+                  type: string
+                  maxLength: 500
+      responses:
+        "200":
+          description: Updated public booking state.
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Origin, scope or signed visitor capability rejected.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Unknown, disabled or unpublished site.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "409":
+          description: Period or capacity conflict.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "422":
+          description: Invalid input or business validation rejected by ERPNext/ABM.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "503":
+          description: Site unavailable, not configured, or feature not installed (FEATURE_UNAVAILABLE).
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+  /api/public/quotations/{name}:
+    get:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public Selling/ABM façade; Frappe credentials never leave the server.
+      operationId: getPublicQuotation
+      summary: Read visitor-safe native Quotation totals/status
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: site
+          in: query
+          schema:
+            type: string
+          description: Public id in the closed site registry; exclusive with country.
+        - name: country
+          in: query
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Konektag country route; exclusive with site.
+        - name: Origin
+          in: header
+          schema:
+            type: string
+          description: Checked against allowedOrigins for registry sites.
+        - name: accessToken
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Allowlisted native Selling totals; no internal fields.
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Origin, scope or signed visitor capability rejected.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Unknown, disabled or unpublished site.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "422":
+          description: Invalid input or business validation rejected by ERPNext/ABM.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "503":
+          description: Site unavailable, not configured, or feature not installed (FEATURE_UNAVAILABLE).
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
   /api/public/users/{id}:
     get:
       operationId: get__api_public_users_id
@@ -25044,6 +27486,128 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/bookings:
+    post:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public Selling/ABM façade; Frappe credentials never leave the server.
+      operationId: createPublicBooking
+      summary: Create an idempotent ABM request or option
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            maxLength: 140
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resource
+                - startsAt
+                - endsAt
+              additionalProperties: false
+              properties:
+                site:
+                  type: string
+                country:
+                  type: string
+                resource:
+                  type: string
+                startsAt:
+                  type: string
+                  format: date-time
+                endsAt:
+                  type: string
+                  format: date-time
+                allocations:
+                  type: array
+                  items:
+                    type: object
+                opportunity:
+                  type: string
+                quotation:
+                  type: string
+                optionExpiresAt:
+                  type: string
+                  format: date-time
+                mode:
+                  type: string
+                  enum:
+                    - REQUEST
+                    - OPTION
+      responses:
+        "201":
+          description: Booking and signed visitor capability.
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Origin, scope or signed visitor capability rejected.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Unknown, disabled or unpublished site.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "409":
+          description: Overlap, capacity or idempotency conflict.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "422":
+          description: Invalid input or business validation rejected by ERPNext/ABM.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "503":
+          description: Site unavailable, not configured, or feature not installed (FEATURE_UNAVAILABLE).
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
   /api/public/boost-cpm:
     get:
       operationId: get__api_public_boost_cpm
@@ -25285,6 +27849,117 @@ paths:
                 - city
                 - sector
                 - email
+  /api/public/quotations:
+    post:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public Selling/ABM façade; Frappe credentials never leave the server.
+      operationId: createPublicQuotation
+      summary: Create an ERPNext Selling Quotation draft
+      description: ERPNext resolves Item rates, Price List and native taxes. Browser totals are not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currency
+                - priceList
+                - lines
+              additionalProperties: false
+              properties:
+                site:
+                  type: string
+                country:
+                  type: string
+                lead:
+                  type: string
+                opportunity:
+                  type: string
+                currency:
+                  type: string
+                  pattern: ^[A-Z]{3}$
+                priceList:
+                  type: string
+                validTill:
+                  type: string
+                  format: date
+                lines:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items:
+                    type: object
+                    required:
+                      - itemCode
+                      - quantity
+                    additionalProperties: false
+                    properties:
+                      itemCode:
+                        type: string
+                      quantity:
+                        type: number
+                        exclusiveMinimum: 0
+                      description:
+                        type: string
+                        maxLength: 1000
+      responses:
+        "201":
+          description: Native draft totals and signed read capability.
+          content:
+            application/json:
+              schema:
+                type: object
+        "403":
+          description: Origin, scope or signed visitor capability rejected.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Unknown, disabled or unpublished site.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "422":
+          description: Invalid input or business validation rejected by ERPNext/ABM.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+        "503":
+          description: Site unavailable, not configured, or feature not installed (FEATURE_UNAVAILABLE).
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
   /api/public/users:
     get:
       operationId: get__api_public_users

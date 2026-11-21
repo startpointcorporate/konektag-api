@@ -332,6 +332,15 @@
   "PUBLIC_APP_URL": [
     "src/application/services/pay/api-payment-checkout-service.ts"
   ],
+  "PUBLIC_CATALOG_SITES": [
+    "src/application/public-website/catalog-config.ts"
+  ],
+  "PUBLIC_COMMERCE_SITES": [
+    "src/application/public-website/commerce.ts"
+  ],
+  "PUBLIC_COMMERCE_TOKEN_SECRET": [
+    "src/application/public-website/commerce.ts"
+  ],
   "PUBLIC_CORE02_TRUST_ROOTS": [
     "src/application/offline-payment-sync-service.ts",
     "src/application/services/qr-signed-verification-service.ts"
@@ -339,8 +348,14 @@
   "PUBLIC_DIRECTUS_URL": [
     "src/api/routes/countries.ts"
   ],
+  "PUBLIC_FORMS_TOKEN_SECRET": [
+    "src/application/public-forms/guards.ts"
+  ],
   "PUBLIC_MEDIA_ORIGINS": [
     "src/application/services/merchant-social-service.ts"
+  ],
+  "PUBLIC_OPTIN_LISTS": [
+    "src/application/public-forms/optin.ts"
   ],
   "PUBLIC_SITE_URL": [
     "src/api/routes/admin/merchants/[id]/pro-activation.ts",

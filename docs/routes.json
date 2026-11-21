@@ -302,6 +302,26 @@
     "score": 505
   },
   {
+    "path": "/api/public/forms/optin/confirm",
+    "file": "src/api/routes/public/forms/optin/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/optin/confirm/?$",
+    "keys": [],
+    "score": 505
+  },
+  {
+    "path": "/api/public/forms/optin/unsubscribe",
+    "file": "src/api/routes/public/forms/optin/unsubscribe.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/optin/unsubscribe/?$",
+    "keys": [],
+    "score": 505
+  },
+  {
     "path": "/api/public/team/{tenantId}/members/{memberSlug}",
     "file": "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
     "methods": [
@@ -675,6 +695,18 @@
     "pattern": "^/api/pay/payment-links/([^/]+)/resume/?$",
     "keys": [
       "slug"
+    ],
+    "score": 405
+  },
+  {
+    "path": "/api/public/catalog/items/{ref}",
+    "file": "src/api/routes/public/catalog/items/[ref].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/catalog/items/([^/]+)/?$",
+    "keys": [
+      "ref"
     ],
     "score": 405
   },
@@ -1357,6 +1389,46 @@
     "score": 404
   },
   {
+    "path": "/api/public/bookings/availability",
+    "file": "src/api/routes/public/bookings/availability.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/bookings/availability/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/public/catalog/items",
+    "file": "src/api/routes/public/catalog/items/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/catalog/items/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/public/forms/contact",
+    "file": "src/api/routes/public/forms/contact.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/contact/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/public/forms/optin",
+    "file": "src/api/routes/public/forms/optin/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/optin/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/public/marketplace/facets",
     "file": "src/api/routes/public/marketplace/facets/index.ts",
     "methods": [
@@ -1777,6 +1849,30 @@
     "pattern": "^/api/pro/inquiries/([^/]+)/?$",
     "keys": [
       "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/public/bookings/{name}",
+    "file": "src/api/routes/public/bookings/[name].ts",
+    "methods": [
+      "PATCH"
+    ],
+    "pattern": "^/api/public/bookings/([^/]+)/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/public/quotations/{name}",
+    "file": "src/api/routes/public/quotations/[name].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/quotations/([^/]+)/?$",
+    "keys": [
+      "name"
     ],
     "score": 304
   },
@@ -3136,6 +3232,16 @@
     "score": 303
   },
   {
+    "path": "/api/public/bookings",
+    "file": "src/api/routes/public/bookings/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/bookings/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
     "path": "/api/public/boost-cpm",
     "file": "src/api/routes/public/boost-cpm.ts",
     "methods": [
@@ -3172,6 +3278,16 @@
       "POST"
     ],
     "pattern": "^/api/public/digital-audit/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/quotations",
+    "file": "src/api/routes/public/quotations/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/quotations/?$",
     "keys": [],
     "score": 303
   },

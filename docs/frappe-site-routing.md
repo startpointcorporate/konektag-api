@@ -12,6 +12,11 @@ LB → LB → konektag-lb → LIBAN       (liban.erp.konektag.eu,  api-lebanon@k
 Le résolveur partagé est `src/application/shared/konektag-site.ts`. Le navigateur n'envoie qu'un pays ; il ne choisit
 jamais un site. Il n'y a aucun repli : une règle ou un site manquant renvoie une erreur explicite.
 
+Le contrat générique `resolveFrappeSite` accepte exactement un sélecteur : `{ country }` pour les appels historiques,
+ou `{ siteId }` pour un site enregistré. Fournir les deux (ou aucun) renvoie `400 SITE_SELECTOR_INVALID`. `siteId` est
+un alias public stable, jamais une URL, une clé `MARKETPLACE_FRAPPE_*` ou un secret. Un site inconnu ou désactivé est
+indistinguable côté HTTP (`404`) ; une origine, une identité, un tenant ou un scope non autorisé renvoie `403`.
+
 | Code | HTTP | Cause |
 |---|---|---|
 | `RESIDENCE_COUNTRY_INVALID` | 422 | pays absent ou illisible |
@@ -19,6 +24,9 @@ jamais un site. Il n'y a aucun repli : une règle ou un site manquant renvoie un
 | `COUNTRY_RULE_AMBIGUOUS` | 503 | plusieurs règles actives |
 | `COUNTRY_RULE_OUTSIDE_KONEKTAG` | 503 | la règle ne mène pas à FR, CG ou LB |
 | `KONEKTAG_SITE_NOT_CONFIGURED` | 503 | slug sans `site`, ou site sans URL / identifiants |
+| `SITE_SELECTOR_INVALID` | 400 | `country` et `siteId` absents, simultanés ou mal formés |
+| `SITE_ACCESS_FORBIDDEN` | 403 | tenant, identité, origine ou scope sans droit |
+| `SITE_NOT_FOUND` / `SITE_DISABLED` | 404 | alias absent ou désactivé |
 
 Le paiement préfixe ces codes par `PAYMENT_CONTEXT_` (par exemple `PAYMENT_CONTEXT_KONEKTAG_SITE_NOT_CONFIGURED`).
 Chaque appel routé écrit une ligne `[konektag-site] {"flow":…,"residenceCountry":…,"paymentCountry":…,"slug":…,"site":…}`.
@@ -49,6 +57,35 @@ exigé par le site, `KONEKTAG_MEETING_<FR|CG|LB>_DEFAULT_AXIS`.
 `ERPNEXT_CG_*`, `ERPNEXT_FR_*` et `ERPNEXT_LB_*` ne sont plus lus : les supprimer du Secret `konektag-api-env`
 une fois les sites EUROPE et LIBAN configurés.
 
+### Registre multi-tenant
+
+`KONEKTAG_FRAPPE_SITE_REGISTRY` est un tableau JSON validé au démarrage de chaque résolution explicite. Ajouter un
+client ne demande pas de code métier : ajouter son entrée et ses trois variables serveur `MARKETPLACE_FRAPPE_<SITE>_*`.
+
+```json
+[
+  {
+    "tenantId": "rocher-des-ages",
+    "frappeSiteId": "rocher-des-ages",
+    "country": "FR",
+    "kind": "CUSTOMER",
+    "enabled": true,
+    "site": "ROCHER_DES_AGES",
+    "allowedOrigins": ["https://rocherdesages.fr"],
+    "authorizedIdentities": ["rda-worker"],
+    "allowedScopes": ["catalog:read", "booking:write"],
+    "publicScopes": ["catalog:read"]
+  }
+]
+```
+
+`kind` vaut `KONEKTAG` ou `CUSTOMER`. `tenantId` exprime le propriétaire et reste indépendant de `country`.
+`site` est la clé interne du secret et ne doit jamais être sérialisée vers le navigateur. Un appel anonyme doit fournir
+un scope présent dans `publicScopes` et, s'il envoie une origine, celle-ci doit être dans `allowedOrigins`. Un appel
+authentifié doit appartenir au tenant ou présenter une identité explicitement autorisée, et son opération doit être
+présente dans `allowedScopes`. Cette validation applicative
+est obligatoire même lorsque CORS accepte l'origine.
+
 ## Règles de pays (migration 231)
 
 Toutes les règles actives doivent mener à FR, CG ou LB ; la migration échoue sinon. Elle ajoute `LB → LB` et rattache à
@@ -64,6 +101,7 @@ sont gardées en `INACTIVE`. Ces règles servent aussi aux prix Pro, au KYB et a
 | Inscription (worker `UserRegistered`) | `legalCountry` de l'événement, sinon `users.legal_country` | Contact retrouvé par `konektag_user_id`, puis consentement ; un échec est rejoué par l'outbox (backoff, puis dead-letter), sans doublon |
 | Achat de Points K (`POST /api/pay/recharges`) | `users.legal_country` de l'acheteur ; le `paymentCountry` du corps est ignoré | contexte de paiement et frais lus avant la création du checkout |
 | Points K, flux 1 (`POST /api/points-k/quotations`) | `country` **choisi** par l'utilisateur (la résidence n'est qu'une présélection UI) | Customer (`alias` = Keycloak), Lead et Quotation brouillon — voir [points-k-quotation.md](points-k-quotation.md) |
+| Contact et opt-in (`POST /api/public/forms/*`) | `country`, ou `siteId` du registre (`contact:write`, `optin:write` dans `publicScopes`) | Lead + Communication, Issue, Email Group Member — voir [public-forms.md](public-forms.md) |
 
 Le fuseau d'un rendez-vous est celui de l'entité résolue (`Europe/Paris`, `Africa/Brazzaville`, `Asia/Beirut`).
 Les réponses portent `konektagSite` (slug) pour la recette.

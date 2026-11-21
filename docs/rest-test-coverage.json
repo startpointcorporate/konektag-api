@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 333,
-    "operations": 425,
-    "covered": 83,
+    "paths": 344,
+    "operations": 436,
+    "covered": 94,
     "partial": 341,
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 342,
-    "executedTests": 3077,
-    "passedTests": 3077
+    "executedTests": 3167,
+    "passedTests": 3167
   },
   "operations": [
     {
@@ -9863,6 +9863,82 @@
       "constraints": []
     },
     {
+      "operation": "GET /api/public/bookings/availability",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/bookings/availability",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/bookings/availability] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/bookings/availability] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+      ]
+    },
+    {
       "operation": "GET /api/public/boost-cpm",
       "domain": "public",
       "method": "GET",
@@ -9900,6 +9976,378 @@
       ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/catalog/items",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/catalog/items",
+      "source": "src/api/routes/public/catalog/items/index.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) lists the 14 sellable services, each explicitly NOT_PRICED, never at zero",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) keeps internal reference sheets and Frappe secrets out of the public response",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) reports the konektag-abm app as not installed instead of failing the catalogue",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) serves public Item Prices with list, currency, unit and period; ignores negotiated, batch, expired, buying and zero rates",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters prices by currency and keeps an explicit absence when none matches",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) builds the gallery from public Files: cover photo, video links and files, virtual tour; no private, insecure, foreign or non-media file",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) publishes plain-text descriptions and allowlisted characteristics only",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) links Items to enabled konektag-abm resources and equipment pools",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) excludes disabled, non-sellable and demonstration stock Items",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters by group, accent-insensitive text and price presence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) paginates with opaque cursors and rejects forged ones",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) answers 304 to a matching If-None-Match and serves the cached snapshot for 60 s",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites routes a residence country to its Konektag site and applies its publication rules",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites requires exactly one of site and country (KON-107 selector)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites checks the public scope and the browser origin of the registry entry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites does not distinguish unknown, disabled, unrouted and unpublished sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites maps country routing errors without leaking configuration",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites answers 503 without Frappe details when the site is down, and retries next time",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites returns 404 for an unknown item and resolves an item by code or slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites keeps a published slug when a later Item collides with it",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites headlines the rate ERPNext applies today in the sales unit",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites decides current price periods in the configured time zone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites hides Frappe-hosted media of an in-cluster site without a public media origin",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites shows variant attributes on the variant sheet",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks rejects configuration that would publish internal Item fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks accepts only public file paths and https links",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks derives stable slugs and plain text",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/catalog/items] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/catalog/items] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "RDA fixture: 14 sellable services listed, each NOT_PRICED with from=null, never 0; internal reference Items, accounts, valuation, owner and service tokens absent from responses",
+        "ABM Demo fixture: public Price List rates with currency, unit and period; customer, batch, expired, buying and zero rates excluded; currency filter keeps an explicit absence",
+        "Gallery from public Files only: cover image, video link and file, virtual tour; private, /private/ path (including %2e%2e and tab normalisation, trailing-dot host), insecure http, foreign-doctype and non-media files rejected; in-cluster origins need a public mediaOrigin",
+        "konektag-abm resources linked by selling_item / equipment pool, NOT_INSTALLED when the DocType is absent",
+        "KON-107 resolveFrappeSite: site/country exclusivity (400 SITE_SELECTOR_INVALID), anonymous catalog:read public scope and allowedOrigins (403), country routing to konektag-cg, unknown/disabled/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
+        "opaque cursor pagination with forged cursors refused, ETag/If-None-Match 304 and 60 s snapshot cache",
+        "stable slugs on collision, headline price in the sales unit at the latest valid_from, price periods in the site time zone, variant attributes read once per snapshot",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-website-catalog.test.ts"
+      ],
+      "constraints": [
+        "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need their KONEKTAG_FRAPPE_SITE_REGISTRY entry, PUBLIC_CATALOG_SITES configuration and service-account read permissions (see docs/public-website-catalog.md)."
+      ]
+    },
+    {
+      "operation": "GET /api/public/catalog/items/{ref}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/catalog/items/{ref}",
+      "source": "src/api/routes/public/catalog/items/[ref].ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) lists the 14 sellable services, each explicitly NOT_PRICED, never at zero",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) keeps internal reference sheets and Frappe secrets out of the public response",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) reports the konektag-abm app as not installed instead of failing the catalogue",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) serves public Item Prices with list, currency, unit and period; ignores negotiated, batch, expired, buying and zero rates",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters prices by currency and keeps an explicit absence when none matches",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) builds the gallery from public Files: cover photo, video links and files, virtual tour; no private, insecure, foreign or non-media file",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) publishes plain-text descriptions and allowlisted characteristics only",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) links Items to enabled konektag-abm resources and equipment pools",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) excludes disabled, non-sellable and demonstration stock Items",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters by group, accent-insensitive text and price presence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) paginates with opaque cursors and rejects forged ones",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) answers 304 to a matching If-None-Match and serves the cached snapshot for 60 s",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites routes a residence country to its Konektag site and applies its publication rules",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites requires exactly one of site and country (KON-107 selector)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites checks the public scope and the browser origin of the registry entry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites does not distinguish unknown, disabled, unrouted and unpublished sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites maps country routing errors without leaking configuration",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites answers 503 without Frappe details when the site is down, and retries next time",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites returns 404 for an unknown item and resolves an item by code or slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites keeps a published slug when a later Item collides with it",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites headlines the rate ERPNext applies today in the sales unit",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites decides current price periods in the configured time zone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites hides Frappe-hosted media of an in-cluster site without a public media origin",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites shows variant attributes on the variant sheet",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks rejects configuration that would publish internal Item fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks accepts only public file paths and https links",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks derives stable slugs and plain text",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/catalog/items/{ref}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/catalog/items/{ref}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "RDA fixture: 14 sellable services listed, each NOT_PRICED with from=null, never 0; internal reference Items, accounts, valuation, owner and service tokens absent from responses",
+        "ABM Demo fixture: public Price List rates with currency, unit and period; customer, batch, expired, buying and zero rates excluded; currency filter keeps an explicit absence",
+        "Gallery from public Files only: cover image, video link and file, virtual tour; private, /private/ path (including %2e%2e and tab normalisation, trailing-dot host), insecure http, foreign-doctype and non-media files rejected; in-cluster origins need a public mediaOrigin",
+        "konektag-abm resources linked by selling_item / equipment pool, NOT_INSTALLED when the DocType is absent",
+        "KON-107 resolveFrappeSite: site/country exclusivity (400 SITE_SELECTOR_INVALID), anonymous catalog:read public scope and allowedOrigins (403), country routing to konektag-cg, unknown/disabled/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
+        "opaque cursor pagination with forged cursors refused, ETag/If-None-Match 304 and 60 s snapshot cache",
+        "stable slugs on collision, headline price in the sales unit at the latest valid_from, price periods in the site time zone, variant attributes read once per snapshot",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-website-catalog.test.ts"
+      ],
+      "constraints": [
+        "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need their KONEKTAG_FRAPPE_SITE_REGISTRY entry, PUBLIC_CATALOG_SITES configuration and service-account read permissions (see docs/public-website-catalog.md)."
       ]
     },
     {
@@ -10275,6 +10723,82 @@
       "constraints": [
         "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records.",
         "Kitchen state persistence and SQL are simulated here; separate real-adapter DTO fixture and K360 mapping tests exist. Final production synthetic-record recette is coordinated after all three applications are deployed."
+      ]
+    },
+    {
+      "operation": "GET /api/public/quotations/{name}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/quotations/{name}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/quotations/{name}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/quotations/{name}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
       ]
     },
     {
@@ -11289,6 +11813,82 @@
         "tests/unit/merchant-product-patch.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "PATCH /api/public/bookings/{name}",
+      "domain": "public",
+      "method": "PATCH",
+      "path": "/api/public/bookings/{name}",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT PATCH /api/public/bookings/{name}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH PATCH /api/public/bookings/{name}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+      ]
     },
     {
       "operation": "PATCH /api/public/marketplace/merchants/{slug}/restaurant/orders",
@@ -18949,6 +19549,82 @@
       "constraints": []
     },
     {
+      "operation": "POST /api/public/bookings",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/bookings",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/bookings] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/bookings] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
+      ]
+    },
+    {
       "operation": "POST /api/public/boost-estimate",
       "domain": "public",
       "method": "POST",
@@ -19139,6 +19815,782 @@
         "tests/unit/digital-audit-a03.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "POST /api/public/forms/contact",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/contact",
+      "source": "src/api/routes/public/forms/contact.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin, and unknown, disabled, unpublished or malformed sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes a siteId through the KON-107 registry, never to an unlisted Frappe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reports a list configured without consent text as unavailable, not as visitor error",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/contact] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/contact] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer siteId resolved by the KON-107 registry (resolveFrappeSite, publicScopes contact:write/optin:write, allowedOrigins): isolation, foreign origin and catalogue-only site 403 SITE_ACCESS_FORBIDDEN, unknown and disabled sites both 404, malformed id 400, empty registry 404, invalid registry and customer entry named konektag-* 503 without any Frappe call, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof verified from its stored form and edits detected, list without consent text 503, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused (country and registry sites), registry unsubscribe token naming the public frappeSiteId and never the internal site key, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. Customer sites go through the real KON-107 router with a KONEKTAG_FRAPPE_SITE_REGISTRY test value (RDA, ABM Demo, disabled and catalogue-only entries); no write was made to a real Frappe site."
+      ]
+    },
+    {
+      "operation": "POST /api/public/forms/optin",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/optin",
+      "source": "src/api/routes/public/forms/optin/index.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin, and unknown, disabled, unpublished or malformed sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes a siteId through the KON-107 registry, never to an unlisted Frappe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reports a list configured without consent text as unavailable, not as visitor error",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/optin] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/optin] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer siteId resolved by the KON-107 registry (resolveFrappeSite, publicScopes contact:write/optin:write, allowedOrigins): isolation, foreign origin and catalogue-only site 403 SITE_ACCESS_FORBIDDEN, unknown and disabled sites both 404, malformed id 400, empty registry 404, invalid registry and customer entry named konektag-* 503 without any Frappe call, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof verified from its stored form and edits detected, list without consent text 503, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused (country and registry sites), registry unsubscribe token naming the public frappeSiteId and never the internal site key, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. Customer sites go through the real KON-107 router with a KONEKTAG_FRAPPE_SITE_REGISTRY test value (RDA, ABM Demo, disabled and catalogue-only entries); no write was made to a real Frappe site."
+      ]
+    },
+    {
+      "operation": "POST /api/public/forms/optin/confirm",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/optin/confirm",
+      "source": "src/api/routes/public/forms/optin/confirm.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin, and unknown, disabled, unpublished or malformed sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes a siteId through the KON-107 registry, never to an unlisted Frappe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reports a list configured without consent text as unavailable, not as visitor error",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/optin/confirm] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/optin/confirm] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer siteId resolved by the KON-107 registry (resolveFrappeSite, publicScopes contact:write/optin:write, allowedOrigins): isolation, foreign origin and catalogue-only site 403 SITE_ACCESS_FORBIDDEN, unknown and disabled sites both 404, malformed id 400, empty registry 404, invalid registry and customer entry named konektag-* 503 without any Frappe call, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof verified from its stored form and edits detected, list without consent text 503, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused (country and registry sites), registry unsubscribe token naming the public frappeSiteId and never the internal site key, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. Customer sites go through the real KON-107 router with a KONEKTAG_FRAPPE_SITE_REGISTRY test value (RDA, ABM Demo, disabled and catalogue-only entries); no write was made to a real Frappe site."
+      ]
+    },
+    {
+      "operation": "POST /api/public/forms/optin/unsubscribe",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/optin/unsubscribe",
+      "source": "src/api/routes/public/forms/optin/unsubscribe.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin, and unknown, disabled, unpublished or malformed sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes a siteId through the KON-107 registry, never to an unlisted Frappe",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "Frappe constraints, concurrency and configuration reports a list configured without consent text as unavailable, not as visitor error",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/optin/unsubscribe] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/optin/unsubscribe] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer siteId resolved by the KON-107 registry (resolveFrappeSite, publicScopes contact:write/optin:write, allowedOrigins): isolation, foreign origin and catalogue-only site 403 SITE_ACCESS_FORBIDDEN, unknown and disabled sites both 404, malformed id 400, empty registry 404, invalid registry and customer entry named konektag-* 503 without any Frappe call, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof verified from its stored form and edits detected, list without consent text 503, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused (country and registry sites), registry unsubscribe token naming the public frappeSiteId and never the internal site key, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. Customer sites go through the real KON-107 router with a KONEKTAG_FRAPPE_SITE_REGISTRY test value (RDA, ABM Demo, disabled and catalogue-only entries); no write was made to a real Frappe site."
+      ]
     },
     {
       "operation": "POST /api/public/marketplace/merchants/{slug}/hotel/reservations",
@@ -19732,6 +21184,82 @@
       ],
       "constraints": [
         "Frappe/native POS persistence is simulated; deployed production validation requires separately authorized release and synthetic records."
+      ]
+    },
+    {
+      "operation": "POST /api/public/quotations",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/quotations",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns aggregate availability through the exact ABM method with server credentials",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates an idempotent option and signs a capability used for cancellation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects a forged visitor capability before any ABM mutation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade returns FEATURE_UNAVAILABLE when konektag-abm is absent on RDA",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade creates a native draft without accepting browser rates, tax or totals",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-commerce.test.ts",
+          "name": "public Quotation and Booking façade rejects all browser totals as unknown fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/quotations] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/quotations] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "availability calls the exact ABM method and returns aggregate booleans without identities",
+        "booking creation forwards the idempotency key, supports Option through the published transition, and returns a signed visitor capability",
+        "booking cancellation rejects a forged capability before any Frappe mutation",
+        "RDA without konektag-abm returns FEATURE_UNAVAILABLE instead of simulating a booking",
+        "Quotation is a native ERPNext draft whose rates, taxes and totals are server-owned; browser totals and rates are rejected",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [],
+      "constraints": [
+        "Frappe/ERPNext and ABM are simulated through the real HTTP transport. A deployed ABM Demo end-to-end recipe remains required; no RDA booking is valid until the app is installed there."
       ]
     },
     {

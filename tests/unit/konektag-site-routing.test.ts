@@ -12,7 +12,7 @@ vi.mock('../../src/application/shared/meeting-receipt.ts', () => ({ sendMeetingR
 vi.mock('../../src/application/services/resend-service.ts', () => ({ emailService: { send: m.send } }));
 
 import { createContext } from '../../src/api/http';
-import { KonektagSiteError, resolveKonektagSite } from '../../src/application/shared/konektag-site.ts';
+import { KonektagSiteError, konektagSiteErrorStatus, resolveFrappeSite, resolveKonektagSite } from '../../src/application/shared/konektag-site.ts';
 import { loadCapabilities } from '../../src/application/marketplace-transactions/merchant-capabilities.ts';
 import { GET as meetingSlots } from '../../src/api/routes/meeting-slots.ts';
 import { POST as meetingRequest } from '../../src/api/routes/meeting-request.ts';
@@ -129,6 +129,54 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn(fakeFrappe));
   vi.spyOn(console, 'info').mockImplementation(() => undefined);
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
+});
+
+describe('generic Frappe site registry', () => {
+  beforeEach(() => {
+    process.env.KONEKTAG_FRAPPE_SITE_REGISTRY = JSON.stringify([
+      { tenantId: 'konektag', frappeSiteId: 'konektag-fr', country: 'FR', kind: 'KONEKTAG', enabled: true, site: 'EUROPE', allowedScopes: ['catalog:read'], publicScopes: ['catalog:read'], allowedOrigins: ['https://www.konektag.eu'] },
+      { tenantId: 'rocher-des-ages', frappeSiteId: 'rocher-des-ages', country: 'FR', kind: 'CUSTOMER', enabled: true, site: 'ROCHER_DES_AGES', allowedScopes: ['booking:write', 'catalog:read'], publicScopes: ['catalog:read'], allowedOrigins: ['https://rocherdesages.fr'], authorizedIdentities: ['rda-worker'] },
+      { tenantId: 'disabled-client', frappeSiteId: 'disabled-client', country: 'CG', kind: 'CUSTOMER', enabled: false, site: 'DISABLED_CLIENT' },
+    ]);
+  });
+
+  it('keeps historical country routing unchanged', async () => {
+    await expect(resolveFrappeSite({ country: 'FR' })).resolves.toMatchObject({ paymentCountry: 'FR', site: 'EUROPE' });
+  });
+
+  it('routes Rocher des Ages by stable id without accepting a URL', async () => {
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { tenantId: 'rocher-des-ages', scope: 'booking:write' }))
+      .resolves.toEqual({ residenceCountry: 'FR', paymentCountry: 'FR', slug: 'rocher-des-ages', site: 'ROCHER_DES_AGES', timezone: 'Europe/Paris', tenantId: 'rocher-des-ages', frappeSiteId: 'rocher-des-ages', kind: 'CUSTOMER' });
+    await expect(resolveFrappeSite({ siteId: 'https://evil.invalid' }, { tenantId: 'rocher-des-ages', scope: 'booking:write' }))
+      .rejects.toMatchObject({ code: 'SITE_SELECTOR_INVALID' });
+  });
+
+  it('allows anonymous public context only for the published origin and scope', async () => {
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { anonymous: true, origin: 'https://rocherdesages.fr', scope: 'catalog:read' })).resolves.toMatchObject({ kind: 'CUSTOMER' });
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { anonymous: true, origin: 'https://evil.invalid', scope: 'catalog:read' })).rejects.toMatchObject({ code: 'SITE_ACCESS_FORBIDDEN' });
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { anonymous: true, origin: 'https://rocherdesages.fr', scope: 'booking:write' })).rejects.toMatchObject({ code: 'SITE_ACCESS_FORBIDDEN' });
+  });
+
+  it('refuses cross-tenant spoofing, disabled/unknown sites and ambiguous selectors', async () => {
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { tenantId: 'other-client', scope: 'booking:write' })).rejects.toMatchObject({ code: 'SITE_ACCESS_FORBIDDEN' });
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { tenantId: 'rocher-des-ages', scope: 'admin:all' })).rejects.toMatchObject({ code: 'SITE_ACCESS_FORBIDDEN' });
+    await expect(resolveFrappeSite({ siteId: 'rocher-des-ages' }, { identityId: 'rda-worker', tenantId: 'other-client', scope: 'booking:write' })).resolves.toMatchObject({ tenantId: 'rocher-des-ages' });
+    await expect(resolveFrappeSite({ siteId: 'disabled-client' }, { tenantId: 'disabled-client', scope: 'catalog:read' })).rejects.toMatchObject({ code: 'SITE_DISABLED' });
+    await expect(resolveFrappeSite({ siteId: 'missing' }, { tenantId: 'missing', scope: 'catalog:read' })).rejects.toMatchObject({ code: 'SITE_NOT_FOUND' });
+    await expect(resolveFrappeSite({ country: 'FR', siteId: 'rocher-des-ages' })).rejects.toMatchObject({ code: 'SITE_SELECTOR_INVALID' });
+    expect(konektagSiteErrorStatus(new KonektagSiteError('SITE_SELECTOR_INVALID'))).toBe(400);
+    expect(konektagSiteErrorStatus(new KonektagSiteError('SITE_ACCESS_FORBIDDEN'))).toBe(403);
+    expect(konektagSiteErrorStatus(new KonektagSiteError('SITE_NOT_FOUND'))).toBe(404);
+  });
+
+  it('rejects free URLs and malformed authorization lists in registry configuration', async () => {
+    process.env.KONEKTAG_FRAPPE_SITE_REGISTRY = JSON.stringify([{
+      tenantId: 'evil', frappeSiteId: 'evil', country: 'FR', kind: 'CUSTOMER', enabled: true,
+      site: 'EVIL', url: 'https://evil.invalid', allowedScopes: 'admin:all',
+    }]);
+    await expect(resolveFrappeSite({ siteId: 'evil' }, { tenantId: 'evil', scope: 'admin:all' }))
+      .rejects.toMatchObject({ code: 'KONEKTAG_SITE_NOT_CONFIGURED' });
+  });
 });
 afterEach(() => { process.env = { ...saved }; vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
