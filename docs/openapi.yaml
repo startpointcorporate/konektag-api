@@ -4418,6 +4418,419 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/forms/optin/confirm:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/optin/confirm.ts
+      x-error-codes:
+        - BAD_JSON
+        - BAD_FIELDS
+        - CONFIRMATION_NOT_FOUND
+        - REQUEST_IN_PROGRESS
+        - RATE_LIMITED
+        - OPTIN_UNAVAILABLE
+        - SITE_NOT_FOUND
+        - SERVICE_UNAVAILABLE
+      operationId: confirmPublicOptin
+      summary: Confirm a double opt-in
+      description: "Creates the Email Group Member inactive, attaches the consent proof (Comment konektag-consent-proof/1:
+        text, version, SHA-256, requestedAt/confirmedAt UTC, site, origin, page, campaign, pseudonymised peers), then
+        activates it. Repeating the call returns the same answer."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  pattern: ^[A-Za-z0-9_-]{43}$
+      responses:
+        "200":
+          description: Subscribed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                  - list
+                  - unsubscribeToken
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  status:
+                    type: string
+                    const: SUBSCRIBED
+                  list:
+                    type: string
+                  unsubscribeToken:
+                    type: string
+                    description: Permanent signed capability for /optin/unsubscribe; contains no e-mail address.
+        "400":
+          description: Invalid token format
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - BAD_FIELDS
+        "404":
+          description: Unknown or expired token
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CONFIRMATION_NOT_FOUND
+                      - SITE_NOT_FOUND
+        "409":
+          description: Concurrent confirmation
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - REQUEST_IN_PROGRESS
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Frappe or store unavailable; the member is not active
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_UNAVAILABLE
+                      - SERVICE_UNAVAILABLE
+  /api/public/forms/optin/unsubscribe:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/optin/unsubscribe.ts
+      x-error-codes:
+        - BAD_JSON
+        - UNSUBSCRIBE_TOKEN_INVALID
+        - RATE_LIMITED
+        - OPTIN_UNAVAILABLE
+        - SITE_NOT_FOUND
+        - SERVICE_UNAVAILABLE
+      operationId: unsubscribePublicOptin
+      summary: Withdraw consent
+      description: Sets unsubscribed on the Email Group Member named by the signed token, then records the withdrawal.
+        Idempotent; a deleted member answers UNSUBSCRIBED. POST only, so mail link scanners cannot unsubscribe.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  maxLength: 1024
+      responses:
+        "200":
+          description: Unsubscribed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  status:
+                    type: string
+                    const: UNSUBSCRIBED
+        "400":
+          description: Forged, tampered or mismatched token
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - UNSUBSCRIBE_TOKEN_INVALID
+        "404":
+          description: Tenant no longer owns the site
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Frappe unavailable
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_UNAVAILABLE
+                      - SERVICE_UNAVAILABLE
   /api/public/team/{tenantId}/members/{memberSlug}:
     get:
       tags: &a50
@@ -10706,6 +11119,736 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/forms/contact:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/contact.ts
+      x-error-codes:
+        - BAD_JSON
+        - BAD_FIELDS
+        - SPAM_REJECTED
+        - BAD_IDEMPOTENCY_KEY
+        - IDEMPOTENCY_KEY_REUSED
+        - REQUEST_IN_PROGRESS
+        - INVALID_VERIFICATION
+        - VERIFICATION_UNAVAILABLE
+        - RATE_LIMITED
+        - CRM_REJECTED
+        - CRM_UNAVAILABLE
+        - SERVICE_UNAVAILABLE
+        - SITE_SELECTOR_CONFLICT
+        - SITE_SELECTOR_REQUIRED
+        - SITE_NOT_FOUND
+        - ORIGIN_NOT_ALLOWED
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - COUNTRY_RULE_AMBIGUOUS
+        - COUNTRY_RULE_OUTSIDE_KONEKTAG
+        - KONEKTAG_SITE_NOT_CONFIGURED
+        - SITE_ROUTING_UNAVAILABLE
+      operationId: submitPublicContact
+      summary: Contact form of an authorised site
+      description: "sales/general: Lead found by email (oldest) or created, plus a received Communication on it. support:
+        Issue with raised_by. Never subscribes the visitor and sends no e-mail. The reference is opaque and is written
+        in the Frappe subject. A replay of the same submission (or of the same Idempotency-Key) answers 200 with the
+        first reference."
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            pattern: ^[A-Za-z0-9_-]{8,128}$
+        - name: Origin
+          in: header
+          schema:
+            type: string
+          description: Checked against the site registry when the site defines allowed origins.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - intent
+                - name
+                - email
+                - message
+              properties:
+                siteId:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_-]{1,63}$
+                  description: Stable public site context. Exclusive with country. Resolved and authorised server-side; never a Frappe
+                    URL.
+                country:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: Residence country (ISO code or French/English name) routed to the Konektag entity FR/CG/LB. Exclusive with
+                    siteId.
+                intent:
+                  type: string
+                  enum:
+                    - sales
+                    - support
+                    - general
+                locale:
+                  type: string
+                  enum:
+                    - fr
+                    - en
+                  default: fr
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 160
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                phone:
+                  type: string
+                  maxLength: 35
+                company:
+                  type: string
+                  maxLength: 160
+                subject:
+                  type: string
+                  maxLength: 200
+                message:
+                  type: string
+                  minLength: 3
+                  maxLength: 5000
+                sourceUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                campaign:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    source:
+                      type: string
+                      maxLength: 140
+                    medium:
+                      type: string
+                      maxLength: 140
+                    name:
+                      type: string
+                      maxLength: 140
+                  description: UTM values; written to the Lead only when the UTM record already exists on the site.
+                website:
+                  type: string
+                  maxLength: 200
+                  description: "Honeypot: must stay empty."
+                turnstileToken:
+                  type: string
+                  maxLength: 2048
+                  description: Optional Cloudflare Turnstile token (action public-contact or public-optin).
+      responses:
+        "200":
+          description: Replay of an already recorded request
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - reference
+                  - replayed
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  reference:
+                    type: string
+                  replayed:
+                    type: boolean
+                    const: true
+        "201":
+          description: Request recorded
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - reference
+                  - replayed
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  reference:
+                    type: string
+                    pattern: ^WEB-[2-9A-HJ-NP-Z]{10}$
+                  replayed:
+                    type: boolean
+                    const: false
+        "400":
+          description: Invalid request
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - BAD_FIELDS
+                      - SPAM_REJECTED
+                      - BAD_IDEMPOTENCY_KEY
+                      - SITE_SELECTOR_CONFLICT
+                      - SITE_SELECTOR_REQUIRED
+        "403":
+          description: Origin or verification refused
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - ORIGIN_NOT_ALLOWED
+                      - INVALID_VERIFICATION
+        "404":
+          description: Unknown or disabled site
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+        "409":
+          description: Concurrent or conflicting replay
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - IDEMPOTENCY_KEY_REUSED
+                      - REQUEST_IN_PROGRESS
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "422":
+          description: Country not served
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Site, CRM or configuration unavailable
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CRM_REJECTED
+                      - CRM_UNAVAILABLE
+                      - SERVICE_UNAVAILABLE
+                      - VERIFICATION_UNAVAILABLE
+                      - COUNTRY_RULE_AMBIGUOUS
+                      - COUNTRY_RULE_OUTSIDE_KONEKTAG
+                      - KONEKTAG_SITE_NOT_CONFIGURED
+                      - SITE_ROUTING_UNAVAILABLE
+  /api/public/forms/optin:
+    post:
+      tags:
+        - public
+      security: []
+      x-source: src/api/routes/public/forms/optin/index.ts
+      x-error-codes:
+        - BAD_JSON
+        - BAD_FIELDS
+        - SPAM_REJECTED
+        - OPTIN_LIST_NOT_FOUND
+        - CONFIRMATION_URL_NOT_ALLOWED
+        - INVALID_VERIFICATION
+        - VERIFICATION_UNAVAILABLE
+        - RATE_LIMITED
+        - OPTIN_LIST_UNAVAILABLE
+        - OPTIN_UNAVAILABLE
+        - CONFIRMATION_EMAIL_UNAVAILABLE
+        - SERVICE_UNAVAILABLE
+        - SITE_SELECTOR_CONFLICT
+        - SITE_SELECTOR_REQUIRED
+        - SITE_NOT_FOUND
+        - ORIGIN_NOT_ALLOWED
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - COUNTRY_RULE_AMBIGUOUS
+        - COUNTRY_RULE_OUTSIDE_KONEKTAG
+        - KONEKTAG_SITE_NOT_CONFIGURED
+        - SITE_ROUTING_UNAVAILABLE
+      operationId: requestPublicOptin
+      summary: Explicit marketing consent (double opt-in)
+      description: Sends a confirmation e-mail with a single-use link (72 h) to confirmationUrl?token=…; nothing is written to
+        Frappe before confirmation. list is a public key configured per tenant (PUBLIC_OPTIN_LISTS); the Email Group
+        never comes from the browser. The answer is the same whether or not the address is already subscribed.
+      parameters:
+        - name: Origin
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - list
+                - email
+                - consent
+                - confirmationUrl
+              properties:
+                siteId:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_-]{1,63}$
+                  description: Stable public site context. Exclusive with country. Resolved and authorised server-side; never a Frappe
+                    URL.
+                country:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: Residence country (ISO code or French/English name) routed to the Konektag entity FR/CG/LB. Exclusive with
+                    siteId.
+                list:
+                  type: string
+                  pattern: ^[a-z0-9][a-z0-9-]{0,63}$
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                locale:
+                  type: string
+                  enum:
+                    - fr
+                    - en
+                  default: fr
+                consent:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - accepted
+                    - textVersion
+                    - text
+                  properties:
+                    accepted:
+                      type: boolean
+                      const: true
+                    textVersion:
+                      type: string
+                      minLength: 1
+                      maxLength: 64
+                    text:
+                      type: string
+                      minLength: 10
+                      maxLength: 2000
+                      description: Exact consent text shown next to the unticked checkbox.
+                confirmationUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                  description: Page of the site that posts the token to /optin/confirm; its origin must be allowed for the tenant.
+                sourceUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                campaign:
+                  type: string
+                  maxLength: 140
+                website:
+                  type: string
+                  maxLength: 200
+                  description: "Honeypot: must stay empty."
+                turnstileToken:
+                  type: string
+                  maxLength: 2048
+                  description: Optional Cloudflare Turnstile token (action public-contact or public-optin).
+      responses:
+        "202":
+          description: Confirmation e-mail sent (or address already subscribed)
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - status
+                properties:
+                  ok:
+                    type: boolean
+                    const: true
+                  status:
+                    type: string
+                    const: CONFIRMATION_SENT
+        "400":
+          description: Invalid request or missing explicit consent
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_JSON
+                      - BAD_FIELDS
+                      - SPAM_REJECTED
+                      - SITE_SELECTOR_CONFLICT
+                      - SITE_SELECTOR_REQUIRED
+        "403":
+          description: Origin, confirmation page or verification refused
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - CONFIRMATION_URL_NOT_ALLOWED
+                      - ORIGIN_NOT_ALLOWED
+                      - INVALID_VERIFICATION
+        "404":
+          description: Unknown list or site
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_LIST_NOT_FOUND
+                      - SITE_NOT_FOUND
+        "413":
+          description: Body larger than 16 kB
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - PAYLOAD_TOO_LARGE
+        "415":
+          description: Only application/json is accepted
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - BAD_CONTENT_TYPE
+        "422":
+          description: Country not served
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "429":
+          description: Per email, peer or site limit reached
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Retry-After:
+              schema:
+                type: integer
+                const: 3600
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - RATE_LIMITED
+        "503":
+          description: Email Group absent, Frappe, e-mail or configuration unavailable
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ok
+                  - error
+                properties:
+                  ok:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    enum:
+                      - OPTIN_LIST_UNAVAILABLE
+                      - OPTIN_UNAVAILABLE
+                      - CONFIRMATION_EMAIL_UNAVAILABLE
+                      - SERVICE_UNAVAILABLE
+                      - VERIFICATION_UNAVAILABLE
+                      - COUNTRY_RULE_AMBIGUOUS
+                      - COUNTRY_RULE_OUTSIDE_KONEKTAG
+                      - KONEKTAG_SITE_NOT_CONFIGURED
+                      - SITE_ROUTING_UNAVAILABLE
   /api/public/marketplace/facets:
     get:
       operationId: get__api_public_marketplace_facets

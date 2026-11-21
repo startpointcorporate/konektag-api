@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 333,
-    "operations": 425,
-    "covered": 83,
+    "paths": 337,
+    "operations": 429,
+    "covered": 87,
     "partial": 341,
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 342,
-    "executedTests": 3077,
-    "passedTests": 3077
+    "executedTests": 3111,
+    "passedTests": 3111
   },
   "operations": [
     {
@@ -19139,6 +19139,702 @@
         "tests/unit/digital-audit-a03.test.ts"
       ],
       "constraints": []
+    },
+    {
+      "operation": "POST /api/public/forms/contact",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/contact",
+      "source": "src/api/routes/public/forms/contact.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin and an unknown site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact without the default binding of a site registry, a siteId is refused explicitly",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/contact] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/contact] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. The siteId registry of RDA/ABM Demo is a stand-in until KON-107 publishes its contract; no write was made to a real Frappe site."
+      ]
+    },
+    {
+      "operation": "POST /api/public/forms/optin",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/optin",
+      "source": "src/api/routes/public/forms/optin/index.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin and an unknown site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact without the default binding of a site registry, a siteId is refused explicitly",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/optin] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/optin] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. The siteId registry of RDA/ABM Demo is a stand-in until KON-107 publishes its contract; no write was made to a real Frappe site."
+      ]
+    },
+    {
+      "operation": "POST /api/public/forms/optin/confirm",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/optin/confirm",
+      "source": "src/api/routes/public/forms/optin/confirm.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin and an unknown site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact without the default binding of a site registry, a siteId is refused explicitly",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/optin/confirm] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/optin/confirm] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. The siteId registry of RDA/ABM Demo is a stand-in until KON-107 publishes its contract; no write was made to a real Frappe site."
+      ]
+    },
+    {
+      "operation": "POST /api/public/forms/optin/unsubscribe",
+      "domain": "public",
+      "method": "POST",
+      "path": "/api/public/forms/optin/unsubscribe",
+      "source": "src/api/routes/public/forms/optin/unsubscribe.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact sets UTM links only when the site already has them",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact replays the same submission without writing twice",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact writes a customer site request only to that customer site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact refuses a customer site from another origin and an unknown site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact without the default binding of a site registry, a siteId is refused explicitly",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact rate limits per email and per peer",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "POST /api/public/forms/contact is unavailable without the server secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT POST /api/public/forms/optin/unsubscribe] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH POST /api/public/forms/optin/unsubscribe] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-forms.test.ts"
+      ],
+      "constraints": [
+        "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. The siteId registry of RDA/ABM Demo is a stand-in until KON-107 publishes its contract; no write was made to a real Frappe site."
+      ]
     },
     {
       "operation": "POST /api/public/marketplace/merchants/{slug}/hotel/reservations",
