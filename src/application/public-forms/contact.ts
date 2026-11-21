@@ -28,10 +28,11 @@ export const contactSchema = z.object({
   ...selector,
   intent: z.enum(['sales', 'support', 'general']),
   locale: z.enum(['fr', 'en']).optional().default('fr'),
-  name: z.string().trim().min(2).max(160),
+  // Lengths and phone characters of the Frappe Data / Phone fields, so a visitor typo is a 400, not a CRM rejection.
+  name: z.string().trim().min(2).max(140),
   email: z.string().trim().email().max(254),
-  phone: z.string().trim().max(35).optional().default(''),
-  company: z.string().trim().max(160).optional().default(''),
+  phone: z.string().trim().regex(/^[0-9 +_\-,.*#()]{0,20}$/).optional().default(''),
+  company: z.string().trim().max(140).optional().default(''),
   subject: z.string().trim().max(200).optional().default(''),
   message: z.string().trim().min(3).max(5000),
   sourceUrl: z.string().trim().url().max(500).optional(),
@@ -109,26 +110,37 @@ function title(input: ContactInput, reference: string): string {
   return ('[' + reference + '] ' + (input.subject || fallback)).slice(0, 140);
 }
 
-/** Oldest Lead of this email (Lead names are sequential), else a new Lead. */
+const oldestLead = async (frappe: FrappeSite, email: string): Promise<string | null> =>
+  ((await frappe.list('Lead', [['email_id', '=', email]], ['name'], 1, 'creation asc')) as Array<{ name: string }>)[0]?.name ?? null;
+
+/** Oldest Lead of this email, else a new Lead. */
 async function leadFor(site: PublicFormSite, input: ContactInput, email: string): Promise<{ name: string; created: boolean }> {
   const frappe = site.frappe;
-  const matches = await frappe.list('Lead', [['email_id', '=', email]], ['name'], 20) as Array<{ name: string }>;
-  if (matches.length > 0) return { name: matches.map(m => m.name).sort()[0], created: false };
+  const existing = await oldestLead(frappe, email);
+  if (existing) return { name: existing, created: false };
   const [utmSource, utmMedium, utmCampaign] = await Promise.all([
     existingLink(frappe, 'UTM Source', input.campaign?.source),
     existingLink(frappe, 'UTM Medium', input.campaign?.medium),
     existingLink(frappe, 'UTM Campaign', input.campaign?.name),
   ]);
-  const created = await frappe.insert('Lead', {
-    ...site.leadDefaults,
-    lead_name: input.name,
-    email_id: email,
-    ...(input.company ? { company_name: input.company } : {}),
-    ...(input.phone ? { mobile_no: input.phone } : {}),
-    ...(utmSource ? { utm_source: utmSource } : {}),
-    ...(utmMedium ? { utm_medium: utmMedium } : {}),
-    ...(utmCampaign ? { utm_campaign: utmCampaign } : {}),
-  }) as { name?: string };
+  let created: { name?: string };
+  try {
+    created = await frappe.insert('Lead', {
+      ...site.leadDefaults,
+      lead_name: input.name,
+      email_id: email,
+      ...(input.company ? { company_name: input.company } : {}),
+      ...(input.phone ? { mobile_no: input.phone } : {}),
+      ...(utmSource ? { utm_source: utmSource } : {}),
+      ...(utmMedium ? { utm_medium: utmMedium } : {}),
+      ...(utmCampaign ? { utm_campaign: utmCampaign } : {}),
+    }) as { name?: string };
+  } catch (error) {
+    // A concurrent request of the same address may have created it (ERPNext refuses a duplicate email).
+    const raced = error instanceof FrappeSiteError && error.code === 'SITE_REJECTED' ? await oldestLead(frappe, email) : null;
+    if (!raced) throw error;
+    return { name: raced, created: false };
+  }
   if (!created?.name) throw new FrappeSiteError('SITE_REJECTED');
   return { name: created.name, created: true };
 }
@@ -179,7 +191,8 @@ export async function submitContact(
   const emailId = pseudonym(email, secret);
   await enforceRateLimits(deps.store, 'contact:' + site.tenantId, [
     { key: 'email:' + emailId, max: 5, windowSec: 3600 },
-    { key: 'peer:' + pseudonym(request.clientAddress || 'unknown-peer', secret), max: 30, windowSec: 3600 },
+    // clientAddress may be a shared proxy: the peer limit only stops floods, as for commercial-request.
+    { key: 'peer:' + pseudonym(request.clientAddress || 'unknown-peer', secret), max: 120, windowSec: 3600 },
     { key: 'site', max: 500, windowSec: 3600 },
   ]);
   await verifyTurnstile(input.turnstileToken, 'public-contact', request.origin, env, deps.fetchImpl);

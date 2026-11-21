@@ -4436,8 +4436,9 @@ paths:
       operationId: confirmPublicOptin
       summary: Confirm a double opt-in
       description: "Creates the Email Group Member inactive, attaches the consent proof (Comment konektag-consent-proof/1:
-        text, version, SHA-256, requestedAt/confirmedAt UTC, site, origin, page, campaign, pseudonymised peers), then
-        activates it. Repeating the call returns the same answer."
+        text, version, SHA-256, requestedAt/confirmedAt UTC, site, origin, page, campaign, pseudonymised peers, HMAC
+        signature), then activates it. Repeating the call succeeds with unsubscribeToken null: only the first
+        confirmation hands out the capability."
       requestBody:
         required: true
         content:
@@ -4478,8 +4479,11 @@ paths:
                   list:
                     type: string
                   unsubscribeToken:
-                    type: string
-                    description: Permanent signed capability for /optin/unsubscribe; contains no e-mail address.
+                    type:
+                      - string
+                      - "null"
+                    description: Permanent signed capability for /optin/unsubscribe, returned by the first confirmation only; contains no
+                      e-mail address.
         "400":
           description: Invalid token format
           headers:
@@ -11204,17 +11208,18 @@ paths:
                 name:
                   type: string
                   minLength: 2
-                  maxLength: 160
+                  maxLength: 140
                 email:
                   type: string
                   format: email
                   maxLength: 254
                 phone:
                   type: string
-                  maxLength: 35
+                  pattern: ^[0-9 +_\-,.*#()]{0,20}$
+                  description: Characters accepted by the Frappe Phone field.
                 company:
                   type: string
-                  maxLength: 160
+                  maxLength: 140
                 subject:
                   type: string
                   maxLength: 200
@@ -11526,6 +11531,7 @@ paths:
         - BAD_FIELDS
         - SPAM_REJECTED
         - OPTIN_LIST_NOT_FOUND
+        - CONSENT_VERSION_UNKNOWN
         - CONFIRMATION_URL_NOT_ALLOWED
         - INVALID_VERIFICATION
         - VERIFICATION_UNAVAILABLE
@@ -11546,9 +11552,11 @@ paths:
         - SITE_ROUTING_UNAVAILABLE
       operationId: requestPublicOptin
       summary: Explicit marketing consent (double opt-in)
-      description: Sends a confirmation e-mail with a single-use link (72 h) to confirmationUrl?token=…; nothing is written to
-        Frappe before confirmation. list is a public key configured per tenant (PUBLIC_OPTIN_LISTS); the Email Group
-        never comes from the browser. The answer is the same whether or not the address is already subscribed.
+      description: "Sends a confirmation e-mail with a single-use link (72 h) to confirmationUrl#token=… (fragment: the page
+        reads it and posts it to /optin/confirm after a user click); nothing is written to Frappe before confirmation.
+        list is a public key configured per tenant (PUBLIC_OPTIN_LISTS) with its Email Group and its versioned consent
+        texts; neither comes from the browser. With TURNSTILE_SECRET_KEY configured, turnstileToken is mandatory. The
+        answer is the same whether or not the address is already subscribed."
       parameters:
         - name: Origin
           in: header
@@ -11597,20 +11605,17 @@ paths:
                   required:
                     - accepted
                     - textVersion
-                    - text
                   properties:
                     accepted:
                       type: boolean
                       const: true
+                      description: The visitor ticked an unticked checkbox.
                     textVersion:
                       type: string
                       minLength: 1
                       maxLength: 64
-                    text:
-                      type: string
-                      minLength: 10
-                      maxLength: 2000
-                      description: Exact consent text shown next to the unticked checkbox.
+                      description: Version of the consent text shown; the text itself is configured server-side for the list and written to
+                        the proof.
                 confirmationUrl:
                   type: string
                   format: uri
@@ -11771,7 +11776,7 @@ paths:
                     enum:
                       - BAD_CONTENT_TYPE
         "422":
-          description: Country not served
+          description: Unknown consent text version or country not served
           headers:
             Cache-Control:
               schema:
@@ -11791,6 +11796,7 @@ paths:
                   error:
                     type: string
                     enum:
+                      - CONSENT_VERSION_UNKNOWN
                       - RESIDENCE_COUNTRY_INVALID
                       - COUNTRY_RULE_NOT_FOUND
         "429":

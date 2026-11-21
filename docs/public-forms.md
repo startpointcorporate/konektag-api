@@ -29,9 +29,13 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
 
 - Validation stricte (champs inconnus refusés), corps JSON ≤ 16 kB, champ piège `website`, Turnstile optionnel
   (action `public-contact`, hôte = `Origin`).
-- Limites Redis par tenant : 5/h par e-mail, 30/h par pair TCP, 500/h par site.
+- Limites Redis par tenant : 5/h par e-mail, 120/h par pair TCP, 500/h par site. Le pair est l'adresse de la socket
+  (comme `commercial-request`) : derrière un proxy partagé, la limite par pair ne sert qu'à arrêter un flot.
+- `name` et `company` ≤ 140 caractères, `phone` limité aux caractères du champ Frappe *Phone* (≤ 20) : une saisie
+  invalide répond `400` au lieu d'un rejet du CRM.
 - Déduplication : `Lead.email_id` normalisé en minuscules (collation MariaDB insensible à la casse) ; s'il en existe
-  plusieurs, le plus ancien est utilisé. Une demande `support` ne crée pas de Lead.
+  plusieurs, le plus ancien (`order_by creation asc`) est utilisé. Si deux demandes simultanées créent le même Lead,
+  le refus d'ERPNext est suivi d'une relecture et le Lead existant est réutilisé. Une demande `support` ne crée pas de Lead.
 - Campagne : `utm_source`, `utm_medium`, `utm_campaign` ne sont posés sur un **nouveau** Lead que si l'enregistrement
   UTM existe déjà sur le site (un Link absent ferait rejeter le Lead) ; ils figurent toujours dans la Communication,
   avec le site, l'origine, la page et l'heure UTC.
@@ -47,12 +51,19 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
 
 ## Opt-in (RGPD)
 
-- Consentement explicite : `consent.accepted` doit valoir `true`, avec le texte exact affiché et sa version.
-- Listes : le navigateur choisit une clé publique ; le `Email Group` vient de la configuration du tenant :
+- Consentement explicite : `consent.accepted` doit valoir `true` (case non cochée par défaut), avec la version du texte
+  affiché. **Le texte vient du serveur** : la preuve et l'e-mail n'emploient jamais un texte fourni par le navigateur
+  (version inconnue : `422 CONSENT_VERSION_UNKNOWN`). Publier un nouveau texte = ajouter une version, sans retirer
+  l'ancienne tant que des confirmations sont en attente (72 h).
+- Listes : le navigateur choisit une clé publique ; le `Email Group` et les textes viennent de la configuration du tenant :
 
   ```json
   PUBLIC_OPTIN_LISTS = {
-    "konektag-fr": { "confirmationOrigins": ["https://www.konektag.eu"], "lists": { "newsletter": "Newsletter Konektag FR" } }
+    "konektag-fr": {
+      "confirmationOrigins": ["https://www.konektag.eu"],
+      "lists": { "newsletter": { "emailGroup": "Newsletter Konektag FR",
+                                 "consentTexts": { "newsletter-2026-11": "J'accepte de recevoir la newsletter Konektag…" } } }
+    }
   }
   ```
 
@@ -61,16 +72,23 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
   tenant (`403 CONFIRMATION_URL_NOT_ALLOWED`) : l'API n'envoie jamais un lien vers un domaine tiers.
 - Double opt-in systématique : un formulaire anonyme ne prouve pas la propriété de l'adresse. L'app Frappe `newsletter`
   n'est installée sur aucun site (sondes du 2026-11-21), donc ses méthodes invité `subscribe` / `confirm_subscription`
-  ne sont pas disponibles. Le lien `confirmationUrl?token=…` est à usage unique, valable 72 h ; le jeton n'est stocké
-  dans Redis que sous forme de SHA-256. Rien n'est écrit dans Frappe avant la confirmation.
-- Limites : 3 demandes/h par adresse et tenant (protection des tiers contre l'envoi répété), 20/h par pair, 500/h par site.
-- Énumération : une adresse déjà inscrite reçoit la même réponse `202`, sans nouvel e-mail.
+  ne sont pas disponibles. Le lien `confirmationUrl#token=…` porte le jeton dans le **fragment** (absent des journaux
+  serveur et du Referer) ; la page le lit et l'envoie à `/optin/confirm` **après un clic** du visiteur (un scanner de
+  liens ne doit pas confirmer). Valable 72 h, le jeton n'est stocké dans Redis que sous forme de SHA-256. Rien n'est
+  écrit dans Frappe avant la confirmation. Après confirmation, l'entrée Redis ne garde ni adresse ni texte (7 jours).
+- Limites : 3 demandes/h par adresse et tenant (protection des tiers contre l'envoi répété), 120/h par pair, 500/h par
+  site. Avec `TURNSTILE_SECRET_KEY`, le jeton Turnstile est **obligatoire** pour l'opt-in (il reste facultatif pour le
+  contact, comme `commercial-request`).
+- Énumération : une adresse déjà inscrite reçoit la même réponse `202`, sans nouvel e-mail. Limite connue : cette réponse
+  est plus rapide (pas d'envoi d'e-mail), ce qui peut se mesurer.
 - Preuve (`Comment` de type `Info` sur l'`Email Group Member`, en-tête `konektag-consent-proof/1`) : action, méthode
   `double-opt-in`, liste et Email Group, texte, version et SHA-256 du texte, `requestedAt` et `confirmedAt` (UTC), tenant,
-  site, origine, page, campagne, langue, pairs pseudonymisés (HMAC tronqué, pas d'adresse IP en clair). Le membre est créé
+  site, origine, page, campagne, langue, pairs pseudonymisés (HMAC tronqué, pas d'adresse IP en clair), et une signature
+  HMAC du contenu (une modification ultérieure du Comment est détectable). Le membre est créé
   avec `unsubscribed = 1`, la preuve est écrite, puis il est activé : **un membre n'est jamais actif sans preuve**.
   Une réinscription d'un ancien membre exige une nouvelle confirmation et ajoute une nouvelle preuve.
-- Désinscription : `unsubscribeToken` (renvoyé à la confirmation) est une capacité permanente signée HMAC qui désigne le
+- Désinscription : `unsubscribeToken` (renvoyé par la **première** confirmation seulement ; un nouveau clic répond
+  `SUBSCRIBED` avec `unsubscribeToken: null`) est une capacité permanente signée HMAC qui désigne le
   membre (`tenantId`, site, nom du membre, Email Group), sans adresse e-mail. Elle est refusée si la signature, le
   tenant/site ou l'Email Group ne correspondent pas. Le retrait est appliqué d'abord, la trace ensuite (un échec de
   trace n'annule pas le retrait). `POST` seulement : les scanners de liens ne désinscrivent pas.
@@ -101,7 +119,8 @@ Sur EUROPE, KONEKTAG_CG, LIBAN, rocherdesages et abmdemo (Frappe/ERPNext 16) : `
 présent ; pas de Helpdesk (`HD Ticket`). Les DocTypes standards suffisent : **aucun champ ni extension Frappe n'est
 nécessaire**, la preuve de consentement est un `Comment` standard. Les droits du compte API de chaque site sur `Lead`,
 `Communication`, `Issue`, `Email Group`, `Email Group Member` et `Comment` n'ont pas pu être vérifiés sans identifiants ;
-un refus apparaît en `CRM_REJECTED` / `OPTIN_UNAVAILABLE` avec le statut Frappe dans le journal.
+un refus apparaît en `CRM_REJECTED` / `OPTIN_UNAVAILABLE` avec le statut Frappe dans le journal. À vérifier avant mise
+en service : création de `Comment` par le compte API (sinon aucune confirmation n'aboutit, sans activer de membre).
 
 ## Recette
 

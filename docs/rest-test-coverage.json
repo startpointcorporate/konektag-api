@@ -8,8 +8,8 @@
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 342,
-    "executedTests": 3111,
-    "passedTests": 3111
+    "executedTests": 3114,
+    "passedTests": 3114
   },
   "operations": [
     {
@@ -19271,7 +19271,7 @@
         },
         {
           "file": "tests/unit/public-forms.test.ts",
-          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
           "level": "unit"
         },
         {
@@ -19290,6 +19290,21 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT POST /api/public/forms/contact] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -19301,7 +19316,7 @@
         }
       ],
       "assertions": [
-        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -19445,7 +19460,7 @@
         },
         {
           "file": "tests/unit/public-forms.test.ts",
-          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
           "level": "unit"
         },
         {
@@ -19464,6 +19479,21 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT POST /api/public/forms/optin] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -19475,7 +19505,7 @@
         }
       ],
       "assertions": [
-        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -19619,7 +19649,7 @@
         },
         {
           "file": "tests/unit/public-forms.test.ts",
-          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
           "level": "unit"
         },
         {
@@ -19638,6 +19668,21 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT POST /api/public/forms/optin/confirm] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -19649,7 +19694,7 @@
         }
       ],
       "assertions": [
-        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",
@@ -19793,7 +19838,7 @@
         },
         {
           "file": "tests/unit/public-forms.test.ts",
-          "name": "opt-in: request, confirm, unsubscribe requires explicit consent and refuses an absent Email Group before any e-mail",
+          "name": "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
           "level": "unit"
         },
         {
@@ -19812,6 +19857,21 @@
           "level": "unit"
         },
         {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency refuses phone and lengths that the Frappe fields would reject",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-forms.test.ts",
+          "name": "contact: Frappe field constraints and concurrency reuses the Lead created by a concurrent request of the same address",
+          "level": "unit"
+        },
+        {
           "file": "tests/rest/operations.test.ts",
           "name": "public [REST TRANSPORT POST /api/public/forms/optin/unsubscribe] preserves routing, parameters, query, cookies and raw body",
           "level": "contract"
@@ -19823,7 +19883,7 @@
         }
       ],
       "assertions": [
-        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, rate limits without personal data in keys. Opt-in: nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
+        "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails.",
         "routing and dynamic parameters",
         "raw body, query and cookie preservation",
         "credential refusal",

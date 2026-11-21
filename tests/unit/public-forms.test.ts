@@ -41,9 +41,9 @@ function env(): NodeJS.ProcessEnv {
     KONEKTAG_MEETING_FR_LEAD_OWNER: 'sales@konektag.eu',
     KONEKTAG_MEETING_FR_DEFAULT_AXIS: 'Konektag 360',
     PUBLIC_OPTIN_LISTS: JSON.stringify({
-      'konektag-fr': { confirmationOrigins: ['https://www.konektag.eu'], lists: { newsletter: 'Newsletter Konektag FR' } },
-      'rocher-des-ages': { confirmationOrigins: ['https://rocherdesages.cg'], lists: { actualites: 'Actualités RDA' } },
-      'abm-demo': { confirmationOrigins: ['https://abmdemo.konektag.eu'], lists: { offres: 'Offres ABM' } },
+      'konektag-fr': { confirmationOrigins: ['https://www.konektag.eu'], lists: { newsletter: { emailGroup: 'Newsletter Konektag FR', consentTexts: { 'newsletter-2026-11': "J'accepte de recevoir la newsletter Konektag." } } } },
+      'rocher-des-ages': { confirmationOrigins: ['https://rocherdesages.cg'], lists: { actualites: { emailGroup: 'Actualités RDA', consentTexts: { 'newsletter-2026-11': "J'accepte de recevoir les actualités du Rocher des Âges." } } } },
+      'abm-demo': { confirmationOrigins: ['https://abmdemo.konektag.eu'], lists: { offres: { emailGroup: 'Offres ABM', consentTexts: { v1: "J'accepte les offres ABM." } } } },
     }),
   };
   for (const [key, host] of Object.entries(hosts)) {
@@ -77,7 +77,11 @@ async function fakeFrappe(input: URL | string, init: RequestInit = {}) {
     const filters = JSON.parse(url.searchParams.get('filters') ?? '[]') as Array<[string, string, unknown]>;
     // MariaDB's default collation compares emails case-insensitively.
     const eq = (a: unknown, b: unknown) => typeof a === 'string' && typeof b === 'string' ? a.toLowerCase() === b.toLowerCase() : a === b;
-    return ok(rows.filter(r => filters.every(([f, op, v]) => op !== '=' || eq(r[f], v))));
+    const found = rows.filter(r => filters.every(([f, op, v]) => op !== '=' || eq(r[f], v)));
+    // Frappe's default order is `modified desc`; only an explicit order_by gives the oldest first.
+    if (url.searchParams.get('order_by') === 'creation asc') found.sort((a, b) => String(a.creation).localeCompare(String(b.creation)));
+    else found.reverse();
+    return ok(found.slice(0, Number(url.searchParams.get('limit_page_length') ?? 500)));
   }
   if (method === 'GET') {
     const row = rows.find(r => r.name === name);
@@ -91,7 +95,7 @@ async function fakeFrappe(input: URL | string, init: RequestInit = {}) {
     if (doctype === 'Email Group Member' && !table(url.hostname, 'Email Group').some(g => g.name === body.email_group))
       return new Response(JSON.stringify({ exc_type: 'LinkValidationError' }), { status: 417 });
     const prefix = doctype === 'Lead' ? 'CRM-LEAD-2026-' : doctype === 'Issue' ? 'ISS-2026-' : doctype.slice(0, 3).toUpperCase() + '-';
-    const row = { ...body, name: prefix + String(++seq).padStart(5, '0') };
+    const row = { ...body, name: prefix + String(++seq).padStart(5, '0'), creation: '2026-11-21 09:00:' + String(seq).padStart(2, '0') };
     rows.push(row);
     return ok(row);
   }
@@ -183,12 +187,12 @@ const contact = (over: Record<string, unknown> = {}) => ({
 });
 const optin = (over: Record<string, unknown> = {}) => ({
   country: 'FR', list: 'newsletter', email: 'awa@example.com', locale: 'fr',
-  consent: { accepted: true, textVersion: 'newsletter-2026-11', text: "J'accepte de recevoir la newsletter Konektag." },
+  consent: { accepted: true, textVersion: 'newsletter-2026-11' },
   confirmationUrl: 'https://www.konektag.eu/newsletter/confirmation', sourceUrl: 'https://www.konektag.eu/', ...over,
 });
 const json = async (r: Response) => ({ status: r.status, body: await r.json() as any });
 const writes = (doctype?: string) => calls.filter(c => c.method !== 'GET' && (!doctype || c.doctype === doctype));
-const tokenOf = (mail: { html: string }) => /token=([A-Za-z0-9_-]{43})/.exec(mail.html)![1];
+const tokenOf = (mail: { html: string }) => /#token=([A-Za-z0-9_-]{43})/.exec(mail.html)![1];
 
 describe('POST /api/public/forms/contact', () => {
   it('routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication', async () => {
@@ -209,7 +213,10 @@ describe('POST /api/public/forms/contact', () => {
   });
 
   it('attaches a second request to the oldest Lead of the same email (case-insensitive)', async () => {
-    table('europe.erp.konektag.eu', 'Lead').push({ name: 'CRM-LEAD-2026-00042', email_id: 'awa@example.com' }, { name: 'CRM-LEAD-2026-00007', email_id: 'AWA@example.com' });
+    table('europe.erp.konektag.eu', 'Lead').push(
+      { name: 'CRM-LEAD-2026-00007', email_id: 'AWA@example.com', creation: '2026-01-02 10:00:00' },
+      { name: 'CRM-LEAD-2026-00042', email_id: 'awa@example.com', creation: '2026-03-02 10:00:00' },
+    );
     const r = await json(await contactRoute(ctx('/api/public/forms/contact', contact({ intent: 'general' })), deps));
     expect(r.status).toBe(201);
     expect(writes('Lead')).toHaveLength(0);
@@ -306,7 +313,7 @@ describe('POST /api/public/forms/contact', () => {
     const r = await contactRoute(ctx('/api/public/forms/contact', contact({ message: 'Message numéro 6' })), deps);
     expect(r.status).toBe(429);
     expect(r.headers.get('retry-after')).toBe('3600');
-    for (let i = 0; i < 30; i++) await contactRoute(ctx('/api/public/forms/contact', contact({ email: `p${i}@example.com` }), {}, '198.51.100.1'), deps);
+    for (let i = 0; i < 120; i++) await contactRoute(ctx('/api/public/forms/contact', contact({ email: `p${i}@example.com` }), {}, '198.51.100.1'), deps);
     expect((await contactRoute(ctx('/api/public/forms/contact', contact({ email: 'last@example.com' }), {}, '198.51.100.1'), deps)).status).toBe(429);
     // No personal data in Redis keys.
     expect([...store.counters.keys()].join(' ')).not.toMatch(/example\.com|198\.51/);
@@ -325,8 +332,10 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     expect(writes()).toHaveLength(0);
     expect(mails).toHaveLength(1);
     expect(mails[0].to).toBe('awa@example.com');
-    expect(mails[0].html).toContain('https://www.konektag.eu/newsletter/confirmation?token=');
+    // Token in the fragment: never sent to the confirmation page server nor in a Referer.
+    expect(mails[0].html).toContain('https://www.konektag.eu/newsletter/confirmation#token=');
     expect(mails[0].html).toContain('newsletter-2026-11');
+    expect(mails[0].html).toContain('recevoir la newsletter Konektag');
     // Redis keeps the pending consent under a hash of the token only.
     expect([...store.values.keys()].some(k => k.includes(tokenOf(mails[0])))).toBe(false);
   });
@@ -341,14 +350,16 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     expect(writes('Email Group Member')[0].body).toEqual({ doctype: 'Email Group Member', email_group: 'Newsletter Konektag FR', email: 'awa@example.com', unsubscribed: 1 });
     const comment = writes('Comment')[0].body;
     expect(comment).toMatchObject({ comment_type: 'Info', reference_doctype: 'Email Group Member', reference_name: 'EMA-00001' });
-    for (const text of ['konektag-consent-proof/1', 'double-opt-in', 'newsletter-2026-11', '2026-11-21T09:00:00.000Z', 'https://www.konektag.eu', 'automne', 'konektag-fr', 'EUROPE'])
+    for (const text of ['konektag-consent-proof/1', 'double-opt-in', 'newsletter-2026-11', 'recevoir la newsletter Konektag', '2026-11-21T09:00:00.000Z', 'https://www.konektag.eu', 'automne', 'konektag-fr', 'EUROPE', '&quot;signature&quot;: &quot;'])
       expect(comment.content).toContain(text);
     expect(comment.content).not.toContain('203.0.113');
     expect(table('europe.erp.konektag.eu', 'Email Group Member')[0].unsubscribed).toBe(0);
 
+    // A repeated click succeeds but does not hand out the unsubscribe capability again.
     const again = await json(await confirmRoute(ctx('/api/public/forms/optin/confirm', { token }), deps));
-    expect(again.body).toEqual(r.body);
+    expect(again).toEqual({ status: 200, body: { ok: true, status: 'SUBSCRIBED', list: 'newsletter', unsubscribeToken: null } });
     expect(writes()).toHaveLength(3);
+    expect([...store.values.values()].join(' ')).not.toContain('awa@example.com');
   });
 
   it('never leaves an active member without proof', async () => {
@@ -425,9 +436,11 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     expect(table('rocherdesages.erp.konektag.eu', 'Email Group Member')[0]).toMatchObject({ email_group: 'Actualités RDA', unsubscribed: 0 });
   });
 
-  it('requires explicit consent and refuses an absent Email Group before any e-mail', async () => {
-    for (const consent of [undefined, { accepted: false, textVersion: 'v1', text: 'Je consens à tout cela.' }, { accepted: true, textVersion: 'v1', text: '' }])
+  it('requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail', async () => {
+    for (const consent of [undefined, { accepted: false, textVersion: 'newsletter-2026-11' }, { accepted: true, textVersion: 'newsletter-2026-11', text: 'Texte arbitraire du navigateur' }])
       expect((await json(await optinRoute(ctx('/api/public/forms/optin', optin({ consent })), deps))).body.error).toBe('BAD_FIELDS');
+    expect(await json(await optinRoute(ctx('/api/public/forms/optin', optin({ consent: { accepted: true, textVersion: 'v-inventee' } })), deps)))
+      .toEqual({ status: 422, body: { ok: false, error: 'CONSENT_VERSION_UNKNOWN' } });
     docs.delete('europe.erp.konektag.eu|Email Group');
     expect(await json(await optinRoute(ctx('/api/public/forms/optin', optin()), deps))).toEqual({ status: 503, body: { ok: false, error: 'OPTIN_LIST_UNAVAILABLE' } });
     expect(mails).toHaveLength(0);
@@ -448,5 +461,29 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     const r = await json(await optinRoute(ctx('/api/public/forms/optin', optin()), { ...deps, sendEmail: async () => false }));
     expect(r).toEqual({ status: 503, body: { ok: false, error: 'CONFIRMATION_EMAIL_UNAVAILABLE' } });
     expect([...store.values.entries()].filter(([k, v]) => k.includes(':pending:') && v)).toHaveLength(0);
+  });
+
+  it('requires a Turnstile token for opt-in when the server has a Turnstile secret', async () => {
+    const strict = { ...deps, env: { ...deps.env, TURNSTILE_SECRET_KEY: 'turnstile-secret' } };
+    expect(await json(await optinRoute(ctx('/api/public/forms/optin', optin()), strict))).toEqual({ status: 403, body: { ok: false, error: 'INVALID_VERIFICATION' } });
+    expect(mails).toHaveLength(0);
+  });
+});
+
+describe('contact: Frappe field constraints and concurrency', () => {
+  it('refuses phone and lengths that the Frappe fields would reject', async () => {
+    for (const over of [{ phone: '+33 1 23 45 67 89 poste 12' }, { phone: 'call me' }, { name: 'n'.repeat(141) }, { company: 'c'.repeat(141) }])
+      expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact(over)), deps))).toEqual({ status: 400, body: { ok: false, error: 'BAD_FIELDS' } });
+    expect((await contactRoute(ctx('/api/public/forms/contact', contact({ phone: '+242 06 123 45 67' })), deps)).status).toBe(201);
+  });
+
+  it('reuses the Lead created by a concurrent request of the same address', async () => {
+    failInsert = (host, doctype) => {
+      if (doctype !== 'Lead') return null;
+      table(host, 'Lead').push({ name: 'CRM-LEAD-2026-00099', email_id: 'awa@example.com', creation: '2026-11-21 08:59:59' });
+      return new Response(JSON.stringify({ exc_type: 'DuplicateEntryError' }), { status: 409 });
+    };
+    expect((await contactRoute(ctx('/api/public/forms/contact', contact()), deps)).status).toBe(201);
+    expect(writes('Communication')[0].body.reference_name).toBe('CRM-LEAD-2026-00099');
   });
 });

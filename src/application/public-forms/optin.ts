@@ -2,11 +2,14 @@
  * Marketing opt-in of an authorised site, written to the standard Frappe
  * Email Group / Email Group Member of the tenant.
  *
- * 1. request:     explicit consent (accepted = true, text and version shown), then a
+ * 1. request:     explicit consent (accepted = true and the version of the text
+ *                 shown; the text itself is held by the server), then a
  *                 confirmation e-mail; nothing is written to Frappe yet.
  * 2. confirm:     the single-use link proves the address; the member is created
  *                 inactive, the proof is attached as a Comment, then the member is
- *                 activated. A member is never active without its proof.
+ *                 activated. A member is never active without its proof. The link
+ *                 carries the token in its fragment, so it stays out of server
+ *                 logs and Referer headers.
  * 3. unsubscribe: signed, permanent token; the member is deactivated first, then
  *                 the withdrawal is recorded.
  *
@@ -27,7 +30,7 @@ import {
 
 const LIST_KEY = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const PENDING_TTL_SEC = 72 * 3600;
-const CONFIRMED_TTL_SEC = 30 * 24 * 3600;
+const CONFIRMED_TTL_SEC = 7 * 24 * 3600;
 const PROOF_VERSION = 'konektag-consent-proof/1';
 
 export const optinSchema = z.object({
@@ -39,7 +42,6 @@ export const optinSchema = z.object({
   consent: z.object({
     accepted: z.literal(true),
     textVersion: z.string().trim().min(1).max(64),
-    text: z.string().trim().min(10).max(2000),
   }).strict(),
   confirmationUrl: z.string().trim().url().max(500),
   sourceUrl: z.string().trim().url().max(500).optional(),
@@ -53,10 +55,13 @@ export const unsubscribeSchema = z.object({ token: z.string().min(20).max(1024).
 
 export type OptinInput = z.infer<typeof optinSchema>;
 
-type TenantOptin = { confirmationOrigins: string[]; lists: Record<string, string> };
+type OptinList = { emailGroup: string; consentTexts: Record<string, string> };
+type TenantOptin = { confirmationOrigins: string[]; lists: Record<string, OptinList> };
+
+type Confirmed = { state: 'confirmed'; list: string };
 
 type Pending = {
-  state: 'pending' | 'confirmed';
+  state: 'pending';
   tenantId: string;
   siteId: string;
   list: string;
@@ -69,8 +74,6 @@ type Pending = {
   sourceUrl: string | null;
   campaign: string | null;
   requestPeer: string;
-  member?: string;
-  unsubscribeToken?: string;
 };
 
 export type OptinDeps = {
@@ -83,8 +86,10 @@ export type OptinDeps = {
 };
 
 /**
- * PUBLIC_OPTIN_LISTS = {"<tenantId>": {"confirmationOrigins": ["https://…"], "lists": {"<key>": "<Email Group>"}}}
+ * PUBLIC_OPTIN_LISTS = {"<tenantId>": {"confirmationOrigins": ["https://…"],
+ *   "lists": {"<key>": {"emailGroup": "<Email Group>", "consentTexts": {"<version>": "<text shown>"}}}}}
  * Read on each call; an invalid document disables every opt-in rather than guessing.
+ * The consent text is the server's: the proof and the e-mail never carry browser text.
  */
 export function tenantOptin(tenantId: string, env: NodeJS.ProcessEnv = process.env): TenantOptin | null {
   let config: unknown;
@@ -93,8 +98,13 @@ export function tenantOptin(tenantId: string, env: NodeJS.ProcessEnv = process.e
   const entry = (config as Record<string, any>)[tenantId];
   const origins = Array.isArray(entry?.confirmationOrigins) ? entry.confirmationOrigins.filter((o: unknown) => typeof o === 'string') : [];
   const lists = entry?.lists && typeof entry.lists === 'object' ? entry.lists : {};
-  const valid: Record<string, string> = {};
-  for (const [key, group] of Object.entries(lists)) if (LIST_KEY.test(key) && typeof group === 'string' && group.trim()) valid[key] = group;
+  const valid: Record<string, OptinList> = {};
+  for (const [key, list] of Object.entries(lists as Record<string, any>)) {
+    if (!LIST_KEY.test(key) || typeof list?.emailGroup !== 'string' || !list.emailGroup.trim()) continue;
+    const texts = list.consentTexts && typeof list.consentTexts === 'object' ? list.consentTexts : {};
+    const consentTexts = Object.fromEntries(Object.entries(texts as Record<string, unknown>).filter(([v, t]) => v && typeof t === 'string' && t.trim())) as Record<string, string>;
+    valid[key] = { emailGroup: list.emailGroup, consentTexts };
+  }
   return { confirmationOrigins: origins.map((o: string) => { try { return new URL(o).origin; } catch { return ''; } }).filter(Boolean), lists: valid };
 }
 
@@ -166,7 +176,10 @@ async function findMember(frappe: FrappeSite, emailGroup: string, email: string)
   return rows[0] ?? null;
 }
 
-function proofComment(member: string, proof: Record<string, unknown>) {
+/** The proof carries an HMAC of its own content, so a later edit of the Comment is detectable. */
+function proofComment(member: string, fields: Record<string, unknown>, secret: string) {
+  const signed = { ...fields, member };
+  const proof = { ...signed, signature: createHmac('sha256', secret).update('proof.' + JSON.stringify(signed)).digest('hex') };
   return {
     comment_type: 'Info',
     reference_doctype: 'Email Group Member',
@@ -188,8 +201,11 @@ export async function requestOptin(
   const secret = formSecret(env);
   const site = await deps.sites.resolve({ siteId: input.siteId, country: input.country }, { operation: 'optin', origin: request.origin });
   const config = tenantOptin(site.tenantId, env);
-  const emailGroup = config && Object.hasOwn(config.lists, input.list) ? config.lists[input.list] : null;
-  if (!config || !emailGroup) throw new FormError('OPTIN_LIST_NOT_FOUND', 404);
+  const list = config && Object.hasOwn(config.lists, input.list) ? config.lists[input.list] : null;
+  if (!config || !list) throw new FormError('OPTIN_LIST_NOT_FOUND', 404);
+  const emailGroup = list.emailGroup;
+  const consentText = Object.hasOwn(list.consentTexts, input.consent.textVersion) ? list.consentTexts[input.consent.textVersion] : null;
+  if (!consentText) throw new FormError('CONSENT_VERSION_UNKNOWN', 422);
   const confirmation = allowedConfirmationUrl(input.confirmationUrl, config.confirmationOrigins);
   if (!confirmation) throw new FormError('CONFIRMATION_URL_NOT_ALLOWED', 403);
 
@@ -198,10 +214,12 @@ export async function requestOptin(
   const requestPeer = pseudonym(request.clientAddress || 'unknown-peer', secret);
   await enforceRateLimits(deps.store, 'optin:' + site.tenantId, [
     { key: 'email:' + emailId, max: 3, windowSec: 3600 },
-    { key: 'peer:' + requestPeer, max: 20, windowSec: 3600 },
+    // clientAddress may be a shared proxy: the peer limit only stops floods.
+    { key: 'peer:' + requestPeer, max: 120, windowSec: 3600 },
     { key: 'site', max: 500, windowSec: 3600 },
   ]);
-  await verifyTurnstile(input.turnstileToken, 'public-optin', request.origin, env, deps.fetchImpl);
+  // Opt-in sends an e-mail to the address typed: with Turnstile configured, the token is mandatory.
+  await verifyTurnstile(input.turnstileToken, 'public-optin', request.origin, env, deps.fetchImpl, true);
 
   let member: Awaited<ReturnType<typeof findMember>>;
   try {
@@ -224,13 +242,13 @@ export async function requestOptin(
   const token = b64(randomBytes(32));
   const pending: Pending = {
     state: 'pending', tenantId: site.tenantId, siteId: site.siteId, list: input.list, emailGroup, email, locale: input.locale,
-    consent: { textVersion: input.consent.textVersion, textSha256: sha256(input.consent.text), text: input.consent.text },
+    consent: { textVersion: input.consent.textVersion, textSha256: sha256(consentText), text: consentText },
     requestedAt: (deps.now?.() ?? new Date()).toISOString(),
     origin: request.origin, sourceUrl: input.sourceUrl ?? null, campaign: input.campaign ?? null, requestPeer,
   };
   try { await deps.store.setValue(pendingKey(token), JSON.stringify(pending), PENDING_TTL_SEC); }
   catch { throw new FormError('SERVICE_UNAVAILABLE', 503); }
-  confirmation.searchParams.set('token', token);
+  confirmation.hash = 'token=' + token;
   const mail = confirmationMail(pending, confirmation.toString(), confirmation.hostname);
   const sent = await deps.sendEmail({ to: email, ...mail, idempotencyKey: 'public-optin/' + sha256(token) });
   if (!sent) {
@@ -244,7 +262,7 @@ export async function confirmOptin(
   raw: unknown,
   request: { clientAddress: string },
   deps: OptinDeps,
-): Promise<{ list: string; unsubscribeToken: string }> {
+): Promise<{ list: string; unsubscribeToken: string | null }> {
   const parsed = tokenSchema.safeParse(raw);
   if (!parsed.success) throw new FormError('BAD_FIELDS', 400);
   const env = deps.env ?? process.env;
@@ -252,19 +270,20 @@ export async function confirmOptin(
   const confirmPeer = pseudonym(request.clientAddress || 'unknown-peer', secret);
   await enforceRateLimits(deps.store, 'optin-confirm', [{ key: 'peer:' + confirmPeer, max: 60, windowSec: 3600 }]);
   const key = pendingKey(parsed.data.token);
-  const load = async (): Promise<Pending | null> => {
+  const load = async (): Promise<Pending | Confirmed | null> => {
     let stored: string | null;
     try { stored = await deps.store.getValue(key); } catch { throw new FormError('SERVICE_UNAVAILABLE', 503); }
-    return stored ? JSON.parse(stored) as Pending : null;
+    return stored ? JSON.parse(stored) as Pending | Confirmed : null;
   };
+  // A repeated click is answered without the unsubscribe capability: only the first confirmation returns it.
   const first = await load();
   if (!first) throw new FormError('CONFIRMATION_NOT_FOUND', 404);
-  if (first.state === 'confirmed') return { list: first.list, unsubscribeToken: first.unsubscribeToken! };
+  if (first.state === 'confirmed') return { list: first.list, unsubscribeToken: null };
 
   return withLease(deps.store, 'public-forms:optin:lease:' + sha256(parsed.data.token), async () => {
     const p = await load();
     if (!p) throw new FormError('CONFIRMATION_NOT_FOUND', 404);
-    if (p.state === 'confirmed') return { list: p.list, unsubscribeToken: p.unsubscribeToken! };
+    if (p.state === 'confirmed') return { list: p.list, unsubscribeToken: null };
     const site = await deps.sites.resolveRecorded(p.tenantId, p.siteId);
     const confirmedAt = (deps.now?.() ?? new Date()).toISOString();
     let member: string;
@@ -289,14 +308,15 @@ export async function confirmOptin(
         requestedAt: p.requestedAt, confirmedAt, tenantId: p.tenantId, siteId: p.siteId,
         origin: p.origin, sourceUrl: p.sourceUrl, campaign: p.campaign, locale: p.locale,
         requestPeer: p.requestPeer, confirmPeer,
-      }));
+      }, secret));
       await site.frappe.update('Email Group Member', member, { unsubscribed: 0 });
     } catch (error) {
       throw frappeFailure(error, site, 'confirm');
     }
     const unsubscribeToken = signUnsubscribe({ tenantId: p.tenantId, siteId: p.siteId, member, emailGroup: p.emailGroup }, secret);
-    try { await deps.store.setValue(key, JSON.stringify({ ...p, state: 'confirmed', member, unsubscribeToken }), CONFIRMED_TTL_SEC); }
-    catch { /* already subscribed in Frappe; a second click is answered from Frappe again */ }
+    // The confirmed record keeps no personal data.
+    try { await deps.store.setValue(key, JSON.stringify({ state: 'confirmed', list: p.list } satisfies Confirmed), CONFIRMED_TTL_SEC); }
+    catch { /* already subscribed in Frappe; a second click finds the active member again */ }
     logFormEvent('optin.confirmed', { tenantId: p.tenantId, siteId: p.siteId, list: p.list, emailId: pseudonym(p.email, secret), member });
     return { list: p.list, unsubscribeToken };
   });
@@ -332,6 +352,6 @@ export async function unsubscribe(
   await site.frappe.insert('Comment', proofComment(claims.member, {
     action: 'unsubscribe', emailGroup: claims.emailGroup, unsubscribedAt: (deps.now?.() ?? new Date()).toISOString(),
     tenantId: claims.tenantId, siteId: claims.siteId, peer,
-  })).catch(error => { frappeFailure(error, site, 'unsubscribe-proof'); });
+  }, secret)).catch(error => { frappeFailure(error, site, 'unsubscribe-proof'); });
   logFormEvent('optin.unsubscribed', { tenantId: claims.tenantId, siteId: claims.siteId, member: claims.member });
 }

@@ -61,15 +61,20 @@ export async function enforceRateLimits(
 }
 
 /**
- * Turnstile is optional: when the server has a secret and the page sent a token,
- * the token must be valid for this action and, when known, for the page host.
+ * Turnstile is optional for the server. When it has a secret, a token sent by the
+ * page must be valid for this action and, when known, for the page host; with
+ * `required`, a missing token is refused too.
  */
 export async function verifyTurnstile(
   token: string, action: string, origin: string | null,
-  env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch,
+  env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch, required = false,
 ): Promise<void> {
   const secret = env.TURNSTILE_SECRET_KEY;
-  if (!secret || !token) return;
+  if (!secret) return;
+  if (!token) {
+    if (required) throw new FormError('INVALID_VERIFICATION', 403);
+    return;
+  }
   let result: { success?: boolean; hostname?: string; action?: string };
   try {
     const response = await fetchImpl('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -92,11 +97,11 @@ export function logFormEvent(event: string, fields: Record<string, string | numb
   console.info('[public-forms]', JSON.stringify({ event, ...fields }));
 }
 
-/** Short exclusive lease so that a double submit cannot write twice to Frappe. */
+/** Exclusive lease, longer than the sequential Frappe calls it protects (10 s timeout each). */
 export async function withLease<T>(store: FormStore, key: string, run: () => Promise<T>): Promise<T> {
   const owner = randomUUID();
   let acquired: boolean;
-  try { acquired = await store.setIfAbsent(key, owner, 30_000); }
+  try { acquired = await store.setIfAbsent(key, owner, 90_000); }
   catch { throw new FormError('SERVICE_UNAVAILABLE', 503); }
   if (!acquired) throw new FormError('REQUEST_IN_PROGRESS', 409);
   try { return await run(); }
