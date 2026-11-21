@@ -699,6 +699,18 @@
     "score": 405
   },
   {
+    "path": "/api/public/catalog/items/{ref}",
+    "file": "src/api/routes/public/catalog/items/[ref].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/catalog/items/([^/]+)/?$",
+    "keys": [
+      "ref"
+    ],
+    "score": 405
+  },
+  {
     "path": "/api/public/marketplace/merchants/{slug}",
     "file": "src/api/routes/public/marketplace/merchants/[slug]/index.ts",
     "methods": [
@@ -1373,6 +1385,16 @@
       "POST"
     ],
     "pattern": "^/api/pay/points/value/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/public/catalog/items",
+    "file": "src/api/routes/public/catalog/items/index.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/catalog/items/?$",
     "keys": [],
     "score": 404
   },

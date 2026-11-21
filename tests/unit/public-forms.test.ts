@@ -15,8 +15,7 @@ import { POST as confirmRoute } from '../../src/api/routes/public/forms/optin/co
 import { POST as unsubscribeRoute } from '../../src/api/routes/public/forms/optin/unsubscribe.ts';
 import type { FormHttpDeps } from '../../src/application/public-forms/http.ts';
 import type { FormStore } from '../../src/application/public-forms/guards.ts';
-import { konektagPublicFormSites, PublicFormSiteError, type PublicFormSite, type PublicFormSites } from '../../src/application/public-forms/site.ts';
-import { frappeSite } from '../../src/application/marketplace-transactions/frappe-site.ts';
+import { konektagPublicFormSites } from '../../src/application/public-forms/site.ts';
 import { signUnsubscribe, verifyProofComment } from '../../src/application/public-forms/optin.ts';
 
 const SECRET = 'test-secret-of-public-forms-0123456789';
@@ -25,6 +24,14 @@ const hosts: Record<string, string> = {
   RDA: 'rocherdesages.erp.konektag.eu', ABMDEMO: 'abmdemo.erp.konektag.eu',
 };
 const rules: Record<string, string> = { BE: 'FR', FR: 'FR', CG: 'CG', LB: 'LB' };
+/** Customer sites of the KON-107 registry; the Konektag entities keep the country routing. */
+const formScopes = ['contact:write', 'optin:write'];
+const registry = [
+  { tenantId: 'rocher-des-ages', frappeSiteId: 'rocher-des-ages', country: 'CG', kind: 'CUSTOMER', enabled: true, site: 'RDA', allowedOrigins: ['https://rocherdesages.cg'], publicScopes: formScopes },
+  { tenantId: 'abm-demo', frappeSiteId: 'abm-demo', country: 'FR', kind: 'CUSTOMER', enabled: true, site: 'ABMDEMO', allowedOrigins: ['https://abmdemo.konektag.eu'], publicScopes: formScopes },
+  { tenantId: 'old-client', frappeSiteId: 'old-client', country: 'FR', kind: 'CUSTOMER', enabled: false, site: 'ABMDEMO', allowedOrigins: ['https://abmdemo.konektag.eu'], publicScopes: formScopes },
+  { tenantId: 'catalog-only', frappeSiteId: 'catalog-only', country: 'FR', kind: 'CUSTOMER', enabled: true, site: 'ABMDEMO', allowedOrigins: ['https://abmdemo.konektag.eu'], publicScopes: ['catalog:read'] },
+];
 
 type Call = { host: string; method: string; doctype: string; body?: any };
 let calls: Call[];
@@ -35,6 +42,7 @@ let failInsert: ((host: string, doctype: string) => Response | null) | null;
 function env(): NodeJS.ProcessEnv {
   const e: NodeJS.ProcessEnv = {
     PUBLIC_FORMS_TOKEN_SECRET: SECRET,
+    KONEKTAG_FRAPPE_SITE_REGISTRY: JSON.stringify(registry),
     MARKETPLACE_TRANSACTION_MERCHANTS: JSON.stringify({
       'konektag-fr': { site: 'EUROPE' }, 'konektag-cg': { site: 'KONEKTAG_CG' }, 'konektag-lb': { site: 'LIBAN' },
     }),
@@ -128,33 +136,6 @@ const database = {
   },
 };
 
-/**
- * Stand-in for the site registry of KON-107: two customer tenants addressed by siteId.
- * The Konektag entities keep the published country routing.
- */
-function sitesWithCustomers(e: NodeJS.ProcessEnv): PublicFormSites {
-  const konektag = konektagPublicFormSites(e, fakeFrappe as typeof fetch, database);
-  const customers: Record<string, { tenantId: string; siteId: string; origins: string[] }> = {
-    RDA: { tenantId: 'rocher-des-ages', siteId: 'RDA', origins: ['https://rocherdesages.cg'] },
-    ABMDEMO: { tenantId: 'abm-demo', siteId: 'ABMDEMO', origins: ['https://abmdemo.konektag.eu'] },
-  };
-  const customer = (c: { tenantId: string; siteId: string }): PublicFormSite =>
-    ({ tenantId: c.tenantId, siteId: c.siteId, kind: 'CUSTOMER', frappe: frappeSite(c.siteId, e, fakeFrappe as typeof fetch), leadDefaults: {} });
-  return {
-    async resolve(selector, context) {
-      if (!selector.siteId || selector.country) return konektag.resolve(selector, context);
-      const c = customers[selector.siteId];
-      if (!c) throw new PublicFormSiteError('SITE_NOT_FOUND', 404);
-      if (!context.origin || !c.origins.includes(context.origin)) throw new PublicFormSiteError('ORIGIN_NOT_ALLOWED', 403);
-      return customer(c);
-    },
-    async resolveRecorded(tenantId, siteId) {
-      const c = Object.values(customers).find(x => x.tenantId === tenantId && x.siteId === siteId);
-      return c ? customer(c) : konektag.resolveRecorded(tenantId, siteId);
-    },
-  };
-}
-
 let store: ReturnType<typeof memoryStore>;
 let mails: Array<{ to: string; subject: string; html: string; idempotencyKey?: string }>;
 let deps: FormHttpDeps;
@@ -164,7 +145,7 @@ beforeEach(() => {
   store = memoryStore();
   const e = env();
   deps = {
-    sites: sitesWithCustomers(e), store, env: e, fetchImpl: fakeFrappe as typeof fetch,
+    sites: konektagPublicFormSites(e, fakeFrappe as typeof fetch, database), store, env: e, fetchImpl: fakeFrappe as typeof fetch,
     sendEmail: async mail => { mails.push(mail); return true; },
     now: () => new Date('2026-11-21T09:00:00.000Z'),
   };
@@ -269,23 +250,26 @@ describe('POST /api/public/forms/contact', () => {
   });
 
   it('writes a customer site request only to that customer site', async () => {
-    const r = await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'RDA' }), { origin: 'https://rocherdesages.cg' }), deps));
+    const r = await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'rocher-des-ages' }), { origin: 'https://rocherdesages.cg' }), deps));
     expect(r.status).toBe(201);
     expect(new Set(calls.map(c => c.host))).toEqual(new Set(['rocherdesages.erp.konektag.eu']));
     expect(writes('Lead')[0].body).not.toHaveProperty('lead_owner');
   });
 
-  it('refuses a customer site from another origin and an unknown site', async () => {
-    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'RDA' }), { origin: 'https://abmdemo.konektag.eu' }), deps)))
-      .toEqual({ status: 403, body: { ok: false, error: 'ORIGIN_NOT_ALLOWED' } });
-    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'OTHER' }), { origin: 'https://rocherdesages.cg' }), deps)))
-      .toEqual({ status: 404, body: { ok: false, error: 'SITE_NOT_FOUND' } });
+  it('refuses a customer site from another origin, and unknown, disabled, unpublished or malformed sites', async () => {
+    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'rocher-des-ages' }), { origin: 'https://abmdemo.konektag.eu' }), deps)))
+      .toEqual({ status: 403, body: { ok: false, error: 'SITE_ACCESS_FORBIDDEN' } });
+    const abm = { origin: 'https://abmdemo.konektag.eu' };
+    // Unknown and disabled sites are indistinguishable; a site that only publishes its catalogue takes no form.
+    for (const [siteId, status, error] of [['other-site', 404, 'SITE_NOT_FOUND'], ['old-client', 404, 'SITE_NOT_FOUND'], ['catalog-only', 403, 'SITE_ACCESS_FORBIDDEN'], ['RDA', 400, 'SITE_SELECTOR_INVALID']] as const)
+      expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId }), abm), deps)))
+        .toEqual({ status, body: { ok: false, error } });
     expect(calls).toHaveLength(0);
   });
 
   it('validates the selector, the fields, the honeypot and the content type', async () => {
     const cases: Array<[unknown, number, string, Record<string, string>?]> = [
-      [contact({ siteId: 'RDA' }), 400, 'SITE_SELECTOR_CONFLICT'],
+      [contact({ siteId: 'rocher-des-ages' }), 400, 'SITE_SELECTOR_CONFLICT'],
       [contact({ country: undefined }), 400, 'SITE_SELECTOR_REQUIRED'],
       [contact({ country: 'Atlantide' }), 422, 'RESIDENCE_COUNTRY_INVALID'],
       [contact({ country: 'JP' }), 422, 'COUNTRY_RULE_NOT_FOUND'],
@@ -301,11 +285,15 @@ describe('POST /api/public/forms/contact', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('without the default binding of a site registry, a siteId is refused explicitly', async () => {
-    const e = env();
-    const only = { ...deps, sites: konektagPublicFormSites(e, fakeFrappe as typeof fetch, database) };
-    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'RDA' })), only)))
-      .toEqual({ status: 503, body: { ok: false, error: 'SITE_ROUTING_UNAVAILABLE' } });
+  it('routes a siteId through the KON-107 registry, never to an unlisted Frappe', async () => {
+    const e = { ...env(), KONEKTAG_FRAPPE_SITE_REGISTRY: '' };
+    const only = { ...deps, env: e, sites: konektagPublicFormSites(e, fakeFrappe as typeof fetch, database) };
+    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'rocher-des-ages' }), { origin: 'https://rocherdesages.cg' }), only)))
+      .toEqual({ status: 404, body: { ok: false, error: 'SITE_NOT_FOUND' } });
+    const broken = { ...env(), KONEKTAG_FRAPPE_SITE_REGISTRY: '{' };
+    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'rocher-des-ages' }), { origin: 'https://rocherdesages.cg' }), { ...deps, env: broken, sites: konektagPublicFormSites(broken, fakeFrappe as typeof fetch, database) })))
+      .toEqual({ status: 503, body: { ok: false, error: 'KONEKTAG_SITE_NOT_CONFIGURED' } });
+    expect(calls).toHaveLength(0);
   });
 
   it('rate limits per email and per peer', async () => {
@@ -412,22 +400,24 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     const forged = signUnsubscribe({ tenantId: 'konektag-fr', siteId: 'EUROPE', member: 'M1', emailGroup: 'Newsletter Konektag FR' }, 'another-secret-another-secret-0000');
     // A tenant cannot point its token at another tenant's site.
     const crossSite = signUnsubscribe({ tenantId: 'konektag-fr', siteId: 'RDA', member: 'M1', emailGroup: 'Actualités RDA' }, SECRET);
+    const crossRegistry = signUnsubscribe({ tenantId: 'konektag-fr', siteId: 'rocher-des-ages', member: 'M1', emailGroup: 'Actualités RDA' }, SECRET);
     // A token of another list does not reach this member.
     const otherGroup = signUnsubscribe({ tenantId: 'konektag-fr', siteId: 'EUROPE', member: 'M1', emailGroup: 'Liste interne' }, SECRET);
     const valid = signUnsubscribe({ tenantId: 'konektag-fr', siteId: 'EUROPE', member: 'M1', emailGroup: 'Newsletter Konektag FR' }, SECRET);
     const [payload, sig] = valid.split('.');
-    const tampered = Buffer.from(JSON.stringify({ v: 1, t: 'rocher-des-ages', s: 'RDA', m: 'M1', g: 'Actualités RDA' })).toString('base64url') + '.' + sig;
+    const tampered = Buffer.from(JSON.stringify({ v: 1, t: 'rocher-des-ages', s: 'rocher-des-ages', m: 'M1', g: 'Actualités RDA' })).toString('base64url') + '.' + sig;
     expect(payload).toBeTruthy();
     expect(await json(await unsubscribeRoute(ctx('/api/public/forms/optin/unsubscribe', { token: forged }), deps))).toEqual({ status: 400, body: { ok: false, error: 'UNSUBSCRIBE_TOKEN_INVALID' } });
     expect(await json(await unsubscribeRoute(ctx('/api/public/forms/optin/unsubscribe', { token: tampered }), deps))).toEqual({ status: 400, body: { ok: false, error: 'UNSUBSCRIBE_TOKEN_INVALID' } });
     expect(await json(await unsubscribeRoute(ctx('/api/public/forms/optin/unsubscribe', { token: crossSite }), deps))).toEqual({ status: 404, body: { ok: false, error: 'SITE_NOT_FOUND' } });
+    expect(await json(await unsubscribeRoute(ctx('/api/public/forms/optin/unsubscribe', { token: crossRegistry }), deps))).toEqual({ status: 404, body: { ok: false, error: 'SITE_NOT_FOUND' } });
     expect(await json(await unsubscribeRoute(ctx('/api/public/forms/optin/unsubscribe', { token: otherGroup }), deps))).toEqual({ status: 400, body: { ok: false, error: 'UNSUBSCRIBE_TOKEN_INVALID' } });
     expect(table('europe.erp.konektag.eu', 'Email Group Member')[0].unsubscribed).toBe(0);
     expect(table('rocherdesages.erp.konektag.eu', 'Email Group Member')[0].unsubscribed).toBe(0);
   });
 
   it('keeps customer tenants isolated: own lists, own confirmation origins, own site', async () => {
-    const rda = (over: Record<string, unknown>) => optin({ country: undefined, siteId: 'RDA', list: 'actualites', confirmationUrl: 'https://rocherdesages.cg/inscription', ...over });
+    const rda = (over: Record<string, unknown>) => optin({ country: undefined, siteId: 'rocher-des-ages', list: 'actualites', confirmationUrl: 'https://rocherdesages.cg/inscription', ...over });
     const headers = { origin: 'https://rocherdesages.cg' };
     expect(await json(await optinRoute(ctx('/api/public/forms/optin', rda({ list: 'offres' }), headers), deps))).toEqual({ status: 404, body: { ok: false, error: 'OPTIN_LIST_NOT_FOUND' } });
     expect(await json(await optinRoute(ctx('/api/public/forms/optin', rda({ list: 'newsletter' }), headers), deps))).toEqual({ status: 404, body: { ok: false, error: 'OPTIN_LIST_NOT_FOUND' } });
@@ -435,9 +425,14 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     expect(await json(await optinRoute(ctx('/api/public/forms/optin', rda({ confirmationUrl: 'https://abmdemo.konektag.eu/x' }), headers), deps))).toEqual({ status: 403, body: { ok: false, error: 'CONFIRMATION_URL_NOT_ALLOWED' } });
     expect(mails).toHaveLength(0);
     expect((await optinRoute(ctx('/api/public/forms/optin', rda({}), headers), deps)).status).toBe(202);
-    await confirmRoute(ctx('/api/public/forms/optin/confirm', { token: tokenOf(mails[0]) }), deps);
+    const confirmed = await json(await confirmRoute(ctx('/api/public/forms/optin/confirm', { token: tokenOf(mails[0]) }), deps));
     expect(new Set(calls.map(c => c.host))).toEqual(new Set(['rocherdesages.erp.konektag.eu']));
     expect(table('rocherdesages.erp.konektag.eu', 'Email Group Member')[0]).toMatchObject({ email_group: 'Actualités RDA', unsubscribed: 0 });
+    // The signed token names the public registry id, never the internal secret key of the site.
+    const unsubscribeToken = confirmed.body.unsubscribeToken;
+    expect(JSON.parse(Buffer.from(unsubscribeToken.split('.')[0], 'base64url').toString())).toMatchObject({ t: 'rocher-des-ages', s: 'rocher-des-ages' });
+    expect(await json(await unsubscribeRoute(ctx('/api/public/forms/optin/unsubscribe', { token: unsubscribeToken }), deps))).toEqual({ status: 200, body: { ok: true, status: 'UNSUBSCRIBED' } });
+    expect(table('rocherdesages.erp.konektag.eu', 'Email Group Member')[0].unsubscribed).toBe(1);
   });
 
   it('requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail', async () => {

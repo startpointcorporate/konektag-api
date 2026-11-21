@@ -332,6 +332,9 @@
   "PUBLIC_APP_URL": [
     "src/application/services/pay/api-payment-checkout-service.ts"
   ],
+  "PUBLIC_CATALOG_SITES": [
+    "src/application/public-website/catalog-config.ts"
+  ],
   "PUBLIC_CORE02_TRUST_ROOTS": [
     "src/application/offline-payment-sync-service.ts",
     "src/application/services/qr-signed-verification-service.ts"

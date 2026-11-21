@@ -20,10 +20,21 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
 - `country` : routage Konektag publié (`konektag-site.ts`, BE → konektag-fr → EUROPE, CG → KONEKTAG_CG, LB → LIBAN),
   mêmes codes d'erreur. Les règles CRM de l'entité (`KONEKTAG_MEETING_<FR|CG|LB>_LEAD_OWNER`, `_DEFAULT_AXIS`) sont
   appliquées au Lead créé.
-- `siteId` (sites clients, par exemple Rocher des Âges, ABM Demo) : **dépend du registre de sites de KON-107**.
-  Tant qu'il n'est pas publié, `siteId` répond `503 SITE_ROUTING_UNAVAILABLE` ; aucune URL Frappe libre n'est acceptée.
-  Le registre fournira `tenantId`, la clé de site, `kind` (KONEKTAG | CUSTOMER) et le contrôle d'origine par site
-  (`403 ORIGIN_NOT_ALLOWED`, `404 SITE_NOT_FOUND`). Les tests simulent ce registre pour RDA et ABM Demo.
+- `siteId` (sites clients, par exemple Rocher des Âges, ABM Demo) : `frappeSiteId` du registre
+  `KONEKTAG_FRAPPE_SITE_REGISTRY` de KON-107 (voir [frappe-site-routing.md](frappe-site-routing.md)), résolu par
+  `resolveFrappeSite` comme un appel anonyme. Aucune URL Frappe libre n'est acceptée.
+  - Scope par opération dans `publicScopes` : `contact:write` (contact) et `optin:write` (demande, confirmation et
+    désinscription). Un site qui ne publie que `catalog:read` refuse les formulaires (`403 SITE_ACCESS_FORBIDDEN`).
+  - Origine : si le navigateur envoie `Origin`, elle doit figurer dans `allowedOrigins` (`403 SITE_ACCESS_FORBIDDEN`).
+  - Site inconnu ou désactivé : `404 SITE_NOT_FOUND`, indiscernables ; identifiant mal formé :
+    `400 SITE_SELECTOR_INVALID` ; registre invalide ou Secrets `MARKETPLACE_FRAPPE_<SITE>_*` absents :
+    `503 KONEKTAG_SITE_NOT_CONFIGURED`.
+  - `tenantId` = `tenantId` de l'entrée (`konektag-<pays>` pour `kind: KONEKTAG`), qui sélectionne aussi la
+    configuration `PUBLIC_OPTIN_LISTS`. Les règles CRM `KONEKTAG_MEETING_*` ne s'appliquent qu'aux entrées KONEKTAG.
+  - Les jetons signés et la preuve de consentement portent le `frappeSiteId` public, jamais la clé interne `site`.
+    À la confirmation et à la désinscription, l'entrée doit toujours exister, être active, appartenir au même tenant
+    et publier `optin:write`. **Retirer `optin:write` ou désactiver le site bloque donc aussi les désinscriptions par
+    jeton** : garder le scope tant que la liste a des membres, ou les désinscrire depuis Frappe.
 
 ## Contact
 
@@ -97,7 +108,7 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
 ## Sécurité
 
 - Pas d'autorité implicite : aucun cookie ni session n'est lu par ces opérations ; JSON obligatoire (`415` sinon), ce
-  qui impose un preflight CORS à toute page tierce. Le contrôle d'origine par site relève du registre KON-107.
+  qui impose un preflight CORS à toute page tierce. Le contrôle d'origine et de scope par site est celui du registre KON-107 (`allowedOrigins`, `publicScopes`).
 - Isolation : chaque écriture va au seul site résolu ; un jeton signé pour un tenant ne peut pas viser le site d'un autre
   (`404 SITE_NOT_FOUND`).
 - Journal sans donnée personnelle : `[public-forms] {"event":"contact.recorded" | "optin.confirmation_sent" |
