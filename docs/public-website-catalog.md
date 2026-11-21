@@ -41,6 +41,8 @@ Un site ne publie son catalogue que s'il a une entrée. Exemple pour les deux si
 | `characteristicFields` | champs d'Item affichés comme caractéristiques `[{ "field", "label" }]` ; les champs internes (comptes, valorisation, achat, stock, fournisseur, client, taxes…) sont refusés au chargement |
 | `virtualTourHosts` | hôtes de visites virtuelles en plus de Matterport, Kuula, Momento360, Roundme, 360Cities |
 | `abmResources` | lie les articles aux ressources konektag-abm |
+| `mediaOrigin` | origine publique `https://` des `/files/` lorsque l'API joint Frappe par une URL interne (`*.svc.cluster.local`) ; sans elle, les fichiers Frappe ne sont alors pas publiés |
+| `timezone` | fuseau IANA qui décide si une période de prix est en cours (défaut `UTC`) |
 
 La configuration ne contient aucun secret. Les identifiants restent dans `MARKETPLACE_FRAPPE_<SITE>_*`. Le compte de
 service doit pouvoir **lire** `Item`, `Item Price`, `File` (et `ABM Resource`, `ABM Equipment Pool` si `abmResources`).
@@ -54,16 +56,21 @@ Cette PR ne modifie ni les Secrets, ni la configuration déployée, ni Frappe.
 - **Liste blanche** : seuls code, nom, groupe, unité, marque, description (texte brut, HTML retiré), champs
   configurés et attributs de variante sortent. Comptes, valorisation, achats, propriétaire, stock : jamais.
 - **Prix** : `Item Price` de vente des listes configurées, sans client ni lot, non expirés ; les tarifs futurs sont
-  rendus avec `current: false`. Montant ≤ 0 ou absent = `NOT_PRICED` avec `from: null` (ERPNext propose 0,00 sans
+  rendus avec `current: false`. Le prix d'appel (`price.from`) est, dans la première liste qui tarife l'article, le
+  tarif en vigueur (dernier `valid_from`) dans l'unité de vente de l'article, sinon le plus bas. Montant ≤ 0 ou absent = `NOT_PRICED` avec `from: null` (ERPNext propose 0,00 sans
   prix). Les montants sont des tarifs de liste ; les taxes restent calculées par ERPNext sur le devis.
 - **Médias** : `Item.image` (couverture) puis les `File` attachés à l'article, `is_private = 0`, par date de création.
-  Seuls un chemin public `/files/…` du site ou un lien externe `https://` sont acceptés ; `/private/`, méthodes de
-  téléchargement, `http://` et identifiants dans l'URL sont rejetés. Type déduit de l'extension ou de l'hôte :
+  Seuls un chemin public `/files/…` du site ou un lien externe `https://` sont acceptés, contrôlés **après** analyse
+  de l'URL (`%2e%2e`, tabulations, point final d'hôte) ; `/private/`, `/api/method/`, `http://` et identifiants dans
+  l'URL sont rejetés. Type déduit de l'extension ou de l'hôte :
   `IMAGE`, `VIDEO` (fichier, YouTube, Vimeo, Dailymotion), `VIRTUAL_TOUR`. Les PDF et autres fichiers sont ignorés.
 - **ABM** : `ABM Resource.selling_item` et `ABM Equipment Pool.item` actifs. DocType absent : `NOT_INSTALLED` ;
   désactivé dans la configuration : `NOT_CONFIGURED`. Le catalogue reste servi.
 - **Cache** : instantané par site 60 s côté serveur (échec non mis en cache), `Cache-Control: public, max-age=60`,
-  `ETag` et `304` sur `If-None-Match`. 1 000 articles au plus par site (au-delà : tronqué et journalisé).
+  `ETag` et `304` sur `If-None-Match`. 1 000 articles au plus par site (au-delà : tronqué et journalisé). Les attributs d'une
+  variante sont lus à la première consultation de sa fiche, puis mis en cache avec l'instantané.
+- **Slug** : dérivé du code article ; en cas de collision, l'article le plus ancien garde le slug nu et les suivants
+  reçoivent un suffixe stable, si bien qu'un nouvel article ne change jamais un slug déjà publié.
 
 ## Analyse des écarts (aucun DocType créé)
 

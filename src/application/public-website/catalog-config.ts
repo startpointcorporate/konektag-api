@@ -31,6 +31,10 @@ const site = z.object({
   virtualTourHosts: z.array(host).max(20).default([]),
   /** Links Items to konektag-abm resources (ABM Resource.selling_item, ABM Equipment Pool.item). */
   abmResources: z.boolean().default(false),
+  /** Public https origin of the site's /files/, when the API reaches Frappe through an internal URL. */
+  mediaOrigin: z.string().url().refine(value => { const url = new URL(value); return url.protocol === 'https:' && url.pathname === '/' && !url.search && !url.hash && !url.username; }, 'https origin').optional(),
+  /** IANA time zone deciding which price periods are current; default UTC. */
+  timezone: z.string().min(3).max(64).refine(value => { try { new Intl.DateTimeFormat('en', { timeZone: value }); return true; } catch { return false; } }, 'time zone').default('UTC'),
 }).strict().superRefine((value, ctx) => {
   for (const [i, { field }] of value.characteristicFields.entries())
     if (INTERNAL_FIELD.test(field)) ctx.addIssue({ code: 'custom', path: ['characteristicFields', i, 'field'], message: 'internal field' });

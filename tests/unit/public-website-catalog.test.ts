@@ -346,12 +346,61 @@ describe('public catalogue — site routing and Konektag sites', () => {
     expect(bySlug).toEqual(byCode);
   });
 
+  it('keeps a published slug when a later Item collides with it', async () => {
+    const items = sites['abmdemo.erp.konektag.eu'].docs.Item;
+    items.find(i => i.name === 'RDA-LOC-SONO').creation = '2026-11-19 09:00:00';
+    items.push({ name: 'rda loc sono', item_name: 'Doublon saisi plus tard', item_group: GROUPS[3], stock_uom: 'Unit', has_variants: 0, disabled: 0, is_sales_item: 1, creation: '2026-11-20 09:00:00' });
+    const body = await (await list('site=abm-demo&limit=50&q=sono')).json();
+    expect(body.items.find((i: any) => i.id === 'RDA-LOC-SONO').slug).toBe('rda-loc-sono');
+    expect(body.items.find((i: any) => i.id === 'rda loc sono').slug).toMatch(/^rda-loc-sono-[0-9a-f]{6}$/);
+    expect((await (await detail('rda-loc-sono', 'site=abm-demo')).json()).item.id).toBe('RDA-LOC-SONO');
+  });
+
+  it('headlines the rate ERPNext applies today in the sales unit', async () => {
+    sites['abmdemo.erp.konektag.eu'].docs['Item Price'].push(
+      { name: 'p-day', item_code: 'RDA-LOC-EPHRAIM', price_list: 'ABM Demo — Tarifs de démonstration', price_list_rate: 20000, currency: 'XAF', uom: 'Day', selling: 1 },
+      { name: 'p-promo', item_code: 'RDA-LOC-EPHRAIM', price_list: 'ABM Demo — Tarifs de démonstration', price_list_rate: 38000, currency: 'XAF', uom: 'Hour', selling: 1, valid_from: '2026-11-20' });
+    const body = await (await detail('RDA-LOC-EPHRAIM', 'site=abm-demo')).json();
+    expect(body.item.price.from).toMatchObject({ amount: 38000, uom: 'Hour', validFrom: '2026-11-20' });
+  });
+
+  it('decides current price periods in the configured time zone', async () => {
+    deps = { ...defaultCatalogDeps({ ...env, PUBLIC_CATALOG_SITES: JSON.stringify({ 'abm-demo': { priceLists: ['ABM Demo — Tarifs de démonstration'], timezone: 'Asia/Beirut' } }) }, { fetchImpl, database }), now: () => now };
+    sites['abmdemo.erp.konektag.eu'].docs['Item Price'].push({ name: 'p-tomorrow', item_code: 'RDA-LOC-INSTRUMENT', price_list: 'ABM Demo — Tarifs de démonstration', price_list_rate: 27000, currency: 'XAF', uom: 'Unit', selling: 1, valid_from: '2026-11-22' });
+    now = new Date('2026-11-21T23:30:00Z'); // already 2026-11-22 in Beirut
+    const body = await (await detail('RDA-LOC-INSTRUMENT', 'site=abm-demo')).json();
+    expect(body.item.prices.find((p: any) => p.amount === 27000).current).toBe(true);
+  });
+
+  it('hides Frappe-hosted media of an in-cluster site without a public media origin', async () => {
+    const internal = { ...env, MARKETPLACE_FRAPPE_ABMDEMO_URL: 'http://abmdemo.erp.svc.cluster.local/' };
+    sites['abmdemo.erp.svc.cluster.local'] = sites['abmdemo.erp.konektag.eu'];
+    deps = { ...defaultCatalogDeps(internal, { fetchImpl, database }), now: () => now };
+    const hidden = await (await detail('RDA-LOC-EPHRAIM', 'site=abm-demo')).json();
+    expect(hidden.item.media.map((m: any) => m.id)).toEqual(['f-video', 'f-tour']);
+    expect(JSON.stringify(hidden)).not.toMatch(/svc\.cluster\.local/);
+    clearCatalogCache();
+    const config = JSON.parse(env.PUBLIC_CATALOG_SITES!);
+    config['abm-demo'].mediaOrigin = 'https://abmdemo.erp.konektag.eu';
+    deps = { ...defaultCatalogDeps({ ...internal, PUBLIC_CATALOG_SITES: JSON.stringify(config) }, { fetchImpl, database }), now: () => now };
+    const shown = await (await detail('RDA-LOC-EPHRAIM', 'site=abm-demo')).json();
+    expect(shown.item.cover.url).toBe('https://abmdemo.erp.konektag.eu/files/ephraim-salle.jpg');
+  });
+
   it('shows variant attributes on the variant sheet', async () => {
     sites['abmdemo.erp.konektag.eu'].docs.Item.push({ name: 'RDA-LOC-NAPPE-BLANCHE', item_name: 'Nappe blanche', item_group: GROUPS[3], stock_uom: 'Unit', variant_of: 'RDA-LOC-NAPPE', has_variants: 0, disabled: 0, is_sales_item: 1,
       attributes: [{ attribute: 'Couleur', attribute_value: 'Blanc' }] });
     const body = await (await detail('rda-loc-nappe-blanche', 'site=abm-demo')).json();
     expect(body.item.variantOf).toBe('RDA-LOC-NAPPE');
     expect(body.item.characteristics).toContainEqual({ key: 'attribute:Couleur', label: 'Couleur', value: 'Blanc' });
+    // Read once per snapshot, not once per anonymous request.
+    await detail('rda-loc-nappe-blanche', 'site=abm-demo');
+    expect(sites['abmdemo.erp.konektag.eu'].calls.filter(c => c.doctype === 'Item' && c.auth).length).toBe(2);
+    // A variant deleted since the snapshot has no attributes; it is not an outage.
+    clearCatalogCache();
+    await list('site=abm-demo');
+    sites['abmdemo.erp.konektag.eu'].docs.Item = sites['abmdemo.erp.konektag.eu'].docs.Item.filter(i => i.name !== 'RDA-LOC-NAPPE-BLANCHE');
+    expect((await detail('rda-loc-nappe-blanche', 'site=abm-demo')).status).toBe(200);
   });
 });
 
@@ -367,8 +416,17 @@ describe('public catalogue — building blocks', () => {
     const host = 'rocherdesages.erp.konektag.eu';
     expect(publicMediaUrl('/files/salle.jpg', host)?.url.href).toBe('https://rocherdesages.erp.konektag.eu/files/salle.jpg');
     for (const bad of ['/private/files/a.jpg', '/files/../private/files/a.jpg', '/api/method/frappe.utils.file_manager.download_file?file_url=/private/files/a.jpg',
-      `https://${host}/private/files/a.jpg`, 'http://example.com/a.jpg', 'https://user:pw@example.com/a.jpg', 'javascript:alert(1)', 'files/a.jpg'])
-      expect(publicMediaUrl(bad, host)).toBeNull();
+      `https://${host}/private/files/a.jpg`, 'http://example.com/a.jpg', 'https://user:pw@example.com/a.jpg', 'javascript:alert(1)', 'files/a.jpg',
+      // Decoded or normalised by URL parsing into a private path.
+      '/files/%2e%2e/private/files/x.jpg', '/files/.%2e/private/files/x.jpg', '/files/%2E%2E/private/files/x.jpg', '/files/\t../private/x.jpg',
+      '/files/%2fprivate.jpg', '//evil.example.com/files/a.jpg', '/files/a.jpg?download=1',
+      `https://${host}./private/files/x.jpg`, `https://${host.toUpperCase()}/private/files/x.jpg`, 'https://alias.example.com/private/files/x.jpg',
+      'https://cdn.example.com/api/method/frappe.utils.file_manager.download_file'])
+      expect(publicMediaUrl(bad, host), bad).toBeNull();
+    expect(publicMediaUrl(`https://${host}./files/a.jpg`, host)?.source).toBe('FRAPPE_FILE');
+    // Behind an in-cluster Frappe URL, uploaded files are published only through the configured public origin.
+    expect(publicMediaUrl('/files/a.jpg', 'frappe.erp.svc.cluster.local', null)).toBeNull();
+    expect(publicMediaUrl('/files/a.jpg', 'frappe.erp.svc.cluster.local', 'https://rocherdesages.erp.konektag.eu')?.url.href).toBe('https://rocherdesages.erp.konektag.eu/files/a.jpg');
     // A private Item.image never becomes the cover.
     expect(itemMedia('/private/files/cover.jpg', [], host)).toEqual([]);
     // Configured tour hosts extend the built-in providers.
@@ -380,5 +438,6 @@ describe('public catalogue — building blocks', () => {
     expect(itemSlug('RDA-LOC-ÉCRAN Géant')).toBe('rda-loc-ecran-geant');
     expect(plainText('<p>A &amp; B</p><p>C</p>')).toBe('A & B\nC');
     expect(plainText('<style>x{}</style>')).toBeNull();
+    expect(plainText('Caf&#233; &#xE9;t&eacute; &#0;')).toBe('Café ét&eacute;');
   });
 });

@@ -37,21 +37,33 @@ export const VIRTUAL_TOUR_HOSTS = ['matterport.com', 'kuula.co', 'momento360.com
 const onHost = (hostname: string, domain: string) => hostname === domain || hostname.endsWith('.' + domain);
 const extension = (pathname: string) => /\.([a-z0-9]{2,5})$/.exec(pathname.toLowerCase())?.[1] ?? '';
 
-/** The browser-safe URL of a File URL, or null when it is not public. */
-export function publicMediaUrl(fileUrl: string | null | undefined, siteHost: string): { url: URL; source: MediaSource } | null {
+const UNSAFE = /[\u0000-\u001f\u007f\\]/;
+const bareHost = (host: string) => host.toLowerCase().replace(/\.$/, '');
+
+/**
+ * The browser-safe URL of a File URL, or null when it is not public. `mediaOrigin` is the
+ * public https origin serving the site's /files/ (null: uploaded files cannot be published,
+ * for example behind an in-cluster Frappe URL). Paths are checked after parsing, because
+ * URL parsing decodes %2e and removes dot segments.
+ */
+export function publicMediaUrl(fileUrl: string | null | undefined, siteHost: string, mediaOrigin: string | null = `https://${siteHost}`): { url: URL; source: MediaSource } | null {
   const raw = String(fileUrl ?? '').trim();
-  if (!raw || raw.length > 2000) return null;
-  if (raw.startsWith('/')) {
-    // Only the public files directory of the site; no traversal, query or fragment.
-    if (!/^\/files\/[^?#\\]+$/.test(raw) || raw.split('/').some(part => part === '..' || part === '.')) return null;
-    try { return { url: new URL(raw, `https://${siteHost}`), source: 'FRAPPE_FILE' }; } catch { return null; }
-  }
+  if (!raw || raw.length > 2000 || UNSAFE.test(raw)) return null;
+  const publicFile = (url: URL) => url.pathname.startsWith('/files/') && !url.search && !url.hash && !/%2e|%2f|%5c/i.test(url.pathname);
   let url: URL;
+  if (raw.startsWith('/')) {
+    if (raw.startsWith('//') || !mediaOrigin) return null;
+    try { url = new URL(raw, mediaOrigin); } catch { return null; }
+    return publicFile(url) ? { url, source: 'FRAPPE_FILE' } : null;
+  }
   try { url = new URL(raw); } catch { return null; }
   if (url.protocol !== 'https:' || url.username || url.password) return null;
-  // An absolute link back to the ERP must still be a public file.
-  if (url.hostname === siteHost && !/^\/files\/[^?#]+$/.test(url.pathname)) return null;
-  return { url, source: url.hostname === siteHost ? 'FRAPPE_FILE' : 'EXTERNAL_LINK' };
+  // No host may hand out a Frappe private file or download method through the catalogue.
+  if (/^\/(private\/|api\/method\/)/i.test(url.pathname)) return null;
+  const host = bareHost(url.hostname);
+  const own = host === bareHost(siteHost) || (mediaOrigin !== null && host === bareHost(new URL(mediaOrigin).hostname));
+  if (own && !publicFile(url)) return null;
+  return { url, source: own ? 'FRAPPE_FILE' : 'EXTERNAL_LINK' };
 }
 
 function classify(url: URL, tourHosts: string[]): Pick<MediaAsset, 'kind' | 'mimeType' | 'provider'> | null {
@@ -70,12 +82,12 @@ function classify(url: URL, tourHosts: string[]): Pick<MediaAsset, 'kind' | 'mim
  * Media of one Item: its `image` first (the cover), then its public attached
  * Files by creation date. Unknown types (PDF, office files) are not media.
  */
-export function itemMedia(image: string | null | undefined, files: FileRow[], siteHost: string, extraTourHosts: string[] = []): MediaAsset[] {
+export function itemMedia(image: string | null | undefined, files: FileRow[], siteHost: string, extraTourHosts: string[] = [], mediaOrigin: string | null = `https://${siteHost}`): MediaAsset[] {
   const tourHosts = [...VIRTUAL_TOUR_HOSTS, ...extraTourHosts];
   const assets: MediaAsset[] = [];
   const seen = new Set<string>();
   const add = (id: string, fileUrl: string | null | undefined, cover: boolean) => {
-    const resolved = publicMediaUrl(fileUrl, siteHost);
+    const resolved = publicMediaUrl(fileUrl, siteHost, mediaOrigin);
     if (!resolved) return;
     const kind = classify(resolved.url, tourHosts);
     const href = resolved.url.href;

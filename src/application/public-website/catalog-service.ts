@@ -57,19 +57,27 @@ export interface Entry {
   group: string | null;
   description: string | null;
   variantOf: string | null;
+  uom: string | null;
   characteristics: Characteristic[];
   prices: PublicPrice[];
   media: MediaAsset[];
   resources: AbmLinks;
 }
-export interface Snapshot { site: PublicSiteContext; priceLists: string[]; entries: Entry[] }
+export interface Snapshot {
+  site: PublicSiteContext;
+  priceLists: string[];
+  entries: Entry[];
+  /** Variant attributes read on demand, cached with the snapshot. */
+  attributes: Map<string, Promise<Characteristic[]>>;
+}
 
 const SNAPSHOTS = new Map<string, { at: number; value: Promise<Snapshot> }>();
 export const clearCatalogCache = () => SNAPSHOTS.clear();
 
 // ── projection helpers ────────────────────────────────────────────────────
 
-const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'", nbsp: ' ' };
+const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+const codePoint = (value: number) => Number.isInteger(value) && value > 0 && value <= 0x10ffff && !(value >= 0xd800 && value <= 0xdfff) ? String.fromCodePoint(value) : ' ';
 /** Plain text of an ERPNext Text Editor value: no markup reaches the browser. */
 export function plainText(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -77,7 +85,8 @@ export function plainText(value: unknown): string | null {
     .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<br\s*\/?>|<\/(p|div|li|h[1-6])>/gi, '\n')
     .replace(/<[^>]*>/g, ' ')
-    .replace(/&(amp|lt|gt|quot|#39|apos|nbsp);/g, (_, entity) => ENTITIES[entity])
+    .replace(/&(?:(amp|lt|gt|quot|apos|nbsp)|#(\d{1,7})|#x([0-9a-f]{1,6}));/gi, (_, named, dec, hex) =>
+      named ? ENTITIES[named.toLowerCase()] : codePoint(dec ? Number(dec) : parseInt(hex, 16)))
     .replace(/[ \t\f\v\r]+/g, ' ')
     .replace(/ *\n */g, '\n')
     .replace(/\n{3,}/g, '\n\n')
@@ -91,6 +100,9 @@ export function itemSlug(itemCode: string): string {
   return slug || 'item-' + shortHash(itemCode);
 }
 
+const INTERNAL_HOST = /(^|\.)(svc\.cluster\.local|localhost)$|^127\.0\.0\.1$/;
+/** Calendar date of `now` in a time zone, as YYYY-MM-DD. */
+const localDate = (now: Date, timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
 const text = (value: unknown) => typeof value === 'string' && value.trim() ? value.trim() : null;
 const date = (value: unknown) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
 
@@ -156,7 +168,7 @@ async function loadSnapshot(context: PublicSiteContext, site: FrappeSite, config
   if (config.itemGroups) filters.push(['item_group', 'in', config.itemGroups]);
   if (config.publishedField) filters.push([config.publishedField, '=', 1]);
   const fields = [...new Set(['name', 'item_name', 'item_group', 'stock_uom', 'sales_uom', 'brand', 'description', 'image', 'variant_of',
-    ...config.characteristicFields.map(c => c.field)])];
+    'creation', ...config.characteristicFields.map(c => c.field)])];
   const [items, priceRows, files, abm] = await Promise.all([
     site.list('Item', filters, fields, MAX_ITEMS + 1),
     site.list('Item Price', [['price_list', 'in', config.priceLists], ['selling', '=', 1]],
@@ -165,14 +177,19 @@ async function loadSnapshot(context: PublicSiteContext, site: FrappeSite, config
       ['name', 'file_url', 'is_private', 'attached_to_name', 'creation'], 20 * MAX_ITEMS),
     abmLinks(site, config),
   ]);
-  if (items.length > MAX_ITEMS) console.warn('[public-catalog] catalogue truncated', JSON.stringify({ site: context.siteId, max: MAX_ITEMS }));
+  for (const [doctype, rows, max] of [['Item', items, MAX_ITEMS + 1], ['Item Price', priceRows, 20 * MAX_ITEMS], ['File', files, 20 * MAX_ITEMS]] as const)
+    if (rows.length >= max) console.warn('[public-catalog] read truncated', JSON.stringify({ site: context.siteId, doctype, max }));
   const prices = publicPrices(priceRows, config.priceLists, today);
   const filesByItem = new Map<string, FileRow[]>();
   for (const file of files as FileRow[]) if (file.attached_to_name) filesByItem.set(file.attached_to_name, [...(filesByItem.get(file.attached_to_name) ?? []), file]);
 
-  const slugs = new Map<string, number>();
+  // The oldest Item keeps a bare slug; a later Item with the same slug gets a stable suffix,
+  // so creating an Item never changes a slug already published.
   const rows = items.slice(0, MAX_ITEMS);
-  for (const item of rows) slugs.set(itemSlug(item.name), (slugs.get(itemSlug(item.name)) ?? 0) + 1);
+  const slugOwner = new Map<string, string>();
+  for (const item of [...rows].sort((a, b) => String(a.creation ?? '').localeCompare(String(b.creation ?? '')) || a.name.localeCompare(b.name)))
+    if (!slugOwner.has(itemSlug(item.name))) slugOwner.set(itemSlug(item.name), item.name);
+  const mediaOrigin = config.mediaOrigin?.replace(/\/$/, '') ?? (INTERNAL_HOST.test(site.host) ? null : `https://${site.host}`);
   const entries = rows.map((item): Entry => {
     const base = itemSlug(item.name);
     const name = text(item.item_name) ?? item.name;
@@ -180,27 +197,27 @@ async function loadSnapshot(context: PublicSiteContext, site: FrappeSite, config
     const resources = abm instanceof Map ? { status: 'AVAILABLE' as const, resources: abm.get(item.name) ?? [] } : { status: abm, resources: [] as [] };
     return {
       id: item.name,
-      // Two codes with the same slug both get a stable suffix: neither one shadows the other.
-      slug: slugs.get(base)! > 1 ? `${base}-${shortHash(item.name)}` : base,
+      slug: slugOwner.get(base) === item.name ? base : `${base}-${shortHash(item.name)}`,
       name,
       group: text(item.item_group),
       // ERPNext copies item_name into description by default: that is not a description.
       description: description && description !== name ? description : null,
       variantOf: text(item.variant_of),
+      uom: text(item.sales_uom) ?? text(item.stock_uom),
       characteristics: characteristics(item, config),
       prices: prices.get(item.name) ?? [],
-      media: itemMedia(item.image, filesByItem.get(item.name) ?? [], site.host, config.virtualTourHosts),
+      media: itemMedia(item.image, filesByItem.get(item.name) ?? [], site.host, config.virtualTourHosts, mediaOrigin),
       resources,
     };
   }).sort((a, b) => String(a.group).localeCompare(String(b.group)) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
-  return { site: context, priceLists: config.priceLists, entries };
+  return { site: context, priceLists: config.priceLists, entries, attributes: new Map() };
 }
 
 export async function catalogSnapshot(context: PublicSiteContext, site: FrappeSite, config: CatalogSiteConfig, now: Date): Promise<Snapshot> {
   const key = `${context.siteId}\u0000${context.frappeSiteKey}\u0000${JSON.stringify(config)}`;
   const cached = SNAPSHOTS.get(key);
   if (cached && now.getTime() - cached.at < CACHE_TTL_MS) return cached.value;
-  const value = loadSnapshot(context, site, config, now.toISOString().slice(0, 10));
+  const value = loadSnapshot(context, site, config, localDate(now, config.timezone));
   SNAPSHOTS.set(key, { at: now.getTime(), value });
   // A failed read is not cached: the next request retries Frappe.
   value.catch(() => { if (SNAPSHOTS.get(key)?.value === value) SNAPSHOTS.delete(key); });
@@ -212,12 +229,17 @@ export async function catalogSnapshot(context: PublicSiteContext, site: FrappeSi
 const fold = (value: string) => value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const pricesIn = (entry: Entry, currency?: string) => currency ? entry.prices.filter(p => p.currency === currency) : entry.prices;
 
-function priceSummary(prices: PublicPrice[]): PriceSummary {
+/**
+ * The headline price: in the first public list that prices the item, the rate ERPNext
+ * applies today (latest valid_from) in the item's sales unit, else the lowest such rate.
+ */
+function priceSummary(prices: PublicPrice[], uom: string | null): PriceSummary {
   const current = prices.filter(p => p.current);
   if (!current.length) return { status: 'NOT_PRICED', from: null };
-  // The first public list that prices the item, at its lowest current rate.
-  const list = current[0].priceList;
-  const from = current.filter(p => p.priceList === list).reduce((low, p) => p.amount < low.amount ? p : low);
+  const inList = current.filter(p => p.priceList === current[0].priceList);
+  const effective = [...new Set(inList.map(p => p.uom))].map(unit => inList.filter(p => p.uom === unit)
+    .reduce((best, p) => String(p.validFrom ?? '') > String(best.validFrom ?? '') ? p : best));
+  const from = effective.find(p => p.uom === uom) ?? effective.reduce((low, p) => p.amount < low.amount ? p : low);
   return { status: 'PRICED', from };
 }
 
@@ -227,7 +249,7 @@ function summary(entry: Entry, currency?: string) {
   return {
     id: entry.id, slug: entry.slug, name: entry.name, group: entry.group,
     shortDescription: entry.description ? (entry.description.length > 280 ? entry.description.slice(0, 279).trimEnd() + '…' : entry.description) : null,
-    cover, price: priceSummary(pricesIn(entry, currency)),
+    cover, price: priceSummary(pricesIn(entry, currency), entry.uom),
     mediaCount: { images: count('IMAGE'), videos: count('VIDEO'), virtualTours: count('VIRTUAL_TOUR') },
   };
 }
@@ -248,7 +270,7 @@ export function listView(snapshot: Snapshot, query: CatalogListQuery) {
   const matching = snapshot.entries.filter(entry => {
     if (query.group && entry.group !== query.group) return false;
     if (needle && ![entry.name, entry.id, entry.description ?? ''].some(value => fold(value).includes(needle))) return false;
-    if (query.priced) return (priceSummary(pricesIn(entry, query.currency)).status === 'PRICED') === (query.priced === 'true');
+    if (query.priced) return (priceSummary(pricesIn(entry, query.currency), entry.uom).status === 'PRICED') === (query.priced === 'true');
     return true;
   });
   const groups = [...snapshot.entries.reduce((counts, entry) => entry.group ? counts.set(entry.group, (counts.get(entry.group) ?? 0) + 1) : counts, new Map<string, number>())]
@@ -267,13 +289,25 @@ export function listView(snapshot: Snapshot, query: CatalogListQuery) {
 export const findEntry = (snapshot: Snapshot, ref: string) =>
   snapshot.entries.find(e => e.id === ref) ?? snapshot.entries.find(e => e.slug === ref) ?? null;
 
-/** Variant attributes are a child table of Item: read for the requested variant only. */
-export async function variantAttributes(site: FrappeSite, entry: Entry): Promise<Characteristic[]> {
-  if (!entry.variantOf) return [];
-  const doc = await site.get('Item', entry.id);
-  return (Array.isArray(doc?.attributes) ? doc.attributes : [])
-    .filter((row: any) => text(row?.attribute) && plainText(String(row.attribute_value ?? '')))
-    .map((row: any) => ({ key: 'attribute:' + row.attribute, label: row.attribute, value: plainText(String(row.attribute_value))! }));
+/**
+ * Variant attributes are a child table of Item: read for a requested variant only, once per
+ * snapshot. An Item deleted since the snapshot simply has none.
+ */
+export function variantAttributes(site: FrappeSite, snapshot: Snapshot, entry: Entry): Promise<Characteristic[]> {
+  if (!entry.variantOf) return Promise.resolve([]);
+  const cached = snapshot.attributes.get(entry.id);
+  if (cached) return cached;
+  const read = site.get('Item', entry.id).then(
+    (doc: any) => (Array.isArray(doc?.attributes) ? doc.attributes : [])
+      .filter((row: any) => text(row?.attribute) && plainText(String(row.attribute_value ?? '')))
+      .map((row: any) => ({ key: 'attribute:' + row.attribute, label: row.attribute, value: plainText(String(row.attribute_value))! })),
+    (error: unknown) => {
+      if (error instanceof FrappeSiteError && error.code === 'SITE_REJECTED' && error.httpStatus === 404) return [];
+      throw error;
+    });
+  snapshot.attributes.set(entry.id, read);
+  read.catch(() => { if (snapshot.attributes.get(entry.id) === read) snapshot.attributes.delete(entry.id); });
+  return read;
 }
 
 export function detailView(snapshot: Snapshot, entry: Entry, attributes: Characteristic[] = [], currency?: string) {

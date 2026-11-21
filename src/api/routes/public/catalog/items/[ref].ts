@@ -14,7 +14,7 @@ export const GET = async (ctx: RequestContext, deps?: CatalogDeps): Promise<Resp
     // Unpublished, disabled and internal Items are indistinguishable from absent ones.
     const entry = findEntry(snapshot, ref);
     if (!entry) return json({ error: 'ITEM_NOT_FOUND' }, 404);
-    const body = detailView(snapshot, entry, await variantAttributes(site, entry), query.data.currency);
+    const body = detailView(snapshot, entry, await variantAttributes(site, snapshot, entry), query.data.currency);
     return cachedJson(body, ctx.request.headers.get('if-none-match'));
   } catch (error) {
     return failure(error);
