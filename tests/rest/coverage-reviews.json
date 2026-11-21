@@ -2057,7 +2057,7 @@
     "constraints": [
       "Fake Frappe over stubbed fetch and mocked PostgreSQL: real sites and SQL are not certified."
     ],
-    "sha256": "2800da2d100bd5f7ae62e99317bb5c47cc85afdbfacb24cd2b3df950a21109d3",
+    "sha256": "11868e1cecdecb04e5172701b95cef1399148d647ee6b124934340a9aa5ab61a",
     "tests": [
       "Demander un rendez-vous shows the slots of the routed site and books the Appointment on that same site (BE -> EUROPE)",
       "Demander un rendez-vous routes CG and LB residents to their own site and timezone",

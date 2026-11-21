@@ -25,6 +25,10 @@ export const konektagTimezones: Record<KonektagCountry, string> = {
 };
 
 export type KonektagSiteErrorCode =
+  | 'SITE_SELECTOR_INVALID'
+  | 'SITE_NOT_FOUND'
+  | 'SITE_DISABLED'
+  | 'SITE_ACCESS_FORBIDDEN'
   | 'RESIDENCE_COUNTRY_INVALID'
   | 'COUNTRY_RULE_NOT_FOUND'
   | 'COUNTRY_RULE_AMBIGUOUS'
@@ -44,7 +48,68 @@ export type KonektagSiteRoute = {
   slug: string;
   site: string;
   timezone: string;
+  tenantId?: string;
+  frappeSiteId?: string;
+  kind?: FrappeSiteKind;
 };
+
+export type FrappeSiteKind = 'KONEKTAG' | 'CUSTOMER';
+export type FrappeSiteRegistryEntry = {
+  tenantId: string; frappeSiteId: string; country: KonektagCountry; kind: FrappeSiteKind;
+  enabled: boolean; site: string; allowedOrigins?: string[]; authorizedIdentities?: string[];
+  allowedScopes?: string[]; publicScopes?: string[];
+};
+export type FrappeSiteSelector = { country?: string; siteId?: string };
+export type FrappeSiteAccess = { tenantId?: string; identityId?: string; origin?: string; scope: string; anonymous?: boolean };
+
+const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SITE_KEY = /^[A-Z][A-Z0-9_]{1,31}$/;
+const SCOPE = /^[a-z][a-z0-9-]*:[a-z][a-z0-9-]*$/;
+const REGISTRY_KEYS = new Set(['tenantId', 'frappeSiteId', 'country', 'kind', 'enabled', 'site', 'allowedOrigins', 'authorizedIdentities', 'allowedScopes', 'publicScopes']);
+
+function validList(value: unknown, item: (entry: string) => boolean): boolean {
+  return value === undefined || (Array.isArray(value) && value.every(entry => typeof entry === 'string' && item(entry)));
+}
+
+function parseRegistry(env: NodeJS.ProcessEnv): FrappeSiteRegistryEntry[] {
+  const raw = env.KONEKTAG_FRAPPE_SITE_REGISTRY;
+  if (!raw) return [];
+  let value: unknown;
+  try { value = JSON.parse(raw); } catch { throw new KonektagSiteError('KONEKTAG_SITE_NOT_CONFIGURED'); }
+  if (!Array.isArray(value)) throw new KonektagSiteError('KONEKTAG_SITE_NOT_CONFIGURED');
+  const entries = value as FrappeSiteRegistryEntry[];
+  const ids = new Set<string>();
+  for (const item of entries) {
+    if (!item || !ID.test(item.tenantId) || !ID.test(item.frappeSiteId) || !isKonektagCountry(item.country)
+      || !['KONEKTAG', 'CUSTOMER'].includes(item.kind) || typeof item.enabled !== 'boolean' || !SITE_KEY.test(item.site)
+      || ids.has(item.frappeSiteId) || Object.keys(item).some(key => !REGISTRY_KEYS.has(key))
+      || !validList(item.authorizedIdentities, value => ID.test(value))
+      || !validList(item.allowedScopes, value => SCOPE.test(value))
+      || !validList(item.publicScopes, value => SCOPE.test(value))
+      || !validList(item.allowedOrigins, () => true)) throw new KonektagSiteError('KONEKTAG_SITE_NOT_CONFIGURED');
+    ids.add(item.frappeSiteId);
+    for (const origin of item.allowedOrigins ?? []) {
+      let parsed: URL;
+      try { parsed = new URL(origin); } catch { throw new KonektagSiteError('KONEKTAG_SITE_NOT_CONFIGURED'); }
+      if (parsed.origin !== origin || parsed.protocol !== 'https:' || parsed.username || parsed.password)
+        throw new KonektagSiteError('KONEKTAG_SITE_NOT_CONFIGURED');
+    }
+  }
+  return entries;
+}
+
+function authorizeSite(entry: FrappeSiteRegistryEntry, access?: FrappeSiteAccess): void {
+  if (!access) throw new KonektagSiteError('SITE_ACCESS_FORBIDDEN');
+  if (access.origin && !(entry.allowedOrigins ?? []).includes(access.origin)) throw new KonektagSiteError('SITE_ACCESS_FORBIDDEN');
+  if (access.anonymous) {
+    if (!(entry.publicScopes ?? []).includes(access.scope)) throw new KonektagSiteError('SITE_ACCESS_FORBIDDEN');
+    return;
+  }
+  const sameTenant = access.tenantId === entry.tenantId;
+  const namedIdentity = !!access.identityId && (entry.authorizedIdentities ?? []).includes(access.identityId);
+  if ((!sameTenant && !namedIdentity) || !(entry.allowedScopes ?? []).includes(access.scope))
+    throw new KonektagSiteError('SITE_ACCESS_FORBIDDEN');
+}
 
 type Queryable = { query: (sql: string, values?: unknown[]) => Promise<{ rows: any[] }> };
 
@@ -83,6 +148,29 @@ export async function resolveKonektagSite(
   return { residenceCountry, paymentCountry, slug, site, timezone: konektagTimezones[paymentCountry] };
 }
 
+/** Closed-registry resolver; country and siteId are deliberately mutually exclusive. */
+export async function resolveFrappeSite(
+  selector: FrappeSiteSelector,
+  access?: FrappeSiteAccess,
+  deps: { database?: Queryable; env?: NodeJS.ProcessEnv } = {},
+): Promise<KonektagSiteRoute> {
+  const country = String(selector.country ?? '').trim();
+  const siteId = String(selector.siteId ?? '').trim();
+  if ((country && siteId) || (!country && !siteId)) throw new KonektagSiteError('SITE_SELECTOR_INVALID');
+  if (country) return resolveKonektagSite(country, deps);
+  if (!ID.test(siteId)) throw new KonektagSiteError('SITE_SELECTOR_INVALID');
+  const entry = parseRegistry(deps.env ?? process.env).find(item => item.frappeSiteId === siteId);
+  if (!entry) throw new KonektagSiteError('SITE_NOT_FOUND');
+  if (!entry.enabled) throw new KonektagSiteError('SITE_DISABLED');
+  authorizeSite(entry, access);
+  return {
+    residenceCountry: entry.country, paymentCountry: entry.country,
+    slug: entry.kind === 'KONEKTAG' ? `konektag-${entry.country.toLowerCase()}` : entry.tenantId,
+    site: entry.site, timezone: konektagTimezones[entry.country], tenantId: entry.tenantId,
+    frappeSiteId: entry.frappeSiteId, kind: entry.kind,
+  };
+}
+
 /** Authenticated client of the routed site; throws KONEKTAG_SITE_NOT_CONFIGURED without credentials. */
 export function konektagFrappeSite(route: KonektagSiteRoute, env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch): FrappeSite {
   try {
@@ -111,7 +199,10 @@ export function countryCodeFromInput(value: string): string | null {
 }
 
 /** HTTP status of a routing error: an unserved country is the caller's input, the rest is configuration. */
-export function konektagSiteErrorStatus(error: KonektagSiteError): 422 | 503 {
+export function konektagSiteErrorStatus(error: KonektagSiteError): 400 | 403 | 404 | 422 | 503 {
+  if (error.code === 'SITE_SELECTOR_INVALID') return 400;
+  if (error.code === 'SITE_ACCESS_FORBIDDEN') return 403;
+  if (error.code === 'SITE_NOT_FOUND' || error.code === 'SITE_DISABLED') return 404;
   return error.code === 'RESIDENCE_COUNTRY_INVALID' || error.code === 'COUNTRY_RULE_NOT_FOUND' ? 422 : 503;
 }
 
