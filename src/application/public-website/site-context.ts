@@ -11,7 +11,7 @@
 import { KonektagSiteError, konektagSiteErrorStatus, resolveFrappeSite } from '../shared/konektag-site.ts';
 
 export type PublicSiteKind = 'KONEKTAG' | 'CUSTOMER';
-export type PublicSiteScope = 'catalog:read';
+export type PublicSiteScope = 'catalog:read' | 'quotation:write' | 'booking:read' | 'booking:write';
 export type PublicSiteRequest = { site?: string | null; country?: string | null; origin?: string | null };
 export type PublicSiteContext = { siteId: string; kind: PublicSiteKind; frappeSiteKey: string };
 

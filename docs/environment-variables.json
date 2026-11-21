@@ -335,6 +335,12 @@
   "PUBLIC_CATALOG_SITES": [
     "src/application/public-website/catalog-config.ts"
   ],
+  "PUBLIC_COMMERCE_SITES": [
+    "src/application/public-website/commerce.ts"
+  ],
+  "PUBLIC_COMMERCE_TOKEN_SECRET": [
+    "src/application/public-website/commerce.ts"
+  ],
   "PUBLIC_CORE02_TRUST_ROOTS": [
     "src/application/offline-payment-sync-service.ts",
     "src/application/services/qr-signed-verification-service.ts"

@@ -1389,6 +1389,16 @@
     "score": 404
   },
   {
+    "path": "/api/public/bookings/availability",
+    "file": "src/api/routes/public/bookings/availability.ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/bookings/availability/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
     "path": "/api/public/catalog/items",
     "file": "src/api/routes/public/catalog/items/index.ts",
     "methods": [
@@ -1839,6 +1849,30 @@
     "pattern": "^/api/pro/inquiries/([^/]+)/?$",
     "keys": [
       "id"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/public/bookings/{name}",
+    "file": "src/api/routes/public/bookings/[name].ts",
+    "methods": [
+      "PATCH"
+    ],
+    "pattern": "^/api/public/bookings/([^/]+)/?$",
+    "keys": [
+      "name"
+    ],
+    "score": 304
+  },
+  {
+    "path": "/api/public/quotations/{name}",
+    "file": "src/api/routes/public/quotations/[name].ts",
+    "methods": [
+      "GET"
+    ],
+    "pattern": "^/api/public/quotations/([^/]+)/?$",
+    "keys": [
+      "name"
     ],
     "score": 304
   },
@@ -3198,6 +3232,16 @@
     "score": 303
   },
   {
+    "path": "/api/public/bookings",
+    "file": "src/api/routes/public/bookings/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/bookings/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
     "path": "/api/public/boost-cpm",
     "file": "src/api/routes/public/boost-cpm.ts",
     "methods": [
@@ -3234,6 +3278,16 @@
       "POST"
     ],
     "pattern": "^/api/public/digital-audit/?$",
+    "keys": [],
+    "score": 303
+  },
+  {
+    "path": "/api/public/quotations",
+    "file": "src/api/routes/public/quotations/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/quotations/?$",
     "keys": [],
     "score": 303
   },

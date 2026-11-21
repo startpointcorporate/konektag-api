@@ -1,0 +1,26 @@
+export function documentPublicCommerce(paths) {
+  const selector = [
+    {name:'site',in:'query',schema:{type:'string'},description:'Public id in the closed site registry; exclusive with country.'},
+    {name:'country',in:'query',schema:{type:'string',pattern:'^[A-Za-z]{2}$'},description:'Konektag country route; exclusive with site.'},
+    {name:'Origin',in:'header',schema:{type:'string'},description:'Checked against allowedOrigins for registry sites.'},
+  ];
+  const error = {type:'object',required:['error'],additionalProperties:false,properties:{error:{type:'string'}}};
+  const failures = {
+    '403':{description:'Origin, scope or signed visitor capability rejected.',content:{'application/json':{schema:error}}},
+    '404':{description:'Unknown, disabled or unpublished site.',content:{'application/json':{schema:error}}},
+    '422':{description:'Invalid input or business validation rejected by ERPNext/ABM.',content:{'application/json':{schema:error}}},
+    '503':{description:'Site unavailable, not configured, or feature not installed (FEATURE_UNAVAILABLE).',content:{'application/json':{schema:error}}},
+  };
+  const common = {tags:['public'],security:[],'x-response-schema-scope':'Explicit public Selling/ABM façade; Frappe credentials never leave the server.'};
+  const ok = description => ({description,content:{'application/json':{schema:{type:'object'}}}});
+  const jsonBody = schema => ({required:true,content:{'application/json':{schema}}});
+  paths['/api/public/bookings/availability'].get = {...common,operationId:'getPublicBookingAvailability',summary:'Aggregated ABM resource availability',parameters:[...selector,{name:'resource',in:'query',required:true,schema:{type:'string'}},{name:'startsAt',in:'query',required:true,schema:{type:'string',format:'date-time'}},{name:'endsAt',in:'query',required:true,schema:{type:'string',format:'date-time'}},{name:'quantity',in:'query',schema:{type:'integer',minimum:1,maximum:100,default:1}}],responses:{'200':ok('Aggregate availability without booking identities.'),...failures}};
+  const bookingSchema = {type:'object',required:['resource','startsAt','endsAt'],additionalProperties:false,properties:{site:{type:'string'},country:{type:'string'},resource:{type:'string'},startsAt:{type:'string',format:'date-time'},endsAt:{type:'string',format:'date-time'},allocations:{type:'array',items:{type:'object'}},opportunity:{type:'string'},quotation:{type:'string'},optionExpiresAt:{type:'string',format:'date-time'},mode:{type:'string',enum:['REQUEST','OPTION']}}};
+  paths['/api/public/bookings'].post = {...common,operationId:'createPublicBooking',summary:'Create an idempotent ABM request or option',parameters:[{name:'Idempotency-Key',in:'header',required:true,schema:{type:'string',maxLength:140}}],requestBody:jsonBody(bookingSchema),responses:{'201':ok('Booking and signed visitor capability.'),'409':{description:'Overlap, capacity or idempotency conflict.',content:{'application/json':{schema:error}}},...failures}};
+  paths['/api/public/bookings/{name}'].patch = {...common,operationId:'changePublicBooking',summary:'Reschedule or cancel a visitor booking',parameters:[{name:'name',in:'path',required:true,schema:{type:'string'}},...selector],requestBody:jsonBody({type:'object',required:['action','accessToken'],properties:{action:{type:'string',enum:['RESCHEDULE','CANCEL']},accessToken:{type:'string'},startsAt:{type:'string',format:'date-time'},endsAt:{type:'string',format:'date-time'},resource:{type:'string'},reason:{type:'string',maxLength:500}}}),responses:{'200':ok('Updated public booking state.'),'409':{description:'Period or capacity conflict.',content:{'application/json':{schema:error}}},...failures}};
+  const quotationSchema = {type:'object',required:['currency','priceList','lines'],additionalProperties:false,properties:{site:{type:'string'},country:{type:'string'},lead:{type:'string'},opportunity:{type:'string'},currency:{type:'string',pattern:'^[A-Z]{3}$'},priceList:{type:'string'},validTill:{type:'string',format:'date'},lines:{type:'array',minItems:1,maxItems:100,items:{type:'object',required:['itemCode','quantity'],additionalProperties:false,properties:{itemCode:{type:'string'},quantity:{type:'number',exclusiveMinimum:0},description:{type:'string',maxLength:1000}}}}}};
+  paths['/api/public/quotations'].post = {...common,operationId:'createPublicQuotation',summary:'Create an ERPNext Selling Quotation draft',description:'ERPNext resolves Item rates, Price List and native taxes. Browser totals are not accepted.',requestBody:jsonBody(quotationSchema),responses:{'201':ok('Native draft totals and signed read capability.'),...failures}};
+  paths['/api/public/quotations/{name}'].get = {...common,operationId:'getPublicQuotation',summary:'Read visitor-safe native Quotation totals/status',parameters:[{name:'name',in:'path',required:true,schema:{type:'string'}},...selector,{name:'accessToken',in:'query',required:true,schema:{type:'string'}}],responses:{'200':ok('Allowlisted native Selling totals; no internal fields.'),...failures}};
+  for (const path of ['/api/public/bookings/availability','/api/public/bookings','/api/public/bookings/{name}','/api/public/quotations','/api/public/quotations/{name}'])
+    for (const method of Object.keys(paths[path])) paths[path][method] = JSON.parse(JSON.stringify(paths[path][method]));
+}
