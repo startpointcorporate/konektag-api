@@ -176,16 +176,34 @@ async function findMember(frappe: FrappeSite, emailGroup: string, email: string)
   return rows[0] ?? null;
 }
 
+const proofSignature = (signed: Record<string, unknown>, secret: string) =>
+  createHmac('sha256', secret).update('proof.' + JSON.stringify(signed)).digest('hex');
+
 /** The proof carries an HMAC of its own content, so a later edit of the Comment is detectable. */
 function proofComment(member: string, fields: Record<string, unknown>, secret: string) {
   const signed = { ...fields, member };
-  const proof = { ...signed, signature: createHmac('sha256', secret).update('proof.' + JSON.stringify(signed)).digest('hex') };
+  const proof = { ...signed, signature: proofSignature(signed, secret) };
   return {
     comment_type: 'Info',
     reference_doctype: 'Email Group Member',
     reference_name: member,
     content: '<p><b>' + PROOF_VERSION + '</b></p><pre>' + escapeHtml(JSON.stringify(proof, null, 2)) + '</pre>',
   };
+}
+
+/**
+ * Checks a stored proof Comment (HTML content as saved in Frappe). Key order is
+ * preserved by JSON.parse, so the signed object is rebuilt exactly.
+ */
+export function verifyProofComment(content: string, secret: string): boolean {
+  const pre = /<pre>([\s\S]*)<\/pre>/.exec(content)?.[1];
+  if (!pre) return false;
+  const text = pre.replace(/&(amp|lt|gt|quot|#39);/g, (_, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" }[e as string] ?? ''));
+  let proof: Record<string, unknown>;
+  try { proof = JSON.parse(text); } catch { return false; }
+  const { signature, ...signed } = proof;
+  if (typeof signature !== 'string' || !/^[0-9a-f]{64}$/.test(signature)) return false;
+  return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(proofSignature(signed, secret), 'hex'));
 }
 
 export async function requestOptin(
@@ -204,6 +222,10 @@ export async function requestOptin(
   const list = config && Object.hasOwn(config.lists, input.list) ? config.lists[input.list] : null;
   if (!config || !list) throw new FormError('OPTIN_LIST_NOT_FOUND', 404);
   const emailGroup = list.emailGroup;
+  if (Object.keys(list.consentTexts).length === 0) {
+    console.error('[public-forms] opt-in list has no consent text', JSON.stringify({ tenantId: site.tenantId, list: input.list }));
+    throw new FormError('OPTIN_LIST_UNAVAILABLE', 503);
+  }
   const consentText = Object.hasOwn(list.consentTexts, input.consent.textVersion) ? list.consentTexts[input.consent.textVersion] : null;
   if (!consentText) throw new FormError('CONSENT_VERSION_UNKNOWN', 422);
   const confirmation = allowedConfirmationUrl(input.confirmationUrl, config.confirmationOrigins);

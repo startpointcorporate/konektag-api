@@ -2210,12 +2210,12 @@
       "refusal"
     ],
     "assertions": [
-      "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails."
+      "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer site isolation and origin refusal, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof verified from its stored form and edits detected, list without consent text 503, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails."
     ],
     "constraints": [
       "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. The siteId registry of RDA/ABM Demo is a stand-in until KON-107 publishes its contract; no write was made to a real Frappe site."
     ],
-    "sha256": "baa73bb308af8cc9cb075985e1e590a9f00f09ef692eebbf3e07837c5e73b3a6",
+    "sha256": "3f03ad5ded07a58a5ec13331d8f5f765c4020dfeb637efd2b0e5887f8bcb0b4b",
     "tests": [
       "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
       "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
@@ -2244,8 +2244,9 @@
       "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
       "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
       "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
-      "contact: Frappe field constraints and concurrency refuses phone and lengths that the Frappe fields would reject",
-      "contact: Frappe field constraints and concurrency reuses the Lead created by a concurrent request of the same address"
+      "Frappe constraints, concurrency and configuration refuses phone and lengths that the Frappe fields would reject",
+      "Frappe constraints, concurrency and configuration reuses the Lead created by a concurrent request of the same address",
+      "Frappe constraints, concurrency and configuration reports a list configured without consent text as unavailable, not as visitor error"
     ]
   }
 ]

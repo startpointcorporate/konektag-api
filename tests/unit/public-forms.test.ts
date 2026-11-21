@@ -17,7 +17,7 @@ import type { FormHttpDeps } from '../../src/application/public-forms/http.ts';
 import type { FormStore } from '../../src/application/public-forms/guards.ts';
 import { konektagPublicFormSites, PublicFormSiteError, type PublicFormSite, type PublicFormSites } from '../../src/application/public-forms/site.ts';
 import { frappeSite } from '../../src/application/marketplace-transactions/frappe-site.ts';
-import { signUnsubscribe } from '../../src/application/public-forms/optin.ts';
+import { signUnsubscribe, verifyProofComment } from '../../src/application/public-forms/optin.ts';
 
 const SECRET = 'test-secret-of-public-forms-0123456789';
 const hosts: Record<string, string> = {
@@ -353,6 +353,10 @@ describe('opt-in: request, confirm, unsubscribe', () => {
     for (const text of ['konektag-consent-proof/1', 'double-opt-in', 'newsletter-2026-11', 'recevoir la newsletter Konektag', '2026-11-21T09:00:00.000Z', 'https://www.konektag.eu', 'automne', 'konektag-fr', 'EUROPE', '&quot;signature&quot;: &quot;'])
       expect(comment.content).toContain(text);
     expect(comment.content).not.toContain('203.0.113');
+    // The stored proof verifies, and any edit of it is detected.
+    expect(verifyProofComment(comment.content, SECRET)).toBe(true);
+    expect(verifyProofComment(comment.content.replace('automne', 'printemps'), SECRET)).toBe(false);
+    expect(verifyProofComment(comment.content, 'another-secret-another-secret-0000')).toBe(false);
     expect(table('europe.erp.konektag.eu', 'Email Group Member')[0].unsubscribed).toBe(0);
 
     // A repeated click succeeds but does not hand out the unsubscribe capability again.
@@ -470,7 +474,7 @@ describe('opt-in: request, confirm, unsubscribe', () => {
   });
 });
 
-describe('contact: Frappe field constraints and concurrency', () => {
+describe('Frappe constraints, concurrency and configuration', () => {
   it('refuses phone and lengths that the Frappe fields would reject', async () => {
     for (const over of [{ phone: '+33 1 23 45 67 89 poste 12' }, { phone: 'call me' }, { name: 'n'.repeat(141) }, { company: 'c'.repeat(141) }])
       expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact(over)), deps))).toEqual({ status: 400, body: { ok: false, error: 'BAD_FIELDS' } });
@@ -485,5 +489,10 @@ describe('contact: Frappe field constraints and concurrency', () => {
     };
     expect((await contactRoute(ctx('/api/public/forms/contact', contact()), deps)).status).toBe(201);
     expect(writes('Communication')[0].body.reference_name).toBe('CRM-LEAD-2026-00099');
+  });
+
+  it('reports a list configured without consent text as unavailable, not as visitor error', async () => {
+    const e = { ...deps.env, PUBLIC_OPTIN_LISTS: JSON.stringify({ 'konektag-fr': { confirmationOrigins: ['https://www.konektag.eu'], lists: { newsletter: { emailGroup: 'Newsletter Konektag FR' } } } }) };
+    expect(await json(await optinRoute(ctx('/api/public/forms/optin', optin()), { ...deps, env: e }))).toEqual({ status: 503, body: { ok: false, error: 'OPTIN_LIST_UNAVAILABLE' } });
   });
 });

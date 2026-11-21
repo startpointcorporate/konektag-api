@@ -84,7 +84,7 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
 - Preuve (`Comment` de type `Info` sur l'`Email Group Member`, en-tête `konektag-consent-proof/1`) : action, méthode
   `double-opt-in`, liste et Email Group, texte, version et SHA-256 du texte, `requestedAt` et `confirmedAt` (UTC), tenant,
   site, origine, page, campagne, langue, pairs pseudonymisés (HMAC tronqué, pas d'adresse IP en clair), et une signature
-  HMAC du contenu (une modification ultérieure du Comment est détectable). Le membre est créé
+  HMAC du contenu, vérifiable par `verifyProofComment` (une modification ultérieure du Comment est détectable). Le membre est créé
   avec `unsubscribed = 1`, la preuve est écrite, puis il est activé : **un membre n'est jamais actif sans preuve**.
   Une réinscription d'un ancien membre exige une nouvelle confirmation et ajoute une nouvelle preuve.
 - Désinscription : `unsubscribeToken` (renvoyé par la **première** confirmation seulement ; un nouveau clic répond
@@ -107,7 +107,7 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
 
 | Variable | Rôle |
 |---|---|
-| `PUBLIC_FORMS_TOKEN_SECRET` | ≥ 32 caractères ; signe les jetons de désinscription et pseudonymise e-mails et pairs. Sans elle, les formulaires répondent `503 SERVICE_UNAVAILABLE`. **Sa rotation invalide les liens de désinscription déjà émis.** |
+| `PUBLIC_FORMS_TOKEN_SECRET` | ≥ 32 caractères ; signe les jetons de désinscription et pseudonymise e-mails et pairs. Sans elle, les formulaires répondent `503 SERVICE_UNAVAILABLE`. **Sa rotation invalide les liens de désinscription déjà émis et rend invérifiables les signatures des preuves passées** (les preuves restent lisibles). |
 | `PUBLIC_OPTIN_LISTS` | listes et origines de confirmation par tenant (ci-dessus) ; JSON invalide = opt-in indisponible |
 | `RESEND_API_KEY`, `RESEND_FROM` | e-mail de confirmation (expéditeur Konektag) |
 | `TURNSTILE_SECRET_KEY` | optionnel |
