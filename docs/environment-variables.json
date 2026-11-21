@@ -342,8 +342,14 @@
   "PUBLIC_DIRECTUS_URL": [
     "src/api/routes/countries.ts"
   ],
+  "PUBLIC_FORMS_TOKEN_SECRET": [
+    "src/application/public-forms/guards.ts"
+  ],
   "PUBLIC_MEDIA_ORIGINS": [
     "src/application/services/merchant-social-service.ts"
+  ],
+  "PUBLIC_OPTIN_LISTS": [
+    "src/application/public-forms/optin.ts"
   ],
   "PUBLIC_SITE_URL": [
     "src/api/routes/admin/merchants/[id]/pro-activation.ts",

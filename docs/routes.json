@@ -302,6 +302,26 @@
     "score": 505
   },
   {
+    "path": "/api/public/forms/optin/confirm",
+    "file": "src/api/routes/public/forms/optin/confirm.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/optin/confirm/?$",
+    "keys": [],
+    "score": 505
+  },
+  {
+    "path": "/api/public/forms/optin/unsubscribe",
+    "file": "src/api/routes/public/forms/optin/unsubscribe.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/optin/unsubscribe/?$",
+    "keys": [],
+    "score": 505
+  },
+  {
     "path": "/api/public/team/{tenantId}/members/{memberSlug}",
     "file": "src/api/routes/public/team/[tenantId]/members/[memberSlug].ts",
     "methods": [
@@ -1375,6 +1395,26 @@
       "GET"
     ],
     "pattern": "^/api/public/catalog/items/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/public/forms/contact",
+    "file": "src/api/routes/public/forms/contact.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/contact/?$",
+    "keys": [],
+    "score": 404
+  },
+  {
+    "path": "/api/public/forms/optin",
+    "file": "src/api/routes/public/forms/optin/index.ts",
+    "methods": [
+      "POST"
+    ],
+    "pattern": "^/api/public/forms/optin/?$",
     "keys": [],
     "score": 404
   },

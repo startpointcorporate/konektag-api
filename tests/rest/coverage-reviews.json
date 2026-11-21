@@ -2196,6 +2196,60 @@
     ]
   },
   {
+    "file": "tests/unit/public-forms.test.ts",
+    "operations": [
+      "POST /api/public/forms/contact",
+      "POST /api/public/forms/optin",
+      "POST /api/public/forms/optin/confirm",
+      "POST /api/public/forms/optin/unsubscribe"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal"
+    ],
+    "assertions": [
+      "Contact: BE routed to EUROPE with entity Lead rules, Lead dedup by email (oldest, case-insensitive), received Communication on the Lead, Issue for support, UTM only when the record exists, opaque reference, replay and Idempotency-Key conflict, retry reuses the Lead, CRM_REJECTED, customer siteId resolved by the KON-107 registry (resolveFrappeSite, publicScopes contact:write/optin:write, allowedOrigins): isolation, foreign origin and catalogue-only site 403 SITE_ACCESS_FORBIDDEN, unknown and disabled sites both 404, malformed id 400, empty registry 404 and invalid registry 503 without any Frappe call, selector/field/honeypot/content-type validation, Frappe Phone/length limits as 400, concurrent Lead creation reused, oldest Lead by creation, rate limits without personal data in keys. Opt-in: server-held versioned consent text (browser text refused, unknown version 422), token in URL fragment, mandatory Turnstile when configured, HMAC-signed proof verified from its stored form and edits detected, list without consent text 503, no personal data kept after confirmation, unsubscribe token only on first confirmation, nothing written before confirmation, inactive member then proof Comment then activation, idempotent confirmation, never active without proof, no enumeration of subscribed addresses, re-subscription with new proof, signed idempotent unsubscribe, forged/tampered/cross-tenant/other-group tokens refused (country and registry sites), registry unsubscribe token naming the public frappeSiteId and never the internal site key, per-tenant lists and confirmation origins, explicit consent, absent Email Group, expired token, per-address e-mail limit, pending dropped when e-mail fails."
+    ],
+    "constraints": [
+      "Frappe is a fake REST server per host behind the real FrappeSite client; Redis and Resend are in-memory. Customer sites go through the real KON-107 router with a KONEKTAG_FRAPPE_SITE_REGISTRY test value (RDA, ABM Demo, disabled and catalogue-only entries); no write was made to a real Frappe site."
+    ],
+    "sha256": "3c82eb66d762d327b7cb0dbd17f9110bfb120e544329d05dce705bdfa7958c5a",
+    "tests": [
+      "POST /api/public/forms/contact routes BE to konektag-fr, creates the Lead with the entity rules and a received Communication",
+      "POST /api/public/forms/contact attaches a second request to the oldest Lead of the same email (case-insensitive)",
+      "POST /api/public/forms/contact opens an Issue for a support request and does not create a Lead",
+      "POST /api/public/forms/contact sets UTM links only when the site already has them",
+      "POST /api/public/forms/contact replays the same submission without writing twice",
+      "POST /api/public/forms/contact rejects an Idempotency-Key reused with another message",
+      "POST /api/public/forms/contact retries a failed Communication on the Lead created by the first attempt",
+      "POST /api/public/forms/contact reports a rejected Lead (missing mandatory field or permission) as CRM_REJECTED",
+      "POST /api/public/forms/contact writes a customer site request only to that customer site",
+      "POST /api/public/forms/contact refuses a customer site from another origin, and unknown, disabled, unpublished or malformed sites",
+      "POST /api/public/forms/contact validates the selector, the fields, the honeypot and the content type",
+      "POST /api/public/forms/contact routes a siteId through the KON-107 registry, never to an unlisted Frappe",
+      "POST /api/public/forms/contact rate limits per email and per peer",
+      "POST /api/public/forms/contact is unavailable without the server secret",
+      "opt-in: request, confirm, unsubscribe sends a confirmation e-mail and writes nothing to Frappe before confirmation",
+      "opt-in: request, confirm, unsubscribe confirms: inactive member, proof Comment, then activation; second click is idempotent",
+      "opt-in: request, confirm, unsubscribe never leaves an active member without proof",
+      "opt-in: request, confirm, unsubscribe answers an already subscribed address like any other, without sending a new e-mail",
+      "opt-in: request, confirm, unsubscribe re-subscribes a former member only after a new confirmation, with a new proof",
+      "opt-in: request, confirm, unsubscribe unsubscribes with the signed token, idempotently, and records the withdrawal",
+      "opt-in: request, confirm, unsubscribe rejects forged, tampered or cross-tenant unsubscribe tokens",
+      "opt-in: request, confirm, unsubscribe keeps customer tenants isolated: own lists, own confirmation origins, own site",
+      "opt-in: request, confirm, unsubscribe requires explicit consent to a server-held text and refuses an absent Email Group before any e-mail",
+      "opt-in: request, confirm, unsubscribe reports an unknown or expired confirmation token",
+      "opt-in: request, confirm, unsubscribe limits confirmation e-mails per address to protect third parties",
+      "opt-in: request, confirm, unsubscribe drops the pending consent when the confirmation e-mail cannot be sent",
+      "opt-in: request, confirm, unsubscribe requires a Turnstile token for opt-in when the server has a Turnstile secret",
+      "Frappe constraints, concurrency and configuration refuses phone and lengths that the Frappe fields would reject",
+      "Frappe constraints, concurrency and configuration reuses the Lead created by a concurrent request of the same address",
+      "Frappe constraints, concurrency and configuration reports a list configured without consent text as unavailable, not as visitor error"
+    ]
+  },
+  {
     "file": "tests/unit/public-website-catalog.test.ts",
     "operations": [
       "GET /api/public/catalog/items",
