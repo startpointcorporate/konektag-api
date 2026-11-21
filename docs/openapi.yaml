@@ -6647,6 +6647,515 @@ paths:
         - LINK_NOT_AVAILABLE
         - LINK_PAY_RESUME_FAILED
       x-response-schema-scope: Literal response variants found in handler; computed service/database fields remain unconstrained.
+  /api/public/catalog/items/{ref}:
+    get:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public catalogue contract.
+      operationId: getPublicCatalogItem
+      summary: Public sheet of a catalogue entry
+      description: "Marketing sheet of one public Item: plain-text description, allowlisted characteristics and variant
+        attributes, every public price (current and upcoming), gallery of public photos, videos and virtual tours
+        (Frappe public files or external links attached to the Item), and konektag-abm resources selling it."
+      parameters:
+        - name: ref
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 140
+          description: ERPNext item code or public slug.
+        - name: site
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+            maxLength: 160
+          description: Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs
+            catalog:read in its publicScopes. Exclusive with country.
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Residence country routed to its Konektag site (FR/CG/LB rules). Exclusive with site.
+        - name: currency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Z]{3}$
+          description: Only prices in this currency.
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+          description: When sent, must be in allowedOrigins of the registry entry (403 otherwise).
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public sheet.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: public, max-age=60, stale-while-revalidate=120
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  site:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+                      kind:
+                        type: string
+                        enum:
+                          - KONEKTAG
+                          - CUSTOMER
+                    required:
+                      - id
+                      - kind
+                    additionalProperties: false
+                  item:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: ERPNext item code
+                      slug:
+                        type: string
+                      name:
+                        type: string
+                      group:
+                        type:
+                          - string
+                          - "null"
+                      shortDescription:
+                        type:
+                          - string
+                          - "null"
+                      cover:
+                        oneOf:
+                          - type: object
+                            properties:
+                              id:
+                                type: string
+                              kind:
+                                type: string
+                                enum:
+                                  - IMAGE
+                                  - VIDEO
+                                  - VIRTUAL_TOUR
+                              source:
+                                type: string
+                                enum:
+                                  - FRAPPE_FILE
+                                  - EXTERNAL_LINK
+                              url:
+                                type: string
+                                format: uri
+                                description: Public /files/ URL of the Frappe site or external https link. Private files are never returned.
+                              mimeType:
+                                type:
+                                  - string
+                                  - "null"
+                              provider:
+                                type:
+                                  - string
+                                  - "null"
+                              isCover:
+                                type: boolean
+                            required:
+                              - id
+                              - kind
+                              - source
+                              - url
+                              - mimeType
+                              - provider
+                              - isCover
+                            additionalProperties: false
+                          - type: "null"
+                      price:
+                        oneOf:
+                          - type: object
+                            properties:
+                              status:
+                                type: string
+                                const: PRICED
+                              from:
+                                type: object
+                                properties:
+                                  priceList:
+                                    type: string
+                                  currency:
+                                    type: string
+                                    pattern: ^[A-Z]{3}$
+                                  amount:
+                                    type: number
+                                    exclusiveMinimum: 0
+                                    description: ERPNext Price List rate in the currency unit (taxes excluded from this projection; computed by ERPNext on
+                                      the quotation).
+                                  uom:
+                                    type:
+                                      - string
+                                      - "null"
+                                  validFrom:
+                                    type:
+                                      - string
+                                      - "null"
+                                    format: date
+                                  validUpto:
+                                    type:
+                                      - string
+                                      - "null"
+                                    format: date
+                                  current:
+                                    type: boolean
+                                    description: false for a rate that only starts after today.
+                                required:
+                                  - priceList
+                                  - currency
+                                  - amount
+                                  - uom
+                                  - validFrom
+                                  - validUpto
+                                  - current
+                                additionalProperties: false
+                            required:
+                              - status
+                              - from
+                            additionalProperties: false
+                          - type: object
+                            properties:
+                              status:
+                                type: string
+                                const: NOT_PRICED
+                              from:
+                                type: "null"
+                            required:
+                              - status
+                              - from
+                            additionalProperties: false
+                        description: "NOT_PRICED when no current public rate exists. A missing rate is never reported as 0: a rate <= 0 is
+                          treated as absent."
+                      mediaCount:
+                        type: object
+                        properties:
+                          images:
+                            type: integer
+                            minimum: 0
+                          videos:
+                            type: integer
+                            minimum: 0
+                          virtualTours:
+                            type: integer
+                            minimum: 0
+                        required:
+                          - images
+                          - videos
+                          - virtualTours
+                        additionalProperties: false
+                      description:
+                        type:
+                          - string
+                          - "null"
+                      variantOf:
+                        type:
+                          - string
+                          - "null"
+                      characteristics:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            label:
+                              type:
+                                - string
+                                - "null"
+                            value:
+                              type:
+                                - string
+                                - number
+                                - boolean
+                          required:
+                            - key
+                            - label
+                            - value
+                          additionalProperties: false
+                      prices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            priceList:
+                              type: string
+                            currency:
+                              type: string
+                              pattern: ^[A-Z]{3}$
+                            amount:
+                              type: number
+                              exclusiveMinimum: 0
+                              description: ERPNext Price List rate in the currency unit (taxes excluded from this projection; computed by ERPNext on
+                                the quotation).
+                            uom:
+                              type:
+                                - string
+                                - "null"
+                            validFrom:
+                              type:
+                                - string
+                                - "null"
+                              format: date
+                            validUpto:
+                              type:
+                                - string
+                                - "null"
+                              format: date
+                            current:
+                              type: boolean
+                              description: false for a rate that only starts after today.
+                          required:
+                            - priceList
+                            - currency
+                            - amount
+                            - uom
+                            - validFrom
+                            - validUpto
+                            - current
+                          additionalProperties: false
+                      media:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            kind:
+                              type: string
+                              enum:
+                                - IMAGE
+                                - VIDEO
+                                - VIRTUAL_TOUR
+                            source:
+                              type: string
+                              enum:
+                                - FRAPPE_FILE
+                                - EXTERNAL_LINK
+                            url:
+                              type: string
+                              format: uri
+                              description: Public /files/ URL of the Frappe site or external https link. Private files are never returned.
+                            mimeType:
+                              type:
+                                - string
+                                - "null"
+                            provider:
+                              type:
+                                - string
+                                - "null"
+                            isCover:
+                              type: boolean
+                          required:
+                            - id
+                            - kind
+                            - source
+                            - url
+                            - mimeType
+                            - provider
+                            - isCover
+                          additionalProperties: false
+                      resources:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum:
+                              - AVAILABLE
+                              - NOT_CONFIGURED
+                              - NOT_INSTALLED
+                              - UNAVAILABLE
+                            description: "konektag-abm link state: NOT_INSTALLED when the app is absent from the site."
+                          resources:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                  enum:
+                                    - SPACE
+                                    - EQUIPMENT
+                                capacity:
+                                  type:
+                                    - integer
+                                    - "null"
+                              required:
+                                - id
+                                - name
+                                - type
+                                - capacity
+                              additionalProperties: false
+                        required:
+                          - status
+                          - resources
+                        additionalProperties: false
+                    required:
+                      - id
+                      - slug
+                      - name
+                      - group
+                      - shortDescription
+                      - cover
+                      - price
+                      - mediaCount
+                      - description
+                      - variantOf
+                      - characteristics
+                      - prices
+                      - media
+                      - resources
+                    additionalProperties: false
+                required:
+                  - site
+                  - item
+                additionalProperties: false
+        "304":
+          description: "Not modified: the If-None-Match entity tag is current."
+          headers:
+            ETag:
+              schema:
+                type: string
+        "400":
+          description: site and country are both missing, both present, or malformed (KON-107 selector).
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin not allowed, or catalog:read not public for this site.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+        "404":
+          description: Unknown or disabled site, or unknown Item; unpublished, disabled and internal Items are indistinguishable
+            from absent ones.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+                      - ITEM_NOT_FOUND
+        "422":
+          description: Invalid reference, currency or country.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - INVALID_PARAMETERS
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "503":
+          description: Site routing, configuration or Frappe unavailable. Frappe messages are never forwarded.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+            Retry-After:
+              schema:
+                type: integer
+                const: 30
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - CATALOG_UNAVAILABLE
+                      - SITE_ROUTING_UNAVAILABLE
+      x-source: src/api/routes/public/catalog/items/[ref].ts
+      x-error-codes:
+        - SITE_SELECTOR_INVALID
+        - SITE_ACCESS_FORBIDDEN
+        - SITE_NOT_FOUND
+        - ITEM_NOT_FOUND
+        - INVALID_PARAMETERS
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - CATALOG_UNAVAILABLE
+        - SITE_ROUTING_UNAVAILABLE
   /api/public/marketplace/merchants/{slug}:
     get:
       operationId: get__api_public_marketplace_merchants_slug
@@ -10706,6 +11215,419 @@ paths:
         content:
           application/json:
             schema: {}
+  /api/public/catalog/items:
+    get:
+      tags:
+        - public
+      security: []
+      x-response-schema-scope: Explicit public catalogue contract.
+      operationId: listPublicCatalogItems
+      summary: Public catalogue of a site
+      description: Sellable, enabled, non-template ERPNext Items of the resolved site, restricted by its PUBLIC_CATALOG_SITES
+        entry (Item Groups, publication field). Prices come from the configured public selling Price Lists, excluding
+        customer and batch rates and expired periods. Internal reference Items and every non-allowlisted field
+        (accounts, valuation, purchase, stock, owner) are never exposed. Sorted by group, name, code; cached 60 s
+        server-side.
+      parameters:
+        - name: site
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+            maxLength: 160
+          description: Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs
+            catalog:read in its publicScopes. Exclusive with country.
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Za-z]{2}$
+          description: Residence country routed to its Konektag site (FR/CG/LB rules). Exclusive with site.
+        - name: currency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: ^[A-Z]{3}$
+          description: Only prices in this currency.
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+          description: When sent, must be in allowedOrigins of the registry entry (403 otherwise).
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: group
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 140
+          description: Exact ERPNext Item Group.
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+          description: Case- and accent-insensitive search in name, code and description.
+        - name: priced
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - "true"
+              - "false"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 24
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 200
+          description: Opaque nextCursor of the previous page.
+      responses:
+        "200":
+          description: One page of the public catalogue; groups and total describe the filtered catalogue.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: public, max-age=60, stale-while-revalidate=120
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  site:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+                      kind:
+                        type: string
+                        enum:
+                          - KONEKTAG
+                          - CUSTOMER
+                    required:
+                      - id
+                      - kind
+                    additionalProperties: false
+                  priceLists:
+                    type: array
+                    items:
+                      type: string
+                  groups:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        count:
+                          type: integer
+                          minimum: 1
+                      required:
+                        - name
+                        - count
+                      additionalProperties: false
+                  total:
+                    type: integer
+                    minimum: 0
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: ERPNext item code
+                        slug:
+                          type: string
+                        name:
+                          type: string
+                        group:
+                          type:
+                            - string
+                            - "null"
+                        shortDescription:
+                          type:
+                            - string
+                            - "null"
+                        cover:
+                          oneOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: string
+                                kind:
+                                  type: string
+                                  enum:
+                                    - IMAGE
+                                    - VIDEO
+                                    - VIRTUAL_TOUR
+                                source:
+                                  type: string
+                                  enum:
+                                    - FRAPPE_FILE
+                                    - EXTERNAL_LINK
+                                url:
+                                  type: string
+                                  format: uri
+                                  description: Public /files/ URL of the Frappe site or external https link. Private files are never returned.
+                                mimeType:
+                                  type:
+                                    - string
+                                    - "null"
+                                provider:
+                                  type:
+                                    - string
+                                    - "null"
+                                isCover:
+                                  type: boolean
+                              required:
+                                - id
+                                - kind
+                                - source
+                                - url
+                                - mimeType
+                                - provider
+                                - isCover
+                              additionalProperties: false
+                            - type: "null"
+                        price:
+                          oneOf:
+                            - type: object
+                              properties:
+                                status:
+                                  type: string
+                                  const: PRICED
+                                from:
+                                  type: object
+                                  properties:
+                                    priceList:
+                                      type: string
+                                    currency:
+                                      type: string
+                                      pattern: ^[A-Z]{3}$
+                                    amount:
+                                      type: number
+                                      exclusiveMinimum: 0
+                                      description: ERPNext Price List rate in the currency unit (taxes excluded from this projection; computed by ERPNext on
+                                        the quotation).
+                                    uom:
+                                      type:
+                                        - string
+                                        - "null"
+                                    validFrom:
+                                      type:
+                                        - string
+                                        - "null"
+                                      format: date
+                                    validUpto:
+                                      type:
+                                        - string
+                                        - "null"
+                                      format: date
+                                    current:
+                                      type: boolean
+                                      description: false for a rate that only starts after today.
+                                  required:
+                                    - priceList
+                                    - currency
+                                    - amount
+                                    - uom
+                                    - validFrom
+                                    - validUpto
+                                    - current
+                                  additionalProperties: false
+                              required:
+                                - status
+                                - from
+                              additionalProperties: false
+                            - type: object
+                              properties:
+                                status:
+                                  type: string
+                                  const: NOT_PRICED
+                                from:
+                                  type: "null"
+                              required:
+                                - status
+                                - from
+                              additionalProperties: false
+                          description: "NOT_PRICED when no current public rate exists. A missing rate is never reported as 0: a rate <= 0 is
+                            treated as absent."
+                        mediaCount:
+                          type: object
+                          properties:
+                            images:
+                              type: integer
+                              minimum: 0
+                            videos:
+                              type: integer
+                              minimum: 0
+                            virtualTours:
+                              type: integer
+                              minimum: 0
+                          required:
+                            - images
+                            - videos
+                            - virtualTours
+                          additionalProperties: false
+                      required:
+                        - id
+                        - slug
+                        - name
+                        - group
+                        - shortDescription
+                        - cover
+                        - price
+                        - mediaCount
+                      additionalProperties: false
+                  nextCursor:
+                    type:
+                      - string
+                      - "null"
+                required:
+                  - site
+                  - priceLists
+                  - groups
+                  - total
+                  - items
+                  - nextCursor
+                additionalProperties: false
+        "304":
+          description: "Not modified: the If-None-Match entity tag is current."
+          headers:
+            ETag:
+              schema:
+                type: string
+        "400":
+          description: site and country are both missing, both present, or malformed (KON-107 selector).
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin not allowed, or catalog:read not public for this site.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
+        "404":
+          description: Unknown or disabled site, or a site that does not publish its catalogue (indistinguishable).
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_NOT_FOUND
+        "422":
+          description: Invalid filter, limit, cursor or country.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - INVALID_PARAMETERS
+                      - RESIDENCE_COUNTRY_INVALID
+                      - COUNTRY_RULE_NOT_FOUND
+        "503":
+          description: Site routing, configuration or Frappe unavailable. Frappe messages are never forwarded.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+            Retry-After:
+              schema:
+                type: integer
+                const: 30
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - CATALOG_UNAVAILABLE
+                      - SITE_ROUTING_UNAVAILABLE
+      x-source: src/api/routes/public/catalog/items/index.ts
+      x-error-codes:
+        - SITE_SELECTOR_INVALID
+        - SITE_ACCESS_FORBIDDEN
+        - SITE_NOT_FOUND
+        - INVALID_PARAMETERS
+        - RESIDENCE_COUNTRY_INVALID
+        - COUNTRY_RULE_NOT_FOUND
+        - CATALOG_UNAVAILABLE
+        - SITE_ROUTING_UNAVAILABLE
   /api/public/marketplace/facets:
     get:
       operationId: get__api_public_marketplace_facets

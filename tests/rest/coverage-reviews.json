@@ -2194,5 +2194,61 @@
       "Marketplace order tracking issues tracking proof on explicit checkout immediately before acceptance",
       "Marketplace order tracking maps scope-not-found, adapter quotas and limiter outage safely"
     ]
+  },
+  {
+    "file": "tests/unit/public-website-catalog.test.ts",
+    "operations": [
+      "GET /api/public/catalog/items",
+      "GET /api/public/catalog/items/{ref}"
+    ],
+    "level": "unit",
+    "status": "covered",
+    "facets": [
+      "business",
+      "refusal",
+      "security"
+    ],
+    "assertions": [
+      "RDA fixture: 14 sellable services listed, each NOT_PRICED with from=null, never 0; internal reference Items, accounts, valuation, owner and service tokens absent from responses",
+      "ABM Demo fixture: public Price List rates with currency, unit and period; customer, batch, expired, buying and zero rates excluded; currency filter keeps an explicit absence",
+      "Gallery from public Files only: cover image, video link and file, virtual tour; private, /private/ path (including %2e%2e and tab normalisation, trailing-dot host), insecure http, foreign-doctype and non-media files rejected; in-cluster origins need a public mediaOrigin",
+      "konektag-abm resources linked by selling_item / equipment pool, NOT_INSTALLED when the DocType is absent",
+      "KON-107 resolveFrappeSite: site/country exclusivity (400 SITE_SELECTOR_INVALID), anonymous catalog:read public scope and allowedOrigins (403), country routing to konektag-cg, unknown/disabled/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
+      "opaque cursor pagination with forged cursors refused, ETag/If-None-Match 304 and 60 s snapshot cache",
+      "stable slugs on collision, headline price in the sales unit at the latest valid_from, price periods in the site time zone, variant attributes read once per snapshot"
+    ],
+    "constraints": [
+      "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need their KONEKTAG_FRAPPE_SITE_REGISTRY entry, PUBLIC_CATALOG_SITES configuration and service-account read permissions (see docs/public-website-catalog.md)."
+    ],
+    "sha256": "a57eb04a9b96257d24fda7596d682b9a108f835497248e93f2a62dbf07e0f05c",
+    "tests": [
+      "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) lists the 14 sellable services, each explicitly NOT_PRICED, never at zero",
+      "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) keeps internal reference sheets and Frappe secrets out of the public response",
+      "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) reports the konektag-abm app as not installed instead of failing the catalogue",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) serves public Item Prices with list, currency, unit and period; ignores negotiated, batch, expired, buying and zero rates",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) filters prices by currency and keeps an explicit absence when none matches",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) builds the gallery from public Files: cover photo, video links and files, virtual tour; no private, insecure, foreign or non-media file",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) publishes plain-text descriptions and allowlisted characteristics only",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) links Items to enabled konektag-abm resources and equipment pools",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) excludes disabled, non-sellable and demonstration stock Items",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) filters by group, accent-insensitive text and price presence",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) paginates with opaque cursors and rejects forged ones",
+      "public catalogue — ABM Demo (demonstration rates, media, resources) answers 304 to a matching If-None-Match and serves the cached snapshot for 60 s",
+      "public catalogue — site routing and Konektag sites routes a residence country to its Konektag site and applies its publication rules",
+      "public catalogue — site routing and Konektag sites requires exactly one of site and country (KON-107 selector)",
+      "public catalogue — site routing and Konektag sites checks the public scope and the browser origin of the registry entry",
+      "public catalogue — site routing and Konektag sites does not distinguish unknown, disabled, unrouted and unpublished sites",
+      "public catalogue — site routing and Konektag sites maps country routing errors without leaking configuration",
+      "public catalogue — site routing and Konektag sites answers 503 without Frappe details when the site is down, and retries next time",
+      "public catalogue — site routing and Konektag sites returns 404 for an unknown item and resolves an item by code or slug",
+      "public catalogue — site routing and Konektag sites keeps a published slug when a later Item collides with it",
+      "public catalogue — site routing and Konektag sites headlines the rate ERPNext applies today in the sales unit",
+      "public catalogue — site routing and Konektag sites decides current price periods in the configured time zone",
+      "public catalogue — site routing and Konektag sites hides Frappe-hosted media of an in-cluster site without a public media origin",
+      "public catalogue — site routing and Konektag sites shows variant attributes on the variant sheet",
+      "public catalogue — building blocks rejects configuration that would publish internal Item fields",
+      "public catalogue — building blocks accepts only public file paths and https links",
+      "public catalogue — building blocks derives stable slugs and plain text"
+    ]
   }
 ]
