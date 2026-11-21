@@ -2213,14 +2213,14 @@
       "ABM Demo fixture: public Price List rates with currency, unit and period; customer, batch, expired, buying and zero rates excluded; currency filter keeps an explicit absence",
       "Gallery from public Files only: cover image, video link and file, virtual tour; private, /private/ path (including %2e%2e and tab normalisation, trailing-dot host), insecure http, foreign-doctype and non-media files rejected; in-cluster origins need a public mediaOrigin",
       "konektag-abm resources linked by selling_item / equipment pool, NOT_INSTALLED when the DocType is absent",
-      "site/country exclusivity, country routing to konektag-cg, unknown/unrouted/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
+      "KON-107 resolveFrappeSite: site/country exclusivity (400 SITE_SELECTOR_INVALID), anonymous catalog:read public scope and allowedOrigins (403), country routing to konektag-cg, unknown/disabled/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
       "opaque cursor pagination with forged cursors refused, ETag/If-None-Match 304 and 60 s snapshot cache",
       "stable slugs on collision, headline price in the sales unit at the latest valid_from, price periods in the site time zone, variant attributes read once per snapshot"
     ],
     "constraints": [
-      "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need the catalogue configuration and read permissions of their service accounts (see docs/public-website-catalog.md)."
+      "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need their KONEKTAG_FRAPPE_SITE_REGISTRY entry, PUBLIC_CATALOG_SITES configuration and service-account read permissions (see docs/public-website-catalog.md)."
     ],
-    "sha256": "dfa3d45657c28bd4ca54829d89e6266dbd64d197cd0736ef8be21a679452a857",
+    "sha256": "a57eb04a9b96257d24fda7596d682b9a108f835497248e93f2a62dbf07e0f05c",
     "tests": [
       "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) lists the 14 sellable services, each explicitly NOT_PRICED, never at zero",
       "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) keeps internal reference sheets and Frappe secrets out of the public response",
@@ -2235,8 +2235,9 @@
       "public catalogue — ABM Demo (demonstration rates, media, resources) paginates with opaque cursors and rejects forged ones",
       "public catalogue — ABM Demo (demonstration rates, media, resources) answers 304 to a matching If-None-Match and serves the cached snapshot for 60 s",
       "public catalogue — site routing and Konektag sites routes a residence country to its Konektag site and applies its publication rules",
-      "public catalogue — site routing and Konektag sites requires exactly one of site and country",
-      "public catalogue — site routing and Konektag sites does not distinguish unknown, unrouted and unpublished sites",
+      "public catalogue — site routing and Konektag sites requires exactly one of site and country (KON-107 selector)",
+      "public catalogue — site routing and Konektag sites checks the public scope and the browser origin of the registry entry",
+      "public catalogue — site routing and Konektag sites does not distinguish unknown, disabled, unrouted and unpublished sites",
       "public catalogue — site routing and Konektag sites maps country routing errors without leaking configuration",
       "public catalogue — site routing and Konektag sites answers 503 without Frappe details when the site is down, and retries next time",
       "public catalogue — site routing and Konektag sites returns 404 for an unknown item and resolves an item by code or slug",

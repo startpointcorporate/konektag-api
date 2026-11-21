@@ -10,7 +10,7 @@ export const GET = async (ctx: RequestContext, deps?: CatalogDeps): Promise<Resp
   if (!ref || ref.length > 140 || !query.success) return json({ error: 'INVALID_PARAMETERS' }, 422);
   try {
     deps ??= defaultCatalogDeps();
-    const { site, snapshot } = await openCatalog(deps, ctx.url.searchParams);
+    const { site, snapshot } = await openCatalog(deps, ctx.request);
     // Unpublished, disabled and internal Items are indistinguishable from absent ones.
     const entry = findEntry(snapshot, ref);
     if (!entry) return json({ error: 'ITEM_NOT_FOUND' }, 404);

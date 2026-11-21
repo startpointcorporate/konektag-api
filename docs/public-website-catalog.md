@@ -13,18 +13,23 @@ Contrat : `docs/openapi.yaml` (`listPublicCatalogItems`, `getPublicCatalogItem`)
 ## Choix du site
 
 Le navigateur envoie **soit** `site` (identifiant public, par exemple `rocher-des-ages`), **soit** `country`
-(pays de résidence, routage FR/CG/LB de [frappe-site-routing.md](frappe-site-routing.md)). Les deux : `400
-SITE_AND_COUNTRY_EXCLUSIVE` ; aucun : `400 SITE_REQUIRED`. Il ne transmet jamais d'URL ni de clé Frappe.
+(pays de résidence). Les deux passent par le routeur partagé de KON-107, `resolveFrappeSite`
+([frappe-site-routing.md](frappe-site-routing.md)) :
 
-Le port `PublicSiteResolver` (`src/application/public-website/site-context.ts`) est l'interface convenue avec
-KON-107. En attendant son registre, l'adaptateur par défaut réutilise l'existant : `site` → clé `site` du slug dans
-`MARKETPLACE_TRANSACTION_MERCHANTS` (liste fermée), `country` → `resolveKonektagSite`. `kind` vaut `KONEKTAG` pour
-`konektag-fr|cg|lb`, `CUSTOMER` sinon. Un site inconnu, non routé ou qui ne publie pas de catalogue répond le même
-`404 SITE_NOT_FOUND`.
+- `country` → `payment_country_mappings` → `konektag-fr|cg|lb` (inchangé), `kind = KONEKTAG` ;
+- `site` → registre fermé `KONEKTAG_FRAPPE_SITE_REGISTRY`, appel **anonyme** de scope `catalog:read` : le scope doit
+  figurer dans `publicScopes` de l'entrée et, si le navigateur envoie un `Origin`, celui-ci doit être dans
+  `allowedOrigins` (sinon `403 SITE_ACCESS_FORBIDDEN`). Un rendu serveur sans `Origin` n'est soumis qu'au scope.
+
+Sélecteur absent, double ou mal formé : `400 SITE_SELECTOR_INVALID`. Il ne transmet jamais d'URL ni de clé Frappe. Un
+site inconnu, désactivé, ou qui ne publie pas de catalogue répond le même `404 SITE_NOT_FOUND`. Les réponses portent
+`Vary: Origin`. Le port `PublicSiteResolver` (`src/application/public-website/site-context.ts`) isole les routes du
+routeur.
 
 ## Publication par site : `PUBLIC_CATALOG_SITES`
 
-Un site ne publie son catalogue que s'il a une entrée. Exemple pour les deux sites initialisés le 2026-11-19 :
+Un site ne publie son catalogue que s'il a une entrée, clé = `frappeSiteId` du registre (ou slug `konektag-<pays>`).
+Exemple pour les deux sites initialisés le 2026-11-19 :
 
 ```json
 {
@@ -88,4 +93,5 @@ Cette PR ne modifie ni les Secrets, ni la configuration déployée, ni Frappe.
 fixtures Rocher des Âges (14 prestations, aucun tarif XAF chargé → toutes `NOT_PRICED`), ABM Demo (14 tarifs de
 démonstration, médias, ressources ABM) et Konektag CG via `country=CM`. Aucune lecture n'a été faite sur les sites
 réels : ce run ne dispose d'aucun identifiant Frappe. La recette réelle nécessite l'entrée `PUBLIC_CATALOG_SITES`,
-la clé `site` du slug, les Secrets du site et les droits de lecture ci-dessus.
+l'entrée du registre KON-107 avec `catalog:read` dans `publicScopes`, les Secrets du site et les droits de lecture
+ci-dessus.

@@ -103,16 +103,23 @@ const rules: Record<string, string> = { BE: 'FR', CG: 'CG', CM: 'CG', LB: 'LB' }
 const database = { query: vi.fn(async (_sql: string, values?: unknown[]) => ({ rows: rules[String(values?.[0])] ? [{ payment_country: rules[String(values?.[0])] }] : [] })) };
 
 const env = {
-  MARKETPLACE_TRANSACTION_MERCHANTS: JSON.stringify({
-    'konektag-cg': { site: 'KONEKTAG_CG' }, 'konektag-fr': { site: 'EUROPE' },
-    'rocher-des-ages': { site: 'ROCHERDESAGES' }, 'abm-demo': { site: 'ABMDEMO' }, 'sans-catalogue': { site: 'NOCATALOG' },
-  }),
+  MARKETPLACE_TRANSACTION_MERCHANTS: JSON.stringify({ 'konektag-cg': { site: 'KONEKTAG_CG' }, 'konektag-fr': { site: 'EUROPE' } }),
+  // Closed site registry of KON-107: customer sites are addressed by their public id only.
+  KONEKTAG_FRAPPE_SITE_REGISTRY: JSON.stringify([
+    { tenantId: 'rocher-des-ages', frappeSiteId: 'rocher-des-ages', country: 'CG', kind: 'CUSTOMER', enabled: true, site: 'ROCHERDESAGES',
+      allowedOrigins: ['https://rocherdesages.net'], allowedScopes: ['catalog:read'], publicScopes: ['catalog:read'] },
+    { tenantId: 'abm-demo', frappeSiteId: 'abm-demo', country: 'CG', kind: 'CUSTOMER', enabled: true, site: 'ABMDEMO', publicScopes: ['catalog:read'] },
+    { tenantId: 'sans-catalogue', frappeSiteId: 'sans-catalogue', country: 'CG', kind: 'CUSTOMER', enabled: true, site: 'NOCATALOG', publicScopes: ['catalog:read'] },
+    { tenantId: 'prive', frappeSiteId: 'prive', country: 'CG', kind: 'CUSTOMER', enabled: true, site: 'NOCATALOG', allowedScopes: ['catalog:read'] },
+    { tenantId: 'ferme', frappeSiteId: 'ferme', country: 'CG', kind: 'CUSTOMER', enabled: false, site: 'ABMDEMO', publicScopes: ['catalog:read'] },
+  ]),
   ...Object.fromEntries([['ROCHERDESAGES', 'rocherdesages.erp.konektag.eu'], ['ABMDEMO', 'abmdemo.erp.konektag.eu'], ['KONEKTAG_CG', 'congo.erp.konektag.eu'], ['NOCATALOG', 'nocatalog.erp.konektag.eu'], ['EUROPE', 'europe.erp.konektag.eu']]
     .flatMap(([key, host]) => [[`MARKETPLACE_FRAPPE_${key}_URL`, `https://${host}/`], [`MARKETPLACE_FRAPPE_${key}_API_KEY`, `key-${key}`], [`MARKETPLACE_FRAPPE_${key}_API_SECRET`, `secret-${key}`]])),
   PUBLIC_CATALOG_SITES: JSON.stringify({
     'rocher-des-ages': { priceLists: ['Rocher des Âges — Tarifs commerciaux'], abmResources: true },
     'abm-demo': { priceLists: ['ABM Demo — Tarifs de démonstration', 'ABM Demo — Tarifs export'], abmResources: true, characteristicFields: [{ field: 'custom_capacite', label: 'Capacité' }] },
     'konektag-cg': { priceLists: ['Konektag CG — Tarifs publics'], itemGroups: ['Services Konektag'], publishedField: 'custom_public_website' },
+    prive: { priceLists: ['P'] }, ferme: { priceLists: ['P'] },
   }),
 } as NodeJS.ProcessEnv;
 
@@ -304,16 +311,29 @@ describe('public catalogue — site routing and Konektag sites', () => {
     expect(sites['rocherdesages.erp.konektag.eu'].calls).toHaveLength(0);
   });
 
-  it('requires exactly one of site and country', async () => {
-    expect(await (await list('')).json()).toEqual({ error: 'SITE_REQUIRED' });
-    const both = await list('site=rocher-des-ages&country=CG');
-    expect(both.status).toBe(400);
-    expect(await both.json()).toEqual({ error: 'SITE_AND_COUNTRY_EXCLUSIVE' });
-    expect((await list('site=Rocher_Des_Ages')).status).toBe(400);
+  it('requires exactly one of site and country (KON-107 selector)', async () => {
+    for (const query of ['', 'site=rocher-des-ages&country=CG', 'site=Rocher_Des_Ages']) {
+      const response = await list(query);
+      expect(response.status).toBe(400);
+      expect(await response.json()).toEqual({ error: 'SITE_SELECTOR_INVALID' });
+    }
   });
 
-  it('does not distinguish unknown, unrouted and unpublished sites', async () => {
-    for (const site of ['inconnu', 'sans-catalogue', 'konektag-lb']) {
+  it('checks the public scope and the browser origin of the registry entry', async () => {
+    const own = await list('site=rocher-des-ages', { Origin: 'https://rocherdesages.net' });
+    expect(own.status).toBe(200);
+    expect(own.headers.get('vary')).toContain('Origin');
+    for (const [query, headers] of [['site=rocher-des-ages', { Origin: 'https://evil.example.com' }], ['site=prive', {}]] as const) {
+      const response = await list(query, headers);
+      expect(response.status).toBe(403);
+      expect(await response.json()).toEqual({ error: 'SITE_ACCESS_FORBIDDEN' });
+    }
+    // Server-side rendering sends no Origin; the public scope alone applies.
+    expect((await list('site=rocher-des-ages')).status).toBe(200);
+  });
+
+  it('does not distinguish unknown, disabled, unrouted and unpublished sites', async () => {
+    for (const site of ['inconnu', 'ferme', 'sans-catalogue', 'konektag-lb']) {
       const response = await list('site=' + site);
       expect(response.status).toBe(404);
       expect(await response.json()).toEqual({ error: 'SITE_NOT_FOUND' });

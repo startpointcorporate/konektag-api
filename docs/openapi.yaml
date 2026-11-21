@@ -6673,7 +6673,8 @@ paths:
             type: string
             pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
             maxLength: 160
-          description: Public site id (for example rocher-des-ages). Exclusive with country.
+          description: Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs
+            catalog:read in its publicScopes. Exclusive with country.
         - name: country
           in: query
           required: false
@@ -6688,6 +6689,12 @@ paths:
             type: string
             pattern: ^[A-Z]{3}$
           description: Only prices in this currency.
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+          description: When sent, must be in allowedOrigins of the registry entry (403 otherwise).
         - name: If-None-Match
           in: header
           required: false
@@ -7040,7 +7047,7 @@ paths:
               schema:
                 type: string
         "400":
-          description: site and country are both missing, both present, or site is malformed.
+          description: site and country are both missing, both present, or malformed (KON-107 selector).
           headers:
             Cache-Control:
               schema:
@@ -7056,11 +7063,28 @@ paths:
                   error:
                     type: string
                     enum:
-                      - SITE_REQUIRED
-                      - SITE_AND_COUNTRY_EXCLUSIVE
-                      - SITE_INVALID
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin not allowed, or catalog:read not public for this site.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
         "404":
-          description: Unknown site or Item; unpublished, disabled and internal Items are indistinguishable from absent ones.
+          description: Unknown or disabled site, or unknown Item; unpublished, disabled and internal Items are indistinguishable
+            from absent ones.
           headers:
             Cache-Control:
               schema:
@@ -7123,9 +7147,8 @@ paths:
                       - SITE_ROUTING_UNAVAILABLE
       x-source: src/api/routes/public/catalog/items/[ref].ts
       x-error-codes:
-        - SITE_REQUIRED
-        - SITE_AND_COUNTRY_EXCLUSIVE
-        - SITE_INVALID
+        - SITE_SELECTOR_INVALID
+        - SITE_ACCESS_FORBIDDEN
         - SITE_NOT_FOUND
         - ITEM_NOT_FOUND
         - INVALID_PARAMETERS
@@ -11213,7 +11236,8 @@ paths:
             type: string
             pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
             maxLength: 160
-          description: Public site id (for example rocher-des-ages). Exclusive with country.
+          description: Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs
+            catalog:read in its publicScopes. Exclusive with country.
         - name: country
           in: query
           required: false
@@ -11228,6 +11252,12 @@ paths:
             type: string
             pattern: ^[A-Z]{3}$
           description: Only prices in this currency.
+        - name: Origin
+          in: header
+          required: false
+          schema:
+            type: string
+          description: When sent, must be in allowedOrigins of the registry entry (403 otherwise).
         - name: If-None-Match
           in: header
           required: false
@@ -11492,7 +11522,7 @@ paths:
               schema:
                 type: string
         "400":
-          description: site and country are both missing, both present, or site is malformed.
+          description: site and country are both missing, both present, or malformed (KON-107 selector).
           headers:
             Cache-Control:
               schema:
@@ -11508,11 +11538,27 @@ paths:
                   error:
                     type: string
                     enum:
-                      - SITE_REQUIRED
-                      - SITE_AND_COUNTRY_EXCLUSIVE
-                      - SITE_INVALID
+                      - SITE_SELECTOR_INVALID
+        "403":
+          description: Origin not allowed, or catalog:read not public for this site.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                additionalProperties: false
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - SITE_ACCESS_FORBIDDEN
         "404":
-          description: Unknown site, or a site that does not publish its catalogue (indistinguishable).
+          description: Unknown or disabled site, or a site that does not publish its catalogue (indistinguishable).
           headers:
             Cache-Control:
               schema:
@@ -11574,9 +11620,8 @@ paths:
                       - SITE_ROUTING_UNAVAILABLE
       x-source: src/api/routes/public/catalog/items/index.ts
       x-error-codes:
-        - SITE_REQUIRED
-        - SITE_AND_COUNTRY_EXCLUSIVE
-        - SITE_INVALID
+        - SITE_SELECTOR_INVALID
+        - SITE_ACCESS_FORBIDDEN
         - SITE_NOT_FOUND
         - INVALID_PARAMETERS
         - RESIDENCE_COUNTRY_INVALID

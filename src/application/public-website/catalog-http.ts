@@ -15,7 +15,7 @@ export interface CatalogDeps {
 }
 
 export const NO_STORE = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
-export const CACHED = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60, stale-while-revalidate=120', Vary: 'Accept-Encoding' };
+export const CACHED = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60, stale-while-revalidate=120', Vary: 'Origin, Accept-Encoding' };
 
 export const json = (body: unknown, status: number, extra: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { ...NO_STORE, ...extra } });
@@ -28,8 +28,8 @@ export function cachedJson(body: unknown, ifNoneMatch: string | null): Response 
 }
 
 /** Resolves the site of the request and loads its catalogue snapshot. */
-export async function openCatalog(deps: CatalogDeps, searchParams: URLSearchParams) {
-  const context: PublicSiteContext = await deps.resolver.resolve(publicSiteRequest(searchParams), 'catalog.read');
+export async function openCatalog(deps: CatalogDeps, request: Request) {
+  const context: PublicSiteContext = await deps.resolver.resolve(publicSiteRequest(new URL(request.url).searchParams, request.headers), 'catalog:read');
   const config = deps.config(context.siteId);
   if (!config) throw new PublicSiteError('SITE_NOT_FOUND', 404);
   const site = deps.site(context.frappeSiteKey);

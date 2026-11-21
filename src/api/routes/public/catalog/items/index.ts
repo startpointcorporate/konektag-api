@@ -9,7 +9,7 @@ export const GET = async (ctx: RequestContext, deps?: CatalogDeps): Promise<Resp
   if (!query.success) return json({ error: 'INVALID_PARAMETERS' }, 422);
   try {
     deps ??= defaultCatalogDeps();
-    const { snapshot } = await openCatalog(deps, ctx.url.searchParams);
+    const { snapshot } = await openCatalog(deps, ctx.request);
     return cachedJson(listView(snapshot, query.data), ctx.request.headers.get('if-none-match'));
   } catch (error) {
     return failure(error);

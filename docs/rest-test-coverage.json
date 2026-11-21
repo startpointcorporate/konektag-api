@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "summary": {
-    "paths": 333,
-    "operations": 425,
-    "covered": 83,
+    "paths": 335,
+    "operations": 427,
+    "covered": 85,
     "partial": 341,
     "blocked": 1,
     "uncovered": 0,
     "businessUncovered": 342,
-    "executedTests": 3082,
-    "passedTests": 3082
+    "executedTests": 3113,
+    "passedTests": 3113
   },
   "operations": [
     {
@@ -9900,6 +9900,378 @@
       ],
       "constraints": [
         "Business success/validation/effects not yet verified at this REST boundary; contract/credential tests are insufficient."
+      ]
+    },
+    {
+      "operation": "GET /api/public/catalog/items",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/catalog/items",
+      "source": "src/api/routes/public/catalog/items/index.ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) lists the 14 sellable services, each explicitly NOT_PRICED, never at zero",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) keeps internal reference sheets and Frappe secrets out of the public response",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) reports the konektag-abm app as not installed instead of failing the catalogue",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) serves public Item Prices with list, currency, unit and period; ignores negotiated, batch, expired, buying and zero rates",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters prices by currency and keeps an explicit absence when none matches",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) builds the gallery from public Files: cover photo, video links and files, virtual tour; no private, insecure, foreign or non-media file",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) publishes plain-text descriptions and allowlisted characteristics only",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) links Items to enabled konektag-abm resources and equipment pools",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) excludes disabled, non-sellable and demonstration stock Items",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters by group, accent-insensitive text and price presence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) paginates with opaque cursors and rejects forged ones",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) answers 304 to a matching If-None-Match and serves the cached snapshot for 60 s",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites routes a residence country to its Konektag site and applies its publication rules",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites requires exactly one of site and country (KON-107 selector)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites checks the public scope and the browser origin of the registry entry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites does not distinguish unknown, disabled, unrouted and unpublished sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites maps country routing errors without leaking configuration",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites answers 503 without Frappe details when the site is down, and retries next time",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites returns 404 for an unknown item and resolves an item by code or slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites keeps a published slug when a later Item collides with it",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites headlines the rate ERPNext applies today in the sales unit",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites decides current price periods in the configured time zone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites hides Frappe-hosted media of an in-cluster site without a public media origin",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites shows variant attributes on the variant sheet",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks rejects configuration that would publish internal Item fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks accepts only public file paths and https links",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks derives stable slugs and plain text",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/catalog/items] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/catalog/items] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "RDA fixture: 14 sellable services listed, each NOT_PRICED with from=null, never 0; internal reference Items, accounts, valuation, owner and service tokens absent from responses",
+        "ABM Demo fixture: public Price List rates with currency, unit and period; customer, batch, expired, buying and zero rates excluded; currency filter keeps an explicit absence",
+        "Gallery from public Files only: cover image, video link and file, virtual tour; private, /private/ path (including %2e%2e and tab normalisation, trailing-dot host), insecure http, foreign-doctype and non-media files rejected; in-cluster origins need a public mediaOrigin",
+        "konektag-abm resources linked by selling_item / equipment pool, NOT_INSTALLED when the DocType is absent",
+        "KON-107 resolveFrappeSite: site/country exclusivity (400 SITE_SELECTOR_INVALID), anonymous catalog:read public scope and allowedOrigins (403), country routing to konektag-cg, unknown/disabled/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
+        "opaque cursor pagination with forged cursors refused, ETag/If-None-Match 304 and 60 s snapshot cache",
+        "stable slugs on collision, headline price in the sales unit at the latest valid_from, price periods in the site time zone, variant attributes read once per snapshot",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-website-catalog.test.ts"
+      ],
+      "constraints": [
+        "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need their KONEKTAG_FRAPPE_SITE_REGISTRY entry, PUBLIC_CATALOG_SITES configuration and service-account read permissions (see docs/public-website-catalog.md)."
+      ]
+    },
+    {
+      "operation": "GET /api/public/catalog/items/{ref}",
+      "domain": "public",
+      "method": "GET",
+      "path": "/api/public/catalog/items/{ref}",
+      "source": "src/api/routes/public/catalog/items/[ref].ts",
+      "status": "covered",
+      "businessStatus": "covered",
+      "facets": [
+        "auth",
+        "business",
+        "refusal",
+        "security",
+        "transport"
+      ],
+      "levels": [
+        "contract",
+        "unit"
+      ],
+      "tests": [
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) lists the 14 sellable services, each explicitly NOT_PRICED, never at zero",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) keeps internal reference sheets and Frappe secrets out of the public response",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — Rocher des Âges (client site, no real XAF rates loaded) reports the konektag-abm app as not installed instead of failing the catalogue",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) serves public Item Prices with list, currency, unit and period; ignores negotiated, batch, expired, buying and zero rates",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters prices by currency and keeps an explicit absence when none matches",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) builds the gallery from public Files: cover photo, video links and files, virtual tour; no private, insecure, foreign or non-media file",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) publishes plain-text descriptions and allowlisted characteristics only",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) links Items to enabled konektag-abm resources and equipment pools",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) excludes disabled, non-sellable and demonstration stock Items",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) filters by group, accent-insensitive text and price presence",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) paginates with opaque cursors and rejects forged ones",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — ABM Demo (demonstration rates, media, resources) answers 304 to a matching If-None-Match and serves the cached snapshot for 60 s",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites routes a residence country to its Konektag site and applies its publication rules",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites requires exactly one of site and country (KON-107 selector)",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites checks the public scope and the browser origin of the registry entry",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites does not distinguish unknown, disabled, unrouted and unpublished sites",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites maps country routing errors without leaking configuration",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites answers 503 without Frappe details when the site is down, and retries next time",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites returns 404 for an unknown item and resolves an item by code or slug",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites keeps a published slug when a later Item collides with it",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites headlines the rate ERPNext applies today in the sales unit",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites decides current price periods in the configured time zone",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites hides Frappe-hosted media of an in-cluster site without a public media origin",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — site routing and Konektag sites shows variant attributes on the variant sheet",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks rejects configuration that would publish internal Item fields",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks accepts only public file paths and https links",
+          "level": "unit"
+        },
+        {
+          "file": "tests/unit/public-website-catalog.test.ts",
+          "name": "public catalogue — building blocks derives stable slugs and plain text",
+          "level": "unit"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST TRANSPORT GET /api/public/catalog/items/{ref}] preserves routing, parameters, query, cookies and raw body",
+          "level": "contract"
+        },
+        {
+          "file": "tests/rest/operations.test.ts",
+          "name": "public [REST AUTH GET /api/public/catalog/items/{ref}] refuses invalid personal API credentials before loading the handler",
+          "level": "contract"
+        }
+      ],
+      "assertions": [
+        "RDA fixture: 14 sellable services listed, each NOT_PRICED with from=null, never 0; internal reference Items, accounts, valuation, owner and service tokens absent from responses",
+        "ABM Demo fixture: public Price List rates with currency, unit and period; customer, batch, expired, buying and zero rates excluded; currency filter keeps an explicit absence",
+        "Gallery from public Files only: cover image, video link and file, virtual tour; private, /private/ path (including %2e%2e and tab normalisation, trailing-dot host), insecure http, foreign-doctype and non-media files rejected; in-cluster origins need a public mediaOrigin",
+        "konektag-abm resources linked by selling_item / equipment pool, NOT_INSTALLED when the DocType is absent",
+        "KON-107 resolveFrappeSite: site/country exclusivity (400 SITE_SELECTOR_INVALID), anonymous catalog:read public scope and allowedOrigins (403), country routing to konektag-cg, unknown/disabled/unpublished sites indistinguishable (404), Frappe outage 503 without details and not cached",
+        "opaque cursor pagination with forged cursors refused, ETag/If-None-Match 304 and 60 s snapshot cache",
+        "stable slugs on collision, headline price in the sales unit at the latest valid_from, price periods in the site time zone, variant attributes read once per snapshot",
+        "routing and dynamic parameters",
+        "raw body, query and cookie preservation",
+        "credential refusal",
+        "no database or handler execution"
+      ],
+      "candidates": [
+        "tests/unit/public-website-catalog.test.ts"
+      ],
+      "constraints": [
+        "Frappe is simulated per host through the real HTTP transport; reads against the live rocherdesages and abmdemo sites need their KONEKTAG_FRAPPE_SITE_REGISTRY entry, PUBLIC_CATALOG_SITES configuration and service-account read permissions (see docs/public-website-catalog.md)."
       ]
     },
     {

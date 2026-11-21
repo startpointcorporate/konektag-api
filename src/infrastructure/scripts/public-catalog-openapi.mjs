@@ -24,14 +24,16 @@ export function documentPublicCatalog(paths) {
  const retry = {'Retry-After':{schema:{type:'integer',const:30}}};
  const ok = (description,schema)=>({description,headers:{'Cache-Control':{schema:{type:'string',const:'public, max-age=60, stale-while-revalidate=120'}},ETag:{schema:string}},content:{'application/json':{schema}}});
  const siteParams = [
-  {name:'site',in:'query',required:false,schema:{type:'string',pattern:'^[a-z0-9]+(?:-[a-z0-9]+)*$',maxLength:160},description:'Public site id (for example rocher-des-ages). Exclusive with country.'},
+  {name:'site',in:'query',required:false,schema:{type:'string',pattern:'^[a-z0-9]+(?:-[a-z0-9]+)*$',maxLength:160},description:'Public site id of the closed KONEKTAG_FRAPPE_SITE_REGISTRY (for example rocher-des-ages); needs catalog:read in its publicScopes. Exclusive with country.'},
   {name:'country',in:'query',required:false,schema:{type:'string',pattern:'^[A-Za-z]{2}$'},description:'Residence country routed to its Konektag site (FR/CG/LB rules). Exclusive with site.'},
   {name:'currency',in:'query',required:false,schema:{type:'string',pattern:'^[A-Z]{3}$'},description:'Only prices in this currency.'},
+  {name:'Origin',in:'header',required:false,schema:string,description:'When sent, must be in allowedOrigins of the registry entry (403 otherwise).'},
   {name:'If-None-Match',in:'header',required:false,schema:string},
  ];
  const failures = {
   '304':{description:'Not modified: the If-None-Match entity tag is current.',headers:{ETag:{schema:string}}},
-  '400':response('site and country are both missing, both present, or site is malformed.',error(['SITE_REQUIRED','SITE_AND_COUNTRY_EXCLUSIVE','SITE_INVALID'])),
+  '400':response('site and country are both missing, both present, or malformed (KON-107 selector).',error(['SITE_SELECTOR_INVALID'])),
+  '403':response('Origin not allowed, or catalog:read not public for this site.',error(['SITE_ACCESS_FORBIDDEN'])),
   '503':response('Site routing, configuration or Frappe unavailable. Frappe messages are never forwarded.',error(['CATALOG_UNAVAILABLE','SITE_ROUTING_UNAVAILABLE']),retry),
  };
  const common = {tags:['public'],security:[],'x-response-schema-scope':'Explicit public catalogue contract.'};
@@ -44,16 +46,16 @@ export function documentPublicCatalog(paths) {
    {name:'limit',in:'query',required:false,schema:{type:'integer',minimum:1,maximum:50,default:24}},
    {name:'cursor',in:'query',required:false,schema:{type:'string',maxLength:200},description:'Opaque nextCursor of the previous page.'}],
   responses:{'200':ok('One page of the public catalogue; groups and total describe the filtered catalogue.',listBody),...failures,
-   '404':response('Unknown site, or a site that does not publish its catalogue (indistinguishable).',error(['SITE_NOT_FOUND'])),
+   '404':response('Unknown or disabled site, or a site that does not publish its catalogue (indistinguishable).',error(['SITE_NOT_FOUND'])),
    '422':response('Invalid filter, limit, cursor or country.',error(['INVALID_PARAMETERS','RESIDENCE_COUNTRY_INVALID','COUNTRY_RULE_NOT_FOUND']))},
-  'x-source':'src/api/routes/public/catalog/items/index.ts','x-error-codes':['SITE_REQUIRED','SITE_AND_COUNTRY_EXCLUSIVE','SITE_INVALID','SITE_NOT_FOUND','INVALID_PARAMETERS','RESIDENCE_COUNTRY_INVALID','COUNTRY_RULE_NOT_FOUND','CATALOG_UNAVAILABLE','SITE_ROUTING_UNAVAILABLE']};
+  'x-source':'src/api/routes/public/catalog/items/index.ts','x-error-codes':['SITE_SELECTOR_INVALID','SITE_ACCESS_FORBIDDEN','SITE_NOT_FOUND','INVALID_PARAMETERS','RESIDENCE_COUNTRY_INVALID','COUNTRY_RULE_NOT_FOUND','CATALOG_UNAVAILABLE','SITE_ROUTING_UNAVAILABLE']};
  paths['/api/public/catalog/items/{ref}'].get = {...common,operationId:'getPublicCatalogItem',summary:'Public sheet of a catalogue entry',
   description:'Marketing sheet of one public Item: plain-text description, allowlisted characteristics and variant attributes, every public price (current and upcoming), gallery of public photos, videos and virtual tours (Frappe public files or external links attached to the Item), and konektag-abm resources selling it.',
   parameters:[{name:'ref',in:'path',required:true,schema:{type:'string',maxLength:140},description:'ERPNext item code or public slug.'},...siteParams],
   responses:{'200':ok('Public sheet.',detailBody),...failures,
-   '404':response('Unknown site or Item; unpublished, disabled and internal Items are indistinguishable from absent ones.',error(['SITE_NOT_FOUND','ITEM_NOT_FOUND'])),
+   '404':response('Unknown or disabled site, or unknown Item; unpublished, disabled and internal Items are indistinguishable from absent ones.',error(['SITE_NOT_FOUND','ITEM_NOT_FOUND'])),
    '422':response('Invalid reference, currency or country.',error(['INVALID_PARAMETERS','RESIDENCE_COUNTRY_INVALID','COUNTRY_RULE_NOT_FOUND']))},
-  'x-source':'src/api/routes/public/catalog/items/[ref].ts','x-error-codes':['SITE_REQUIRED','SITE_AND_COUNTRY_EXCLUSIVE','SITE_INVALID','SITE_NOT_FOUND','ITEM_NOT_FOUND','INVALID_PARAMETERS','RESIDENCE_COUNTRY_INVALID','COUNTRY_RULE_NOT_FOUND','CATALOG_UNAVAILABLE','SITE_ROUTING_UNAVAILABLE']};
+  'x-source':'src/api/routes/public/catalog/items/[ref].ts','x-error-codes':['SITE_SELECTOR_INVALID','SITE_ACCESS_FORBIDDEN','SITE_NOT_FOUND','ITEM_NOT_FOUND','INVALID_PARAMETERS','RESIDENCE_COUNTRY_INVALID','COUNTRY_RULE_NOT_FOUND','CATALOG_UNAVAILABLE','SITE_ROUTING_UNAVAILABLE']};
  // Plain copies: shared objects would become YAML aliases and renumber every later one in docs/openapi.yaml.
  for (const path of ['/api/public/catalog/items','/api/public/catalog/items/{ref}']) paths[path].get = JSON.parse(JSON.stringify(paths[path].get));
 }
