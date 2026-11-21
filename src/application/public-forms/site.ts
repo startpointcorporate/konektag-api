@@ -74,6 +74,8 @@ export function konektagPublicFormSites(
   env: NodeJS.ProcessEnv = process.env, fetchImpl: typeof fetch = fetch, database?: Queryable,
 ): PublicFormSites {
   const registrySite = (route: KonektagSiteRoute, operation: PublicFormOperation): PublicFormSite => {
+    // A customer entry named like a Konektag entity would inherit its opt-in lists and confirmation origins.
+    if (route.kind === 'CUSTOMER' && route.slug.startsWith('konektag-')) throw new PublicFormSiteError('KONEKTAG_SITE_NOT_CONFIGURED', 503);
     logKonektagRoute('public-form-' + operation, route);
     return {
       tenantId: route.slug, siteId: route.frappeSiteId!, kind: route.kind ?? 'KONEKTAG',

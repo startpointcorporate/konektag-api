@@ -26,12 +26,16 @@ Contrat : `docs/openapi.yaml` (`submitPublicContact`, `requestPublicOptin`, `con
   - Scope par opération dans `publicScopes` : `contact:write` (contact) et `optin:write` (demande, confirmation et
     désinscription). Un site qui ne publie que `catalog:read` refuse les formulaires (`403 SITE_ACCESS_FORBIDDEN`).
   - Origine : si le navigateur envoie `Origin`, elle doit figurer dans `allowedOrigins` (`403 SITE_ACCESS_FORBIDDEN`).
+    Contrat KON-107 : sans en-tête `Origin` (appel serveur), l'origine n'est pas contrôlée ; restent Turnstile et les
+    limites de débit.
   - Site inconnu ou désactivé : `404 SITE_NOT_FOUND`, indiscernables ; identifiant mal formé :
     `400 SITE_SELECTOR_INVALID` ; registre invalide ou Secrets `MARKETPLACE_FRAPPE_<SITE>_*` absents :
     `503 KONEKTAG_SITE_NOT_CONFIGURED`.
   - `tenantId` = `tenantId` de l'entrée (`konektag-<pays>` pour `kind: KONEKTAG`), qui sélectionne aussi la
     configuration `PUBLIC_OPTIN_LISTS`. Les règles CRM `KONEKTAG_MEETING_*` ne s'appliquent qu'aux entrées KONEKTAG.
-  - Les jetons signés et la preuve de consentement portent le `frappeSiteId` public, jamais la clé interne `site`.
+  - Pour un site du registre, les jetons signés et la preuve de consentement portent le `frappeSiteId` public, pas la
+    clé interne `site` (une inscription par `country` y garde la clé d'entité, par exemple `EUROPE`). Une entrée
+    CUSTOMER dont le `tenantId` commence par `konektag-` est refusée (`503 KONEKTAG_SITE_NOT_CONFIGURED`).
     À la confirmation et à la désinscription, l'entrée doit toujours exister, être active, appartenir au même tenant
     et publier `optin:write`. **Retirer `optin:write` ou désactiver le site bloque donc aussi les désinscriptions par
     jeton** : garder le scope tant que la liste a des membres, ou les désinscrire depuis Frappe.

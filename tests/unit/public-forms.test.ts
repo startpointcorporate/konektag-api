@@ -293,6 +293,9 @@ describe('POST /api/public/forms/contact', () => {
     const broken = { ...env(), KONEKTAG_FRAPPE_SITE_REGISTRY: '{' };
     expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'rocher-des-ages' }), { origin: 'https://rocherdesages.cg' }), { ...deps, env: broken, sites: konektagPublicFormSites(broken, fakeFrappe as typeof fetch, database) })))
       .toEqual({ status: 503, body: { ok: false, error: 'KONEKTAG_SITE_NOT_CONFIGURED' } });
+    const spoof = { ...env(), KONEKTAG_FRAPPE_SITE_REGISTRY: JSON.stringify([{ ...registry[1], tenantId: 'konektag-fr' }]) };
+    expect(await json(await contactRoute(ctx('/api/public/forms/contact', contact({ country: undefined, siteId: 'abm-demo' }), { origin: 'https://abmdemo.konektag.eu' }), { ...deps, env: spoof, sites: konektagPublicFormSites(spoof, fakeFrappe as typeof fetch, database) })))
+      .toEqual({ status: 503, body: { ok: false, error: 'KONEKTAG_SITE_NOT_CONFIGURED' } });
     expect(calls).toHaveLength(0);
   });
 
